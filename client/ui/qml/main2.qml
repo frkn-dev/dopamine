@@ -30,6 +30,14 @@ Window  {
         PageController.closeWindow()
     }
 
+    Component.onCompleted: {
+        if (SettingsController.frknDarkMode()) {
+            AmneziaStyle.color = AmneziaStyle.darkColorPalette
+        } else {
+            AmneziaStyle.color = AmneziaStyle.regularColorPalette
+        }
+    }
+
     title: "FRKN"
 
     Connections {

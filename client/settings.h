@@ -196,6 +196,9 @@ public:
     QString frknToken() const { return value("FRKN/token", "").toString(); }
     void setFrknToken(const QString &token) { setValue("FRKN/token", token); }
 
+    bool frknDarkMode() const { return value("FRKN/darkMode", false).toBool(); }
+    void setFrknDarkMode(bool enabled) { setValue("FRKN/darkMode", enabled); }
+
     QDateTime lastUpdateCheck() const {
       return value("FRKN/lastUpdateCheck", QDateTime()).toDateTime();
     }

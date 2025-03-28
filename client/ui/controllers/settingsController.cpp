@@ -331,3 +331,8 @@ QString SettingsController::frknToken() const {
 }
 
 void SettingsController::resetFrknToken() { m_settings->setFrknToken(""); }
+
+bool SettingsController::frknDarkMode() { return m_settings->frknDarkMode(); }
+void SettingsController::toggleFrknDarkMode(bool enable) {
+  m_settings->setFrknDarkMode(enable);
+}

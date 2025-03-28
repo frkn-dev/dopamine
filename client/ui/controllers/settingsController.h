@@ -92,6 +92,9 @@ public slots:
     QString frknToken() const;
     void resetFrknToken();
 
+    bool frknDarkMode();
+    void toggleFrknDarkMode(bool enable);
+
   signals:
     void primaryDnsChanged();
     void secondaryDnsChanged();

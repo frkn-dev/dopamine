@@ -190,11 +190,38 @@ PageType {
                 descriptionText: LanguageModel.currentLanguageName
                 rightImageSource: "qrc:/images/controls/chevron-right.svg"
 
-                KeyNavigation.tab: labelWithButtonLogging.rightButton
+                KeyNavigation.tab: switcherDarkMode
                 parentFlickable: fl
 
                 clickedFunction: function() {
                     selectLanguageDrawer.open()
+                }
+            }
+
+            DividerType {}
+
+            SwitcherType {
+                id: switcherDarkMode
+
+                Layout.fillWidth: true
+                Layout.margins: 16
+
+                text: qsTr("Dark mode")
+                descriptionText: qsTr("Use dark mode")
+
+                KeyNavigation.tab: labelWithButtonLogging.rightButton
+                parentFlickable: fl
+
+                checked: SettingsController.frknDarkMode()
+                onCheckedChanged: {
+                    if (checked !== SettingsController.frknDarkMode()) {
+                        SettingsController.toggleFrknDarkMode(checked)
+                    }
+                    if (SettingsController.frknDarkMode()) {
+                        AmneziaStyle.color = AmneziaStyle.darkColorPalette
+                    } else {
+                        AmneziaStyle.color = AmneziaStyle.regularColorPalette
+                    }
                 }
             }
 
