@@ -539,11 +539,20 @@ void AmneziaApplication::initControllers()
                           return descA < descB;
                         });
 
+              // Trying to save previously selected server since users prefer to
+              // keep selected country.
+              const QString serverName = m_serversModel->getDefaultServerName();
+              auto newServerIndex = 0;
+              for (int i = 0; i < servers.size(); ++i) {
+                if (servers[i]["description"].toString() == serverName) {
+                  newServerIndex = i;
+                  break;
+                }
+              }
+
               m_serversModel->removeServers();
               m_serversModel->addServers(servers);
-              // TODO Select the best by load
-              m_serversModel->setDefaultServerIndex(0);
-              //   QRandomGenerator::global()->bounded(servers.size()));
+              m_serversModel->setDefaultServerIndex(newServerIndex);
               emit m_importController->importFinished();
               m_pageController->showBusyIndicator(false);
             });
