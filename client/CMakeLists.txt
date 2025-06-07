@@ -189,6 +189,7 @@ set(SOURCES ${SOURCES}
     ${CMAKE_CURRENT_LIST_DIR}/core/controllers/vpnConfigurationController.cpp
     ${CMAKE_CURRENT_LIST_DIR}/protocols/protocols_defs.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ui/bip39_helper.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/ui/controllers/frkn/applicationDelegate.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ui/controllers/frkn/frknApiController.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ui/controllers/frkn/configController.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ui/qautostart.cpp

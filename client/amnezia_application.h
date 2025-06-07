@@ -15,12 +15,9 @@
 #include "settings.h"
 #include "vpnconnection.h"
 
-#include "ui/bip39_helper.h"
 #include "ui/controllers/appSplitTunnelingController.h"
 #include "ui/controllers/connectionController.h"
 #include "ui/controllers/exportController.h"
-#include "ui/controllers/frkn/configController.h"
-#include "ui/controllers/frkn/frknApiController.h"
 #include "ui/controllers/importController.h"
 #include "ui/controllers/installController.h"
 #include "ui/controllers/pageController.h"
@@ -51,6 +48,8 @@
 #include "ui/models/services/socks5ProxyConfigModel.h"
 #include "ui/models/sites_model.h"
 
+#include "ui/controllers/frkn/applicationDelegate.h"
+
 #define amnApp (static_cast<AmneziaApplication *>(QCoreApplication::instance()))
 
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
@@ -61,7 +60,8 @@
 
 class AmneziaApplication : public AMNEZIA_BASE_CLASS
 {
-    Q_OBJECT
+  friend class frkn::ApplicationDelegate;
+  Q_OBJECT
 public:
     AmneziaApplication(int &argc, char *argv[]);
     virtual ~AmneziaApplication();
@@ -136,9 +136,7 @@ private:
     QScopedPointer<SystemController> m_systemController;
     QScopedPointer<AppSplitTunnelingController> m_appSplitTunnelingController;
 
-    QScopedPointer<Bip39Helper> m_bip39Helper;
-    QScopedPointer<frkn::FrknApiController> m_frknApiController;
-    QScopedPointer<frkn::ConfigController> m_frknConfigController;
+    QScopedPointer<frkn::ApplicationDelegate> m_frkn;
 
     QNetworkAccessManager *m_nam;
 

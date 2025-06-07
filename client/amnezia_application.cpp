@@ -16,9 +16,6 @@
 #include <QLocalServer>
 
 #include "logger.h"
-#include "ui/bip39_helper.h"
-#include "ui/controllers/frkn/configController.h"
-#include "ui/controllers/frkn/frknApiController.h"
 #include "ui/controllers/importController.h"
 #include "ui/models/installedAppsModel.h"
 #include "version.h"
@@ -38,6 +35,8 @@
 
 AmneziaApplication::AmneziaApplication(int &argc, char *argv[]) : AMNEZIA_BASE_CLASS(argc, argv)
 {
+    m_frkn.reset(new frkn::ApplicationDelegate(this));
+
     setQuitOnLastWindowClosed(false);
 
     // Fix config file permissions
@@ -224,9 +223,7 @@ void AmneziaApplication::registerTypes()
     qmlRegisterSingletonType(QUrl("qrc:/ui/qml/Filters/ContainersModelFilters.qml"), "ContainersModelFilters", 1, 0,
                              "ContainersModelFilters");
 
-    m_bip39Helper.reset(new Bip39Helper());
-    qmlRegisterSingletonInstance("Bip39Helper", 1, 0, "Bip39Helper",
-                                 m_bip39Helper.get());
+    m_frkn->registerTypes();
 
     qmlRegisterType<InstalledAppsModel>("InstalledAppsModel", 1, 0,
                                         "InstalledAppsModel");
@@ -485,92 +482,13 @@ void AmneziaApplication::initControllers()
     m_systemController.reset(new SystemController(m_settings));
     m_engine->rootContext()->setContextProperty("SystemController", m_systemController.get());
 
-    m_frknApiController.reset(new frkn::FrknApiController(m_settings));
-    m_engine->rootContext()->setContextProperty("FrknApi",
-                                                m_frknApiController.get());
-    connect(m_frknApiController.get(), &frkn::FrknApiController::loginFinished,
-            this, [this](const QString &message, const QString &token) {
-              qDebug() << "Login finished" << message << token;
-              m_settings->setFrknToken(token);
-              m_frknApiController->connectUser(token);
-            });
-
-    m_frknConfigController.reset(new frkn::ConfigController());
-    connect(m_frknApiController.get(),
-            &frkn::FrknApiController::connectFinished,
-            [this](const QString &message, const QString &subscriptionUrl) {
-              qDebug() << "Connect finished" << message << subscriptionUrl;
-              if (!subscriptionUrl.isEmpty()) {
-                m_frknConfigController->loadConfig(subscriptionUrl);
-              }
-            });
-    connect(m_frknConfigController.get(),
-            &frkn::ConfigController::configReceived,
-            [this](const QStringList &configs) {
-              qDebug() << "Configs received: " << configs.size();
-
-              m_settings->setLastUpdateCheck(QDateTime::currentDateTimeUtc());
-
-              QList<QJsonObject> servers;
-              for (const auto &config : configs) {
-                if (m_importController->extractConfigFromData(config)) {
-                  servers.append(m_importController->getJsonConfig());
-                }
-              }
-
-              for (auto &server : servers) {
-                QString description = server["description"].toString();
-                QRegularExpression re("([A-Z]{2}.*)");
-                QRegularExpressionMatch match = re.match(description);
-                if (match.hasMatch()) {
-                  description = match.captured(1);
-                  server["description"] = description.trimmed();
-                }
-                QJsonObject apiConfig;
-                apiConfig["server_country_code"] = description.left(2);
-                apiConfig["server_country_name"] = description.left(2);
-                server["api_config"] = apiConfig;
-              }
-
-              std::sort(servers.begin(), servers.end(),
-                        [](const QJsonObject &a, const QJsonObject &b) {
-                          QString descA = a["description"].toString();
-                          QString descB = b["description"].toString();
-                          return descA < descB;
-                        });
-
-              // Trying to save previously selected server since users prefer to
-              // keep selected country.
-              const QString serverName = m_serversModel->getDefaultServerName();
-              auto newServerIndex = 0;
-              for (int i = 0; i < servers.size(); ++i) {
-                if (servers[i]["description"].toString() == serverName) {
-                  newServerIndex = i;
-                  break;
-                }
-              }
-
-              m_serversModel->removeServers();
-              m_serversModel->addServers(servers);
-              m_serversModel->setDefaultServerIndex(newServerIndex);
-              emit m_importController->importFinished();
-              m_pageController->showBusyIndicator(false);
-            });
-    connect(m_frknConfigController.get(), &frkn::ConfigController::loadError,
-            [this](const QString &error) {
-              qWarning() << "Config load error: " << error;
-              m_pageController->showBusyIndicator(false);
-            });
+    m_frkn->initControllers();
 
     if (m_settingsController->isAutoConnectEnabled() &&
         m_serversModel->getDefaultServerIndex() >= 0) {
       QTimer::singleShot(
           1000, this, [this]() { m_connectionController->openConnection(); });
     } else {
-      QTimer::singleShot(1000, this, [this]() {
-        if (m_frknApiController->checkForUpdates()) {
-          m_pageController->showBusyIndicator(true);
-        }
-      });
+      QTimer::singleShot(1000, this, [this]() { m_frkn->updateConfigs(); });
     }
 }
