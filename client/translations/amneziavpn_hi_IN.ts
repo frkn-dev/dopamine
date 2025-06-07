@@ -1702,7 +1702,7 @@ Already installed containers were found on the server. All installed containers 
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="81"/>
         <source>When AmneziaDNS is not used or installed</source>
-        <translation>जब AmneziaDNS का उपयोग या स्थापित नहीं किया जाता है</translation>
+        <translation>पसंदीदा DNS सर्वर पतों का उपयोग करने की अनुमति देता है</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="127"/>

@@ -1703,7 +1703,7 @@ for Free people</translation>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="81"/>
         <source>When AmneziaDNS is not used or installed</source>
-        <translation></translation>
+        <translation>Allows you to use preferred DNS server addresses</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="97"/>

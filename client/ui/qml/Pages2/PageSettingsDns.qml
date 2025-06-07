@@ -65,10 +65,10 @@ PageType {
                 headerText: qsTr("DNS servers")
             }
 
-            ParagraphTextType {
-                Layout.fillWidth: true
-                text: qsTr("If AmneziaDNS is not used or installed")
-            }
+            // ParagraphTextType {
+            //     Layout.fillWidth: true
+            //     text: qsTr("If AmneziaDNS is not used or installed")
+            // }
 
             TextFieldWithHeaderType {
                 id: primaryDns
