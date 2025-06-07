@@ -547,6 +547,11 @@ void AmneziaApplication::initControllers()
               emit m_importController->importFinished();
               m_pageController->showBusyIndicator(false);
             });
+    connect(m_frknConfigController.get(), &frkn::ConfigController::loadError,
+            [this](const QString &error) {
+              qWarning() << "Config load error: " << error;
+              m_pageController->showBusyIndicator(false);
+            });
 
     if (m_settingsController->isAutoConnectEnabled() &&
         m_serversModel->getDefaultServerIndex() >= 0) {
