@@ -340,16 +340,25 @@ PageType {
             Keys.onTabPressed: PageController.forceStackActiveFocus()
         }
 
-        // TabImageButtonType {
-        //     id: buyButton
-        //     isSelected: false
-        //     image: "qrc:/images/controls/cart.svg"
-        //     clickedFunc: function () {
-        //         Qt.openUrlExternally("https://frkn.org/#pricing")
-        //     }
+        TabImageButtonType {
+            id: buyButton
+            isSelected: false
+            image: "qrc:/images/controls/cart.svg"
+            clickedFunc: function () {
+                Qt.openUrlExternally("https://frkn.org/#pricing")
+            }
 
-        //     Keys.onTabPressed: PageController.forceStackActiveFocus()
-        // }
+            Keys.onTabPressed: PageController.forceStackActiveFocus()
+
+            visible: false
+            width: visible ? undefined : 0
+            Connections {
+                target: FrknApi
+                function onConnectFinished(message, subscriptionUrl, beta) {
+                    buyButton.visible = beta
+                }
+            }
+        }
 
         // TabImageButtonType {
         //     id: plusTabButton

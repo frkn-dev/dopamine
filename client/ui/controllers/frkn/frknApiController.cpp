@@ -119,19 +119,21 @@ void FrknApiController::onLoginReply(QNetworkReply *reply) {
 void FrknApiController::onConnectReply(QNetworkReply *reply) {
   QString message;
   QString subscriptionUrl;
+  bool beta = false;
   if (reply->error() == QNetworkReply::NoError) {
     QJsonDocument jsonResponse = QJsonDocument::fromJson(reply->readAll());
     QJsonObject jsonObject = jsonResponse.object();
     QString status = jsonObject["status"].toString();
     if (status == "active") {
       subscriptionUrl = jsonObject["subscription_url"].toString();
+      beta = jsonObject["beta"].toBool();
     } else if (status == "error") {
       message = jsonObject["message"].toString();
     }
   } else {
     message = reply->errorString();
   }
-  emit connectFinished(message, subscriptionUrl);
+  emit connectFinished(message, subscriptionUrl, beta);
   reply->deleteLater();
 }
 

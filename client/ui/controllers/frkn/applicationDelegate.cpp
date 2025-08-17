@@ -27,8 +27,10 @@ void ApplicationDelegate::initControllers() {
 
   m_frknConfigController.reset(new frkn::ConfigController());
   connect(m_frknApiController.get(), &frkn::FrknApiController::connectFinished,
-          [this](const QString &message, const QString &subscriptionUrl) {
-            qDebug() << "Connect finished" << message << subscriptionUrl;
+          [this](const QString &message, const QString &subscriptionUrl,
+                 bool beta) {
+            qDebug() << "Connect finished" << message << " " << subscriptionUrl
+                     << " " << beta;
             if (!subscriptionUrl.isEmpty()) {
               m_frknConfigController->loadConfig(subscriptionUrl);
             }

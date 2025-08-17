@@ -28,7 +28,8 @@ public slots:
 signals:
   void registerFinished(const QString &message);
   void loginFinished(const QString &message, const QString &token);
-  void connectFinished(const QString &message, const QString &subscriptionUrl);
+  void connectFinished(const QString &message, const QString &subscriptionUrl,
+                       bool beta);
 
 private slots:
   void onRegisterReply(QNetworkReply *reply);

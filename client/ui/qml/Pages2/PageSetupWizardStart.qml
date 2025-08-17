@@ -223,8 +223,8 @@ PageType {
             }
         }
 
-        function onConnectFinished(message, subscriptionUrl) {
-            console.log("onConnectFinished:" + message + " subscriptionUrl:" + subscriptionUrl)
+        function onConnectFinished(message, subscriptionUrl, beta) {
+            console.log("onConnectFinished:" + message + " subscriptionUrl:" + subscriptionUrl, " beta:" + beta)
             if(message !== "") {
                 PageController.showBusyIndicator(false)
                 PageController.showNotificationMessage(message)
