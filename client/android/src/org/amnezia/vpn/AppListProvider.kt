@@ -38,16 +38,34 @@ object AppListProvider {
     }
 }
 
-private class App(pi: PackageInfo, pm: PackageManager, ai: ApplicationInfo = pi.applicationInfo) : Comparable<App> {
-    val name: String?
+private class App(
+    pi: PackageInfo,
+    pm: PackageManager,
+    ai: ApplicationInfo? = pi.applicationInfo
+) : Comparable<App> {
+
     val packageName: String = pi.packageName
-    val icon: Boolean = ai.icon != 0
+
+    private val appInfo: ApplicationInfo? = ai ?: run {
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= 33) {
+                pm.getApplicationInfo(packageName, PackageManager.ApplicationInfoFlags.of(0))
+            } else {
+                @Suppress("DEPRECATION")
+                pm.getApplicationInfo(packageName, 0)
+            }
+        } catch (_: PackageManager.NameNotFoundException) {
+            null
+        }
+    }
+
+    val icon: Boolean = (appInfo?.icon ?: 0) != 0
     val isLaunchable: Boolean = pm.getLaunchIntentForPackage(packageName) != null
 
-    init {
-        val name = ai.loadLabel(pm).toString()
-        this.name = if (name != packageName) name else null
-    }
+    val name: String? = appInfo
+        ?.loadLabel(pm)
+        ?.toString()
+        ?.takeIf { it != packageName }
 
     override fun compareTo(other: App): Int {
         val r = other.isLaunchable.compareTo(isLaunchable)
