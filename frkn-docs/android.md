@@ -14,3 +14,15 @@ Build apks
 ```bash
 ./deploy/build_android.sh --aab --apk all -m
 ```
+
+Sign after CI build, change PASS to actual password
+```bash
+jarsigner \
+  -keystore frkn-release-key.jks \
+  -storepass "PASS" \
+  -keypass "PASS" \
+  -sigalg SHA256withRSA \
+  -digestalg SHA-256 \
+  FRKN-release.aab \
+  frkn-key
+```
