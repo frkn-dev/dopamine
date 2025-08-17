@@ -1,19 +1,60 @@
 #include <ui/controllers/frkn/frknApiController.h>
 
 #include <QCryptographicHash>
+#include <QEventLoop>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QScopeGuard>
+#include <QTimer>
 
 namespace {
+
+const QString ServerNotAvailableMessage =
+    QObject::tr("Server not available. Please try again later.");
 
 QString generateSha3_512(const QString &input) {
   QByteArray byteArray = input.toUtf8();
   QByteArray hash =
       QCryptographicHash::hash(byteArray, QCryptographicHash::Sha3_512);
   return QString(hash.toHex());
+}
+
+QString selectDomain() {
+  QList domains{
+      "frkn.org",
+      "fr-dm.ru",
+  };
+
+  QEventLoop loop;
+  QNetworkAccessManager manager;
+  QNetworkReply *reply = nullptr;
+  auto replyGuard = qScopeGuard([&reply]() {
+    if (reply)
+      reply->deleteLater();
+  });
+
+  QTimer timer;
+  timer.setSingleShot(true);
+  QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+
+  for (const auto &domain : domains) {
+    QUrl url(QString("https://%1").arg(domain));
+    QNetworkRequest request(url);
+    reply = manager.get(request);
+
+    QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    timer.start(5000); // 5 seconds timeout
+    loop.exec();
+    if (timer.isActive())
+      timer.stop();
+    if (reply->error() == QNetworkReply::NoError)
+      return domain;
+  }
+
+  return QString();
 }
 
 } // namespace
@@ -23,10 +64,18 @@ namespace frkn {
 FrknApiController::FrknApiController(std::shared_ptr<Settings> settings,
                                      QObject *parent)
     : QObject(parent), m_settings(settings),
-      m_networkManager(new QNetworkAccessManager(this)) {}
+      m_networkManager(new QNetworkAccessManager(this)),
+      m_domain(selectDomain()) {
+  qDebug() << "Selected domain:" << m_domain;
+}
 
 void FrknApiController::registerUser(const QString &mnemonic) {
-  QUrl url("https://frkn.org/api/register");
+  if (m_domain.isEmpty()) {
+    emit registerFinished(ServerNotAvailableMessage);
+    return;
+  }
+
+  QUrl url(getApiUrl("api/register"));
   QNetworkRequest request(url);
   request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
@@ -40,7 +89,12 @@ void FrknApiController::registerUser(const QString &mnemonic) {
 }
 
 void FrknApiController::loginUser(const QString &mnemonic) {
-  QUrl url("https://frkn.org/api/login");
+  if (m_domain.isEmpty()) {
+    emit loginFinished(ServerNotAvailableMessage, QString());
+    return;
+  }
+
+  QUrl url(getApiUrl("api/login"));
   QNetworkRequest request(url);
   request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
@@ -54,7 +108,12 @@ void FrknApiController::loginUser(const QString &mnemonic) {
 }
 
 void FrknApiController::connectUser(const QString &token) {
-  QUrl url("https://frkn.org/api/connect");
+  if (m_domain.isEmpty()) {
+    emit connectFinished(ServerNotAvailableMessage, QString(), false);
+    return;
+  }
+
+  QUrl url(getApiUrl("api/connect"));
   QNetworkRequest request(url);
   request.setRawHeader("Authorization", token.toUtf8());
 
@@ -64,6 +123,10 @@ void FrknApiController::connectUser(const QString &token) {
 }
 
 bool FrknApiController::checkForUpdates() {
+  if (m_domain.isEmpty()) {
+    return false;
+  }
+
   qDebug() << "Checking for updates";
   QString token = m_settings->frknToken();
   if (!token.isEmpty()) {
@@ -135,6 +198,10 @@ void FrknApiController::onConnectReply(QNetworkReply *reply) {
   }
   emit connectFinished(message, subscriptionUrl, beta);
   reply->deleteLater();
+}
+
+QUrl FrknApiController::getApiUrl(const QString &path) const {
+  return QUrl(QString("https://%1/%2").arg(m_domain, path));
 }
 
 } // namespace frkn

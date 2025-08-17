@@ -37,8 +37,11 @@ private slots:
   void onConnectReply(QNetworkReply *reply);
 
 private:
+  QUrl getApiUrl(const QString &path) const;
+
   QNetworkAccessManager *m_networkManager;
   std::shared_ptr<Settings> m_settings;
+  QString m_domain;
 };
 
 } // namespace frkn

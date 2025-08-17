@@ -3932,6 +3932,11 @@ This means that AmneziaWG keeps the fast performance of the original while addin
         <source>Can&apos;t find the colon separator between hostname and port</source>
         <translation>Невозможно найти разделитель-двоеточие между именем хоста и портом</translation>
     </message>
+    <message>
+        <location filename="../ui/controllers/frkn/frknApiController.cpp" line="19"/>
+        <source>Server not available. Please try again later.</source>
+        <translation>Сервер недоступен. Пожалуйста, попробуйте позже.</translation>
+    </message>
 </context>
 <context>
     <name>SelectLanguageDrawer</name>

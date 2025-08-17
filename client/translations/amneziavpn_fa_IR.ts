@@ -3921,6 +3921,11 @@ For more detailed information, you can
         <source>Can&apos;t find the colon separator between hostname and port</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../ui/controllers/frkn/frknApiController.cpp" line="19"/>
+        <source>Server not available. Please try again later.</source>
+        <translation>سرور در دسترس نیست. لطفاً بعداً دوباره امتحان کنید.</translation>
+    </message>
 </context>
 <context>
     <name>SelectLanguageDrawer</name>

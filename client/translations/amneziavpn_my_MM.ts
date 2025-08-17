@@ -3918,6 +3918,11 @@ For more detailed information, you can
         <source>Can&apos;t find the colon separator between hostname and port</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../ui/controllers/frkn/frknApiController.cpp" line="19"/>
+        <source>Server not available. Please try again later.</source>
+        <translation>ဆာဗာ မရနိုင်ပါ။ ကျေးဇူးပြု၍ နောက်မှ ထပ်ကြိုးစားပါ။</translation>
+    </message>
 </context>
 <context>
     <name>SelectLanguageDrawer</name>

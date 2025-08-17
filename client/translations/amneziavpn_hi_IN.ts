@@ -3905,6 +3905,11 @@ While it offers a blend of security, stability, and speed, it&apos;s essential t
         <source>Can&apos;t find the colon separator between hostname and port</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../ui/controllers/frkn/frknApiController.cpp" line="19"/>
+        <source>Server not available. Please try again later.</source>
+        <translation>सर्वर उपलब्ध नहीं है। कृपया बाद में पुनः प्रयास करें।</translation>
+    </message>
 </context>
 <context>
     <name>SelectLanguageDrawer</name>

@@ -3888,6 +3888,11 @@ For more detailed information, you can
         <source>error 0x%1: %2</source>
         <translation></translation>
     </message>
+    <message>
+        <location filename="../ui/controllers/frkn/frknApiController.cpp" line="19"/>
+        <source>Server not available. Please try again later.</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>SelectLanguageDrawer</name>

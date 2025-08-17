@@ -3909,6 +3909,11 @@ While it offers a blend of security, stability, and speed, it&apos;s essential t
         <source>Can&apos;t find the colon separator between hostname and port</source>
         <translation>لا يمكن العثور على فاصل النقطتين بين اسم المستضيف و المنفذ</translation>
     </message>
+    <message>
+        <location filename="../ui/controllers/frkn/frknApiController.cpp" line="19"/>
+        <source>Server not available. Please try again later.</source>
+        <translation>الخادم غير متاح. يرجى المحاولة مرة أخرى لاحقًا.</translation>
+    </message>
 </context>
 <context>
     <name>SelectLanguageDrawer</name>
