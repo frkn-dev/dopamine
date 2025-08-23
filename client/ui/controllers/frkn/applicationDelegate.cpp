@@ -56,6 +56,8 @@ void ApplicationDelegate::initControllers() {
               QRegularExpressionMatch match = re.match(description);
               if (match.hasMatch()) {
                 description = match.captured(1);
+                description.replace(QString("%5B"), QString("["));
+                description.replace(QString("%5D"), QString("]"));
                 server["description"] = description.trimmed();
               }
               QJsonObject apiConfig;
@@ -93,6 +95,13 @@ void ApplicationDelegate::initControllers() {
   connect(m_frknConfigController.get(), &frkn::ConfigController::loadError,
           [this](const QString &error) {
             qWarning() << "Config load error: " << error;
+            // Logout if no servers available.
+            if (m_app->m_settings->serversArray().empty()) {
+              m_app->m_settingsController->resetFrknToken();
+              emit m_app->m_pageController->goToPageHome();
+              emit m_app->m_pageController->showErrorMessage(
+                  m_frknApiController->serverErrorMessage());
+            }
             m_app->m_pageController->showBusyIndicator(false);
           });
 }

@@ -12,9 +12,6 @@
 
 namespace {
 
-const QString ServerNotAvailableMessage =
-    QObject::tr("Server not available. Please try again later.");
-
 QString generateSha3_512(const QString &input) {
   QByteArray byteArray = input.toUtf8();
   QByteArray hash =
@@ -54,7 +51,7 @@ QString selectDomain() {
       return domain;
   }
 
-  return QString();
+  return domains.front();
 }
 
 } // namespace
@@ -67,14 +64,14 @@ FrknApiController::FrknApiController(std::shared_ptr<Settings> settings,
       m_networkManager(new QNetworkAccessManager(this)),
       m_domain(selectDomain()) {
   qDebug() << "Selected domain:" << m_domain;
+  m_networkManager->setTransferTimeout(10000);
+}
+
+QString FrknApiController::serverErrorMessage() const {
+  return tr("Server not available. Please try again later.");
 }
 
 void FrknApiController::registerUser(const QString &mnemonic) {
-  if (m_domain.isEmpty()) {
-    emit registerFinished(ServerNotAvailableMessage);
-    return;
-  }
-
   QUrl url(getApiUrl("api/register"));
   QNetworkRequest request(url);
   request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -89,11 +86,6 @@ void FrknApiController::registerUser(const QString &mnemonic) {
 }
 
 void FrknApiController::loginUser(const QString &mnemonic) {
-  if (m_domain.isEmpty()) {
-    emit loginFinished(ServerNotAvailableMessage, QString());
-    return;
-  }
-
   QUrl url(getApiUrl("api/login"));
   QNetworkRequest request(url);
   request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -108,11 +100,6 @@ void FrknApiController::loginUser(const QString &mnemonic) {
 }
 
 void FrknApiController::connectUser(const QString &token) {
-  if (m_domain.isEmpty()) {
-    emit connectFinished(ServerNotAvailableMessage, QString(), false);
-    return;
-  }
-
   QUrl url(getApiUrl("api/connect"));
   QNetworkRequest request(url);
   request.setRawHeader("Authorization", token.toUtf8());
@@ -123,10 +110,6 @@ void FrknApiController::connectUser(const QString &token) {
 }
 
 bool FrknApiController::checkForUpdates() {
-  if (m_domain.isEmpty()) {
-    return false;
-  }
-
   qDebug() << "Checking for updates";
   QString token = m_settings->frknToken();
   if (!token.isEmpty()) {
@@ -145,6 +128,7 @@ void FrknApiController::onRegisterReply(QNetworkReply *reply) {
     QJsonObject jsonObject = jsonResponse.object();
     QString status = jsonObject["status"].toString();
     if (status == "error") {
+      qDebug() << "Registration error:" << jsonObject["message"].toString();
       message = jsonObject["message"].toString();
       QVariant statusCode =
           reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
@@ -154,7 +138,8 @@ void FrknApiController::onRegisterReply(QNetworkReply *reply) {
       }
     }
   } else {
-    message = reply->errorString();
+    qDebug() << "Network error during registration:" << reply->errorString();
+    message = serverErrorMessage();
   }
   emit registerFinished(message);
   reply->deleteLater();
@@ -171,9 +156,11 @@ void FrknApiController::onLoginReply(QNetworkReply *reply) {
       token = jsonObject["token"].toString();
     } else {
       message = jsonObject["message"].toString();
+      qDebug() << "Login error:" << message;
     }
   } else {
-    message = reply->errorString();
+    qDebug() << "Network error during login:" << reply->errorString();
+    message = serverErrorMessage();
   }
   emit loginFinished(message, token);
   reply->deleteLater();
@@ -192,9 +179,11 @@ void FrknApiController::onConnectReply(QNetworkReply *reply) {
       beta = jsonObject["beta"].toBool();
     } else if (status == "error") {
       message = jsonObject["message"].toString();
+      qDebug() << "Connect error:" << message;
     }
   } else {
-    message = reply->errorString();
+    qDebug() << "Network error during connect:" << reply->errorString();
+    message = serverErrorMessage();
   }
   emit connectFinished(message, subscriptionUrl, beta);
   reply->deleteLater();

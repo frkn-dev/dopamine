@@ -19,6 +19,8 @@ public:
   explicit FrknApiController(std::shared_ptr<Settings> settings,
                              QObject *parent = nullptr);
 
+  QString serverErrorMessage() const;
+
 public slots:
   void registerUser(const QString &mnemonic);
   void loginUser(const QString &mnemonic);

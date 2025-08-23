@@ -190,6 +190,14 @@
     </message>
 </context>
 <context>
+    <name>FrknApiController</name>
+    <message>
+        <location filename="../ui/controllers/frkn/frknApiController.cpp" line="71"/>
+        <source>Server not available. Please try again later.</source>
+        <translation>Сервер недоступен. Пожалуйста, попробуйте позже.</translation>
+    </message>
+</context>
+<context>
     <name>HomeContainersListView</name>
     <message>
         <location filename="../ui/qml/Components/HomeContainersListView.qml" line="109"/>
@@ -3933,9 +3941,8 @@ This means that AmneziaWG keeps the fast performance of the original while addin
         <translation>Невозможно найти разделитель-двоеточие между именем хоста и портом</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/frkn/frknApiController.cpp" line="19"/>
         <source>Server not available. Please try again later.</source>
-        <translation>Сервер недоступен. Пожалуйста, попробуйте позже.</translation>
+        <translation type="vanished">Сервер недоступен. Пожалуйста, попробуйте позже.</translation>
     </message>
 </context>
 <context>
@@ -4174,7 +4181,7 @@ This means that AmneziaWG keeps the fast performance of the original while addin
 <context>
     <name>frkn::ConfigController</name>
     <message>
-        <location filename="../ui/controllers/frkn/configController.cpp" line="56"/>
+        <location filename="../ui/controllers/frkn/configController.cpp" line="58"/>
         <source>Can&apos;t load config</source>
         <translation>Невозможно загрузить конфигурацию</translation>
     </message>

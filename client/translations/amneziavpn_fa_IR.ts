@@ -191,6 +191,14 @@
     </message>
 </context>
 <context>
+    <name>FrknApiController</name>
+    <message>
+        <location filename="../ui/controllers/frkn/frknApiController.cpp" line="71"/>
+        <source>Server not available. Please try again later.</source>
+        <translation>سرور در دسترس نیست. لطفاً بعداً دوباره امتحان کنید.</translation>
+    </message>
+</context>
+<context>
     <name>HomeContainersListView</name>
     <message>
         <location filename="../ui/qml/Components/HomeContainersListView.qml" line="109"/>
@@ -3922,9 +3930,8 @@ For more detailed information, you can
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/controllers/frkn/frknApiController.cpp" line="19"/>
         <source>Server not available. Please try again later.</source>
-        <translation>سرور در دسترس نیست. لطفاً بعداً دوباره امتحان کنید.</translation>
+        <translation type="vanished">سرور در دسترس نیست. لطفاً بعداً دوباره امتحان کنید.</translation>
     </message>
 </context>
 <context>
@@ -4163,7 +4170,7 @@ For more detailed information, you can
 <context>
     <name>frkn::ConfigController</name>
     <message>
-        <location filename="../ui/controllers/frkn/configController.cpp" line="56"/>
+        <location filename="../ui/controllers/frkn/configController.cpp" line="58"/>
         <source>Can&apos;t load config</source>
         <translation type="unfinished"></translation>
     </message>

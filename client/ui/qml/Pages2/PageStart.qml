@@ -356,6 +356,10 @@ PageType {
                 target: FrknApi
                 function onConnectFinished(message, subscriptionUrl, beta) {
                     buyButton.visible = beta
+                    if(message !== "") {
+                        PageController.showBusyIndicator(false)
+                        PageController.showNotificationMessage(message)
+                    }
                 }
             }
         }

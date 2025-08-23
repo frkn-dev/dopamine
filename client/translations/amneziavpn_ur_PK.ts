@@ -189,6 +189,14 @@
     </message>
 </context>
 <context>
+    <name>FrknApiController</name>
+    <message>
+        <location filename="../ui/controllers/frkn/frknApiController.cpp" line="71"/>
+        <source>Server not available. Please try again later.</source>
+        <translation>سرور دستیاب نہیں ہے۔ براہ کرم بعد میں دوبارہ کوشش کریں۔</translation>
+    </message>
+</context>
+<context>
     <name>HomeContainersListView</name>
     <message>
         <location filename="../ui/qml/Components/HomeContainersListView.qml" line="109"/>
@@ -3850,9 +3858,8 @@ While it offers a blend of security, stability, and speed, it&apos;s essential t
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/controllers/frkn/frknApiController.cpp" line="19"/>
         <source>Server not available. Please try again later.</source>
-        <translation>سرور دستیاب نہیں ہے۔ براہ کرم بعد میں دوبارہ کوشش کریں۔</translation>
+        <translation type="vanished">سرور دستیاب نہیں ہے۔ براہ کرم بعد میں دوبارہ کوشش کریں۔</translation>
     </message>
 </context>
 <context>
@@ -4091,7 +4098,7 @@ While it offers a blend of security, stability, and speed, it&apos;s essential t
 <context>
     <name>frkn::ConfigController</name>
     <message>
-        <location filename="../ui/controllers/frkn/configController.cpp" line="56"/>
+        <location filename="../ui/controllers/frkn/configController.cpp" line="58"/>
         <source>Can&apos;t load config</source>
         <translation type="unfinished"></translation>
     </message>
