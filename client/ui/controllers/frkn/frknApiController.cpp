@@ -19,11 +19,13 @@ QString generateSha3_512(const QString &input) {
   return QString(hash.toHex());
 }
 
-QString selectDomain() {
-  QList domains{
+QString selectDomain(QString preferred = QString()) {
+  QStringList domains{
       "frkn.org",
       "fr-dm.ru",
   };
+  if (!preferred.isEmpty())
+    domains.push_front(preferred);
 
   QEventLoop loop;
   QNetworkAccessManager manager;
@@ -119,6 +121,11 @@ bool FrknApiController::checkForUpdates() {
     qWarning() << "No token found, skipping update check";
   }
   return false;
+}
+
+void FrknApiController::setDomain(const QString &domain) {
+  m_domain = selectDomain(domain);
+  qDebug() << "Domain changed to:" << m_domain;
 }
 
 void FrknApiController::onRegisterReply(QNetworkReply *reply) {

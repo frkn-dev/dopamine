@@ -26,6 +26,7 @@ public slots:
   void loginUser(const QString &mnemonic);
   void connectUser(const QString &token);
   bool checkForUpdates();
+  void setDomain(const QString &domain);
 
 signals:
   void registerFinished(const QString &message);

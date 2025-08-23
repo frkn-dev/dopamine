@@ -47,6 +47,38 @@ PageType {
             Layout.preferredWidth: 180
             Layout.preferredHeight: 144
             Layout.bottomMargin: 10
+
+            property int clicks: 0
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: image.clicks++
+            }
+        }
+
+        TextFieldWithHeaderType {
+            id: domainField
+
+            Layout.fillWidth: true
+            Layout.leftMargin: 16
+            Layout.rightMargin: 16
+            Layout.bottomMargin: 10
+
+            visible: image.clicks % 5 === 0 && image.clicks > 0
+
+            buttonText: "🛸"
+            textFieldPlaceholderText: "👽"
+
+            borderColor: AmneziaStyle.color.slateGray
+            borderFocusedColor: AmneziaStyle.color.paleGray
+
+            clickedFunc: function() {
+                image.clicks = 0
+                PageController.showBusyIndicator(true)
+                FrknApi.setDomain(domainField.textFieldText)
+                PageController.showBusyIndicator(false)
+                textKey.forceActiveFocus()
+            }
         }
 
         LabelTextType {
