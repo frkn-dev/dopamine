@@ -1,0 +1,14 @@
+[Unit]
+Description=FRKN Service
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+ExecStart=/opt/FRKN/service/FRKN-service.sh
+Environment=LD_LIBRARY_PATH=/opt/FRKN/client/lib
+
+[Install]
+WantedBy=multi-user.target

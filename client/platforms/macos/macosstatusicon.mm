@@ -191,9 +191,10 @@ void MacOSStatusIcon::showMessage(const QString& title, const QString& message) 
   UNTimeIntervalNotificationTrigger* trigger =
       [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:1 repeats:NO];
 
-  UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier:@"amneziavpn"
-                                                                        content:content
-                                                                        trigger:trigger];
+  UNNotificationRequest *request =
+      [UNNotificationRequest requestWithIdentifier:@"frkn"
+                                           content:content
+                                           trigger:trigger];
 
   [center addNotificationRequest:request
            withCompletionHandler:^(NSError* _Nullable error) {

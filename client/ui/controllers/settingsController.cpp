@@ -110,7 +110,7 @@ void SettingsController::toggleLogging(bool enable)
 {
     m_settings->setSaveLogs(enable);
 #if defined(Q_OS_IOS)
-    AmneziaVPN::toggleLogging(enable);
+    FRKN::toggleLogging(enable);
 #endif
     if (enable == true) {
         qInfo().noquote() << QString("Logging has enabled on %1 version %2 %3").arg(APPLICATION_NAME, APP_VERSION, GIT_COMMIT_HASH);
@@ -269,7 +269,7 @@ void SettingsController::clearSettings()
     emit changeSettingsFinished(tr("All settings have been reset to default values"));
 
 #if defined(Q_OS_IOS) || defined(MACOS_NE)
-    AmneziaVPN::clearSettings();
+    FRKN::clearSettings();
 #endif
 }
 

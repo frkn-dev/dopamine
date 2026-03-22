@@ -149,7 +149,7 @@ PageType {
                 text: qsTr("Check for updates")
 
                 clickedFunc: function() {
-                    Qt.openUrlExternally("https://github.com/amnezia-vpn/desktop-client/releases/latest")
+                    Qt.openUrlExternally("https://github.com/frkn-dev/client/releases/latest")
                 }
             }
 
@@ -170,7 +170,7 @@ PageType {
                 text: qsTr("Privacy Policy")
 
                 clickedFunc: function() {
-                    Qt.openUrlExternally(LanguageModel.getCurrentSiteUrl("policy"))
+                    Qt.openUrlExternally(LanguageModel.getCurrentSiteUrl("privacy-policy"))
                 }
             }
         }
@@ -197,11 +197,11 @@ PageType {
     QtObject {
         id: mail
 
-        readonly property string title: qsTr("support@amnezia.org")
+        readonly property string title: qsTr("mail@frkn.org")
         readonly property string description: qsTr("For reviews and bug reports")
         readonly property string imageSource: "qrc:/images/controls/mail.svg"
         readonly property var handler: function() {
-            Qt.openUrlExternally(qsTr("mailto:support@amnezia.org"))
+            Qt.openUrlExternally(qsTr("mailto:mail@frkn.org"))
         }
     }
 

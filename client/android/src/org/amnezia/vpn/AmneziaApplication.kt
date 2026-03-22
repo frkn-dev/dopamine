@@ -7,7 +7,7 @@ import org.amnezia.vpn.util.Log
 import org.amnezia.vpn.util.Prefs
 import org.qtproject.qt.android.bindings.QtApplication
 
-private const val TAG = "AmneziaApplication"
+private const val TAG = "FRKNApplication"
 
 class AmneziaApplication : QtApplication(), CameraXConfig.Provider {
 

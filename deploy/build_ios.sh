@@ -12,9 +12,9 @@ mkdir -p $BUILD_DIR
 echo "Project dir: ${PROJECT_DIR}"
 echo "Build dir: ${BUILD_DIR}"
 
-APP_NAME=AmneziaVPN
+APP_NAME=FRKN
 APP_FILENAME=$APP_NAME.app
-APP_DOMAIN=org.amneziavpn.package
+APP_DOMAIN=org.frkn.package
 PLIST_NAME=$APP_NAME.plist
 
 
@@ -34,7 +34,7 @@ clang -v
 # Generate XCodeProj
 $QT_BIN_DIR/qt-cmake . -B $BUILD_DIR -GXcode -DQT_HOST_PATH=$QT_MACOS_ROOT_DIR -DDEPLOY=ON
 
-KEYCHAIN=amnezia.build.ios.keychain
+KEYCHAIN=frkn.build.ios.keychain
 KEYCHAIN_FILE=$HOME/Library/Keychains/${KEYCHAIN}-db
 
 # Setup keychain
@@ -51,6 +51,10 @@ if [ "${IOS_SIGNING_CERT_BASE64+x}" ]; then
   shasum -a 256 $SIGNING_CERT_P12
 
   KEYCHAIN_PASS=$IOS_SIGNING_CERT_PASSWORD
+
+  if [ -f $KEYCHAIN_FILE ]; then
+    security delete-keychain $KEYCHAIN
+  fi
 
   security create-keychain -p $KEYCHAIN_PASS $KEYCHAIN || true
   security default-keychain -s $KEYCHAIN
@@ -91,9 +95,9 @@ fi
 xcodebuild \
 "OTHER_CODE_SIGN_FLAGS=--keychain '$KEYCHAIN_FILE'" \
 -configuration Release \
--scheme AmneziaVPN \
+-scheme FRKN \
 -destination "generic/platform=iOS,name=Any iOS'" \
--project $BUILD_DIR/AmneziaVPN.xcodeproj
+-project $BUILD_DIR/FRKN.xcodeproj
 
 # restore keychain
 security default-keychain -s login.keychain

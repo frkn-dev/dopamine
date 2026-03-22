@@ -58,7 +58,7 @@ import org.amnezia.vpn.util.net.TrafficStats
 import org.json.JSONException
 import org.json.JSONObject
 
-private const val TAG = "AmneziaVpnService"
+private const val TAG = "FRKNService"
 
 const val ACTION_DISCONNECT = "org.amnezia.vpn.action.disconnect"
 const val ACTION_CONNECT = "org.amnezia.vpn.action.connect"

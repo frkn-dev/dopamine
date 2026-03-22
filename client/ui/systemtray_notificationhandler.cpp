@@ -34,7 +34,7 @@ SystemTrayNotificationHandler::SystemTrayNotificationHandler(QObject* parent) :
 
     m_menu.addSeparator();
 
-    m_trayActionVisitWebSite = m_menu.addAction(QIcon(":/images/tray/link.png"), tr("Visit Website"), [&](){
+    m_trayActionVisitWebSite = m_menu.addAction(QIcon(":/images/tray/link.png"), tr("Visit Website"), [this](){
         QDesktopServices::openUrl(QUrl(websiteUrl));
     });
 

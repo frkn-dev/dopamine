@@ -12,12 +12,12 @@ elseif(LINUX)
     )
     
     configure_file(
-        ${CMAKE_CURRENT_LIST_DIR}/config/AmneziaVPN.desktop.in
-        ${CMAKE_BINARY_DIR}/../AppDir/AmneziaVPN.desktop
+        ${CMAKE_CURRENT_LIST_DIR}/config/FRKN.desktop.in
+        ${CMAKE_BINARY_DIR}/../AppDir/FRKN.desktop
     )
 endif()
 
 configure_file(
-    ${CMAKE_CURRENT_LIST_DIR}/packages/org.amneziavpn.package/meta/package.xml.in
-    ${CMAKE_BINARY_DIR}/installer/packages/org.amneziavpn.package/meta/package.xml
+    ${CMAKE_CURRENT_LIST_DIR}/packages/org.frkn.package/meta/package.xml.in
+    ${CMAKE_BINARY_DIR}/installer/packages/org.frkn.package/meta/package.xml
 )

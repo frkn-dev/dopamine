@@ -31,9 +31,9 @@ BUILD_DIR="$DEPLOY_DIR/build"
 echo "Project dir: ${PROJECT_DIR}"
 echo "Build dir: ${BUILD_DIR}"
 
-APP_NAME=AmneziaVPN
+APP_NAME=FRKN
 APP_FILENAME=$APP_NAME.app
-APP_DOMAIN=org.amneziavpn.package
+APP_DOMAIN=org.frkn.package
 PLIST_NAME=$APP_NAME.plist
 
 OUT_APP_DIR=$BUILD_DIR/client

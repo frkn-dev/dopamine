@@ -18,7 +18,7 @@ public:
 
     bool initialize();
 
-    // keep synchronized with org.amnezia.vpn.protocol.ProtocolState
+    // keep synchronized with org.frkn.vpn.protocol.ProtocolState
     enum class ConnectionState
     {
         DISCONNECTED,

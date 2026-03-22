@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.25.0 FATAL_ERROR)
 
-set(PROJECT AmneziaVPN)
+set(PROJECT FRKN)
 set(AMNEZIAVPN_VERSION 4.8.14.5)
 
 project(${PROJECT} VERSION ${AMNEZIAVPN_VERSION}
-        DESCRIPTION "AmneziaVPN"
-        HOMEPAGE_URL "https://amnezia.org/"
+        DESCRIPTION "FRKN"
+        HOMEPAGE_URL "https://frkn.org/"
 )
 
 string(TIMESTAMP CURRENT_DATE "%Y-%m-%d")

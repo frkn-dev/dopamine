@@ -39,7 +39,7 @@ PageType {
                 id: moreButton
 
                 property bool isVisible: SettingsController.getInstallationUuid() !== "" || PageController.isStartPageVisible()
-                
+
                 Layout.fillWidth: true
                 Layout.topMargin: 24 + SettingsController.safeAreaTopMargin
                 Layout.rightMargin: 16
@@ -104,11 +104,11 @@ PageType {
                             clickedFunction: function() {
                                 var fileName = ""
                                 if (GC.isMobile()) {
-                                    fileName = "AmneziaVPN.log"
+                                    fileName = "FRKN.log"
                                 } else {
                                     fileName = SystemController.getFileName(qsTr("Save"),
                                                                             qsTr("Logs files (*.log)"),
-                                                                            StandardPaths.standardLocations(StandardPaths.DocumentsLocation) + "/AmneziaVPN",
+                                                                            StandardPaths.standardLocations(StandardPaths.DocumentsLocation) + "/FRKN",
                                                                             true,
                                                                             ".log")
                                 }
@@ -235,6 +235,8 @@ PageType {
         footer: ColumnLayout {
             width: listView.width
 
+            visible: false
+
             BasicButtonType {
                 id: siteLink2
                 Layout.topMargin: 24
@@ -262,15 +264,10 @@ PageType {
     }
 
     property list<QtObject> variants: [
-        amneziaVpn,
-        selfHostVpn,
-        backupRestore,
-        fileOpen,
         qrScan,
-        restorePurchases,
         siteLink
     ]
-    
+
     QtObject {
         id: amneziaVpn
 

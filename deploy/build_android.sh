@@ -9,7 +9,7 @@ usage() {
 Usage:
   build_android [options] <artifact_types>
 
-Build AmneziaVPN android client.
+Build FRKN android client.
 
 Artifact types:
  -u, --aab                        Build Android App Bundle (AAB)
@@ -111,6 +111,7 @@ fi
 $QT_BIN_DIR/qt-cmake -S $PROJECT_DIR -B $BUILD_DIR \
   -DQT_NO_GLOBAL_APK_TARGET_PART_OF_ALL=ON \
   -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+  -G Ninja \
   "${qt_cmake_opts[@]}"
 
 # Build app
@@ -138,7 +139,7 @@ fi
 export ANDROIDDEPLOYQT_RUN=1
 
 $QT_HOST_PATH/bin/androiddeployqt \
-  --input $OUT_APP_DIR/android-AmneziaVPN-deployment-settings.json \
+  --input $OUT_APP_DIR/android-FRKN-deployment-settings.json \
   --output $OUT_APP_DIR/android-build \
   "${deployqt_opts[@]}"
 
@@ -164,7 +165,7 @@ $OUT_APP_DIR/android-build/gradlew \
 if [[ -v CI || -v MOVE_RESULT ]]; then
   echo "Moving APK/AAB..."
   if [ -v AAB ]; then
-    mv -u $OUT_APP_DIR/android-build/build/outputs/bundle/$BUILD_TYPE/AmneziaVPN-$BUILD_TYPE.aab \
+    mv -u $OUT_APP_DIR/android-build/build/outputs/bundle/$BUILD_TYPE/FRKN-$BUILD_TYPE.aab \
        $PROJECT_DIR/deploy/build/
   fi
 
@@ -181,7 +182,7 @@ if [[ -v CI || -v MOVE_RESULT ]]; then
     IFS=';' read -r -a abi_array <<< "$ABIS"
     for ABI in "${abi_array[@]}"
     do
-      mv -u $OUT_APP_DIR/android-build/build/outputs/apk/$BUILD_TYPE/AmneziaVPN-$ABI-$suffix.apk \
+      mv -u $OUT_APP_DIR/android-build/build/outputs/apk/$BUILD_TYPE/FRKN-$ABI-$suffix.apk \
        $PROJECT_DIR/deploy/build/
     done
   fi

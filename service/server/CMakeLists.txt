@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.25.0 FATAL_ERROR)
 
-set(PROJECT AmneziaVPN-service)
+set(PROJECT FRKN-service)
 project(${PROJECT} VERSION ${AMNEZIAVPN_VERSION})
 
 set(CMAKE_CXX_STANDARD 20)

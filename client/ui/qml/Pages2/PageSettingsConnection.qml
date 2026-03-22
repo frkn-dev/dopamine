@@ -59,6 +59,8 @@ PageType {
             SwitcherType {
                 id: amneziaDnsSwitch
 
+                visible: false
+
                 Layout.fillWidth: true
                 Layout.margins: 16
 
@@ -73,7 +75,9 @@ PageType {
                 }
             }
 
-            DividerType {}
+            DividerType {
+                visible: false
+            }
 
             LabelWithButtonType {
                 id: dnsServersButton

@@ -1,0 +1,10 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Type=Application
+Name=FRKN
+Version=@CMAKE_PROJECT_VERSION@
+Comment=FRKN client application
+Exec=FRKN
+Icon=/usr/share/pixmaps/FRKN.png
+Categories=Network;Qt;Security;
+Terminal=false

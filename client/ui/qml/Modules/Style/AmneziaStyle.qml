@@ -3,32 +3,63 @@ pragma Singleton
 import QtQuick
 
 QtObject {
-    property QtObject color: QtObject {
+    property QtObject regularColorPalette: QtObject {
         readonly property color transparent: 'transparent'
-        readonly property color paleGray: '#D7D8DB'
-        readonly property color lightGray: '#C1C2C5'
-        readonly property color mutedGray: '#878B91'
-        readonly property color charcoalGray: '#494B50'
-        readonly property color slateGray: '#2C2D30'
-        readonly property color onyxBlack: '#1C1D21'
-        readonly property color midnightBlack: '#0E0E11'
-        readonly property color goldenApricot: '#FBB26A'
-        readonly property color burntOrange: '#A85809'
-        readonly property color mutedBrown: '#84603D'
-        readonly property color richBrown: '#633303'
-        readonly property color deepBrown: '#402102'
-        readonly property color vibrantRed: '#EB5757'
-        readonly property color darkCharcoal: '#261E1A'
+        readonly property color paleGray: '#121314'
+        readonly property color lightGray: '#2A2B2C'
+        readonly property color mutedGray: '#686A6D'
+        readonly property color charcoalGray: '#ABACAD'
+        readonly property color slateGray: '#DEDFE0'
+        readonly property color onyxBlack: '#EFEFEF'
+        readonly property color midnightBlack: '#FFFFFF'
+        readonly property color goldenApricot: '#2757FF'
+        readonly property color burntOrange: '#002BC4'
+        readonly property color mutedBrown: '#002BC4'
+        readonly property color richBrown: '#2757FF'
+        readonly property color deepBrown: '#2757FF'
+        readonly property color vibrantRed: '#9B0104'
+        readonly property color darkCharcoal: '#E5E5E6'
+        readonly property color sheerWhite: Qt.rgba(0, 0, 0, 0.12)
+        readonly property color translucentWhite: Qt.rgba(0, 0, 0, 0.08)
+        readonly property color barelyTranslucentWhite: Qt.rgba(0, 0, 0, 0.05)
+        readonly property color translucentMidnightBlack: Qt.rgba(1, 1, 1, 0.8)
+        readonly property color softGoldenApricot: Qt.rgba(39/255, 87/255, 255/255, 0.3)
+        readonly property color mistyGray: Qt.rgba(40/255, 39/255, 36/255, 0.8)
+        readonly property color cloudyGray: Qt.rgba(40/255, 39/255, 36/255, 0.65)
+        readonly property color pearlGray: '#151513'
+        readonly property color translucentRichBrown: Qt.rgba(39/255, 87/255, 255/255, 0.26)
+        readonly property color translucentSlateGray: Qt.rgba(222/255, 223/255, 224/255, 0.13)
+        readonly property color translucentOnyxBlack: Qt.rgba(239/255, 239/255, 239/255, 0.13)
+    }
+
+    property QtObject darkColorPalette: QtObject {
+        readonly property color transparent: 'transparent'
+        readonly property color paleGray: '#E5E5E6'
+        readonly property color lightGray: '#D5D6D7'
+        readonly property color mutedGray: '#97999B'
+        readonly property color charcoalGray: '#545556'
+        readonly property color slateGray: '#212223'
+        readonly property color onyxBlack: '#101010'
+        readonly property color midnightBlack: '#000000'
+        readonly property color goldenApricot: '#2757FF'
+        readonly property color burntOrange: '#002BC4'
+        readonly property color mutedBrown: '#002BC4'
+        readonly property color richBrown: '#2757FF'
+        readonly property color deepBrown: '#2757FF'
+        readonly property color vibrantRed: '#CC0102'
+        readonly property color darkCharcoal: '#1A1A1B'
         readonly property color sheerWhite: Qt.rgba(1, 1, 1, 0.12)
         readonly property color translucentWhite: Qt.rgba(1, 1, 1, 0.08)
         readonly property color barelyTranslucentWhite: Qt.rgba(1, 1, 1, 0.05)
-        readonly property color translucentMidnightBlack: Qt.rgba(14/255, 14/255, 17/255, 0.8)
-        readonly property color softGoldenApricot: Qt.rgba(251/255, 178/255, 106/255, 0.3)
+        readonly property color translucentMidnightBlack: Qt.rgba(0, 0, 0, 0.8)
+        readonly property color softGoldenApricot: Qt.rgba(39/255, 87/255, 255/255, 0.3)
         readonly property color mistyGray: Qt.rgba(215/255, 216/255, 219/255, 0.8)
         readonly property color cloudyGray: Qt.rgba(215/255, 216/255, 219/255, 0.65)
         readonly property color pearlGray: '#EAEAEC'
-        readonly property color translucentRichBrown: Qt.rgba(99/255, 51/255, 3/255, 0.26)
+        readonly property color translucentRichBrown: Qt.rgba(39/255, 87/255, 255/255, 0.26)
         readonly property color translucentSlateGray: Qt.rgba(85/255, 86/255, 92/255, 0.13)
         readonly property color translucentOnyxBlack: Qt.rgba(28/255, 29/255, 33/255, 0.13)
     }
+
+    property QtObject color: regularColorPalette
 }

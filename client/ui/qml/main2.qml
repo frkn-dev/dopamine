@@ -61,7 +61,7 @@ Window  {
         console.warn("Scene graph error:", error, message)
     }
 
-    title: "AmneziaVPN"
+    title: "FRKN"
 
     Item { // This item is needed for focus handling
         id: defaultFocusItem

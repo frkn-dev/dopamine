@@ -1,21 +1,21 @@
-set AmneziaPath=%~dp0
-echo %AmneziaPath%
+set FRKNPath=%~dp0
+echo %FRKNPath%
 
 rem Define directories for logs
-set "ORG_DIR=%AppData%\AmneziaVPN.ORG"
-set "USER_APP_DIR=%ORG_DIR%\AmneziaVPN"
+set "ORG_DIR=%AppData%\FRKN.ORG"
+set "USER_APP_DIR=%ORG_DIR%\FRKN"
 set "USER_LOG_DIR=%USER_APP_DIR%\log"
-set "SYS_APP_DIR=%ProgramData%\AmneziaVPN"
+set "SYS_APP_DIR=%ProgramData%\FRKN"
 set "SYS_LOG_DIR=%SYS_APP_DIR%\log"
-set "SYS_LOG_FILE=%SYS_LOG_DIR%\AmneziaVPN-service.log"
+set "SYS_LOG_FILE=%SYS_LOG_DIR%\FRKN-service.log"
 
 timeout /t 1
-sc stop AmneziaVPN-service
-sc delete AmneziaVPN-service
+sc stop FRKN-service
+sc delete FRKN-service
 sc stop AmneziaWGTunnel$AmneziaVPN
 sc delete AmneziaWGTunnel$AmneziaVPN
-taskkill /IM "AmneziaVPN-service.exe" /F
-taskkill /IM "AmneziaVPN.exe" /F
+taskkill /IM "FRKN-service.exe" /F
+taskkill /IM "FRKN.exe" /F
 
 rem Delete the service log file under ProgramData
 if exist "%SYS_LOG_FILE%" del /F /Q "%SYS_LOG_FILE%"

@@ -27,7 +27,7 @@ Switch {
     property string defaultIndicatorBorderColor: AmneziaStyle.color.charcoalGray
     property string checkedDisabledIndicatorBorderColor: AmneziaStyle.color.deepBrown
 
-    property string checkedInnerCircleColor: AmneziaStyle.color.goldenApricot
+    property string checkedInnerCircleColor: AmneziaStyle.color.midnightBlack
     property string defaultInnerCircleColor: AmneziaStyle.color.paleGray
     property string checkedDisabledInnerCircleColor: AmneziaStyle.color.mutedBrown
     property string defaultDisabledInnerCircleColor: AmneziaStyle.color.charcoalGray
