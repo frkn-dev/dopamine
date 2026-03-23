@@ -51,6 +51,14 @@ Window  {
 
     color: AmneziaStyle.color.midnightBlack
 
+    Component.onCompleted: {
+        if (SettingsController.frknDarkMode()) {
+            AmneziaStyle.color = AmneziaStyle.darkColorPalette
+        } else {
+            AmneziaStyle.color = AmneziaStyle.regularColorPalette
+        }
+    }
+
     onClosing: function(close) {
         close.accepted = false
         PageController.closeWindow()

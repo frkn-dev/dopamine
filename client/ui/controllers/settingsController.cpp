@@ -531,3 +531,8 @@ void SettingsController::disableHomeAdLabel()
     m_settings->disableHomeAdLabel();
     emit isHomeAdLabelVisibleChanged(false);
 }
+
+bool SettingsController::frknDarkMode() { return m_settings->frknDarkMode(); }
+void SettingsController::toggleFrknDarkMode(bool enable) {
+    m_settings->setFrknDarkMode(enable);
+}

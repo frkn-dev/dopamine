@@ -112,6 +112,9 @@ public slots:
     bool isHomeAdLabelVisible();
     void disableHomeAdLabel();
 
+    bool frknDarkMode();
+    void toggleFrknDarkMode(bool enable);
+
 signals:
     void primaryDnsChanged();
     void secondaryDnsChanged();
@@ -136,7 +139,7 @@ signals:
     void devModeEnabled();
     void gatewayEndpointChanged(const QString &endpoint);
     void devGatewayEnvChanged(bool enabled);
-    
+
     void imeHeightChanged(int height);
     void safeAreaTopMarginChanged();
     void safeAreaBottomMarginChanged();
@@ -150,7 +153,7 @@ private:
     QSharedPointer<LanguageModel> m_languageModel;
     QSharedPointer<SitesModel> m_sitesModel;
     QSharedPointer<AppSplitTunnelingModel> m_appSplitTunnelingModel;
-    
+
     mutable int m_cachedStatusBarHeight = -1;
     mutable int m_cachedNavigationBarHeight = -1;
     mutable bool m_cachedEdgeToEdgeEnabled = false;

@@ -247,6 +247,9 @@ public:
     QStringList readNewsIds() const;
     void setReadNewsIds(const QStringList &ids);
 
+    bool frknDarkMode() const { return m_settings.value("FRKN/darkMode", true).toBool(); }
+    void setFrknDarkMode(bool enabled) { m_settings.setValue("FRKN/darkMode", enabled); }
+
 signals:
     void saveLogsChanged(bool enabled);
     void screenshotsEnabledChanged(bool enabled);

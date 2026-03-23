@@ -189,7 +189,7 @@ PageType {
             }
 
             DividerType {
-                visible: !GC.isMobile()
+                visible: ServersModel.hasServersFromGatewayApi
             }
         }
 
@@ -213,6 +213,30 @@ PageType {
 
             DividerType {}
 
+            SwitcherType {
+                id: switcherDarkMode
+
+                Layout.fillWidth: true
+                Layout.margins: 16
+
+                text: qsTr("Dark mode")
+                descriptionText: qsTr("Use dark mode")
+
+                checked: SettingsController.frknDarkMode()
+                onToggled: function() {
+                    if (checked !== SettingsController.frknDarkMode()) {
+                        SettingsController.toggleFrknDarkMode(checked)
+                    }
+                    if (SettingsController.frknDarkMode()) {
+                        AmneziaStyle.color = AmneziaStyle.darkColorPalette
+                    } else {
+                        AmneziaStyle.color = AmneziaStyle.regularColorPalette
+                    }
+                }
+            }
+
+            DividerType {}
+
             LabelWithButtonType {
                 id: labelWithButtonLogging
 
@@ -231,7 +255,7 @@ PageType {
 
             LabelWithButtonType {
                 id: labelWithButtonReset
-                
+
                 Layout.fillWidth: true
 
                 text: qsTr("Reset settings and remove all data from the application")
