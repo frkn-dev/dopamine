@@ -272,7 +272,7 @@
         <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="46"/>
         <source>Enabled 
 Can&apos;t be disabled for current server</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="64"/>
@@ -300,18 +300,33 @@ Can&apos;t be disabled for current server</source>
 <context>
     <name>ImportController</name>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="692"/>
+        <location filename="../ui/controllers/importController.cpp" line="776"/>
         <source>Scanned %1 of %2.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="727"/>
+        <location filename="../ui/controllers/importController.cpp" line="811"/>
         <source>This configuration contains an OpenVPN setup. OpenVPN configurations can include malicious scripts, so only add it if you fully trust the provider of this config. </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="731"/>
+        <location filename="../ui/controllers/importController.cpp" line="815"/>
         <source>&lt;br&gt;In the imported configuration, potentially dangerous lines were found:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/controllers/importController.cpp" line="930"/>
+        <source>No valid configurations found at the provided URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/controllers/importController.cpp" line="962"/>
+        <source>Failed to fetch configurations: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/controllers/importController.cpp" line="968"/>
+        <source>Empty response from server</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -427,7 +442,7 @@ Already installed containers were found on the server. All installed containers 
         <location filename="../ui/notificationhandler.cpp" line="57"/>
         <location filename="../ui/notificationhandler.cpp" line="64"/>
         <source>AmneziaVPN</source>
-        <translation>FRKN VPN</translation>
+        <translation>FRKN</translation>
     </message>
     <message>
         <location filename="../ui/notificationhandler.cpp" line="58"/>
@@ -442,7 +457,7 @@ Already installed containers were found on the server. All installed containers 
     <message>
         <location filename="../ui/notificationhandler.cpp" line="88"/>
         <source>AmneziaVPN notification</source>
-        <translation>FRKN VPN notification</translation>
+        <translation>FRKN notification</translation>
     </message>
     <message>
         <location filename="../ui/notificationhandler.cpp" line="89"/>
@@ -1252,7 +1267,7 @@ Already installed containers were found on the server. All installed containers 
     <message>
         <location filename="../ui/qml/Pages2/PageServiceDnsSettings.qml" line="78"/>
         <source>Cannot remove AmneziaDNS from running server</source>
-        <translation></translation>
+        <translation>Cannot remove DNS from running server</translation>
     </message>
 </context>
 <context>
@@ -1466,7 +1481,7 @@ Already installed containers were found on the server. All installed containers 
     <message>
         <location filename="../ui/qml/Pages2/PageSettings.qml" line="177"/>
         <source>About AmneziaVPN</source>
-        <translation>About FRKN VPN</translation>
+        <translation>About FRKN</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettings.qml" line="188"/>
@@ -1728,7 +1743,7 @@ for Free people</translation>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiInstructions.qml" line="102"/>
         <source>Setup guides on the Amnezia website</source>
-        <translation type="unfinished"></translation>
+        <translation>Setup guides on the FRKN website</translation>
     </message>
 </context>
 <context>
@@ -1736,7 +1751,7 @@ for Free people</translation>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiNativeConfigs.qml" line="23"/>
         <source>Save AmneziaVPN config</source>
-        <translation type="unfinished">Save FRKN VPN config</translation>
+        <translation>Save FRKN config</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiNativeConfigs.qml" line="60"/>
@@ -1966,7 +1981,7 @@ for Free people</translation>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="113"/>
         <source>Save AmneziaVPN config</source>
-        <translation type="unfinished">Save FRKN VPN config</translation>
+        <translation>Save FRKN config</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="114"/>
@@ -1981,7 +1996,7 @@ for Free people</translation>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="180"/>
         <source>To read the QR code in the Amnezia app, tap + in the main menu → &apos;QR code&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>To read the QR code in the FRKN app, tap + in the main menu → &apos;QR code&apos;</translation>
     </message>
 </context>
 <context>
@@ -2158,47 +2173,57 @@ for Free people</translation>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="221"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="222"/>
+        <source>Dark mode</source>
+        <translation>Dark mode</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="223"/>
+        <source>Use dark mode</source>
+        <translation>Use dark mode</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="245"/>
         <source>Logging</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="222"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="246"/>
         <source>Enabled</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="222"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="246"/>
         <source>Disabled</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="237"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="261"/>
         <source>Reset settings and remove all data from the application</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="242"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="266"/>
         <source>Reset settings and remove all data from the application?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="243"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="267"/>
         <source>All settings will be reset to default. All installed AmneziaVPN services will still remain on the server.</source>
-        <translation>All settings will be reset to default.</translation>
+        <translation>All settings will be reset to default. All installed FRKN services will still remain on the server.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="244"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="268"/>
         <source>Continue</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="245"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="269"/>
         <source>Cancel</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="249"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="273"/>
         <source>Cannot reset settings during active connection</source>
         <translation></translation>
     </message>
@@ -2223,7 +2248,7 @@ for Free people</translation>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsBackup.qml" line="90"/>
         <source>The backup will contain your passwords and private keys for all servers added to AmneziaVPN. Keep this information in a secure place.</source>
-        <translation>The backup will contain your passwords and private keys for all servers added to FRKN VPN. Keep this information in a secure place.</translation>
+        <translation>The backup will contain your passwords and private keys for all servers added to FRKN. Keep this information in a secure place.</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsBackup.qml" line="104"/>
@@ -2290,52 +2315,52 @@ for Free people</translation>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="65"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="67"/>
         <source>Use AmneziaDNS</source>
-        <translation type="unfinished"></translation>
+        <translation>Use DNS</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="66"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="68"/>
         <source>If AmneziaDNS is installed on the server</source>
-        <translation type="unfinished"></translation>
+        <translation>If DNS is installed on the server</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="83"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="87"/>
         <source>DNS servers</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="84"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="88"/>
         <source>When AmneziaDNS is not used or installed</source>
         <translation>Allows you to use preferred DNS server addresses</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="99"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="103"/>
         <source>Site-based split tunneling</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="100"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="104"/>
         <source>Allows you to select which sites you want to access through the VPN</source>
-        <translation></translation>
+        <translation>Allows you to select which sites you want to access through the VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="123"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="127"/>
         <source>App-based split tunneling</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="124"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="128"/>
         <source>Allows you to use the VPN only for certain Apps</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="142"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="146"/>
         <source>KillSwitch</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="143"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="147"/>
         <source>Blocks network connections without VPN</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2355,7 +2380,7 @@ for Free people</translation>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsDns.qml" line="67"/>
         <source>If AmneziaDNS is not used or installed</source>
-        <translation type="unfinished"></translation>
+        <translation>Allows you to use preferred DNS server addresses</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsDns.qml" line="84"/>
@@ -2666,7 +2691,7 @@ for Free people</translation>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="110"/>
         <source>Check the server for previously installed Amnezia services</source>
-        <translation></translation>
+        <translation>Check the server for previously installed FRKN services</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="111"/>
@@ -2722,7 +2747,7 @@ for Free people</translation>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="159"/>
         <source>All installed AmneziaVPN services will still remain on the server.</source>
-        <translation></translation>
+        <translation>All installed FRKN services will still remain on the server.</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="165"/>
@@ -2732,12 +2757,12 @@ for Free people</translation>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="184"/>
         <source>Clear server from Amnezia software</source>
-        <translation></translation>
+        <translation>Clear server from FRKN software</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="188"/>
         <source>Do you want to clear server from Amnezia software?</source>
-        <translation></translation>
+        <translation>Do you want to clear server from FRKN software?</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="189"/>
@@ -2747,7 +2772,7 @@ for Free people</translation>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="195"/>
         <source>Cannot clear server from Amnezia software during active connection</source>
-        <translation></translation>
+        <translation>Cannot clear server from FRKN software during active connection</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="213"/>
@@ -3048,146 +3073,182 @@ for Free people</translation>
 <context>
     <name>PageSetupWizardConfigSource</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="48"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="445"/>
+        <source>Subscription loaded</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="454"/>
+        <source>Found %n configuration(s). Add them all?</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="464"/>
+        <source>Delete previous configurations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="475"/>
+        <source>Add %n server(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="495"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="77"/>
         <source>Connection</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="75"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="46"/>
+        <source>All configurations have already been added</source>
+        <translation type="unfinished">All configurations have already been added</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="104"/>
         <source>Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="85"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="114"/>
         <source>Enable logs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="99"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="128"/>
         <source>Export client logs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="109"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="138"/>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="110"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="139"/>
         <source>Logs files (*.log)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="119"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="148"/>
         <source>Logs file saved</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="129"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="158"/>
         <source>Support tag</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="140"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="169"/>
         <source>Copied</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="159"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="188"/>
         <source>Insert the key, add a configuration file or scan the QR-code</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="169"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="198"/>
         <source>Insert key</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="170"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="199"/>
         <source>Insert</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="188"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="217"/>
         <source>Continue</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="205"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="245"/>
         <source>Other connection options</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="253"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="295"/>
         <source>Site Amnezia</source>
-        <translation type="unfinished"></translation>
+        <translation>Site FRKN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="277"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="314"/>
         <source>VPN by Amnezia</source>
         <translation>VPN by FRKN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="278"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="315"/>
         <source>Connect to classic paid and free VPN services from Amnezia</source>
         <translation>Connect to classic paid and free VPN services from FRKN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="294"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="331"/>
         <source>Self-hosted VPN</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="295"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="332"/>
         <source>Configure Amnezia VPN on your own server</source>
-        <translation></translation>
+        <translation>Configure VPN on your own server</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="306"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="343"/>
         <source>Restore from backup</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="307"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="325"/>
         <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="344"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="359"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="373"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="362"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="381"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="396"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="410"/>
         <source></source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="311"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="348"/>
         <source>Open backup file</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="312"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="349"/>
         <source>Backup files (*.backup)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="324"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="361"/>
         <source>File with connection settings</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="331"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="368"/>
         <source>Open config file</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="343"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="380"/>
         <source>QR code</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="358"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="395"/>
         <source>Restore purchases</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="372"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="409"/>
         <source>I have nothing</source>
         <translation></translation>
     </message>
@@ -3228,7 +3289,7 @@ for Free people</translation>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardCredentials.qml" line="132"/>
         <source>All data you enter will remain strictly confidential and will not be shared or disclosed to the Amnezia or any third parties</source>
-        <translation>All data you enter will remain strictly confidential and will not be shared or disclosed to the FRKN or any third parties</translation>
+        <translation>All data you enter will remain strictly confidential and will not be shared or disclosed to FRKN or any third parties</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardCredentials.qml" line="143"/>
@@ -3481,7 +3542,7 @@ for Free people</translation>
     <message>
         <location filename="../ui/qml/Pages2/PageShare.qml" line="50"/>
         <source>Save AmneziaVPN config</source>
-        <translation type="unfinished">Save FRKN VPN config</translation>
+        <translation>Save FRKN config</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShare.qml" line="64"/>
@@ -3511,7 +3572,7 @@ for Free people</translation>
     <message>
         <location filename="../ui/qml/Pages2/PageShare.qml" line="120"/>
         <source>For the AmneziaVPN app</source>
-        <translation>For the FRKN VPN app</translation>
+        <translation>For the FRKN app</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShare.qml" line="125"/>
@@ -3689,7 +3750,7 @@ for Free people</translation>
     <message>
         <location filename="../ui/qml/Pages2/PageShareConnection.qml" line="30"/>
         <source>Save AmneziaVPN config</source>
-        <translation type="unfinished">Save FRKN VPN config</translation>
+        <translation>Save FRKN config</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShareConnection.qml" line="150"/>
@@ -3710,7 +3771,7 @@ for Free people</translation>
     <message>
         <location filename="../ui/qml/Pages2/PageShareConnection.qml" line="323"/>
         <source>To read the QR code in the Amnezia app, select &quot;Add server&quot; → &quot;I have data to connect&quot; → &quot;QR code, key or settings file&quot;</source>
-        <translation type="unfinished">To read the QR code in the FRKN app, select &quot;Add server&quot; → &quot;I have data to connect&quot; → &quot;QR code, key or settings file&quot;</translation>
+        <translation>To read the QR code in the FRKN app, select &quot;Add server&quot; → &quot;I have data to connect&quot; → &quot;QR code, key or settings file&quot;</translation>
     </message>
 </context>
 <context>
@@ -3761,17 +3822,17 @@ for Free people</translation>
 <context>
     <name>PageStart</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageStart.qml" line="200"/>
+        <location filename="../ui/qml/Pages2/PageStart.qml" line="205"/>
         <source>Logging was disabled after 14 days, log files were deleted</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageStart.qml" line="204"/>
+        <location filename="../ui/qml/Pages2/PageStart.qml" line="209"/>
         <source>Settings restored from backup file</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageStart.qml" line="210"/>
+        <location filename="../ui/qml/Pages2/PageStart.qml" line="215"/>
         <source>Logging is enabled. Note that logs will be automaticallydisabled after 14 days, and all log files will be deleted.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4442,7 +4503,9 @@ for Free people</translation>
         <source>Your Amnezia Premium subscription has expired.
  Please check your email for renewal instructions.
  If you haven&apos;t received an email, please contact our support.</source>
-        <translation type="unfinished"></translation>
+        <translation>Your FRKN Premium subscription has expired.
+ Please check your email for renewal instructions.
+ If you haven&apos;t received an email, please contact our support.</translation>
     </message>
     <message>
         <location filename="../core/errorstrings.cpp" line="82"/>
@@ -4503,7 +4566,7 @@ for Free people</translation>
     <message>
         <location filename="../containers/containers_defs.cpp" line="111"/>
         <source>AmneziaDNS</source>
-        <translation></translation>
+        <translation>DNS</translation>
     </message>
     <message>
         <location filename="../containers/containers_defs.cpp" line="112"/>
@@ -4695,7 +4758,7 @@ It employs its unique security protocol, leveraging the strength of SSL/TLS for 
 
 OpenVPN provides a secure VPN connection by encrypting all internet traffic between the client and the server.
 
-Cloak protects OpenVPN from detection and blocking. 
+Cloak protects OpenVPN from detection and blocking.
 
 Cloak can modify packet metadata so that it completely masks VPN traffic as normal web traffic, and also protects the VPN from detection by Active Probing. This makes it very resistant to being detected
 
@@ -4713,7 +4776,7 @@ If there is a extreme level of Internet censorship in your region, we advise you
 
 OpenVPN provides a secure VPN connection by encrypting all internet traffic between the client and the server.
 
-Cloak protects OpenVPN from detection and blocking. 
+Cloak protects OpenVPN from detection and blocking.
 
 Cloak can modify packet metadata so that it completely masks VPN traffic as normal web traffic, and also protects the VPN from detection by Active Probing. This makes it very resistant to being detected
 
@@ -4770,7 +4833,7 @@ This means that AmneziaWG keeps the fast performance of the original while addin
     </message>
     <message>
         <source>IKEv2, paired with the IPSec encryption layer, stands as a modern and stable VPN protocol.
-One of its distinguishing features is its ability to swiftly switch between networks and devices, making it particularly adaptive in dynamic network environments. 
+One of its distinguishing features is its ability to swiftly switch between networks and devices, making it particularly adaptive in dynamic network environments.
 While it offers a blend of security, stability, and speed, it&apos;s essential to note that IKEv2 can be easily detected and is susceptible to blocking.
 
 * Available in the AmneziaVPN only on Windows
@@ -4779,7 +4842,7 @@ While it offers a blend of security, stability, and speed, it&apos;s essential t
 * Recognised by DPI analysis systems
 * Works over UDP network protocol, ports 500 and 4500.</source>
         <translation type="vanished">IKEv2, paired with the IPSec encryption layer, stands as a modern and stable VPN protocol.
-One of its distinguishing features is its ability to swiftly switch between networks and devices, making it particularly adaptive in dynamic network environments. 
+One of its distinguishing features is its ability to swiftly switch between networks and devices, making it particularly adaptive in dynamic network environments.
 While it offers a blend of security, stability, and speed, it&apos;s essential to note that IKEv2 can be easily detected and is susceptible to blocking.
 
 * Available in the FRKN VPN only on Windows
@@ -4872,6 +4935,11 @@ For more detailed information, you can
         <source>AmneziaWG Legacy is a outdated version of AmneziaWG protocol. To upgrade, install AmneziaWG and recreate users.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../core/controllers/coreController.cpp" line="48"/>
+        <source>All configurations have already been added</source>
+        <translation>All configurations have already been added</translation>
+    </message>
 </context>
 <context>
     <name>RenameServerDrawer</name>
@@ -4910,8 +4978,8 @@ For more detailed information, you can
         <translation></translation>
     </message>
     <message>
-        <location filename="../settings.cpp" line="213"/>
-        <location filename="../settings.cpp" line="220"/>
+        <location filename="../settings.cpp" line="222"/>
+        <location filename="../settings.cpp" line="229"/>
         <source>Server</source>
         <translation></translation>
     </message>
@@ -4938,7 +5006,7 @@ For more detailed information, you can
     <name>ShareConnectionDrawer</name>
     <message>
         <source>Save AmneziaVPN config</source>
-        <translation type="vanished">Save FRKN VPN config</translation>
+        <translation type="vanished">Save FRKN config</translation>
     </message>
     <message>
         <source>To read the QR code in the Amnezia app, select &quot;Add server&quot; → &quot;I have data to connect&quot; → &quot;QR code, key or settings file&quot;</source>
@@ -5101,12 +5169,12 @@ For more detailed information, you can
 <context>
     <name>main2</name>
     <message>
-        <location filename="../ui/qml/main2.qml" line="235"/>
+        <location filename="../ui/qml/main2.qml" line="243"/>
         <source>Private key passphrase</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/main2.qml" line="256"/>
+        <location filename="../ui/qml/main2.qml" line="264"/>
         <source>Save</source>
         <translation></translation>
     </message>
