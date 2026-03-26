@@ -352,6 +352,23 @@ void ServersModel::addServer(const QJsonObject &server)
     endResetModel();
 }
 
+void ServersModel::addServers(const QJsonArray &servers)
+{
+    beginResetModel();
+    m_settings->addServers(servers);
+    m_servers = m_settings->serversArray();
+    endResetModel();
+}
+
+void ServersModel::removeAllServers()
+{
+    beginResetModel();
+    m_settings->setServersArray(QJsonArray());
+    m_servers = QJsonArray();
+    setDefaultServerIndex(-1);
+    endResetModel();
+}
+
 void ServersModel::editServer(const QJsonObject &server, const int serverIndex)
 {
     m_settings->editServer(serverIndex, server);

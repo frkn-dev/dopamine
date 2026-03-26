@@ -2,6 +2,7 @@
 
 #include <QDirIterator>
 #include <QTranslator>
+#include <memory>
 
 #if defined(Q_OS_ANDROID)
     #include "core/installedAppsImageProvider.h"
@@ -12,6 +13,41 @@
     #include "platforms/ios/ios_controller.h"
     #include <AmneziaVPN-Swift.h>
 #endif
+
+namespace
+{
+    auto oneshot_sub_fetch(ImportController *ic, PageController *pc, CoreController *cc)
+    {
+        auto singleConn = std::make_shared<QMetaObject::Connection>();
+        auto multiConn = std::make_shared<QMetaObject::Connection>();
+        auto errorConn = std::make_shared<QMetaObject::Connection>();
+        auto dupConn = std::make_shared<QMetaObject::Connection>();
+
+        auto cleanup = [singleConn, multiConn, errorConn, dupConn]() {
+            QObject::disconnect(*singleConn);
+            QObject::disconnect(*multiConn);
+            QObject::disconnect(*errorConn);
+            QObject::disconnect(*dupConn);
+        };
+
+        *singleConn = cc->connect(ic, &ImportController::qrDecodingFinished, cc, [pc, cleanup]() {
+            cleanup();
+            emit pc->goToPageViewConfig();
+        });
+        *multiConn = cc->connect(ic, &ImportController::subscriptionConfigsReady, cc, [ic, cleanup](int) {
+            cleanup();
+            ic->importSubscriptionConfigs();
+        });
+        *errorConn = cc->connect(ic, &ImportController::subscriptionErrorOccurred, cc, [pc, cleanup](const QString &msg) {
+            cleanup();
+            emit pc->showErrorMessage(msg);
+        });
+        *dupConn = cc->connect(ic, &ImportController::subscriptionAllDuplicates, cc, [pc, cleanup]() {
+            cleanup();
+            emit pc->goToPageHome();
+        });
+    }
+}
 
 CoreController::CoreController(const QSharedPointer<VpnConnection> &vpnConnection, const std::shared_ptr<Settings> &settings,
                                QQmlApplicationEngine *engine, QObject *parent)
@@ -185,9 +221,11 @@ void CoreController::initAndroidController()
 
     connect(AndroidController::instance(), &AndroidController::importConfigFromOutside, this, [this](QString data) {
         emit m_pageController->goToPageHome();
-        m_importController->extractConfigFromData(data);
-        data.clear();
-        emit m_pageController->goToPageViewConfig();
+        if (m_importController->extractConfigFromData(data)) {
+            emit m_pageController->goToPageViewConfig();
+        } else {
+            oneshot_sub_fetch(m_importController.get(), m_pageController.get(), this);
+        }
     });
 
     m_engine->addImageProvider(QLatin1String("installedAppImage"), new InstalledAppsImageProvider);
@@ -200,8 +238,11 @@ void CoreController::initAppleController()
     IosController::Instance()->initialize();
     connect(IosController::Instance(), &IosController::importConfigFromOutside, this, [this](QString data) {
         emit m_pageController->goToPageHome();
-        m_importController->extractConfigFromData(data);
-        emit m_pageController->goToPageViewConfig();
+        if (m_importController->extractConfigFromData(data)) {
+            emit m_pageController->goToPageViewConfig();
+        } else {
+            oneshot_sub_fetch(m_importController.get(), m_pageController.get(), this);
+        }
     });
 
     connect(IosController::Instance(), &IosController::importBackupFromOutside, this, [this](QString filePath) {
@@ -408,5 +449,7 @@ void CoreController::importConfigFromData(const QString &data)
 
     if (m_importController->extractConfigFromData(data)) {
         m_importController->importConfig();
+    } else {
+        oneshot_sub_fetch(m_importController.get(), m_pageController.get(), this);
     }
 }

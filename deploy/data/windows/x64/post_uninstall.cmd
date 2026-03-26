@@ -29,4 +29,7 @@ rem Try to remove app and org directories if empty
 rd "%USER_APP_DIR%" 2>nul
 rd "%ORG_DIR%" 2>nul
 
+rem Remove frkn:// URL scheme registration
+reg delete "HKCU\Software\Classes\frkn" /f 2>nul
+
 exit /b 0

@@ -70,6 +70,7 @@ private:
 
     QNetworkAccessManager *m_nam;
 protected:
+    bool event(QEvent *event) override;
     bool eventFilter(QObject *watched, QEvent *event) override;
 };
 

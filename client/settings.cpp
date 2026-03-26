@@ -67,6 +67,15 @@ void Settings::addServer(const QJsonObject &server)
     setServersArray(servers);
 }
 
+void Settings::addServers(const QJsonArray &newServers)
+{
+    QJsonArray servers = serversArray();
+    for (const auto &server : newServers) {
+        servers.append(server);
+    }
+    setServersArray(servers);
+}
+
 void Settings::removeServer(int index)
 {
     QJsonArray servers = serversArray();

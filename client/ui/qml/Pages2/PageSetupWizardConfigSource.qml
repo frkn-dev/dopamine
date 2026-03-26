@@ -16,6 +16,13 @@ import "../Config"
 PageType {
     id: root
 
+    Component.onCompleted: {
+        if (ImportController.hasPendingSubscription) {
+            subscriptionDrawer.configCount = ImportController.subscriptionConfigsCount()
+            subscriptionDrawer.openTriggered()
+        }
+    }
+
     Connections {
         target: ImportController
 
@@ -24,6 +31,31 @@ PageType {
                 PageController.closePage()
             }
             PageController.goToPage(PageEnum.PageSetupWizardViewConfig)
+        }
+
+        function onSubscriptionConfigsReady(count) {
+            PageController.showBusyIndicator(false)
+            subscriptionDrawer.configCount = count
+            subscriptionDrawer.openTriggered()
+        }
+
+        function onSubscriptionErrorOccurred(message) {
+            PageController.showBusyIndicator(false)
+            PageController.showErrorMessage(message)
+        }
+
+        function onSubscriptionAllDuplicates() {
+            PageController.showBusyIndicator(false)
+            PageController.showNotificationMessage(qsTr("All configurations have already been added"))
+        }
+
+        function onImportFinished() {
+            PageController.showBusyIndicator(false)
+            if (!ConnectionController.isConnected) {
+                ServersModel.setDefaultServerIndex(ServersModel.getServersCount() - 1)
+                ServersModel.processedIndex = ServersModel.defaultIndex
+            }
+            PageController.goToPageHome()
         }
     }
 
@@ -188,8 +220,19 @@ PageType {
                 text: qsTr("Continue")
 
                 clickedFunc: function() {
-                    if (ImportController.extractConfigFromData(textKey.textField.text)) {
+                    var inputText = textKey.textField.text.trim()
+                    if (ImportController.extractConfigFromData(inputText)) {
                         PageController.goToPage(PageEnum.PageSetupWizardViewConfig)
+                    } else {
+                        // If extractConfigFromData returned false, it might be an async
+                        // subscription fetch in progress — show busy indicator.
+                        // The indicator will be hidden by signal handlers above.
+                        var isFrkn = inputText.startsWith("frkn://")
+                        var isHttp = inputText.startsWith("http://") || inputText.startsWith("https://")
+                        var isPlainId = !inputText.includes(" ") && !inputText.includes("://")
+                        if (isFrkn || isHttp || isPlainId) {
+                            PageController.showBusyIndicator(true)
+                        }
                     }
                 }
             }
@@ -372,6 +415,92 @@ PageType {
         property bool isVisible: PageController.isStartPageVisible() && Qt.platform.os !== "ios" && !IsMacOsNeBuild
         property var handler: function() {
             Qt.openUrlExternally(LanguageModel.getCurrentSiteUrl())
+        }
+    }
+
+    DrawerType2 {
+        id: subscriptionDrawer
+
+        property int configCount: 0
+
+        parent: root
+        anchors.fill: parent
+
+        expandedStateContent: ColumnLayout {
+            id: subscriptionContent
+
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            spacing: 0
+
+            Component.onCompleted: {
+                subscriptionDrawer.expandedHeight = subscriptionContent.implicitHeight + 32
+            }
+
+            Header2Type {
+                Layout.fillWidth: true
+                Layout.topMargin: 24
+                Layout.rightMargin: 16
+                Layout.leftMargin: 16
+                Layout.bottomMargin: 16
+
+                headerText: qsTr("Subscription loaded")
+            }
+
+            ParagraphTextType {
+                Layout.fillWidth: true
+                Layout.rightMargin: 16
+                Layout.leftMargin: 16
+                Layout.bottomMargin: 24
+
+                text: qsTr("Found %n configuration(s). Add them all?", "", subscriptionDrawer.configCount)
+            }
+
+            CheckBoxType {
+                id: replacePreviousCheckbox
+                Layout.fillWidth: true
+                Layout.rightMargin: 16
+                Layout.leftMargin: 16
+                Layout.bottomMargin: 16
+
+                text: qsTr("Delete previous configurations")
+                checked: false
+                visible: ServersModel.getServersCount() > 0
+            }
+
+            BasicButtonType {
+                Layout.fillWidth: true
+                Layout.rightMargin: 16
+                Layout.leftMargin: 16
+                Layout.bottomMargin: 8
+
+                text: qsTr("Add %n server(s)", "", subscriptionDrawer.configCount)
+
+                clickedFunc: function() {
+                    PageController.showBusyIndicator(true)
+                    subscriptionDrawer.closeTriggered()
+                    ImportController.importSubscriptionConfigs(replacePreviousCheckbox.checked)
+                }
+            }
+
+            BasicButtonType {
+                Layout.fillWidth: true
+                Layout.rightMargin: 16
+                Layout.leftMargin: 16
+                Layout.bottomMargin: 16
+
+                defaultColor: AmneziaStyle.color.transparent
+                hoveredColor: AmneziaStyle.color.translucentWhite
+                pressedColor: AmneziaStyle.color.sheerWhite
+                textColor: AmneziaStyle.color.paleGray
+
+                text: qsTr("Cancel")
+
+                clickedFunc: function() {
+                    subscriptionDrawer.closeTriggered()
+                }
+            }
         }
     }
 }

@@ -45,6 +45,15 @@ sudo cp $APP_PATH/$APP_NAME.desktop /usr/share/applications/ >> $LOG_FILE
 sudo cp $APP_PATH/$APP_NAME.png /usr/share/pixmaps/ >> $LOG_FILE
 sudo chmod 555 /usr/share/applications/$APP_NAME.desktop >> $LOG_FILE
 
+# Register frkn:// URL scheme handler
+if command -v xdg-mime &> /dev/null; then
+	sudo xdg-mime default $APP_NAME.desktop x-scheme-handler/frkn >> $LOG_FILE 2>&1
+	echo "frkn:// URL scheme registered" >> $LOG_FILE
+fi
+if command -v update-desktop-database &> /dev/null; then
+	sudo update-desktop-database /usr/share/applications/ >> $LOG_FILE 2>&1
+fi
+
 echo "user desktop creation loop ended" >> $LOG_FILE
 
 if command -v steamos-readonly &> /dev/null; then

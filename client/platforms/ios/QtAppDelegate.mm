@@ -35,6 +35,16 @@
 - (BOOL)application:(UIApplication *)app
             openURL:(NSURL *)url
             options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options {
+    // Handle frkn:// URL scheme
+    if ([[url scheme] isEqualToString:@"frkn"]) {
+        NSString *urlStr = [url absoluteString];
+        NSString *httpsUrl = [urlStr stringByReplacingCharactersInRange:NSMakeRange(0, 7) withString:@"https://"];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            IosController::Instance()->importConfigFromOutside(QString::fromNSString(httpsUrl));
+        });
+        return YES;
+    }
+
     if (url.fileURL) {
         QString filePath(url.path.UTF8String);
         if (filePath.isEmpty()) return NO;

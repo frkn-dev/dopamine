@@ -74,6 +74,11 @@ class ImportConfigActivity : ComponentActivity() {
                     }
 
                     "vpn" -> intent.data?.toString()?.let(::startMainActivity)
+
+                    "frkn" -> intent.data?.toString()?.let { frknUrl ->
+                        val httpsUrl = frknUrl.replaceFirst("frkn://", "https://")
+                        startMainActivity(httpsUrl)
+                    }
                 }
 
             }

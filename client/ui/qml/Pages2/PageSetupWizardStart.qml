@@ -42,7 +42,11 @@ PageType {
             text: qsTr("Let's get started")
 
             clickedFunc: function() {
-                PageController.goToPage(PageEnum.PageSetupWizardConfigSource)
+                if (ServersModel.getServersCount() > 0) {
+                    PageController.goToPageHome()
+                } else {
+                    PageController.goToPage(PageEnum.PageSetupWizardConfigSource)
+                }
             }
         }
     }

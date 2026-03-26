@@ -15,6 +15,7 @@
 #include <QEvent>
 #include <QDir>
 #include <QSettings>
+#include <QFileOpenEvent>
 
 #include "logger.h"
 #include "ui/controllers/pageController.h"
@@ -135,6 +136,17 @@ void AmneziaApplication::init()
         if (!data.isEmpty()) {
             if (m_coreController) {
                 m_coreController->importConfigFromData(data);
+            }
+        }
+    } else {
+        // Handle URL passed as positional argument (e.g. frkn://... from OS)
+        const QStringList posArgs = m_parser.positionalArguments();
+        for (const QString &arg : posArgs) {
+            if (arg.startsWith("frkn://") || arg.startsWith("https://") || arg.startsWith("http://")) {
+                if (m_coreController) {
+                    m_coreController->importConfigFromData(arg);
+                }
+                break;
             }
         }
     }
@@ -259,14 +271,62 @@ void AmneziaApplication::startLocalServer() {
     server->listen(serverName);
 
     QObject::connect(server, &QLocalServer::newConnection, this, [server, this]() {
-        if (server) {
-            QLocalSocket *clientConnection = server->nextPendingConnection();
+        if (!server)
+            return;
+        QLocalSocket *clientConnection = server->nextPendingConnection();
+        if (!clientConnection)
+            return;
+
+        connect(clientConnection, &QLocalSocket::readyRead, this, [clientConnection, this]() {
+            QByteArray data = clientConnection->readAll();
             clientConnection->deleteLater();
-        }
-        emit m_coreController->pageController()->raiseMainWindow(); //TODO
+            QString importData = QString::fromUtf8(data).trimmed();
+            if (!importData.isEmpty() && m_coreController) {
+                emit m_coreController->pageController()->raiseMainWindow();
+                m_coreController->importConfigFromData(importData);
+            } else if (m_coreController) {
+                emit m_coreController->pageController()->raiseMainWindow();
+            }
+        });
+
+        // If no data arrives within 500ms, just raise the window
+        QTimer::singleShot(500, clientConnection, [clientConnection, this]() {
+            if (clientConnection->bytesAvailable() == 0) {
+                clientConnection->deleteLater();
+                if (m_coreController) {
+                    emit m_coreController->pageController()->raiseMainWindow();
+                }
+            }
+        });
     });
 }
 #endif
+
+bool AmneziaApplication::event(QEvent *event)
+{
+#if defined(Q_OS_MACOS)
+    if (event->type() == QEvent::FileOpen) {
+        auto *openEvent = static_cast<QFileOpenEvent *>(event);
+        QUrl url = openEvent->url();
+        if (url.isValid() && url.scheme() == "frkn") {
+            QString urlStr = url.toString();
+            urlStr.replace(0, 7, "https://");
+            if (m_coreController) {
+                emit m_coreController->pageController()->raiseMainWindow();
+                m_coreController->importConfigFromData(urlStr);
+            }
+            return true;
+        }
+        QString filePath = openEvent->file();
+        if (!filePath.isEmpty() && m_coreController) {
+            emit m_coreController->pageController()->raiseMainWindow();
+            m_coreController->importConfigFromData(filePath);
+            return true;
+        }
+    }
+#endif
+    return AMNEZIA_BASE_CLASS::event(event);
+}
 
 bool AmneziaApplication::eventFilter(QObject *watched, QEvent *event)
 {
@@ -282,9 +342,8 @@ bool AmneziaApplication::eventFilter(QObject *watched, QEvent *event)
             }
         }
 #endif
-        return true; // eat the close
+        return true;
     }
-    // call base QObject::eventFilter
     return QObject::eventFilter(watched, event);
 }
 

@@ -4,9 +4,14 @@
 #include <QFileInfo>
 #include <QQuickItem>
 #include <QRandomGenerator>
+#include <QSet>
 #include <QStandardPaths>
 #include <QUrlQuery>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
 
+#include "amnezia_application.h"
 #include "core/api/apiDefs.h"
 #include "core/api/apiUtils.h"
 #include "core/errorstrings.h"
@@ -25,6 +30,8 @@
 
 namespace
 {
+    const QString frknApiBase = QStringLiteral("https://api.frkn.org/sub?id=");
+
     ConfigTypes checkConfigFormat(const QString &config)
     {
         const QString openVpnConfigPatternCli = "client";
@@ -151,6 +158,28 @@ bool ImportController::extractConfigFromData(QString data)
         return m_config.empty() ? false : true;
     }
 
+    // FRKN subscription URL or subscriber ID detection
+    {
+        QString urlCandidate = config.trimmed();
+
+        // frkn:// is an alias for https://
+        if (urlCandidate.startsWith("frkn://")) {
+            urlCandidate.replace(0, 7, "https://");
+        }
+
+        // Direct URL to subscription endpoint
+        if (urlCandidate.startsWith("http://") || urlCandidate.startsWith("https://")) {
+            fetchAndImportFromUrl(urlCandidate);
+            return false;
+        }
+
+        // Plain string without spaces and without :// — try as subscriber ID
+        if (!urlCandidate.contains(' ') && !urlCandidate.contains("://") && !urlCandidate.isEmpty()) {
+            fetchAndImportFromUrl(frknApiBase + QUrl::toPercentEncoding(urlCandidate));
+            return false;
+        }
+    }
+
     m_configType = checkConfigFormat(config);
     if (m_configType == ConfigTypes::Invalid) {
         config.replace("vpn://", "");
@@ -211,6 +240,8 @@ bool ImportController::extractConfigFromData(QString data)
         m_configFileName.clear();
         break;
     }
+    case ConfigTypes::ShadowSocks:
+        break;
     }
     return false;
 }
@@ -497,9 +528,8 @@ QJsonObject ImportController::extractWireGuardConfig(const QString &data)
     if (!configMap.value("MTU").isEmpty()) {
         lastConfig[config_key::mtu] = configMap.value("MTU");
     } else {
-        lastConfig[config_key::mtu] = (protocolName == "awg") 
-                                       ? protocols::awg::defaultMtu 
-                                       : protocols::wireguard::defaultMtu;
+        lastConfig[config_key::mtu] =
+                (protocolName == "awg") ? protocols::awg::defaultMtu : protocols::wireguard::defaultMtu;
     }
 
     QJsonObject wireguardConfig;
@@ -761,4 +791,160 @@ void ImportController::processAmneziaConfig(QJsonObject &config)
             config.insert(config_key::containers, containers);
         }
     }
+}
+
+bool ImportController::parseConfigLine(const QString &line, QJsonObject &outConfig)
+{
+    QString trimmed = line.trimmed();
+    if (trimmed.isEmpty())
+        return false;
+
+    QString prefix;
+    QString errormsg;
+    QJsonObject json;
+
+    if (trimmed.startsWith("vless://")) {
+        json = serialization::vless::Deserialize(trimmed, &prefix, &errormsg);
+    } else if (trimmed.startsWith("vmess://") && trimmed.contains("@")) {
+        json = serialization::vmess_new::Deserialize(trimmed, &prefix, &errormsg);
+    } else if (trimmed.startsWith("vmess://")) {
+        json = serialization::vmess::Deserialize(trimmed, &prefix, &errormsg);
+    } else if (trimmed.startsWith("trojan://")) {
+        json = serialization::trojan::Deserialize(trimmed, &prefix, &errormsg);
+    } else if (trimmed.startsWith("ss://") && !trimmed.contains("plugin=")) {
+        m_configType = ConfigTypes::ShadowSocks;
+        json = serialization::ss::Deserialize(trimmed, &prefix, &errormsg);
+        m_configType = ConfigTypes::Xray;
+        return !outConfig.isEmpty();
+    }
+
+    outConfig = extractXrayConfig(Utils::JsonToString(json, QJsonDocument::JsonFormat::Compact), prefix);
+    return !outConfig.isEmpty();
+}
+
+void ImportController::handleSubscriptionResponse(const QByteArray &responseData)
+{
+    QByteArray decoded = QByteArray::fromBase64(responseData);
+    if (decoded.isEmpty()) {
+        decoded = responseData;
+    }
+
+    QString configText = QString::fromUtf8(decoded);
+    QStringList lines = configText.split('\n', Qt::SkipEmptyParts);
+
+    m_subscriptionConfigs = QJsonArray();
+
+    // Build set of existing last_config strings for dedup
+    QSet<QString> existingConfigs;
+    const QJsonArray currentServers = m_settings->serversArray();
+    for (const auto &s : currentServers) {
+        const auto containers = s.toObject().value(config_key::containers).toArray();
+        for (const auto &c : containers) {
+            QJsonObject co = c.toObject();
+            QString lc = co.value(config_key::xray).toObject().value(config_key::last_config).toString();
+            if (lc.isEmpty())
+                lc = co.value(config_key::ssxray).toObject().value(config_key::last_config).toString();
+            if (!lc.isEmpty())
+                existingConfigs.insert(lc);
+        }
+    }
+
+    int parsed = 0;
+    int totalParsed = 0;
+    for (const QString &line : lines) {
+        QJsonObject config;
+        if (parseConfigLine(line, config)) {
+            totalParsed++;
+            // Check for duplicate via last_config
+            const auto containers = config.value(config_key::containers).toArray();
+            QString lc;
+            for (const auto &c : containers) {
+                QJsonObject co = c.toObject();
+                lc = co.value(config_key::xray).toObject().value(config_key::last_config).toString();
+                if (lc.isEmpty())
+                    lc = co.value(config_key::ssxray).toObject().value(config_key::last_config).toString();
+                if (!lc.isEmpty())
+                    break;
+            }
+            if (!lc.isEmpty() && existingConfigs.contains(lc)) {
+                continue;
+            }
+            if (!lc.isEmpty())
+                existingConfigs.insert(lc);
+            m_subscriptionConfigs.append(config);
+            parsed++;
+        } else {
+        }
+    }
+
+    if (totalParsed == 0) {
+        emit subscriptionErrorOccurred(tr("No valid configurations found at the provided URL"));
+        return;
+    }
+
+    if (parsed == 0) {
+        // All configs are duplicates — not an error
+        emit subscriptionAllDuplicates();
+        return;
+    }
+
+    if (parsed == 1) {
+        m_config = m_subscriptionConfigs.first().toObject();
+        m_configType = ConfigTypes::Xray;
+        m_subscriptionConfigs = QJsonArray();
+        emit qrDecodingFinished();
+        return;
+    }
+
+    emit subscriptionConfigsReady(parsed);
+}
+
+void ImportController::fetchAndImportFromUrl(const QString &url)
+{
+    QNetworkRequest request;
+    request.setUrl(QUrl(url));
+    request.setTransferTimeout(15000);
+
+    QNetworkReply *reply = amnApp->networkManager()->get(request);
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        reply->deleteLater();
+
+        if (reply->error() != QNetworkReply::NoError) {
+            qWarning() << "[FRKN] Subscription fetch failed:" << reply->errorString() << "url:" << reply->url();
+            emit subscriptionErrorOccurred(tr("Failed to fetch configurations: %1").arg(reply->errorString()));
+            return;
+        }
+
+        QByteArray responseData = reply->readAll();
+        if (responseData.isEmpty()) {
+            emit subscriptionErrorOccurred(tr("Empty response from server"));
+            return;
+        }
+
+        handleSubscriptionResponse(responseData);
+    });
+}
+
+void ImportController::importSubscriptionConfigs(bool replaceExisting)
+{
+    if (m_subscriptionConfigs.isEmpty())
+        return;
+
+    if (replaceExisting) {
+        m_serversModel->removeAllServers();
+    }
+    m_serversModel->addServers(m_subscriptionConfigs);
+    m_subscriptionConfigs = QJsonArray();
+    emit importFinished();
+}
+
+int ImportController::subscriptionConfigsCount() const
+{
+    return m_subscriptionConfigs.size();
+}
+
+bool ImportController::hasPendingSubscription() const
+{
+    return !m_subscriptionConfigs.isEmpty();
 }

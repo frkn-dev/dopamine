@@ -14,7 +14,21 @@ static SceneOpenURLContexts g_originalSceneOpenURLContexts = nullptr;
 
 static void amnezia_handleURL(NSURL *url)
 {
-    if (!url || !url.isFileURL) {
+    if (!url) {
+        return;
+    }
+
+    // Handle frkn:// URL scheme
+    if ([[url scheme] isEqualToString:@"frkn"]) {
+        NSString *urlStr = [url absoluteString];
+        NSString *httpsUrl = [urlStr stringByReplacingCharactersInRange:NSMakeRange(0, 7) withString:@"https://"];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            IosController::Instance()->importConfigFromOutside(QString::fromNSString(httpsUrl));
+        });
+        return;
+    }
+
+    if (!url.isFileURL) {
         return;
     }
 

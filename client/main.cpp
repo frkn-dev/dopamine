@@ -17,13 +17,18 @@
 #endif
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS) && !defined(MACOS_NE)
-bool isAnotherInstanceRunning()
+bool isAnotherInstanceRunning(const QString &dataToForward)
 {
     QLocalSocket socket;
     socket.connectToServer("FRKNVPNInstance");
     if (socket.waitForConnected(500)) {
-      qWarning() << "Client is already running";
-      return true;
+        qWarning() << "Client is already running";
+        if (!dataToForward.isEmpty()) {
+            socket.write(dataToForward.toUtf8());
+            socket.waitForBytesWritten(1000);
+        }
+        socket.disconnectFromServer();
+        return true;
     }
     return false;
 }
@@ -48,7 +53,16 @@ int main(int argc, char *argv[])
     OsSignalHandler::setup();
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS) && !defined(MACOS_NE)
-    if (isAnotherInstanceRunning()) {
+    // Check for URL or import data in arguments (e.g. frkn://... passed by OS)
+    QString dataToForward;
+    for (int i = 1; i < argc; ++i) {
+        QString arg = QString::fromUtf8(argv[i]);
+        if (arg.startsWith("frkn://") || arg.startsWith("https://") || arg.startsWith("http://")) {
+            dataToForward = arg;
+            break;
+        }
+    }
+    if (isAnotherInstanceRunning(dataToForward)) {
         QTimer::singleShot(1000, &app, [&]() { app.quit(); });
         return app.exec();
     }

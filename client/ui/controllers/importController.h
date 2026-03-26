@@ -2,6 +2,7 @@
 #define IMPORTCONTROLLER_H
 
 #include <QObject>
+#include <QJsonArray>
 
 #include "ui/models/containers_model.h"
 #include "ui/models/servers_model.h"
@@ -23,6 +24,7 @@ namespace
 class ImportController : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool hasPendingSubscription READ hasPendingSubscription NOTIFY subscriptionConfigsReady)
 public:
     explicit ImportController(const QSharedPointer<ServersModel> &serversModel,
                               const QSharedPointer<ContainersModel> &containersModel,
@@ -37,6 +39,11 @@ public slots:
     QString getConfig();
     QString getConfigFileName();
     QString getMaliciousWarningText();
+
+    void fetchAndImportFromUrl(const QString &url);
+    void importSubscriptionConfigs(bool replaceExisting = false);
+    int subscriptionConfigsCount() const;
+    bool hasPendingSubscription() const;
 
 #if defined Q_OS_ANDROID || defined Q_OS_IOS
     void startDecodingQr();
@@ -61,6 +68,10 @@ signals:
 
     void restoreAppConfig(const QByteArray &data);
 
+    void subscriptionConfigsReady(int count);
+    void subscriptionErrorOccurred(const QString &message);
+    void subscriptionAllDuplicates();
+
 private:
     QJsonObject extractOpenVpnConfig(const QString &data);
     QJsonObject extractWireGuardConfig(const QString &data);
@@ -69,6 +80,9 @@ private:
     void checkForMaliciousStrings(const QJsonObject &protocolConfig);
 
     void processAmneziaConfig(QJsonObject &config);
+
+    bool parseConfigLine(const QString &line, QJsonObject &outConfig);
+    void handleSubscriptionResponse(const QByteArray &responseData);
 
 #if defined Q_OS_ANDROID || defined Q_OS_IOS
     void stopDecodingQr();
@@ -82,6 +96,7 @@ private:
     QString m_configFileName;
     ConfigTypes m_configType;
     QString m_maliciousWarningText;
+    QJsonArray m_subscriptionConfigs;
 
 #if defined Q_OS_ANDROID || defined Q_OS_IOS
     QMap<int, QByteArray> m_qrCodeChunks;
