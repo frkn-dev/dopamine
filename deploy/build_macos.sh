@@ -134,7 +134,7 @@ cp -Rv "$PREBUILT_DEPLOY_DATA_DIR"/* "$BUNDLE_DIR/Contents/macOS"
 cp -av "$BUILD_DIR/service/server/$APP_NAME-service" "$BUNDLE_DIR/Contents/macOS"
 rsync -av --exclude="$PLIST_NAME" --exclude=post_install.sh --exclude=post_uninstall.sh "$DEPLOY_DATA_DIR/" "$BUNDLE_DIR/Contents/macOS/"
 
-if [ "${MAC_APP_CERT_PW+x}" ]; then
+if [ -n "${MAC_APP_CERT_PW-}" ] && [ -n "${MAC_SIGNER_ID-}" ]; then
 
   # Path to the p12 that contains the Developer ID *Application* certificate
   CERTIFICATE_P12=$DEPLOY_DIR/DeveloperIdApplicationCertificate.p12
@@ -170,8 +170,10 @@ mkdir -p "$PKG_ROOT/Applications" "$SCRIPTS_DIR" "$RESOURCES_DIR" "$UNINSTALL_SC
 
 cp -R "$BUNDLE_DIR" "$PKG_ROOT/Applications"
 # launchd plist is already inside the bundle; no need to add it again after signing
-/usr/bin/codesign --deep --force --verbose --timestamp -o runtime --keychain "$KEYCHAIN_PATH" --sign "$MAC_SIGNER_ID" "$PKG_ROOT/Applications/$APP_FILENAME"
-/usr/bin/codesign --verify --deep --strict --verbose=4 "$PKG_ROOT/Applications/$APP_FILENAME" || true
+if [ -n "${MAC_SIGNER_ID-}" ]; then
+  /usr/bin/codesign --deep --force --verbose --timestamp -o runtime --keychain "$KEYCHAIN_PATH" --sign "$MAC_SIGNER_ID" "$PKG_ROOT/Applications/$APP_FILENAME"
+  /usr/bin/codesign --verify --deep --strict --verbose=4 "$PKG_ROOT/Applications/$APP_FILENAME" || true
+fi
 cp "$DEPLOY_DATA_DIR/post_install.sh" "$SCRIPTS_DIR/post_install.sh"
 cp "$DEPLOY_DATA_DIR/post_uninstall.sh" "$UNINSTALL_SCRIPTS_DIR/postinstall"
 mkdir -p "$RESOURCES_DIR/scripts"
@@ -213,6 +215,12 @@ for bundle_key in $(/usr/libexec/PlistBuddy -c "Print" "$COMPONENT_PLIST" | awk 
   /usr/libexec/PlistBuddy -c "Set :'${bundle_key}':BundleIsRelocatable false" "$COMPONENT_PLIST" || true
 done
 
+# Conditionally include --sign flag for installer packaging
+SIGN_INSTALLER_ARGS=()
+if [ -n "${MAC_INSTALLER_SIGNER_ID-}" ]; then
+  SIGN_INSTALLER_ARGS=(--sign "$MAC_INSTALLER_SIGNER_ID")
+fi
+
 # Now build the real payload package with the edited plist so that the final
 # PackageInfo contains relocatable="false".
 pkgbuild --root "$PKG_ROOT" \
@@ -221,7 +229,7 @@ pkgbuild --root "$PKG_ROOT" \
          --install-location "/" \
          --scripts "$SCRIPTS_DIR" \
          --component-plist "$COMPONENT_PLIST" \
-         --sign "$MAC_INSTALLER_SIGNER_ID" \
+         ${SIGN_INSTALLER_ARGS[@]+"${SIGN_INSTALLER_ARGS[@]}"} \
          "$INSTALL_PKG"
 
 # Build uninstaller component package
@@ -231,7 +239,7 @@ pkgbuild --nopayload \
          --identifier "$APP_DOMAIN.uninstall" \
          --version "$APP_VERSION" \
          --scripts "$UNINSTALL_SCRIPTS_DIR" \
-         --sign "$MAC_INSTALLER_SIGNER_ID" \
+         ${SIGN_INSTALLER_ARGS[@]+"${SIGN_INSTALLER_ARGS[@]}"} \
          "$UNINSTALL_COMPONENT_PKG"
 
 # Wrap uninstaller component in a distribution package for clearer UI
@@ -245,7 +253,7 @@ productbuild \
   --distribution "$DEPLOY_DATA_DIR/distribution_uninstall.xml" \
   --package-path "$PKG_DIR" \
   --resources "$UNINSTALL_RESOURCES" \
-  --sign "$MAC_INSTALLER_SIGNER_ID" \
+  ${SIGN_INSTALLER_ARGS[@]+"${SIGN_INSTALLER_ARGS[@]}"} \
   "$UNINSTALL_PKG"
 
 cp "$PROJECT_DIR/deploy/data/macos/distribution.xml" "$PKG_DIR/distribution.xml"
@@ -254,10 +262,10 @@ echo "Creating final installer $FINAL_PKG ..."
 productbuild --distribution "$PKG_DIR/distribution.xml" \
              --package-path "$PKG_DIR" \
              --resources "$RESOURCES_DIR" \
-             --sign "$MAC_INSTALLER_SIGNER_ID" \
+             ${SIGN_INSTALLER_ARGS[@]+"${SIGN_INSTALLER_ARGS[@]}"} \
              "$FINAL_PKG"
 
-if [ "${MAC_INSTALL_CERT_PW+x}" ] && [ "${NOTARIZE_APP+x}" ]; then
+if [ -n "${MAC_INSTALL_CERT_PW-}" ] && [ "${NOTARIZE_APP+x}" ]; then
   echo "Notarizing installer package..."
   xcrun notarytool submit "$FINAL_PKG" \
     --apple-id "$APPLE_DEV_EMAIL" \
@@ -270,14 +278,16 @@ if [ "${MAC_INSTALL_CERT_PW+x}" ] && [ "${NOTARIZE_APP+x}" ]; then
   xcrun stapler validate "$FINAL_PKG"
 fi
 
-if [ "${MAC_INSTALL_CERT_PW+x}" ]; then
+if [ -n "${MAC_INSTALL_CERT_PW-}" ]; then
   /usr/bin/codesign --verify -vvvv "$FINAL_PKG" || true
   spctl -a -vvvv "$FINAL_PKG" || true
 fi
 
 # Sign app bundle
-/usr/bin/codesign --deep --force --verbose --timestamp -o runtime --keychain "$KEYCHAIN_PATH" --sign "$MAC_SIGNER_ID" "$BUNDLE_DIR"
-spctl -a -vvvv "$BUNDLE_DIR" || true
+if [ -n "${MAC_SIGNER_ID-}" ]; then
+  /usr/bin/codesign --deep --force --verbose --timestamp -o runtime --keychain "$KEYCHAIN_PATH" --sign "$MAC_SIGNER_ID" "$BUNDLE_DIR"
+  spctl -a -vvvv "$BUNDLE_DIR" || true
+fi
 
 # Restore login keychain as the only user keychain and delete the temporary keychain
 KEYCHAIN="$HOME/Library/Keychains/login.keychain-db"

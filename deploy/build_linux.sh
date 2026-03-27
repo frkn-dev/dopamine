@@ -60,7 +60,7 @@ echo "Building App..."
 cd $BUILD_DIR
 
 $QT_BIN_DIR/qt-cmake -S $PROJECT_DIR
-cmake --build . -j --config release
+cmake --build . -j2 --config release
 
 # Build and run tests here
 
@@ -79,6 +79,7 @@ fi
 $CQTDEPLOYER_DIR/cqtdeployer.sh -bin $BUILD_DIR/client/FRKN -qmake $QT_BIN_DIR/qmake -qmlDir $PROJECT_DIR/client/ui/qml/ -targetDir $APP_DIR/client/
 $CQTDEPLOYER_DIR/cqtdeployer.sh -bin $BUILD_DIR/service/server/FRKN-service -qmake $QT_BIN_DIR/qmake -targetDir $APP_DIR/service/
 
+mkdir -p $INSTALLER_DATA_DIR
 rm -f $INSTALLER_DATA_DIR/data.7z
 
 7z a $INSTALLER_DATA_DIR/data.7z $APP_DIR/*

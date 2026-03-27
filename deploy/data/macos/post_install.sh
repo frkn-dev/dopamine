@@ -39,7 +39,7 @@ run_cmd sudo chown -R root "$APP_PATH/"
 run_cmd sudo chgrp -R wheel "$APP_PATH/"
 
 log "Requesting ${APP_NAME} to quit gracefully"
-run_cmd osascript -e 'tell application "AmneziaVPN" to quit' || true
+run_cmd osascript -e 'tell application "FRKN" to quit' || true
 
 PLIST_SOURCE="$APP_PATH/Contents/Resources/$PLIST_NAME"
 if [ -f "$PLIST_SOURCE" ]; then
