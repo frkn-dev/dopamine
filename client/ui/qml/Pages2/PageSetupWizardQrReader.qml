@@ -49,6 +49,26 @@ PageType {
         anchors.rightMargin: 16
     }
 
+    Connections {
+        target: ImportController
+
+        function onQrDecodingFinished() {
+            PageController.closePage()
+        }
+
+        function onSubscriptionConfigsReady(count) {
+            PageController.closePage()
+        }
+
+        function onSubscriptionErrorOccurred(message) {
+            PageController.closePage()
+        }
+
+        function onSubscriptionAllDuplicates() {
+            PageController.closePage()
+        }
+    }
+
     Rectangle {
         id: qrCodeRectange
         anchors.right: parent.right

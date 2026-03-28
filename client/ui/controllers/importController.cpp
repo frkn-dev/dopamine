@@ -6,6 +6,7 @@
 #include <QRandomGenerator>
 #include <QSet>
 #include <QStandardPaths>
+#include <QThread>
 #include <QUrlQuery>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -31,6 +32,28 @@
 namespace
 {
     const QString frknApiBase = QStringLiteral("https://api.frkn.org/sub?id=");
+
+    QString decodeIfBase64(const QByteArray &input)
+    {
+        if (input.isEmpty())
+            return QString();
+
+        if (input.contains("://")) {
+            return QString::fromUtf8(input);
+        }
+
+        QByteArray decoded = QByteArray::fromBase64(input, QByteArray::Base64Encoding);
+        if (decoded.isEmpty()) {
+            return QString::fromUtf8(input);
+        }
+
+        QString result = QString::fromUtf8(decoded);
+        if (result.toUtf8() != decoded) {
+            return QString::fromUtf8(input);
+        }
+
+        return result;
+    }
 
     ConfigTypes checkConfigFormat(const QString &config)
     {
@@ -257,7 +280,8 @@ bool ImportController::extractConfigFromQr(const QByteArray &data)
     QByteArray ba_uncompressed = qUncompress(data);
     if (!ba_uncompressed.isEmpty()) {
         m_config = QJsonDocument::fromJson(ba_uncompressed).object();
-        return true;
+        if (!m_config.isEmpty())
+            return true;
     }
 
     m_configType = checkConfigFormat(data);
@@ -270,9 +294,17 @@ bool ImportController::extractConfigFromQr(const QByteArray &data)
         }
 
         if (!ba.isEmpty()) {
-            m_config = QJsonDocument::fromJson(ba).object();
-            return true;
+            QJsonObject obj = QJsonDocument::fromJson(ba).object();
+            if (!obj.isEmpty()) {
+                m_config = obj;
+                return true;
+            }
         }
+    }
+
+    QString text = QString::fromUtf8(data).trimmed();
+    if (!text.isEmpty()) {
+        return extractConfigFromData(text);
     }
 
     return false;
@@ -701,6 +733,28 @@ bool ImportController::parseQrCodeChunk(const QString &code)
             }
         }
     } else {
+        // Try interpreting the QR code as text first (URL, protocol URI, UUID, etc.)
+        // This must happen BEFORE extractConfigFromQr(ba), because ba is the base64-decoded
+        // garbage of the original text, and extractConfigFromQr would feed that garbage
+        // to extractConfigFromData, potentially starting a spurious async fetch.
+        QString rawText = code.trimmed();
+        if (!rawText.isEmpty()) {
+            bool ok = extractConfigFromData(rawText);
+            if (ok) {
+                m_isQrCodeProcessed = false;
+                qDebug() << "stopDecodingQr (raw text)";
+                stopDecodingQr();
+                return true;
+            }
+            // Check if an async fetch was started (URL or subscriber ID)
+            if (rawText.startsWith("frkn://") || rawText.startsWith("http://") || rawText.startsWith("https://")
+                || (!rawText.contains("://") && !rawText.contains(' '))) {
+                m_isQrCodeProcessed = false;
+                return true;
+            }
+        }
+
+        // Text interpretation failed — try as binary QR data
         bool ok = extractConfigFromQr(ba);
         if (ok) {
             m_isQrCodeProcessed = false;
@@ -824,12 +878,7 @@ bool ImportController::parseConfigLine(const QString &line, QJsonObject &outConf
 
 void ImportController::handleSubscriptionResponse(const QByteArray &responseData)
 {
-    QByteArray decoded = QByteArray::fromBase64(responseData);
-    if (decoded.isEmpty()) {
-        decoded = responseData;
-    }
-
-    QString configText = QString::fromUtf8(decoded);
+    QString configText = decodeIfBase64(responseData);
     QStringList lines = configText.split('\n', Qt::SkipEmptyParts);
 
     m_subscriptionConfigs = QJsonArray();
@@ -888,19 +937,17 @@ void ImportController::handleSubscriptionResponse(const QByteArray &responseData
         return;
     }
 
-    if (parsed == 1) {
-        m_config = m_subscriptionConfigs.first().toObject();
-        m_configType = ConfigTypes::Xray;
-        m_subscriptionConfigs = QJsonArray();
-        emit qrDecodingFinished();
-        return;
-    }
-
     emit subscriptionConfigsReady(parsed);
 }
 
 void ImportController::fetchAndImportFromUrl(const QString &url)
 {
+    // Ensure we run on the Qt main thread (QNetworkAccessManager requires it)
+    if (QThread::currentThread() != this->thread()) {
+        QMetaObject::invokeMethod(this, [this, url]() { fetchAndImportFromUrl(url); }, Qt::QueuedConnection);
+        return;
+    }
+
     QNetworkRequest request;
     request.setUrl(QUrl(url));
     request.setTransferTimeout(15000);
@@ -924,6 +971,17 @@ void ImportController::fetchAndImportFromUrl(const QString &url)
 
         handleSubscriptionResponse(responseData);
     });
+}
+
+void ImportController::queueConfigForConfirmation()
+{
+    if (m_config.isEmpty())
+        return;
+
+    m_subscriptionConfigs = QJsonArray();
+    m_subscriptionConfigs.append(m_config);
+    m_config = QJsonObject();
+    emit subscriptionConfigsReady(m_subscriptionConfigs.size());
 }
 
 void ImportController::importSubscriptionConfigs(bool replaceExisting)

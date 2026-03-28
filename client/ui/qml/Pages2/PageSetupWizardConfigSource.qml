@@ -27,10 +27,7 @@ PageType {
         target: ImportController
 
         function onQrDecodingFinished() {
-            if (Qt.platform.os === "ios") {
-                PageController.closePage()
-            }
-            PageController.goToPage(PageEnum.PageSetupWizardViewConfig)
+            ImportController.queueConfigForConfirmation()
         }
 
         function onSubscriptionConfigsReady(count) {
@@ -222,7 +219,7 @@ PageType {
                 clickedFunc: function() {
                     var inputText = textKey.textField.text.trim()
                     if (ImportController.extractConfigFromData(inputText)) {
-                        PageController.goToPage(PageEnum.PageSetupWizardViewConfig)
+                        ImportController.queueConfigForConfirmation()
                     } else {
                         // If extractConfigFromData returned false, it might be an async
                         // subscription fetch in progress — show busy indicator.
@@ -371,7 +368,7 @@ PageType {
             var fileName = SystemController.getFileName(qsTr("Open config file"), nameFilter)
             if (fileName !== "") {
                 if (ImportController.extractConfigFromFile(fileName)) {
-                    PageController.goToPage(PageEnum.PageSetupWizardViewConfig)
+                    ImportController.queueConfigForConfirmation()
                 }
             }
         }

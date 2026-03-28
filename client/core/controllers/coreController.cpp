@@ -30,13 +30,14 @@ namespace
             QObject::disconnect(*dupConn);
         };
 
-        *singleConn = cc->connect(ic, &ImportController::qrDecodingFinished, cc, [pc, cleanup]() {
+        *singleConn = cc->connect(ic, &ImportController::qrDecodingFinished, cc, [ic, pc, cleanup]() {
             cleanup();
-            emit pc->goToPageViewConfig();
+            ic->queueConfigForConfirmation();
+            emit pc->goToPageConfigSource();
         });
-        *multiConn = cc->connect(ic, &ImportController::subscriptionConfigsReady, cc, [ic, cleanup](int) {
+        *multiConn = cc->connect(ic, &ImportController::subscriptionConfigsReady, cc, [pc, cleanup](int) {
             cleanup();
-            ic->importSubscriptionConfigs();
+            emit pc->goToPageConfigSource();
         });
         *errorConn = cc->connect(ic, &ImportController::subscriptionErrorOccurred, cc, [pc, cleanup](const QString &msg) {
             cleanup();
@@ -44,7 +45,7 @@ namespace
         });
         *dupConn = cc->connect(ic, &ImportController::subscriptionAllDuplicates, cc, [pc, cleanup]() {
             cleanup();
-            emit pc->goToPageHome();
+            emit pc->showNotificationMessage(QObject::tr("All configurations have already been added"));
         });
     }
 }
@@ -289,7 +290,7 @@ void CoreController::initNotificationHandler()
 
     auto* trayHandler = qobject_cast<SystemTrayNotificationHandler*>(m_notificationHandler.get());
     connect(this, &CoreController::websiteUrlChanged, trayHandler, &SystemTrayNotificationHandler::updateWebsiteUrl);
-#endif    
+#endif
 }
 
 void CoreController::updateTranslator(const QLocale &locale)
@@ -448,7 +449,8 @@ void CoreController::importConfigFromData(const QString &data)
         return;
 
     if (m_importController->extractConfigFromData(data)) {
-        m_importController->importConfig();
+        m_importController->queueConfigForConfirmation();
+        emit m_pageController->goToPageConfigSource();
     } else {
         oneshot_sub_fetch(m_importController.get(), m_pageController.get(), this);
     }

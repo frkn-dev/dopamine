@@ -44,6 +44,11 @@ PageType {
             tabBarStackView.push(pagePath, { "objectName" : pagePath }, StackView.PushTransition)
         }
 
+        function onGoToPageConfigSource() {
+            var pagePath = PageController.getPagePath(PageEnum.PageSetupWizardConfigSource)
+            tabBarStackView.push(pagePath, { "objectName" : pagePath }, StackView.PushTransition)
+        }
+
         function onGoToShareConnectionPage(headerText, configContentHeaderText, configCaption, configExtension, configFileName) {
             var pagePath = PageController.getPagePath(PageEnum.PageShareConnection)
             tabBarStackView.push(pagePath,

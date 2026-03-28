@@ -42,6 +42,7 @@ public slots:
 
     void fetchAndImportFromUrl(const QString &url);
     void importSubscriptionConfigs(bool replaceExisting = false);
+    void queueConfigForConfirmation();
     int subscriptionConfigsCount() const;
     bool hasPendingSubscription() const;
 
