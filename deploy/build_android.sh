@@ -30,7 +30,16 @@ EOT
 
 BUILD_TYPE="release"
 
-opts=$(getopt -l debug,aab,apk:,build-platform:,move,fdroid,help -o "dua:b:mfh" -- "$@")
+# macOS ships with BSD getopt which doesn't support long options.
+# Use GNU getopt from Homebrew if available.
+_gnu_getopt="/opt/homebrew/opt/gnu-getopt/bin/getopt"
+if [[ ! -x "$_gnu_getopt" ]]; then
+  _gnu_getopt="$(command -v getopt)"
+fi
+
+echo "Input arguments: $*"
+
+opts=$("$_gnu_getopt" -l debug,aab,apk:,build-platform:,move,fdroid,help -o "dua:b:mfh" -- "$@")
 eval set -- "$opts"
 while true; do
   case "$1" in
@@ -165,7 +174,7 @@ $OUT_APP_DIR/android-build/gradlew \
 if [[ -v CI || -v MOVE_RESULT ]]; then
   echo "Moving APK/AAB..."
   if [ -v AAB ]; then
-    mv -u $OUT_APP_DIR/android-build/build/outputs/bundle/$BUILD_TYPE/FRKN-$BUILD_TYPE.aab \
+    mv -f $OUT_APP_DIR/android-build/build/outputs/bundle/$BUILD_TYPE/FRKN-$BUILD_TYPE.aab \
        $PROJECT_DIR/deploy/build/
   fi
 
@@ -182,7 +191,7 @@ if [[ -v CI || -v MOVE_RESULT ]]; then
     IFS=';' read -r -a abi_array <<< "$ABIS"
     for ABI in "${abi_array[@]}"
     do
-      mv -u $OUT_APP_DIR/android-build/build/outputs/apk/$BUILD_TYPE/FRKN-$ABI-$suffix.apk \
+      mv -f $OUT_APP_DIR/android-build/build/outputs/apk/$BUILD_TYPE/FRKN-$ABI-$suffix.apk \
        $PROJECT_DIR/deploy/build/
     done
   fi
