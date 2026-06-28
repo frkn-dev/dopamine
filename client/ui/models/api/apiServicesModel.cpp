@@ -128,6 +128,9 @@ QVariant ApiServicesModel::data(const QModelIndex &index, int role) const
             return 1;
         }
     }
+    case ServiceProtocolRole: {
+        return apiServiceData.protocol;
+    }
     }
 
     return QVariant();
@@ -228,6 +231,7 @@ QHash<int, QByteArray> ApiServicesModel::roleNames() const
     roles[PriceRole] = "price";
     roles[EndDateRole] = "endDate";
     roles[OrderRole] = "order";
+    roles[ServiceProtocolRole] = "serviceProtocol";
 
     return roles;
 }

@@ -3,10 +3,10 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>FRKN-service</string>
+    <string>dopamine-service</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/Applications/FRKN.app/Contents/MacOS/FRKN-service</string>
+        <string>/Applications/Dopamine.app/Contents/MacOS/dopamine-service</string>
     </array>
     <key>KeepAlive</key>
     <true/>

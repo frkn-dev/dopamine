@@ -1,5 +1,5 @@
 Common solution here:
-https://github.com/amnezia-vpn/amnezia-client/tree/dev?tab=readme-ov-file#how-to-build-an-ios-app-from-source-code-on-macos
+https://github.com/frkn-dev/dopamine/tree/dev?tab=readme-ov-file#how-to-build-an-ios-app-from-source-code-on-macos
 
 Install Qt:
 ```bash

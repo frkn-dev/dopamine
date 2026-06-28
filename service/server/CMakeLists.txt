@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25.0 FATAL_ERROR)
 
-set(PROJECT FRKN-service)
-project(${PROJECT} VERSION ${AMNEZIAVPN_VERSION})
+set(PROJECT dopamine-service)
+project(${PROJECT} VERSION ${DOPAMINE_VERSION})
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -182,8 +182,8 @@ set(RESOURCES)
 
 if(WIN32)
     configure_file(
-        ${CMAKE_CURRENT_LIST_DIR}/amneziavpn-service.rc.in
-        ${CMAKE_CURRENT_BINARY_DIR}/amneziavpn-service.rc
+        ${CMAKE_CURRENT_LIST_DIR}/dopamine-service.rc.in
+        ${CMAKE_CURRENT_BINARY_DIR}/dopamine-service.rc
     )
 
     set(HEADERS ${HEADERS}
@@ -227,7 +227,7 @@ if(WIN32)
     )
 
     set(RESOURCES ${RESOURCES}
-        ${CMAKE_CURRENT_BINARY_DIR}/amneziavpn-service.rc
+        ${CMAKE_CURRENT_BINARY_DIR}/dopamine-service.rc
     )
 
     set(LIBS

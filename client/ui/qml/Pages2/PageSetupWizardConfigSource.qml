@@ -225,9 +225,11 @@ PageType {
                         // subscription fetch in progress — show busy indicator.
                         // The indicator will be hidden by signal handlers above.
                         var isFrkn = inputText.startsWith("frkn://")
+                        var isFrknSubscription = inputText.startsWith("frkn://sub/")
+                        var isUuid = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(inputText)
                         var isHttp = inputText.startsWith("http://") || inputText.startsWith("https://")
                         var isPlainId = !inputText.includes(" ") && !inputText.includes("://")
-                        if (isFrkn || isHttp || isPlainId) {
+                        if ((isFrkn && !isFrknSubscription) || isHttp || (isPlainId && !isUuid)) {
                             PageController.showBusyIndicator(true)
                         }
                     }
@@ -292,7 +294,7 @@ PageType {
                 disabledColor: AmneziaStyle.color.mutedGray
                 textColor: AmneziaStyle.color.goldenApricot
 
-                text: qsTr("Site Amnezia")
+                text: qsTr("FRKN website")
 
                 rightImageSource: "qrc:/images/controls/external-link.svg"
 
@@ -311,8 +313,8 @@ PageType {
     QtObject {
         id: amneziaVpn
 
-        property string title: qsTr("VPN by Amnezia")
-        property string description: qsTr("Connect to classic paid and free VPN services from Amnezia")
+        property string title: qsTr("VPN by FRKN")
+        property string description: qsTr("Connect to classic paid and free VPN services from FRKN")
         property string imageSource: "qrc:/images/controls/amnezia.svg"
         property bool isVisible: true
         property var handler: function() {
@@ -329,7 +331,7 @@ PageType {
         id: selfHostVpn
 
         property string title: qsTr("Self-hosted VPN")
-        property string description: qsTr("Configure Amnezia VPN on your own server")
+        property string description: qsTr("Configure Dopamine VPN on your own server")
         property string imageSource: "qrc:/images/controls/server.svg"
         property bool isVisible: true
         property var handler: function() {

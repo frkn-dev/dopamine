@@ -64,6 +64,7 @@ public slots:
 signals:
     void importFinished();
     void importErrorOccurred(ErrorCode errorCode, bool goToPageHome);
+    void frknSubscriptionLinkDetected(const QString &subscriptionId);
 
     void qrDecodingFinished();
 

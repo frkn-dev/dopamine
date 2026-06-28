@@ -171,7 +171,7 @@ if(WIN32)
     )
 
     set(RESOURCES ${RESOURCES}
-        ${CMAKE_CURRENT_BINARY_DIR}/amneziavpn.rc
+        ${CMAKE_CURRENT_BINARY_DIR}/dopamine.rc
     )
 endif()
 

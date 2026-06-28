@@ -1,7 +1,7 @@
 @startuml openVpnRevokeClientCertificate
 actor Admin as adm
-participant "Amnezia Client" as cli
-participant "Amnezia Container" as cont
+participant "Dopamine Client" as cli
+participant "Dopamine Container" as cont
 participant "OpenVpn Service" as ovpn
 
 adm -> cli: revoke the selected client certificate

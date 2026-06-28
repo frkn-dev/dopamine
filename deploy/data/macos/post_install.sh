@@ -1,7 +1,8 @@
 #!/bin/bash
 
-APP_NAME=FRKN
-PLIST_NAME=$APP_NAME.plist
+APP_NAME=Dopamine
+SERVICE_NAME=dopamine-service
+PLIST_NAME=dopamine.plist
 LAUNCH_DAEMONS_PLIST_NAME=/Library/LaunchDaemons/$PLIST_NAME
 LOG_FOLDER=/var/log/$APP_NAME
 LOG_FILE="$LOG_FOLDER/post-install.log"
@@ -39,7 +40,7 @@ run_cmd sudo chown -R root "$APP_PATH/"
 run_cmd sudo chgrp -R wheel "$APP_PATH/"
 
 log "Requesting ${APP_NAME} to quit gracefully"
-run_cmd osascript -e 'tell application "FRKN" to quit' || true
+run_cmd osascript -e 'tell application "'"${APP_NAME}"'" to quit' || true
 
 PLIST_SOURCE="$APP_PATH/Contents/Resources/$PLIST_NAME"
 if [ -f "$PLIST_SOURCE" ]; then
@@ -51,9 +52,9 @@ fi
 run_cmd chown root:wheel "$LAUNCH_DAEMONS_PLIST_NAME"
 run_cmd chmod 644 "$LAUNCH_DAEMONS_PLIST_NAME"
 run_cmd launchctl bootstrap system "$LAUNCH_DAEMONS_PLIST_NAME" || run_cmd launchctl load "$LAUNCH_DAEMONS_PLIST_NAME"
-run_cmd launchctl enable "system/$APP_NAME-service" || true
-run_cmd launchctl kickstart -k "system/$APP_NAME-service" || true
-run_cmd launchctl print "system/$APP_NAME-service" || true
+run_cmd launchctl enable "system/$SERVICE_NAME" || true
+run_cmd launchctl kickstart -k "system/$SERVICE_NAME" || true
+run_cmd launchctl print "system/$SERVICE_NAME" || true
 log "Launching ${APP_NAME} application"
 run_cmd open -a "$APP_PATH" || true
 

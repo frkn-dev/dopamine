@@ -323,7 +323,7 @@ void ExportController::generateXrayConfig(const QString &clientName)
         vlessServer.spiderX = realitySettings.value("spiderX").toString("");
     }
 
-    m_nativeConfigString = amnezia::serialization::vless::Serialize(vlessServer, "AmneziaVPN");
+    m_nativeConfigString = amnezia::serialization::vless::Serialize(vlessServer, "Dopamine");
 
     emit exportConfigChanged();
 }

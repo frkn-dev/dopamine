@@ -1,5 +1,5 @@
 enable_language(Swift)
-message("Client message >> macos build >> AmneziaVPNNetworkExtension")
+message("Client message >> macos build >> DopamineNetworkExtension")
 set(CLIENT_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/../..)
 
 add_executable(AmneziaVPNNetworkExtension)

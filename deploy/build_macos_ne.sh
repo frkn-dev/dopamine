@@ -55,7 +55,7 @@ shasum -a 256 $SIGNING_CERT_P12
 KEYCHAIN_PASS=$MAC_SIGNING_CERT_PASSWORD
 
 # Keychain setup
-KEYCHAIN=amnezia.build.macos.keychain
+KEYCHAIN=dopamine.build.macos.keychain
 TEMP_PASS=tmp_pass
 KEYCHAIN_FILE=$HOME/Library/Keychains/$KEYCHAIN-db
 

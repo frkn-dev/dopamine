@@ -97,6 +97,87 @@ PageType {
                 }
             }
 
+            ColumnLayout {
+                Layout.fillWidth: true
+                Layout.topMargin: 16
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+
+                visible: countriesListView.count > 1
+                spacing: 0
+
+                ButtonGroup {
+                    id: countriesRadioButtonGroup
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    VerticalRadioButton {
+                        id: allCountriesRadioButton
+                        Layout.fillWidth: true
+                        text: qsTr("All countries")
+                        ButtonGroup.group: countriesRadioButtonGroup
+                        checked: false
+
+                        onClicked: {
+                            ApiConfigsController.setImportAllCountries(true)
+                        }
+                    }
+                }
+
+                DividerType {
+                    Layout.fillWidth: true
+                }
+
+                ListView {
+                    id: countriesListView
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: contentHeight
+
+                    interactive: false
+                    spacing: 0
+
+                    model: ApiServicesModel.getSelectedServiceCountries()
+
+                    delegate: ColumnLayout {
+                        width: countriesListView.width
+
+                        RowLayout {
+                            VerticalRadioButton {
+                                id: countryRadioButton
+                                Layout.fillWidth: true
+
+                                text: modelData.country_name
+                                ButtonGroup.group: countriesRadioButtonGroup
+                                checked: index === 0
+
+                                onClicked: {
+                                    ApiConfigsController.setImportAllCountries(false)
+                                    ApiConfigsController.setSelectedServerCountryCode(modelData.country_code)
+                                }
+                            }
+
+                            Image {
+                                Layout.rightMargin: 16
+                                Layout.alignment: Qt.AlignRight
+                                source: "qrc:/countriesFlags/images/flagKit/" + modelData.country_code.toUpperCase() + ".svg"
+                            }
+                        }
+
+                        DividerType {
+                            Layout.fillWidth: true
+                        }
+                    }
+
+                    Component.onCompleted: {
+                        if (count > 0) {
+                            var firstCountry = model[0]
+                            ApiConfigsController.setSelectedServerCountryCode(firstCountry.country_code)
+                        }
+                    }
+                }
+            }
+
             ParagraphTextType {
                 Layout.fillWidth: true
                 Layout.topMargin: 16

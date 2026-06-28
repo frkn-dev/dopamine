@@ -127,10 +127,10 @@ QMap<DockerContainer, QString> ContainerProps::containerDescriptions()
                QObject::tr("WireGuard - popular VPN protocol with high performance, high speed and low power "
                            "consumption.") },
              { DockerContainer::Awg,
-               QObject::tr("AmneziaWG is a special protocol from Amnezia based on WireGuard. "
+               QObject::tr("AmneziaWG is a special protocol based on WireGuard. "
                            "It provides high connection speed and ensures stable operation even in the most challenging network conditions.") },
              { DockerContainer::Awg2,
-               QObject::tr("AmneziaWG is a special protocol from Amnezia based on WireGuard. "
+               QObject::tr("AmneziaWG is a special protocol based on WireGuard. "
                            "It provides high connection speed and ensures stable operation even in the most challenging network conditions.") },
              { DockerContainer::Xray,
                QObject::tr("XRay with REALITY masks VPN traffic as web traffic and protects against active probing. "
@@ -158,16 +158,16 @@ QMap<DockerContainer, QString> ContainerProps::containerDetailedDescriptions()
                       "It provides a good balance between speed and security but is easily recognized by DPI systems, "
                       "making it susceptible to blocking.\n"
                       "\nFeatures:\n"
-                      "* Available on all AmneziaVPN platforms\n"
+                      "* Available on all Dopamine platforms\n"
                       "* Normal battery consumption on mobile devices\n"
                       "* Flexible customization for various devices and OS\n"
                       "* Operates over both TCP and UDP protocols") },
         { DockerContainer::ShadowSocks,
           QObject::tr("Shadowsocks is based on the SOCKS5 protocol and encrypts connections using AEAD cipher. "
                       "Although designed to be discreet, it doesn't mimic a standard HTTPS connection and can be detected by some DPI systems. "
-                      "Due to limited support in Amnezia, we recommend using the AmneziaWG protocol.\n"
+                      "Due to limited support in Dopamine, we recommend using the AmneziaWG protocol.\n"
                       "\nFeatures:\n"
-                      "* Available in AmneziaVPN only on desktop platforms\n"
+                      "* Available in Dopamine only on desktop platforms\n"
                       "* Customizable encryption protocol\n"
                       "* Detectable by some DPI systems\n"
                       "* Operates over TCP protocol\n") },
@@ -179,7 +179,7 @@ QMap<DockerContainer, QString> ContainerProps::containerDetailedDescriptions()
                       "If an incoming connection fails authentication, Cloak serves a fake website, making your VPN invisible to traffic analysis systems.\n"
                       "\nIn regions with heavy internet censorship, we strongly recommend using OpenVPN with Cloak from your first connection.\n"
                       "\nFeatures:\n"
-                      "* Available on all AmneziaVPN platforms\n"
+                      "* Available on all Dopamine platforms\n"
                       "* High power consumption on mobile devices\n"
                       "* Flexible configuration options\n"
                       "* Undetectable by DPI systems\n"
@@ -189,7 +189,7 @@ QMap<DockerContainer, QString> ContainerProps::containerDetailedDescriptions()
                       "It uses fixed encryption settings, delivering lower latency and higher data transfer speeds compared to OpenVPN. "
                       "However, WireGuard is easily identifiable by DPI systems due to its distinctive packet signatures, making it susceptible to blocking.\n"
                       "\nFeatures:\n"
-                      "* Available on all AmneziaVPN platforms\n"
+                      "* Available on all Dopamine platforms\n"
                       "* Low power consumption on mobile devices\n"
                       "* Minimal configuration required\n"
                       "* Easily detected by DPI systems (susceptible to blocking)\n"
@@ -201,7 +201,7 @@ QMap<DockerContainer, QString> ContainerProps::containerDetailedDescriptions()
                       "making VPN traffic indistinguishable from regular internet traffic.\n"
                       "\nAmneziaWG is an excellent choice for those seeking a fast, stealthy VPN connection.\n"
                       "\nFeatures:\n"
-                      "* Available on all AmneziaVPN platforms\n"
+                      "* Available on all Dopamine platforms\n"
                       "* Low battery consumption on mobile devices\n"
                       "* Minimal settings required\n"
                       "* Undetectable by traffic analysis systems (DPI)\n"
@@ -224,7 +224,7 @@ QMap<DockerContainer, QString> ContainerProps::containerDetailedDescriptions()
                       "It reconnects quickly when switching networks or devices, making it ideal for dynamic network environments. "
                       "While it provides good security and speed, it's easily recognized by DPI systems and susceptible to blocking.\n"
                       "\nFeatures:\n"
-                      "* Available in AmneziaVPN only on Windows\n"
+                      "* Available in Dopamine only on Windows\n"
                       "* Low battery consumption on mobile devices\n"
                       "* Minimal configuration required\n"
                       "* Detectable by DPI analysis systems(easily blocked)\n"
@@ -233,7 +233,7 @@ QMap<DockerContainer, QString> ContainerProps::containerDetailedDescriptions()
         { DockerContainer::TorWebSite, QObject::tr("Website in Tor network") },
         { DockerContainer::Dns, QObject::tr("DNS Service") },
         { DockerContainer::Sftp,
-          QObject::tr("After installation, Amnezia will create a\n\n file storage on your server. "
+          QObject::tr("After installation, Dopamine will create a\n\n file storage on your server. "
                       "You will be able to access it using\n FileZilla or other SFTP clients, "
                       "as well as mount the disk on your device to access\n it directly from your device.\n\n"
                       "For more detailed information, you can\n find it in the support section under \"Create SFTP file storage.\" ") },

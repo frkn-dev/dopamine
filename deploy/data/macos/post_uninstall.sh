@@ -1,7 +1,8 @@
 #!/bin/bash
 
-APP_NAME=FRKN
-PLIST_NAME=$APP_NAME.plist
+APP_NAME=Dopamine
+SERVICE_NAME=dopamine-service
+PLIST_NAME=dopamine.plist
 LAUNCH_DAEMONS_PLIST_NAME="/Library/LaunchDaemons/$PLIST_NAME"
 APP_PATH="/Applications/$APP_NAME.app"
 USER_APP_SUPPORT="$HOME/Library/Application Support/$APP_NAME"
@@ -23,12 +24,12 @@ if pgrep -x "$APP_NAME" > /dev/null; then
 fi
 
 # Stop the running service if it exists
-if pgrep -x "${APP_NAME}-service" > /dev/null; then
-    sudo killall -9 "${APP_NAME}-service"
+if pgrep -x "${SERVICE_NAME}" > /dev/null; then
+    sudo killall -9 "${SERVICE_NAME}"
 fi
 
 # Unload the service if loaded and remove its plist file regardless
-if launchctl list "${APP_NAME}-service" &> /dev/null; then
+if launchctl list "${SERVICE_NAME}" &> /dev/null; then
     sudo launchctl bootout system "$LAUNCH_DAEMONS_PLIST_NAME" || sudo launchctl unload "$LAUNCH_DAEMONS_PLIST_NAME"
 fi
 sudo rm -f "$LAUNCH_DAEMONS_PLIST_NAME"

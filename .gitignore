@@ -1,9 +1,9 @@
 # User settings
 *.user
 macOSPackage/
-AmneziaVPN.dmg
-AmneziaVPN.exe
-AmneziaVPN_*.exe
+Dopamine.dmg
+Dopamine.exe
+Dopamine_*.exe
 FRKN.dmg
 FRKN.exe
 FRKN_*.exe
@@ -52,11 +52,11 @@ client/ui_*.cpp
 client/Makefile*
 client/fastlane/build/
 client/*build-*
-client/AmneziaVPN.xcodeproj
+client/Dopamine.xcodeproj
 client/FRKN.xcodeproj
 client/Debug-iphonesimulator/
-client/amneziavpn_plugin_import.cpp
-client/amneziavpn_qml_plugin_import.cpp
+client/dopamine_plugin_import.cpp
+client/dopamine_qml_plugin_import.cpp
 client/qmlcache_loader.cpp
 client/rep_ipc_interface_replica.h
 client/resources_qmlcache.qrc
@@ -77,7 +77,7 @@ CMakeLists.txt.user*
 *.7z
 deploy/AppDir
 deploy/Tools
-deploy/AmneziaVPN*Installer*
+deploy/Dopamine*Installer*
 deploy/FRKN*Installer*
 
 # MACOS files
@@ -147,4 +147,13 @@ macos-signed-build.sh
 macos-with-sign-build.sh
 DeveloperIdApplicationCertificate.p12
 DeveloperIdInstallerCertificate.p12
+
+# AGW / API keys and debug artifacts
+agw_private.pem
+agw_public.pem
+services_response.json
+test_agw_encryption.py
+fetch_frkn_config.py
+Screenshot*.png
+.flCC1CF733
 

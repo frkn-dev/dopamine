@@ -31,9 +31,9 @@ BUILD_DIR="$DEPLOY_DIR/build"
 echo "Project dir: ${PROJECT_DIR}"
 echo "Build dir: ${BUILD_DIR}"
 
-APP_NAME=FRKN
+APP_NAME=dopamine
 APP_FILENAME=$APP_NAME.app
-APP_DOMAIN=org.frkn.package
+APP_DOMAIN=org.frkn.dopamine.package
 PLIST_NAME=$APP_NAME.plist
 
 OUT_APP_DIR=$BUILD_DIR/client
@@ -236,7 +236,7 @@ pkgbuild --root "$PKG_ROOT" \
 UNINSTALL_COMPONENT_PKG=$PKG_DIR/${APP_NAME}_uninstall_component.pkg
 echo "Building uninstaller component package $UNINSTALL_COMPONENT_PKG ..."
 pkgbuild --nopayload \
-         --identifier "$APP_DOMAIN.uninstall" \
+         --identifier "org.frkn.dopamine.uninstall" \
          --version "$APP_VERSION" \
          --scripts "$UNINSTALL_SCRIPTS_DIR" \
          ${SIGN_INSTALLER_ARGS[@]+"${SIGN_INSTALLER_ARGS[@]}"} \
@@ -256,7 +256,9 @@ productbuild \
   ${SIGN_INSTALLER_ARGS[@]+"${SIGN_INSTALLER_ARGS[@]}"} \
   "$UNINSTALL_PKG"
 
-cp "$PROJECT_DIR/deploy/data/macos/distribution.xml" "$PKG_DIR/distribution.xml"
+sed -e "s/FRKN_install\.pkg/${APP_NAME}_install.pkg/g" \
+    -e "s/FRKN_uninstall_component\.pkg/${APP_NAME}_uninstall_component.pkg/g" \
+    "$PROJECT_DIR/deploy/data/macos/distribution.xml" > "$PKG_DIR/distribution.xml"
 
 echo "Creating final installer $FINAL_PKG ..."
 productbuild --distribution "$PKG_DIR/distribution.xml" \

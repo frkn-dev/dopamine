@@ -42,15 +42,78 @@ PageType {
 
         header: ColumnLayout {
             width: listView.width
+            spacing: 16
 
             BaseHeaderType {
                 Layout.fillWidth: true
                 Layout.rightMargin: 16
                 Layout.leftMargin: 16
-                Layout.bottomMargin: 24
+                Layout.bottomMargin: 8
 
-                headerText: qsTr("VPN by Amnezia")
+                headerText: qsTr("VPN by FRKN")
                 descriptionText: qsTr("Choose a VPN service that suits your needs.")
+            }
+
+            ParagraphTextType {
+                Layout.fillWidth: true
+                Layout.rightMargin: 16
+                Layout.leftMargin: 16
+                text: qsTr("I have a subscription ID")
+            }
+
+            TextFieldWithHeaderType {
+                id: subscriptionIdField
+                Layout.fillWidth: true
+                Layout.rightMargin: 16
+                Layout.leftMargin: 16
+                headerText: qsTr("Subscription ID")
+                textField.placeholderText: qsTr("Enter UUID")
+
+                textField.onTextChanged: {
+                    ApiConfigsController.setSubscriptionId(textField.text)
+                }
+            }
+
+            DividerType {
+                Layout.topMargin: 8
+                Layout.bottomMargin: 8
+            }
+
+            ParagraphTextType {
+                Layout.fillWidth: true
+                Layout.rightMargin: 16
+                Layout.leftMargin: 16
+                text: qsTr("No subscription?")
+            }
+
+            TextFieldWithHeaderType {
+                id: trialEmailField
+                Layout.fillWidth: true
+                Layout.rightMargin: 16
+                Layout.leftMargin: 16
+                headerText: qsTr("Email (optional)")
+                textField.placeholderText: qsTr("For trial activation letter")
+            }
+
+            BasicButtonType {
+                Layout.fillWidth: true
+                Layout.rightMargin: 16
+                Layout.leftMargin: 16
+                Layout.bottomMargin: 8
+                text: qsTr("Create trial account")
+                clickedFunc: function() {
+                    ApiConfigsController.createTrial(trialEmailField.textField.text)
+                }
+            }
+
+            ParagraphTextType {
+                id: subscriptionStatusLabel
+                Layout.fillWidth: true
+                Layout.rightMargin: 16
+                Layout.leftMargin: 16
+                Layout.bottomMargin: 8
+                text: ApiConfigsController.subscriptionId === "" ? qsTr("No subscription selected") : qsTr("Subscription: %1").arg(ApiConfigsController.subscriptionId)
+                color: AmneziaStyle.color.mutedGray
             }
         }
 
@@ -82,13 +145,15 @@ PageType {
 
                 headerText: name
                 bodyText: cardDescription
-                footerText: price
+                footerText: price === qsTr("Free") ? "" : price
 
                 rightImageSource: "qrc:/images/controls/chevron-right.svg"
 
                 onClicked: {
                     if (isServiceAvailable) {
                         ApiServicesModel.setServiceIndex(proxyApiServicesModel.mapToSource(index))
+                        ApiConfigsController.setSelectedServerCountryCode("")
+                        ApiConfigsController.setImportAllCountries(false)
                         PageController.goToPage(PageEnum.PageSetupWizardApiServiceInfo)
                     }
                 }

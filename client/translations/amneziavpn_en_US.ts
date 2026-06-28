@@ -71,23 +71,24 @@
 <context>
     <name>ApiConfigsController</name>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="514"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="690"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="600"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="815"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="840"/>
         <source>%1 installed successfully.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="637"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="723"/>
         <source>Subscription restored successfully.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="751"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="901"/>
         <source>API config reloaded</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="755"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="905"/>
         <source>Successfully changed the country of connection to %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -300,32 +301,32 @@ Can&apos;t be disabled for current server</source>
 <context>
     <name>ImportController</name>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="776"/>
+        <location filename="../ui/controllers/importController.cpp" line="790"/>
         <source>Scanned %1 of %2.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="811"/>
+        <location filename="../ui/controllers/importController.cpp" line="825"/>
         <source>This configuration contains an OpenVPN setup. OpenVPN configurations can include malicious scripts, so only add it if you fully trust the provider of this config. </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="815"/>
+        <location filename="../ui/controllers/importController.cpp" line="829"/>
         <source>&lt;br&gt;In the imported configuration, potentially dangerous lines were found:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="930"/>
+        <location filename="../ui/controllers/importController.cpp" line="944"/>
         <source>No valid configurations found at the provided URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="962"/>
+        <location filename="../ui/controllers/importController.cpp" line="976"/>
         <source>Failed to fetch configurations: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="968"/>
+        <location filename="../ui/controllers/importController.cpp" line="982"/>
         <source>Empty response from server</source>
         <translation type="unfinished"></translation>
     </message>
@@ -441,7 +442,7 @@ Already installed containers were found on the server. All installed containers 
     <message>
         <location filename="../ui/notificationhandler.cpp" line="57"/>
         <location filename="../ui/notificationhandler.cpp" line="64"/>
-        <source>AmneziaVPN</source>
+        <source>Dopamine</source>
         <translation>FRKN</translation>
     </message>
     <message>
@@ -456,7 +457,7 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/notificationhandler.cpp" line="88"/>
-        <source>AmneziaVPN notification</source>
+        <source>Dopamine notification</source>
         <translation>FRKN notification</translation>
     </message>
     <message>
@@ -1480,7 +1481,7 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettings.qml" line="177"/>
-        <source>About AmneziaVPN</source>
+        <source>About Dopamine</source>
         <translation>About FRKN</translation>
     </message>
     <message>
@@ -1498,13 +1499,12 @@ Already installed containers were found on the server. All installed containers 
     <name>PageSettingsAbout</name>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="61"/>
-        <source>Support Amnezia</source>
-        <translation>Free VPN
-for Free people</translation>
+        <source>Support FRKN</source>
+        <translation>Privacy is our Religion</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="76"/>
-        <source>Amnezia is a free and open-source application. You can support the developers if you like it.</source>
+        <source>Dopamine is a free and open-source application by FRKN. You can support the developers if you like it.</source>
         <translation>We support freedom of speech and oppose all forms of censorship. We are developing a decentralized VPN that does not collect or store user data.</translation>
     </message>
     <message>
@@ -1524,12 +1524,17 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="193"/>
-        <source>https://t.me/amnezia_vpn_en</source>
-        <translation>https://t.me/FRKN_org</translation>
+        <source>https://t.me/frkn_support</source>
+        <translation>https://t.me/frkn_org</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="200"/>
         <source>mail@frkn.org</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="204"/>
+        <source>mailto:mail@frkn.org</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1538,17 +1543,12 @@ for Free people</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>support@amnezia.org</source>
-        <translation type="vanished">mail@frkn.org</translation>
+        <source>support@frkn.org</source>
+        <translation type="vanished">pigeon@frkn.org</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="201"/>
         <source>For reviews and bug reports</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="204"/>
-        <source>mailto:mail@frkn.org</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1563,8 +1563,8 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="215"/>
-        <source>https://github.com/amnezia-vpn/amnezia-client</source>
-        <translation type="unfinished">https://github.com/frkn-dev/client</translation>
+        <source>https://github.com/frkn-dev/dopamine</source>
+        <translation type="unfinished">https://github.com/frkn-dev/dopamine</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="222"/>
@@ -1672,7 +1672,7 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiInstructions.qml" line="23"/>
-        <source>documentation/instructions/connect-amnezia-premium#windows</source>
+        <source>documentation/instructions/connect-dopamine-premium#windows</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1682,7 +1682,7 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiInstructions.qml" line="30"/>
-        <source>documentation/instructions/connect-amnezia-premium#macos</source>
+        <source>documentation/instructions/connect-dopamine-premium#macos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1692,7 +1692,7 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiInstructions.qml" line="37"/>
-        <source>documentation/instructions/connect-amnezia-premium#android</source>
+        <source>documentation/instructions/connect-dopamine-premium#android</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1712,7 +1712,7 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiInstructions.qml" line="51"/>
-        <source>documentation/instructions/connect-amnezia-premium#ios</source>
+        <source>documentation/instructions/connect-dopamine-premium#ios</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1722,7 +1722,7 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiInstructions.qml" line="58"/>
-        <source>documentation/instructions/connect-amnezia-premium#linux</source>
+        <source>documentation/instructions/connect-dopamine-premium#linux</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1732,7 +1732,7 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiInstructions.qml" line="65"/>
-        <source>documentation/instructions/connect-amnezia-premium#routers</source>
+        <source>documentation/instructions/connect-dopamine-premium#routers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1742,7 +1742,7 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiInstructions.qml" line="102"/>
-        <source>Setup guides on the Amnezia website</source>
+        <source>Setup guides on the FRKN website</source>
         <translation>Setup guides on the FRKN website</translation>
     </message>
 </context>
@@ -1750,7 +1750,7 @@ for Free people</translation>
     <name>PageSettingsApiNativeConfigs</name>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiNativeConfigs.qml" line="23"/>
-        <source>Save AmneziaVPN config</source>
+        <source>Save Dopamine config</source>
         <translation>Save FRKN config</translation>
     </message>
     <message>
@@ -1760,7 +1760,7 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiNativeConfigs.qml" line="61"/>
-        <source>For router setup or the AmneziaWG app</source>
+        <source>For router setup or the Dopamine app</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1897,66 +1897,71 @@ for Free people</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="312"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="302"/>
+        <source>Show raw config</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="349"/>
         <source>Reload API config</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="315"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="352"/>
         <source>Reload API config?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="316"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="354"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="353"/>
         <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="391"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="428"/>
         <source>Continue</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="317"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="355"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="354"/>
         <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="392"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="429"/>
         <source>Cancel</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="321"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="358"/>
         <source>Cannot reload API config during active connection</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="349"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="386"/>
         <source>Unlink this device</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="352"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="389"/>
         <source>Are you sure you want to unlink this device?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="353"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="390"/>
         <source>This will unlink the device from your subscription. You can reconnect it anytime by pressing&#xa0;&quot;Reload API config&quot; in subscription settings on device.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="359"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="396"/>
         <source>Cannot unlink device during active connection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="387"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="424"/>
         <source>Remove from application</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="390"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="427"/>
         <source>Remove from application?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="396"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="433"/>
         <source>Cannot remove server during active connection</source>
         <translation></translation>
     </message>
@@ -1980,7 +1985,7 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="113"/>
-        <source>Save AmneziaVPN config</source>
+        <source>Save Dopamine config</source>
         <translation>Save FRKN config</translation>
     </message>
     <message>
@@ -1995,8 +2000,12 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="180"/>
+        <source>To read the QR code in the Dopamine app, tap + in the main menu → &apos;QR code&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>To read the QR code in the Amnezia app, tap + in the main menu → &apos;QR code&apos;</source>
-        <translation>To read the QR code in the FRKN app, tap + in the main menu → &apos;QR code&apos;</translation>
+        <translation type="vanished">To read the QR code in the FRKN app, tap + in the main menu → &apos;QR code&apos;</translation>
     </message>
 </context>
 <context>
@@ -2209,7 +2218,7 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="267"/>
-        <source>All settings will be reset to default. All installed AmneziaVPN services will still remain on the server.</source>
+        <source>All settings will be reset to default. All installed Dopamine services will still remain on the server.</source>
         <translation>All settings will be reset to default. All installed FRKN services will still remain on the server.</translation>
     </message>
     <message>
@@ -2247,7 +2256,7 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsBackup.qml" line="90"/>
-        <source>The backup will contain your passwords and private keys for all servers added to AmneziaVPN. Keep this information in a secure place.</source>
+        <source>The backup will contain your passwords and private keys for all servers added to Dopamine. Keep this information in a secure place.</source>
         <translation>The backup will contain your passwords and private keys for all servers added to FRKN. Keep this information in a secure place.</translation>
     </message>
     <message>
@@ -2690,7 +2699,7 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="110"/>
-        <source>Check the server for previously installed Amnezia services</source>
+        <source>Check the server for previously installed Dopamine services</source>
         <translation>Check the server for previously installed FRKN services</translation>
     </message>
     <message>
@@ -2746,7 +2755,7 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="159"/>
-        <source>All installed AmneziaVPN services will still remain on the server.</source>
+        <source>All installed Dopamine services will still remain on the server.</source>
         <translation>All installed FRKN services will still remain on the server.</translation>
     </message>
     <message>
@@ -2756,12 +2765,12 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="184"/>
-        <source>Clear server from Amnezia software</source>
+        <source>Clear server from Dopamine software</source>
         <translation>Clear server from FRKN software</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="188"/>
-        <source>Do you want to clear server from Amnezia software?</source>
+        <source>Do you want to clear server from Dopamine software?</source>
         <translation>Do you want to clear server from FRKN software?</translation>
     </message>
     <message>
@@ -2771,7 +2780,7 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="195"/>
-        <source>Cannot clear server from Amnezia software during active connection</source>
+        <source>Cannot clear server from Dopamine software during active connection</source>
         <translation>Cannot clear server from FRKN software during active connection</translation>
     </message>
     <message>
@@ -3012,47 +3021,52 @@ for Free people</translation>
 <context>
     <name>PageSetupWizardApiServiceInfo</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml" line="113"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml" line="118"/>
+        <source>All countries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml" line="194"/>
         <source>Charged to your Apple ID at confirmation. Renews automatically unless auto-renew is turned off at least 24 hours before period end. Manage in Apple ID settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml" line="125"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml" line="206"/>
         <source>Subscribe Now</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml" line="158"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml" line="239"/>
         <source>By continuing, you agree to the &lt;a href=&quot;%1&quot; style=&quot;color: #FBB26A;&quot;&gt;Terms of Use&lt;/a&gt; and &lt;a href=&quot;%2&quot; style=&quot;color: #FBB26A;&quot;&gt;Privacy Policy&lt;/a&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml" line="186"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml" line="267"/>
         <source>For the region</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml" line="195"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml" line="276"/>
         <source>Price</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml" line="204"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml" line="285"/>
         <source>Work period</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml" line="213"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml" line="294"/>
         <source>Speed</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml" line="222"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml" line="303"/>
         <source>Features</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml" line="125"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml" line="206"/>
         <source>Connect</source>
         <translation></translation>
     </message>
@@ -3060,25 +3074,75 @@ for Free people</translation>
 <context>
     <name>PageSetupWizardApiServicesList</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardApiServicesList.qml" line="52"/>
-        <source>VPN by Amnezia</source>
+        <location filename="../ui/qml/Pages2/PageSetupWizardApiServicesList.qml" line="53"/>
+        <source>VPN by FRKN</source>
         <translation>VPN by FRKN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardApiServicesList.qml" line="53"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardApiServicesList.qml" line="54"/>
         <source>Choose a VPN service that suits your needs.</source>
         <translation></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSetupWizardApiServicesList.qml" line="61"/>
+        <source>I have a subscription ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSetupWizardApiServicesList.qml" line="69"/>
+        <source>Subscription ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSetupWizardApiServicesList.qml" line="70"/>
+        <source>Enter UUID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSetupWizardApiServicesList.qml" line="86"/>
+        <source>No subscription?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSetupWizardApiServicesList.qml" line="94"/>
+        <source>Email (optional)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSetupWizardApiServicesList.qml" line="95"/>
+        <source>For trial activation letter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSetupWizardApiServicesList.qml" line="103"/>
+        <source>Create trial account</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSetupWizardApiServicesList.qml" line="115"/>
+        <source>No subscription selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSetupWizardApiServicesList.qml" line="115"/>
+        <source>Subscription: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSetupWizardApiServicesList.qml" line="148"/>
+        <source>Free</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>PageSetupWizardConfigSource</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="445"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="447"/>
         <source>Subscription loaded</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="454"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="456"/>
         <source>Found %n configuration(s). Add them all?</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -3086,12 +3150,12 @@ for Free people</translation>
         </translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="464"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="466"/>
         <source>Delete previous configurations</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="475"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="477"/>
         <source>Add %n server(s)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -3099,7 +3163,7 @@ for Free people</translation>
         </translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="495"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="497"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3174,81 +3238,81 @@ for Free people</translation>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="245"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="247"/>
         <source>Other connection options</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="295"/>
-        <source>Site Amnezia</source>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="297"/>
+        <source>FRKN website</source>
         <translation>Site FRKN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="314"/>
-        <source>VPN by Amnezia</source>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="316"/>
+        <source>VPN by FRKN</source>
         <translation>VPN by FRKN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="315"/>
-        <source>Connect to classic paid and free VPN services from Amnezia</source>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="317"/>
+        <source>Connect to classic paid and free VPN services from FRKN</source>
         <translation>Connect to classic paid and free VPN services from FRKN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="331"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="333"/>
         <source>Self-hosted VPN</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="332"/>
-        <source>Configure Amnezia VPN on your own server</source>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="334"/>
+        <source>Configure Dopamine VPN on your own server</source>
         <translation>Configure VPN on your own server</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="343"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="345"/>
         <source>Restore from backup</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="344"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="362"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="381"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="396"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="410"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="346"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="364"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="383"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="398"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="412"/>
         <source></source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="348"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="350"/>
         <source>Open backup file</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="349"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="351"/>
         <source>Backup files (*.backup)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="361"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="363"/>
         <source>File with connection settings</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="368"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="370"/>
         <source>Open config file</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="380"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="382"/>
         <source>QR code</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="395"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="397"/>
         <source>Restore purchases</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="409"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="411"/>
         <source>I have nothing</source>
         <translation></translation>
     </message>
@@ -3288,7 +3352,7 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardCredentials.qml" line="132"/>
-        <source>All data you enter will remain strictly confidential and will not be shared or disclosed to the Amnezia or any third parties</source>
+        <source>All data you enter will remain strictly confidential and will not be shared or disclosed to FRKN or any third parties</source>
         <translation>All data you enter will remain strictly confidential and will not be shared or disclosed to FRKN or any third parties</translation>
     </message>
     <message>
@@ -3365,12 +3429,12 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardInstalling.qml" line="69"/>
-        <source>Amnezia has detected that your server is currently </source>
+        <source>Dopamine has detected that your server is currently </source>
         <translation>FRKN has detected that your server is currently </translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardInstalling.qml" line="70"/>
-        <source>busy installing other software. Amnezia installation </source>
+        <source>busy installing other software. Dopamine installation </source>
         <translation>busy installing other software. FRKN installation </translation>
     </message>
     <message>
@@ -3453,6 +3517,29 @@ for Free people</translation>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardStart.qml" line="42"/>
         <source>Let&apos;s get started</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PageSetupWizardSubscriptionProtocols</name>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSetupWizardSubscriptionProtocols.qml" line="68"/>
+        <source>Select protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSetupWizardSubscriptionProtocols.qml" line="69"/>
+        <source>Choose which configurations to import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSetupWizardSubscriptionProtocols.qml" line="156"/>
+        <source>Import selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSetupWizardSubscriptionProtocols.qml" line="173"/>
+        <source>Imported %1 configurations</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3541,7 +3628,7 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShare.qml" line="50"/>
-        <source>Save AmneziaVPN config</source>
+        <source>Save Dopamine config</source>
         <translation>Save FRKN config</translation>
     </message>
     <message>
@@ -3571,7 +3658,7 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShare.qml" line="120"/>
-        <source>For the AmneziaVPN app</source>
+        <source>For the Dopamine app</source>
         <translation>For the FRKN app</translation>
     </message>
     <message>
@@ -3749,7 +3836,7 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShareConnection.qml" line="30"/>
-        <source>Save AmneziaVPN config</source>
+        <source>Save Dopamine config</source>
         <translation>Save FRKN config</translation>
     </message>
     <message>
@@ -3770,8 +3857,12 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShareConnection.qml" line="323"/>
+        <source>To read the QR code in the Dopamine app, select &quot;Add server&quot; → &quot;I have data to connect&quot; → &quot;QR code, key or settings file&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>To read the QR code in the Amnezia app, select &quot;Add server&quot; → &quot;I have data to connect&quot; → &quot;QR code, key or settings file&quot;</source>
-        <translation>To read the QR code in the FRKN app, select &quot;Add server&quot; → &quot;I have data to connect&quot; → &quot;QR code, key or settings file&quot;</translation>
+        <translation type="vanished">To read the QR code in the FRKN app, select &quot;Add server&quot; → &quot;I have data to connect&quot; → &quot;QR code, key or settings file&quot;</translation>
     </message>
 </context>
 <context>
@@ -4398,7 +4489,7 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../core/errorstrings.cpp" line="53"/>
-        <source>Amnezia helper service error</source>
+        <source>Dopamine helper service error</source>
         <translation>FRKN helper service error</translation>
     </message>
     <message>
@@ -4500,7 +4591,7 @@ for Free people</translation>
     </message>
     <message>
         <location filename="../core/errorstrings.cpp" line="81"/>
-        <source>Your Amnezia Premium subscription has expired.
+        <source>Your FRKN Premium subscription has expired.
  Please check your email for renewal instructions.
  If you haven&apos;t received an email, please contact our support.</source>
         <translation>Your FRKN Premium subscription has expired.
@@ -4596,7 +4687,7 @@ for Free people</translation>
     <message>
         <location filename="../containers/containers_defs.cpp" line="130"/>
         <location filename="../containers/containers_defs.cpp" line="133"/>
-        <source>AmneziaWG is a special protocol from Amnezia based on WireGuard. It provides high connection speed and ensures stable operation even in the most challenging network conditions.</source>
+        <source>AmneziaWG is a special protocol based on WireGuard. It provides high connection speed and ensures stable operation even in the most challenging network conditions.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4614,7 +4705,7 @@ for Free people</translation>
         <source>OpenVPN is one of the most popular and reliable VPN protocols. It uses SSL/TLS encryption, supports a wide variety of devices and operating systems, and is continuously improved by the community due to its open-source nature. It provides a good balance between speed and security but is easily recognized by DPI systems, making it susceptible to blocking.
 
 Features:
-* Available on all AmneziaVPN platforms
+* Available on all Dopamine platforms
 * Normal battery consumption on mobile devices
 * Flexible customization for various devices and OS
 * Operates over both TCP and UDP protocols</source>
@@ -4622,10 +4713,10 @@ Features:
     </message>
     <message>
         <location filename="../containers/containers_defs.cpp" line="166"/>
-        <source>Shadowsocks is based on the SOCKS5 protocol and encrypts connections using AEAD cipher. Although designed to be discreet, it doesn&apos;t mimic a standard HTTPS connection and can be detected by some DPI systems. Due to limited support in Amnezia, we recommend using the AmneziaWG protocol.
+        <source>Shadowsocks is based on the SOCKS5 protocol and encrypts connections using AEAD cipher. Although designed to be discreet, it doesn&apos;t mimic a standard HTTPS connection and can be detected by some DPI systems. Due to limited support in Dopamine, we recommend using the AmneziaWG protocol.
 
 Features:
-* Available in AmneziaVPN only on desktop platforms
+* Available in Dopamine only on desktop platforms
 * Customizable encryption protocol
 * Detectable by some DPI systems
 * Operates over TCP protocol
@@ -4643,7 +4734,7 @@ The Cloak plugin further protects the connection from DPI detection. It modifies
 In regions with heavy internet censorship, we strongly recommend using OpenVPN with Cloak from your first connection.
 
 Features:
-* Available on all AmneziaVPN platforms
+* Available on all Dopamine platforms
 * High power consumption on mobile devices
 * Flexible configuration options
 * Undetectable by DPI systems
@@ -4655,7 +4746,7 @@ Features:
         <source>WireGuard is a modern, streamlined VPN protocol offering stable connectivity and excellent performance across all devices. It uses fixed encryption settings, delivering lower latency and higher data transfer speeds compared to OpenVPN. However, WireGuard is easily identifiable by DPI systems due to its distinctive packet signatures, making it susceptible to blocking.
 
 Features:
-* Available on all AmneziaVPN platforms
+* Available on all Dopamine platforms
 * Low power consumption on mobile devices
 * Minimal configuration required
 * Easily detected by DPI systems (susceptible to blocking)
@@ -4669,7 +4760,7 @@ Features:
 AmneziaWG is an excellent choice for those seeking a fast, stealthy VPN connection.
 
 Features:
-* Available on all AmneziaVPN platforms
+* Available on all Dopamine platforms
 * Low battery consumption on mobile devices
 * Minimal settings required
 * Undetectable by traffic analysis systems (DPI)
@@ -4694,7 +4785,7 @@ Features:
         <source>IKEv2, combined with IPSec encryption, is a modern and reliable VPN protocol. It reconnects quickly when switching networks or devices, making it ideal for dynamic network environments. While it provides good security and speed, it&apos;s easily recognized by DPI systems and susceptible to blocking.
 
 Features:
-* Available in AmneziaVPN only on Windows
+* Available in Dopamine only on Windows
 * Low battery consumption on mobile devices
 * Minimal configuration required
 * Detectable by DPI analysis systems(easily blocked)
@@ -4725,7 +4816,7 @@ Features:
         <source>OpenVPN stands as one of the most popular and time-tested VPN protocols available.
 It employs its unique security protocol, leveraging the strength of SSL/TLS for encryption and key exchange. Furthermore, OpenVPN&apos;s support for a multitude of authentication methods makes it versatile and adaptable, catering to a wide range of devices and operating systems. Due to its open-source nature, OpenVPN benefits from extensive scrutiny by the global community, which continually reinforces its security. With a strong balance of performance, security, and compatibility, OpenVPN remains a top choice for privacy-conscious individuals and businesses alike.
 
-* Available in the AmneziaVPN across all platforms
+* Available in the Dopamine across all platforms
 * Normal power consumption on mobile devices
 * Flexible customisation to suit user needs to work with different operating systems and devices
 * Recognised by DPI analysis systems and therefore susceptible to blocking
@@ -4742,7 +4833,7 @@ It employs its unique security protocol, leveraging the strength of SSL/TLS for 
     <message>
         <source>Shadowsocks, inspired by the SOCKS5 protocol, safeguards the connection using the AEAD cipher. Although Shadowsocks is designed to be discreet and challenging to identify, it isn&apos;t identical to a standard HTTPS connection.However, certain traffic analysis systems might still detect a Shadowsocks connection. Due to limited support in Amnezia, it&apos;s recommended to use AmneziaWG protocol.
 
-* Available in the AmneziaVPN only on desktop platforms
+* Available in the Dopamine only on desktop platforms
 * Configurable encryption protocol
 * Detectable by some DPI systems
 * Works over TCP network protocol.</source>
@@ -4766,7 +4857,7 @@ Immediately after receiving the first data packet, Cloak authenticates the incom
 
 If there is a extreme level of Internet censorship in your region, we advise you to use only OpenVPN over Cloak from the first connection
 
-* Available in the AmneziaVPN across all platforms
+* Available in the Dopamine across all platforms
 * High power consumption on mobile devices
 * Flexible settings
 * Not recognised by DPI analysis systems
@@ -4796,7 +4887,7 @@ If there is a extreme level of Internet censorship in your region, we advise you
 WireGuard provides stable VPN connection and high performance on all devices. It uses hard-coded encryption settings. WireGuard compared to OpenVPN has lower latency and better data transfer throughput.
 WireGuard is very susceptible to blocking due to its distinct packet signatures. Unlike some other VPN protocols that employ obfuscation techniques, the consistent signature patterns of WireGuard packets can be more easily identified and thus blocked by advanced Deep Packet Inspection (DPI) systems and other network monitoring tools.
 
-* Available in the AmneziaVPN across all platforms
+* Available in the Dopamine across all platforms
 * Low power consumption
 * Minimum number of settings
 * Easily recognised by DPI analysis systems, susceptible to blocking
@@ -4816,7 +4907,7 @@ WireGuard is very susceptible to blocking due to its distinct packet signatures.
 While WireGuard is known for its efficiency, it had issues with being easily detected due to its distinct packet signatures. AmneziaWG solves this problem by using better obfuscation methods, making its traffic blend in with regular internet traffic.
 This means that AmneziaWG keeps the fast performance of the original while adding an extra layer of stealth, making it a great choice for those wanting a fast and discreet VPN connection.
 
-* Available in the AmneziaVPN across all platforms
+* Available in the Dopamine across all platforms
 * Low power consumption
 * Minimum number of settings
 * Not recognised by DPI analysis systems, resistant to blocking
@@ -4836,7 +4927,7 @@ This means that AmneziaWG keeps the fast performance of the original while addin
 One of its distinguishing features is its ability to swiftly switch between networks and devices, making it particularly adaptive in dynamic network environments.
 While it offers a blend of security, stability, and speed, it&apos;s essential to note that IKEv2 can be easily detected and is susceptible to blocking.
 
-* Available in the AmneziaVPN only on Windows
+* Available in the Dopamine only on Windows
 * Low power consumption, on mobile devices
 * Minimal configuration
 * Recognised by DPI analysis systems
@@ -4858,7 +4949,7 @@ While it offers a blend of security, stability, and speed, it&apos;s essential t
     </message>
     <message>
         <location filename="../containers/containers_defs.cpp" line="236"/>
-        <source>After installation, Amnezia will create a
+        <source>After installation, Dopamine will create a
 
  file storage on your server. You will be able to access it using
  FileZilla or other SFTP clients, as well as mount the disk on your device to access
@@ -5005,7 +5096,7 @@ For more detailed information, you can
 <context>
     <name>ShareConnectionDrawer</name>
     <message>
-        <source>Save AmneziaVPN config</source>
+        <source>Save Dopamine config</source>
         <translation type="vanished">Save FRKN config</translation>
     </message>
     <message>

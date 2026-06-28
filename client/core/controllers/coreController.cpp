@@ -191,6 +191,19 @@ void CoreController::initControllers()
     m_apiConfigsController.reset(new ApiConfigsController(m_serversModel, m_apiServicesModel, m_settings));
     m_engine->rootContext()->setContextProperty("ApiConfigsController", m_apiConfigsController.get());
 
+    connect(m_importController.get(), &ImportController::frknSubscriptionLinkDetected, this,
+            [this](const QString &subscriptionId) {
+                qDebug() << "[CORE] frkn subscription link detected:" << subscriptionId;
+                m_pageController->showBusyIndicator(true);
+                bool ok = m_apiConfigsController->fetchSubscriptionConfigs(subscriptionId);
+                m_pageController->showBusyIndicator(false);
+                qDebug() << "[CORE] fetch subscription configs result:" << ok;
+                if (ok) {
+                    emit m_pageController->goToPage(PageLoader::PageEnum::PageSetupWizardSubscriptionProtocols);
+                    qDebug() << "[CORE] navigated to subscription protocols page";
+                }
+            });
+
     m_apiNewsController.reset(new ApiNewsController(m_newsModel, m_settings, m_serversModel, this));
     m_engine->rootContext()->setContextProperty("ApiNewsController", m_apiNewsController.get());
 }

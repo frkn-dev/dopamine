@@ -21,7 +21,8 @@ public:
         FeaturesRole,
         PriceRole,
         EndDateRole,
-        OrderRole
+        OrderRole,
+        ServiceProtocolRole
     };
 
     explicit ApiServicesModel(QObject *parent = nullptr);

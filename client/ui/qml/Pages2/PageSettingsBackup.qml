@@ -88,7 +88,7 @@ PageType {
                 Layout.rightMargin: 16
 
                 textString: qsTr("The backup will contain your passwords and private keys for all servers added " +
-                                 "to AmneziaVPN. Keep this information in a secure place.")
+                                 "to Dopamine. Keep this information in a secure place.")
 
                 iconPath: "qrc:/images/controls/alert-circle.svg"
             }

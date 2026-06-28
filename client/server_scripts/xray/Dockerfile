@@ -1,5 +1,5 @@
 FROM alpine:3.15
-LABEL maintainer="AmneziaVPN"
+LABEL maintainer="FRKN"
 
 ARG XRAY_RELEASE="v25.8.3"
 

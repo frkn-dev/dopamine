@@ -20,21 +20,21 @@ PageType {
         id: windows
 
         readonly property string title: qsTr("Windows")
-        readonly property string link: qsTr("documentation/instructions/connect-amnezia-premium#windows")
+        readonly property string link: qsTr("documentation/instructions/connect-dopamine-premium#windows")
     }
 
     QtObject {
         id: macos
 
         readonly property string title: qsTr("macOS")
-        readonly property string link: qsTr("documentation/instructions/connect-amnezia-premium#macos")
+        readonly property string link: qsTr("documentation/instructions/connect-dopamine-premium#macos")
     }
 
     QtObject {
         id: android
 
         readonly property string title: qsTr("Android")
-        readonly property string link: qsTr("documentation/instructions/connect-amnezia-premium#android")
+        readonly property string link: qsTr("documentation/instructions/connect-dopamine-premium#android")
     }
 
     QtObject {
@@ -48,21 +48,21 @@ PageType {
         id: ios
 
         readonly property string title: qsTr("iOS")
-        readonly property string link: qsTr("documentation/instructions/connect-amnezia-premium#ios")
+        readonly property string link: qsTr("documentation/instructions/connect-dopamine-premium#ios")
     }
 
     QtObject {
         id: linux
 
         readonly property string title: qsTr("Linux")
-        readonly property string link: qsTr("documentation/instructions/connect-amnezia-premium#linux")
+        readonly property string link: qsTr("documentation/instructions/connect-dopamine-premium#linux")
     }
 
     QtObject {
         id: routers
 
         readonly property string title: qsTr("Routers")
-        readonly property string link: qsTr("documentation/instructions/connect-amnezia-premium#routers")
+        readonly property string link: qsTr("documentation/instructions/connect-dopamine-premium#routers")
     }
 
     property list<QtObject> instructionsModel: [
@@ -99,7 +99,7 @@ PageType {
                 Layout.leftMargin: 16
 
                 headerText: qsTr("How to connect on another device")
-                descriptionText: qsTr("Setup guides on the Amnezia website")
+                descriptionText: qsTr("Setup guides on the FRKN website")
             }
         }
 

@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <installer-gui-script minSpecVersion="1">
-    <title>FRKN Installer</title>
+    <title>Dopamine Installer</title>
     <license file="LICENSE"/>
     <choices-outline>
         <line choice="install"/>
         <line choice="uninstall"/>
     </choices-outline>
-    <choice id="install" title="Install FRKN" start_selected="true">
-        <pkg-ref id="org.frkn.package"/>
+    <choice id="install" title="Install Dopamine" start_selected="true">
+        <pkg-ref id="org.frkn.dopamine.package"/>
     </choice>
-    <choice id="uninstall" title="Uninstall FRKN" start_selected="false">
-        <pkg-ref id="org.frkn.uninstall"/>
+    <choice id="uninstall" title="Uninstall Dopamine" start_selected="false">
+        <pkg-ref id="org.frkn.dopamine.uninstall"/>
     </choice>
-    <pkg-ref id="org.frkn.package" auth="Root" install-check="scripts/check_install.sh">FRKN_install.pkg</pkg-ref>
-    <pkg-ref id="org.frkn.uninstall" auth="Root" install-check="scripts/check_uninstall.sh">FRKN_uninstall_component.pkg</pkg-ref>
+    <pkg-ref id="org.frkn.dopamine.package" auth="Root" install-check="scripts/check_install.sh">dopamine_install.pkg</pkg-ref>
+    <pkg-ref id="org.frkn.dopamine.uninstall" auth="Root" install-check="scripts/check_uninstall.sh">dopamine_uninstall_component.pkg</pkg-ref>
 </installer-gui-script>

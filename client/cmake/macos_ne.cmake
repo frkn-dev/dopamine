@@ -68,8 +68,8 @@ set_target_properties(${PROJECT} PROPERTIES
     XCODE_LINK_BUILD_PHASE_MODE KNOWN_LOCATION
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/macos/app/Info.plist.in
     MACOSX_BUNDLE_ICON_FILE "AppIcon"
-    MACOSX_BUNDLE_INFO_STRING "AmneziaVPN"
-    MACOSX_BUNDLE_BUNDLE_NAME "AmneziaVPN"
+    MACOSX_BUNDLE_INFO_STRING "Dopamine"
+    MACOSX_BUNDLE_BUNDLE_NAME "Dopamine"
     MACOSX_BUNDLE_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION_TWEAK}"
     MACOSX_BUNDLE_LONG_VERSION_STRING "${APPLE_PROJECT_VERSION}-${CMAKE_PROJECT_VERSION_TWEAK}"
     MACOSX_BUNDLE_SHORT_VERSION_STRING "${APPLE_PROJECT_VERSION}"
@@ -77,8 +77,8 @@ set_target_properties(${PROJECT} PROPERTIES
     XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS "${CMAKE_CURRENT_SOURCE_DIR}/macos/app/app.entitlements"
     XCODE_ATTRIBUTE_MARKETING_VERSION "${APPLE_PROJECT_VERSION}"
     XCODE_ATTRIBUTE_CURRENT_PROJECT_VERSION "${CMAKE_PROJECT_VERSION_TWEAK}"
-    XCODE_ATTRIBUTE_PRODUCT_NAME "AmneziaVPN"
-    XCODE_ATTRIBUTE_BUNDLE_INFO_STRING "AmneziaVPN"
+    XCODE_ATTRIBUTE_PRODUCT_NAME "Dopamine"
+    XCODE_ATTRIBUTE_BUNDLE_INFO_STRING "Dopamine"
     XCODE_GENERATE_SCHEME TRUE
     XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
     XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
@@ -97,8 +97,8 @@ if(DEPLOY)
         XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "Apple Distribution"
         XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY[variant=Debug] "Apple Development"
         XCODE_ATTRIBUTE_CODE_SIGN_STYLE Manual
-        XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER "distr macos.org.amnezia.AmneziaVPN"
-        XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER[variant=Debug] "dev macos.org.amnezia.AmneziaVPN"
+        XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER "distr macos.org.frkn.Dopamine"
+        XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER[variant=Debug] "dev macos.org.frkn.Dopamine"
     )
 else()
     set_target_properties(${PROJECT} PROPERTIES
@@ -161,10 +161,10 @@ target_link_libraries("AmneziaVPNNetworkExtension" PRIVATE "${CMAKE_CURRENT_SOUR
 
 add_custom_command(TARGET ${PROJECT} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory
-            $<TARGET_BUNDLE_DIR:AmneziaVPN>/Contents/Frameworks
-    COMMAND /usr/bin/find "$<TARGET_BUNDLE_DIR:AmneziaVPN>/Contents/Frameworks/OpenVPNAdapter.framework" -name "*.sha256" -delete
+            $<TARGET_BUNDLE_DIR:${PROJECT}>/Contents/Frameworks
+    COMMAND /usr/bin/find "$<TARGET_BUNDLE_DIR:${PROJECT}>/Contents/Frameworks/OpenVPNAdapter.framework" -name "*.sha256" -delete
     COMMAND /usr/bin/codesign --force --sign "Apple Distribution: Privacy Technologies OU"
-            "$<TARGET_BUNDLE_DIR:AmneziaVPN>/Contents/Frameworks/OpenVPNAdapter.framework/Versions/Current/OpenVPNAdapter"
-    COMMAND ${QT_BIN_DIR_DETECTED}/macdeployqt $<TARGET_BUNDLE_DIR:AmneziaVPN> -appstore-compliant -qmldir=${CMAKE_CURRENT_SOURCE_DIR}
+            "$<TARGET_BUNDLE_DIR:${PROJECT}>/Contents/Frameworks/OpenVPNAdapter.framework/Versions/Current/OpenVPNAdapter"
+    COMMAND ${QT_BIN_DIR_DETECTED}/macdeployqt $<TARGET_BUNDLE_DIR:${PROJECT}> -appstore-compliant -qmldir=${CMAKE_CURRENT_SOURCE_DIR}
     COMMENT "Signing OpenVPNAdapter framework"
 )

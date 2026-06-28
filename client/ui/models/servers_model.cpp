@@ -744,6 +744,32 @@ bool ServersModel::isServerFromApiAlreadyExists(const QString &userCountryCode, 
     return false;
 }
 
+bool ServersModel::isServerFromApiAlreadyExists(const QString &connectionUuid)
+{
+    if (connectionUuid.isEmpty()) {
+        return false;
+    }
+    for (const auto &server : std::as_const(m_servers)) {
+        const auto apiConfig = server.toObject().value(configKey::apiConfig).toObject();
+        if (apiConfig.value("connection_uuid").toString() == connectionUuid) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool ServersModel::isServerFromApiAlreadyExists(const QString &name, const QString &description) const
+{
+    for (const auto &server : std::as_const(m_servers)) {
+        const auto serverObject = server.toObject();
+        if (serverObject.value(config_key::name).toString() == name
+            && serverObject.value(config_key::description).toString() == description) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool ServersModel::hasServerWithVpnKey(const QString &vpnKey) const
 {
     const QString normalizedInput = normalizeVpnKey(vpnKey);

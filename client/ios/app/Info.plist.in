@@ -31,7 +31,7 @@
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<false/>
 	<key>UILaunchStoryboardName</key>
-	<string>AmneziaVPNLaunchScreen</string>
+	<string>DopamineLaunchScreen</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -74,7 +74,7 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>FRKN needs access to the camera for reading QR-codes.</string>
+	<string>Dopamine needs access to the camera for reading QR-codes.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -105,11 +105,11 @@
 				<string>public.data</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>FRKN config</string>
+			<string>Dopamine config</string>
 			<key>UTTypeIconFiles</key>
 			<array/>
 			<key>UTTypeIdentifier</key>
-			<string>org.frkn.AmneziaVPN.amnezia-config</string>
+			<string>org.frkn.dopamine.amnezia-config</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
@@ -132,7 +132,7 @@
                         <key>UTTypeIconFiles</key>
                         <array/>
                         <key>UTTypeIdentifier</key>
-                        <string>org.frkn.AmneziaVPN.wireguard-config</string>
+                        <string>org.frkn.dopamine.wireguard-config</string>
                         <key>UTTypeTagSpecification</key>
                         <dict>
                                 <key>public.filename-extension</key>
@@ -156,7 +156,7 @@
                         <key>UTTypeIconFiles</key>
                         <array/>
                         <key>UTTypeIdentifier</key>
-                        <string>org.frkn.AmneziaVPN.openvpn-config</string>
+                        <string>org.frkn.dopamine.openvpn-config</string>
                         <key>UTTypeTagSpecification</key>
                         <dict>
                                 <key>public.filename-extension</key>
@@ -175,11 +175,11 @@
                                 <string>public.data</string>
                         </array>
                         <key>UTTypeDescription</key>
-                        <string>FRKN backup file</string>
+                        <string>Dopamine backup file</string>
                         <key>UTTypeIconFiles</key>
                         <array/>
                         <key>UTTypeIdentifier</key>
-                        <string>org.frkn.AmneziaVPN.backup-config</string>
+                        <string>org.frkn.dopamine.backup-config</string>
                         <key>UTTypeTagSpecification</key>
                         <dict>
                                 <key>public.filename-extension</key>
@@ -197,15 +197,15 @@
         <array>
                 <dict>
                         <key>CFBundleTypeName</key>
-                        <string>FRKN config</string>
+                        <string>Dopamine config</string>
                         <key>LSHandlerRank</key>
                         <string>Alternate</string>
                         <key>LSItemContentTypes</key>
                         <array>
-                                <string>org.frkn.AmneziaVPN.amnezia-config</string>
-                                <string>org.frkn.AmneziaVPN.wireguard-config</string>
-                                <string>org.frkn.AmneziaVPN.openvpn-config</string>
-                                <string>org.frkn.AmneziaVPN.backup-config</string>
+                                <string>org.frkn.dopamine.amnezia-config</string>
+                                <string>org.frkn.dopamine.wireguard-config</string>
+                                <string>org.frkn.dopamine.openvpn-config</string>
+                                <string>org.frkn.dopamine.backup-config</string>
                         </array>
                 </dict>
         </array>

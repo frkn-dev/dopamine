@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.25.0 FATAL_ERROR)
 
-set(PROJECT FRKN)
+set(PROJECT "Dopamine")
 project(${PROJECT})
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -66,18 +66,18 @@ qt6_add_resources(QRC ${QRC} ${CMAKE_CURRENT_LIST_DIR}/resources.qrc)
 # -- i18n begin
 set(CMAKE_AUTORCC ON)
 
-set(AMNEZIAVPN_TS_FILES
+set(DOPAMINE_TS_FILES
     ${CMAKE_CURRENT_LIST_DIR}/translations/amneziavpn_en_US.ts
     ${CMAKE_CURRENT_LIST_DIR}/translations/amneziavpn_ru_RU.ts
 )
 
-file(GLOB_RECURSE AMNEZIAVPN_TS_SOURCES *.qrc *.cpp *.h *.ui)
-list(FILTER AMNEZIAVPN_TS_SOURCES EXCLUDE REGEX "qtgamepad/examples")
+file(GLOB_RECURSE DOPAMINE_TS_SOURCES *.qrc *.cpp *.h *.ui)
+list(FILTER DOPAMINE_TS_SOURCES EXCLUDE REGEX "qtgamepad/examples")
 
-qt_create_translation(AMNEZIAVPN_QM_FILES ${AMNEZIAVPN_TS_SOURCES} ${AMNEZIAVPN_TS_FILES})
+qt_create_translation(DOPAMINE_QM_FILES ${DOPAMINE_TS_SOURCES} ${DOPAMINE_TS_FILES})
 
 set(QM_FILE_LIST "")
-foreach(FILE ${AMNEZIAVPN_QM_FILES})
+foreach(FILE ${DOPAMINE_QM_FILES})
     get_filename_component(QM_FILE_NAME ${FILE} NAME)
     list(APPEND QM_FILE_LIST "<file>${QM_FILE_NAME}</file>")
 endforeach()
@@ -127,8 +127,8 @@ endif()
 
 if(WIN32)
     configure_file(
-        ${CMAKE_CURRENT_LIST_DIR}/platforms/windows/amneziavpn.rc.in
-        ${CMAKE_CURRENT_BINARY_DIR}/amneziavpn.rc
+        ${CMAKE_CURRENT_LIST_DIR}/platforms/windows/dopamine.rc.in
+        ${CMAKE_CURRENT_BINARY_DIR}/dopamine.rc
     )
 
     set(LIBS ${LIBS}

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Package>
-    <DisplayName>FRKN</DisplayName>
-    <Description>Installation package for FRKN</Description>
+    <DisplayName>Dopamine FRKN</DisplayName>
+    <Description>Installation package for Dopamine FRKN</Description>
     <Version>@CMAKE_PROJECT_VERSION@</Version>
     <ReleaseDate>@RELEASE_DATE@</ReleaseDate>
     <Default>true</Default>
@@ -9,3 +9,6 @@
     <RequiresAdminRights>true</RequiresAdminRights>
     <Script>componentscript.js</Script>
 </Package>
+
+
+

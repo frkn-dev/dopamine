@@ -58,7 +58,7 @@ PageType {
                 Layout.leftMargin: 16
                 Layout.rightMargin: 16
 
-                text: qsTr("Support Amnezia")
+                text: qsTr("Support FRKN")
                 horizontalAlignment: Text.AlignHCenter
             }
 
@@ -73,7 +73,7 @@ PageType {
                 height: 20
                 font.pixelSize: 14
 
-                text: qsTr("Amnezia is a free and open-source application. You can support the developers if you like it.")
+                text: qsTr("Dopamine is a free and open-source application by FRKN. You can support the developers if you like it.")
                 color: AmneziaStyle.color.paleGray
             }
 
@@ -190,7 +190,7 @@ PageType {
         readonly property string description: qsTr("To discuss features")
         readonly property string imageSource: "qrc:/images/controls/telegram.svg"
         readonly property var handler: function() {
-            Qt.openUrlExternally(qsTr("https://t.me/amnezia_vpn_en"))
+            Qt.openUrlExternally(qsTr("https://t.me/frkn_support"))
         }
     }
 
@@ -212,7 +212,7 @@ PageType {
         readonly property string description: qsTr("Discover the source code")
         readonly property string imageSource: "qrc:/images/controls/github.svg"
         readonly property var handler: function() {
-            Qt.openUrlExternally(qsTr("https://github.com/amnezia-vpn/amnezia-client"))
+            Qt.openUrlExternally(qsTr("https://github.com/frkn-dev/dopamine"))
         }
     }
 

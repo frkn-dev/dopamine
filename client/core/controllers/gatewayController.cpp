@@ -32,8 +32,8 @@ namespace
         constexpr char aesIv[] = "aes_iv";
         constexpr char aesSalt[] = "aes_salt";
 
-        constexpr char apiPayload[] = "api_payload";
-        constexpr char keyPayload[] = "key_payload";
+        constexpr char apiPayload[] = "apiPayload";
+        constexpr char keyPayload[] = "keyPayload";
     }
 
     constexpr QLatin1String errorResponsePattern1("No active configuration found for");
@@ -132,6 +132,12 @@ GatewayController::EncryptedRequestData GatewayController::prepareRequest(const 
     requestBody[configKey::apiPayload] = QString(encryptedApiPayload.toBase64());
 
     encRequestData.requestBody = QJsonDocument(requestBody).toJson();
+
+    qDebug().noquote() << "[AGW REQUEST] key:" << encRequestData.key.toBase64();
+    qDebug().noquote() << "[AGW REQUEST] iv:" << encRequestData.iv.toBase64();
+    qDebug().noquote() << "[AGW REQUEST] salt:" << encRequestData.salt.toBase64();
+    qDebug().noquote() << "[AGW REQUEST] body:" << encRequestData.requestBody;
+
     return encRequestData;
 }
 
@@ -147,9 +153,11 @@ GatewayController::DecryptionResult GatewayController::tryDecryptResponseBody(co
         QSimpleCrypto::QBlockCipher blockCipher;
         result.decryptedBody = blockCipher.decryptAesBlockCipher(encryptedResponseBody, key, iv, "", salt);
         result.isDecryptionSuccessful = true;
+        qDebug().noquote() << "[AGW RESPONSE] decrypted:" << result.decryptedBody;
     } catch (...) {
         result.decryptedBody = encryptedResponseBody;
         result.isDecryptionSuccessful = false;
+        qDebug().noquote() << "[AGW RESPONSE] failed to decrypt, raw (base64):" << encryptedResponseBody.toBase64();
     }
 
     return result;

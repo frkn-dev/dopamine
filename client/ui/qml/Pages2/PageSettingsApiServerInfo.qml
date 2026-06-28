@@ -296,6 +296,43 @@ PageType {
                 visible: footer.isVisibleForAmneziaFree
             }
 
+            LabelWithButtonType {
+                Layout.fillWidth: true
+
+                text: qsTr("Show raw config")
+                rightImageSource: "qrc:/images/controls/chevron-right.svg"
+
+                clickedFunction: function() {
+                    configPopup.text = ApiConfigsController.getCurrentServerConfigJson()
+                    configPopup.open()
+                }
+            }
+
+            DividerType {}
+
+            PopupType {
+                id: configPopup
+                parent: Overlay.overlay
+                width: parent.width - 50
+                height: parent.height * 0.7
+                modal: true
+                closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+                property alias text: configTextArea.text
+
+                contentItem: FlickableType {
+                    anchors.fill: parent
+                    contentHeight: configTextArea.implicitHeight
+
+                    TextAreaType {
+                        id: configTextArea
+                        anchors.fill: parent
+                        readOnly: true
+                        wrapMode: Text.Wrap
+                    }
+                }
+            }
+
             BasicButtonType {
                 id: resetButton
                 Layout.alignment: Qt.AlignHCenter

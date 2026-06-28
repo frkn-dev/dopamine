@@ -158,7 +158,7 @@ void IOSNotificationHandler::notify(NotificationHandler::Message type, const QSt
   UNTimeIntervalNotificationTrigger* trigger =
       [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:timerSec repeats:NO];
 
-  UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier:@"amneziavpn"
+  UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier:@"dopamine"
                                                                         content:content
                                                                         trigger:trigger];
 

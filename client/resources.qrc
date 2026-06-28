@@ -2,7 +2,7 @@
     <qresource prefix="/">
         <file>fonts/pt-root-ui_vf.ttf</file>
         <file>images/amneziaBigLogo.png</file>
-        <file>images/AmneziaVPN.png</file>
+        <file>images/Dopamine.png</file>
         <file>images/controls/alert-circle.svg</file>
         <file>images/controls/amnezia.svg</file>
         <file>images/controls/app.svg</file>
@@ -227,6 +227,7 @@
         <file>ui/qml/Pages2/PageProtocolWireGuardClientSettings.qml</file>
         <file>ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml</file>
         <file>ui/qml/Pages2/PageSetupWizardApiServicesList.qml</file>
+        <file>ui/qml/Pages2/PageSetupWizardSubscriptionProtocols.qml</file>
         <file>ui/qml/Pages2/PageSetupWizardConfigSource.qml</file>
         <file>ui/qml/Pages2/PageSetupWizardCredentials.qml</file>
         <file>ui/qml/Pages2/PageSetupWizardEasy.qml</file>

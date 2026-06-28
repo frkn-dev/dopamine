@@ -185,6 +185,20 @@ bool ImportController::extractConfigFromData(QString data)
     {
         QString urlCandidate = config.trimmed();
 
+        // frkn://sub/UUID — new AGW flow with protocol selection
+        if (urlCandidate.startsWith("frkn://sub/")) {
+            QString subscriptionId = urlCandidate.mid(11);
+            emit frknSubscriptionLinkDetected(subscriptionId);
+            return false;
+        }
+
+        // Plain UUID — also use new AGW flow with protocol selection
+        static const QRegularExpression uuidRegex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+        if (uuidRegex.match(urlCandidate).hasMatch()) {
+            emit frknSubscriptionLinkDetected(urlCandidate);
+            return false;
+        }
+
         // frkn:// is an alias for https://
         if (urlCandidate.startsWith("frkn://")) {
             urlCandidate.replace(0, 7, "https://");

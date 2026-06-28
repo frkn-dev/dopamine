@@ -49,7 +49,7 @@ jobs:
     - name: 'Get version from CMakeLists.txt'
       id: get_version
       run: |
-        VERSION=$(grep 'set(AMNEZIAVPN_VERSION' CMakeLists.txt | sed -E 's/.*AMNEZIAVPN_VERSION ([0-9]+.[0-9]+.[0-9]+.[0-9]+)\)/\1/')
+        VERSION=$(grep 'set(DOPAMINE_VERSION' CMakeLists.txt | sed -E 's/.*DOPAMINE_VERSION ([0-9]+.[0-9]+.[0-9]+.[0-9]+)\)/\1/')
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "Version: $VERSION"
 
@@ -115,7 +115,7 @@ jobs:
       id: get_version
       shell: bash
       run: |
-        VERSION=$(grep 'set(AMNEZIAVPN_VERSION' CMakeLists.txt | sed -E 's/.*AMNEZIAVPN_VERSION ([0-9]+.[0-9]+.[0-9]+.[0-9]+)\)/\1/')
+        VERSION=$(grep 'set(DOPAMINE_VERSION' CMakeLists.txt | sed -E 's/.*DOPAMINE_VERSION ([0-9]+.[0-9]+.[0-9]+.[0-9]+)\)/\1/')
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "Version: $VERSION"
 
@@ -290,7 +290,7 @@ jobs:
 #      with:
 #        name: app-store ipa & dsyms
 #        path: |
-#          ${{ github.workspace }}/AmneziaVPN-iOS.ipa
+#          ${{ github.workspace }}/Dopamine-iOS.ipa
 #          ${{ github.workspace }}/*.app.dSYM.zip
 #        retention-days: 7
 
@@ -431,7 +431,7 @@ jobs:
     - name: 'Get version from CMakeLists.txt'
       id: get_version
       run: |
-        VERSION=$(grep 'set(AMNEZIAVPN_VERSION' CMakeLists.txt | sed -E 's/.*AMNEZIAVPN_VERSION ([0-9]+.[0-9]+.[0-9]+.[0-9]+)\)/\1/')
+        VERSION=$(grep 'set(DOPAMINE_VERSION' CMakeLists.txt | sed -E 's/.*DOPAMINE_VERSION ([0-9]+.[0-9]+.[0-9]+.[0-9]+)\)/\1/')
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "Version: $VERSION"
 
@@ -632,7 +632,7 @@ jobs:
     - name: 'Get version from CMakeLists.txt'
       id: get_version
       run: |
-        VERSION=$(grep 'set(AMNEZIAVPN_VERSION' CMakeLists.txt | sed -E 's/.*AMNEZIAVPN_VERSION ([0-9]+.[0-9]+.[0-9]+.[0-9]+)\)/\1/')
+        VERSION=$(grep 'set(DOPAMINE_VERSION' CMakeLists.txt | sed -E 's/.*DOPAMINE_VERSION ([0-9]+.[0-9]+.[0-9]+.[0-9]+)\)/\1/')
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "Version: $VERSION"
 

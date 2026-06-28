@@ -310,7 +310,12 @@ bool AmneziaApplication::event(QEvent *event)
         QUrl url = openEvent->url();
         if (url.isValid() && url.scheme() == "frkn") {
             QString urlStr = url.toString();
-            urlStr.replace(0, 7, "https://");
+            // Keep the new frkn://sub/<uuid> deep link intact so ImportController
+            // can route it through the AGW subscription flow. Other frkn:// links
+            // are still treated as https:// aliases for backward compatibility.
+            if (!urlStr.startsWith("frkn://sub/")) {
+                urlStr.replace(0, 7, "https://");
+            }
             if (m_coreController) {
                 emit m_coreController->pageController()->raiseMainWindow();
                 m_coreController->importConfigFromData(urlStr);
