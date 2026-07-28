@@ -8,6 +8,7 @@
 #include <QTemporaryDir>
 #include <QTemporaryFile>
 
+#include <openssl/evp.h>
 #include <openssl/pem.h>
 #include <openssl/rand.h>
 #include <openssl/rsa.h>
@@ -66,6 +67,32 @@ WireguardConfigurator::ConnectionData WireguardConfigurator::genClientKeys()
     connData.clientPubKey = QByteArray::fromRawData((char *)pub, keySize).toBase64();
 
     return connData;
+}
+
+QString WireguardConfigurator::genPublicKeyFromPrivate(const QString &privateKeyBase64)
+{
+    constexpr int X25519_KEY_LENGTH = 32;
+
+    const QByteArray priv = QByteArray::fromBase64(privateKeyBase64.toUtf8());
+    if (priv.size() != X25519_KEY_LENGTH) {
+        return {};
+    }
+
+    EVP_PKEY *pKey = EVP_PKEY_new_raw_private_key(EVP_PKEY_X25519, nullptr,
+                                                  reinterpret_cast<const unsigned char *>(priv.constData()),
+                                                  X25519_KEY_LENGTH);
+    if (pKey == nullptr) {
+        return {};
+    }
+
+    unsigned char pub[X25519_KEY_LENGTH];
+    size_t keySize = X25519_KEY_LENGTH;
+    QString result;
+    if (EVP_PKEY_get_raw_public_key(pKey, pub, &keySize) > 0 && keySize == static_cast<size_t>(X25519_KEY_LENGTH)) {
+        result = QByteArray(reinterpret_cast<char *>(pub), static_cast<int>(keySize)).toBase64();
+    }
+    EVP_PKEY_free(pKey);
+    return result;
 }
 
 QList<QHostAddress> WireguardConfigurator::getIpsFromConf(const QString &input)

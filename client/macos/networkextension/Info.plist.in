@@ -38,9 +38,9 @@
 	</dict>
 
 	<key>com.wireguard.ios.app_group_id</key>
-	<string>group.org.frkn.client</string>
+	<string>group.org.frkn.dopamine</string>
 
 	<key>com.wireguard.macos.app_group_id</key>
-	<string>${BUILD_VPN_DEVELOPMENT_TEAM}.group.org.frkn.client</string>
+	<string>${BUILD_VPN_DEVELOPMENT_TEAM}.group.org.frkn.dopamine</string>
 </dict>
 </plist>

@@ -26,6 +26,16 @@
 
 namespace
 {
+    QByteArray loadAgwPublicKey()
+    {
+        QFile keyFile(QStringLiteral(":/agw_public.pem"));
+        if (!keyFile.open(QIODevice::ReadOnly)) {
+            qCritical() << "Cannot open AGW public key resource";
+            return {};
+        }
+        return keyFile.readAll();
+    }
+
     namespace configKey
     {
         constexpr char aesKey[] = "aes_key";
@@ -103,14 +113,24 @@ GatewayController::EncryptedRequestData GatewayController::prepareRequest(const 
     try {
         QSimpleCrypto::QRsa rsa;
 
+        QByteArray rsaKey;
+        {
+            QFile keyFile(QStringLiteral(":/agw_public.pem"));
+            if (!keyFile.open(QIODevice::ReadOnly)) {
+                qCritical() << "Cannot open AGW public key resource";
+                encRequestData.errorCode = ErrorCode::ApiMissingAgwPublicKey;
+                return encRequestData;
+            }
+            rsaKey = keyFile.readAll();
+        }
+
         EVP_PKEY *publicKey = nullptr;
         try {
-            QByteArray rsaKey = m_isDevEnvironment ? DEV_AGW_PUBLIC_KEY : PROD_AGW_PUBLIC_KEY;
             QSimpleCrypto::QRsa rsa;
             publicKey = rsa.getPublicKeyFromByteArray(rsaKey);
         } catch (...) {
             Utils::logException();
-            qCritical() << "error loading public key from environment variables";
+            qCritical() << "error loading public key from AGW resource";
             encRequestData.errorCode = ErrorCode::ApiMissingAgwPublicKey;
             return encRequestData;
         }
@@ -349,7 +369,7 @@ QStringList GatewayController::getProxyUrls(const QString &serviceType, const QS
     std::mt19937 generator(randomDevice());
     std::shuffle(baseUrls.begin(), baseUrls.end(), generator);
 
-    QByteArray key = m_isDevEnvironment ? DEV_AGW_PUBLIC_KEY : PROD_AGW_PUBLIC_KEY;
+    QByteArray key = loadAgwPublicKey();
 
     QStringList proxyStorageUrls;
     if (!serviceType.isEmpty()) {
@@ -563,7 +583,7 @@ void GatewayController::getProxyUrlsAsync(const QStringList proxyStorageUrls, co
 
             QByteArray responseBody;
             try {
-                QByteArray key = m_isDevEnvironment ? DEV_AGW_PUBLIC_KEY : PROD_AGW_PUBLIC_KEY;
+                QByteArray key = loadAgwPublicKey();
                 if (!m_isDevEnvironment) {
                     QCryptographicHash hash(QCryptographicHash::Sha512);
                     hash.addData(key);

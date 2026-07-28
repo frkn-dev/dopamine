@@ -108,7 +108,7 @@ PageType {
                 actionButtonImage: "qrc:/images/controls/edit-3.svg"
 
                 headerText: root.processedServer.name
-                descriptionText: ApiAccountInfoModel.data("serviceDescription")
+                descriptionText: root.processedServer.serverDescription !== "" ? root.processedServer.serverDescription : ApiAccountInfoModel.data("serviceDescription")
 
                 actionButtonFunction: function() {
                     serverNameEditDrawer.openTriggered()
@@ -161,7 +161,7 @@ PageType {
                 Layout.rightMargin: 16
                 Layout.leftMargin: 16
 
-                visible: ApiAccountInfoModel.data("isProtocolSelectionSupported")
+                visible: ApiAccountInfoModel.data("isProtocolSelectionSupported") && !ApiConfigsController.isAwgProtocol()
 
                 text: qsTr("Use VLESS protocol")
                 checked: switcher.isVlessProtocol
@@ -198,6 +198,36 @@ PageType {
                     }
                     return false;
                 }
+            }
+
+            LabelWithImageType {
+                Layout.fillWidth: true
+                Layout.margins: 16
+
+                imageSource: "qrc:/images/controls/server.svg"
+                leftText: qsTr("DNS")
+                rightText: ApiConfigsController.getCurrentServerDns()
+                visible: rightText !== ""
+            }
+
+            LabelWithImageType {
+                Layout.fillWidth: true
+                Layout.margins: 16
+
+                imageSource: "qrc:/images/controls/settings.svg"
+                leftText: qsTr("MTU")
+                rightText: ApiConfigsController.getCurrentServerMtu()
+                visible: rightText !== ""
+            }
+
+            LabelWithImageType {
+                Layout.fillWidth: true
+                Layout.margins: 16
+
+                imageSource: "qrc:/images/controls/server.svg"
+                leftText: qsTr("Tunnel IP")
+                rightText: ApiConfigsController.getCurrentServerClientIp()
+                visible: rightText !== ""
             }
 
             LabelWithButtonType {
@@ -304,13 +334,44 @@ PageType {
 
                 clickedFunction: function() {
                     configPopup.text = ApiConfigsController.getCurrentServerConfigJson()
+                    configPopup.titleText = qsTr("Raw JSON")
                     configPopup.open()
                 }
             }
 
             DividerType {}
 
-            PopupType {
+            LabelWithButtonType {
+                Layout.fillWidth: true
+
+                text: qsTr("Show connection options")
+                rightImageSource: "qrc:/images/controls/chevron-right.svg"
+
+                clickedFunction: function() {
+                    configPopup.text = ApiConfigsController.getCurrentServerConfigIni()
+                    configPopup.titleText = qsTr("Connection options %1").arg(ApiConfigsController.isAwgProtocol() ? "AmneziaWG" : "VLESS")
+                    configPopup.open()
+                }
+            }
+
+            DividerType {}
+
+            LabelWithButtonType {
+                Layout.fillWidth: true
+
+                text: qsTr("Show tunnel params")
+                rightImageSource: "qrc:/images/controls/chevron-right.svg"
+
+                clickedFunction: function() {
+                    configPopup.text = ApiConfigsController.getCurrentServerTunnelParams()
+                    configPopup.titleText = qsTr("Tunnel params")
+                    configPopup.open()
+                }
+            }
+
+            DividerType {}
+
+            Popup {
                 id: configPopup
                 parent: Overlay.overlay
                 width: parent.width - 50
@@ -319,16 +380,81 @@ PageType {
                 closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
                 property alias text: configTextArea.text
+                property string titleText: ""
 
-                contentItem: FlickableType {
+                background: Rectangle {
                     anchors.fill: parent
-                    contentHeight: configTextArea.implicitHeight
+                    color: AmneziaStyle.color.charcoalGray
+                    radius: 4
+                }
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    spacing: 0
+
+                    BaseHeaderType {
+                        id: popupHeader
+                        visible: configPopup.titleText !== ""
+                        Layout.fillWidth: true
+                        Layout.leftMargin: 16
+                        Layout.rightMargin: 16
+                        Layout.topMargin: 16
+                        headerText: configPopup.titleText
+                    }
 
                     TextAreaType {
                         id: configTextArea
-                        anchors.fill: parent
-                        readOnly: true
-                        wrapMode: Text.Wrap
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        Layout.margins: 16
+                    }
+
+                    RowLayout {
+                        Layout.alignment: Qt.AlignRight
+                        Layout.rightMargin: 16
+                        Layout.bottomMargin: 16
+                        spacing: 8
+
+                        BasicButtonType {
+                            id: copyButton
+
+                            implicitHeight: 32
+
+                            defaultColor: AmneziaStyle.color.richBrown
+                            hoveredColor: AmneziaStyle.color.lightBrown
+                            pressedColor: AmneziaStyle.color.lightBrown
+                            disabledColor: AmneziaStyle.color.charcoalGray
+
+                            textColor: AmneziaStyle.color.paleGray
+                            borderWidth: 0
+
+                            text: qsTr("Copy")
+
+                            clickedFunc: function() {
+                                GC.copyToClipBoard(configTextArea.text)
+                                PageController.showNotificationMessage(qsTr("Copied"))
+                            }
+                        }
+
+                        BasicButtonType {
+                            id: closeButton
+
+                            implicitHeight: 32
+
+                            defaultColor: AmneziaStyle.color.mutedGray
+                            hoveredColor: AmneziaStyle.color.lightGray
+                            pressedColor: AmneziaStyle.color.lightGray
+                            disabledColor: AmneziaStyle.color.charcoalGray
+
+                            textColor: AmneziaStyle.color.midnightBlack
+                            borderWidth: 0
+
+                            text: qsTr("Close")
+
+                            clickedFunc: function() {
+                                configPopup.close()
+                            }
+                        }
                     }
                 }
             }

@@ -14,9 +14,14 @@ extension PacketTunnelProvider {
         }
 
         do {
+            if let rawConfig = String(data: wgConfigData, encoding: .utf8) {
+                wg_log(.info, title: "raw wireguard config json: ", message: rawConfig)
+            }
+
             let wgConfig = try JSONDecoder().decode(WGConfig.self, from: wgConfigData)
             let wgConfigStr = wgConfig.str
             wg_log(.info, title: "config: ", message: wgConfig.redux)
+            wg_log(.info, title: "wg config str: ", message: wgConfigStr)
 
             let tunnelConfiguration = try TunnelConfiguration(fromWgQuickConfig: wgConfigStr)
 
@@ -92,6 +97,11 @@ extension PacketTunnelProvider {
                     fatalError()
                 }
             }
+        } catch let decodeError as DecodingError {
+            wg_log(.error, message: "Can't decode WG JSON config: \(decodeError)")
+            errorNotifier.notify(PacketTunnelProviderError.savedProtocolConfigurationIsInvalid)
+            completionHandler(PacketTunnelProviderError.savedProtocolConfigurationIsInvalid)
+            return
         } catch {
             wg_log(.error, message: "Can't parse WG config: \(error.localizedDescription)")
             errorNotifier.notify(PacketTunnelProviderError.savedProtocolConfigurationIsInvalid)

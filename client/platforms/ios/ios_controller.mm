@@ -5,12 +5,80 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QRegularExpression>
 #include <QThread>
 #include <QEventLoop>
+
+#include <openssl/evp.h>
+#include <openssl/rand.h>
 
 #include "../protocols/vpnprotocol.h"
 #import "ios_controller_wrapper.h"
 #import "StoreKitController.h"
+
+static QPair<QString, QString> generateWireGuardKeyPair()
+{
+    constexpr size_t X25519_KEY_LENGTH = 32;
+    unsigned char priv[X25519_KEY_LENGTH];
+    if (RAND_priv_bytes(priv, X25519_KEY_LENGTH) <= 0)
+        return {};
+
+    EVP_PKEY *pKey = EVP_PKEY_new_raw_private_key(EVP_PKEY_X25519, nullptr, priv, X25519_KEY_LENGTH);
+    if (!pKey)
+        return {};
+
+    size_t keySize = X25519_KEY_LENGTH;
+    unsigned char pub[X25519_KEY_LENGTH];
+    EVP_PKEY_get_raw_public_key(pKey, pub, &keySize);
+    EVP_PKEY_free(pKey);
+
+    return {
+        QByteArray::fromRawData(reinterpret_cast<char *>(priv), keySize).toBase64(),
+        QByteArray::fromRawData(reinterpret_cast<char *>(pub), keySize).toBase64()
+    };
+}
+
+static QString x25519PublicKeyFromPrivate(const QString &privateKeyBase64)
+{
+    constexpr int X25519_KEY_LENGTH = 32;
+    const QByteArray priv = QByteArray::fromBase64(privateKeyBase64.toUtf8());
+    if (priv.size() != X25519_KEY_LENGTH)
+        return {};
+
+    EVP_PKEY *pKey = EVP_PKEY_new_raw_private_key(EVP_PKEY_X25519, nullptr,
+                                                  reinterpret_cast<const unsigned char *>(priv.constData()),
+                                                  X25519_KEY_LENGTH);
+    if (!pKey)
+        return {};
+
+    unsigned char pub[X25519_KEY_LENGTH];
+    size_t keySize = X25519_KEY_LENGTH;
+    QString result;
+    if (EVP_PKEY_get_raw_public_key(pKey, pub, &keySize) > 0 && keySize == static_cast<size_t>(X25519_KEY_LENGTH)) {
+        result = QByteArray(reinterpret_cast<char *>(pub), static_cast<int>(keySize)).toBase64();
+    }
+    EVP_PKEY_free(pKey);
+    return result;
+}
+
+// Parse a wg-quick/AWG INI-style config into a key-value map. This is used as a fallback
+// when the JSON fields in last_config are missing or inconsistent, especially for API configs.
+static QMap<QString, QString> parseWgQuickConfig(const QString &iniConfig)
+{
+    QMap<QString, QString> result;
+    const auto lines = iniConfig.split('\n');
+    for (const QString &line : lines) {
+        const int eqIndex = line.indexOf('=');
+        if (eqIndex <= 0)
+            continue;
+        QString key = line.left(eqIndex).trimmed();
+        QString value = line.mid(eqIndex + 1).trimmed();
+        if (!key.isEmpty() && !value.isEmpty()) {
+            result[key] = value;
+        }
+    }
+    return result;
+}
 
 const char* Action::start = "start";
 const char* Action::restart = "restart";
@@ -228,6 +296,10 @@ bool IosController::connectVpn(amnezia::Proto proto, const QJsonObject& configur
           .arg(configuration.value(config_key::description).toString())
           .arg(configuration.value(config_key::hostName).toString())
           .arg(ProtocolProps::protoToString(proto));
+    }
+
+    if (configuration.contains(config_key::serverIndex)) {
+        tunnelName += QString(" #%1").arg(configuration.value(config_key::serverIndex).toInt());
     }
 
     qDebug() << "IosController::connectVpn" << tunnelName;
@@ -613,6 +685,14 @@ bool IosController::setupWireGuard()
 {
     QJsonObject config = m_rawConfig[ProtocolProps::key_proto_config_data(amnezia::Proto::WireGuard)].toObject();
 
+    {
+        QString wgHost = config[config_key::hostName].toString();
+        QString wgPort = config[config_key::port].toVariant().toString();
+        if (!wgHost.isEmpty()) {
+            m_serverAddress = (wgPort.isEmpty() ? wgHost : QString("%1:%2").arg(wgHost, wgPort)).toNSString();
+        }
+    }
+
     QJsonObject wgConfig {};
     wgConfig.insert(config_key::dns1, m_rawConfig[config_key::dns1]);
     wgConfig.insert(config_key::dns2, m_rawConfig[config_key::dns2]);
@@ -626,7 +706,19 @@ bool IosController::setupWireGuard()
     wgConfig.insert(config_key::hostName, config[config_key::hostName]);
     wgConfig.insert(config_key::port, config[config_key::port]);
     wgConfig.insert(config_key::client_ip, config[config_key::client_ip]);
-    wgConfig.insert(config_key::client_priv_key, config[config_key::client_priv_key]);
+
+    QString clientPrivKey = config[config_key::client_priv_key].toString();
+    QString clientPubKey = config[config_key::client_pub_key].toString();
+    if (clientPrivKey == "$WIREGUARD_CLIENT_PRIVATE_KEY" || clientPrivKey.isEmpty()) {
+        auto keys = generateWireGuardKeyPair();
+        clientPrivKey = keys.first;
+        clientPubKey = keys.second;
+    } else if (clientPubKey.isEmpty()) {
+        clientPubKey = x25519PublicKeyFromPrivate(clientPrivKey);
+    }
+    wgConfig.insert(config_key::client_priv_key, clientPrivKey);
+    wgConfig.insert(config_key::client_pub_key, clientPubKey);
+
     wgConfig.insert(config_key::server_pub_key, config[config_key::server_pub_key]);
     wgConfig.insert(config_key::psk_key, config[config_key::psk_key]);
     wgConfig.insert(config_key::splitTunnelType, m_rawConfig[config_key::splitTunnelType]);
@@ -671,23 +763,38 @@ bool IosController::setupWireGuard()
     QJsonDocument wgConfigDoc(wgConfig);
     QString wgConfigDocStr(wgConfigDoc.toJson(QJsonDocument::Compact));
 
+    qDebug() << "IosController::setupWireGuard final config:" << wgConfigDocStr;
+
     return startWireGuard(wgConfigDocStr);
 }
 
 bool IosController::setupXray()
 {
     QJsonObject config = m_rawConfig[ProtocolProps::key_proto_config_data(amnezia::Proto::Xray)].toObject();
-    QJsonDocument xrayConfigDoc(config);
-
-    QString xrayConfigStr(xrayConfigDoc.toJson(QJsonDocument::Compact));
+    QString xrayConfigStr = config.value(config_key::config).toString();
+    if (xrayConfigStr.isEmpty()) {
+        // API/third-party form: config_data is the config object itself ({"outbounds": [...]})
+        xrayConfigStr = QString(QJsonDocument(config).toJson(QJsonDocument::Compact));
+    }
 
     QJsonObject finalConfig;
     finalConfig.insert(config_key::dns1, m_rawConfig[config_key::dns1].toString());
     finalConfig.insert(config_key::dns2, m_rawConfig[config_key::dns2].toString());
+    finalConfig.insert(config_key::splitTunnelType, m_rawConfig[config_key::splitTunnelType]);
+
+    QJsonArray splitTunnelSites = m_rawConfig[config_key::splitTunnelSites].toArray();
+
+    for (int index = 0; index < splitTunnelSites.count(); index++) {
+        splitTunnelSites[index] = splitTunnelSites[index].toString().remove(" ");
+    }
+
+    finalConfig.insert(config_key::splitTunnelSites, splitTunnelSites);
     finalConfig.insert(config_key::config, xrayConfigStr);
 
     QJsonDocument finalConfigDoc(finalConfig);
     QString finalConfigStr(finalConfigDoc.toJson(QJsonDocument::Compact));
+
+    qDebug() << "IosController::setupXray final config:" << finalConfigStr;
 
     return startXray(finalConfigStr);
 }
@@ -695,13 +802,14 @@ bool IosController::setupXray()
 bool IosController::setupSSXray()
 {
     QJsonObject config = m_rawConfig[ProtocolProps::key_proto_config_data(amnezia::Proto::SSXray)].toObject();
-    QJsonDocument ssXrayConfigDoc(config);
-
-    QString ssXrayConfigStr(ssXrayConfigDoc.toJson(QJsonDocument::Compact));
+    QString ssXrayConfigStr = config.value(config_key::config).toString();
+    if (ssXrayConfigStr.isEmpty()) {
+        ssXrayConfigStr = QString(QJsonDocument(config).toJson(QJsonDocument::Compact));
+    }
 
     QJsonObject finalConfig;
-    finalConfig.insert(config_key::dns1, m_rawConfig[config_key::dns1]);
-    finalConfig.insert(config_key::dns2, m_rawConfig[config_key::dns2]);
+    finalConfig.insert(config_key::dns1, m_rawConfig[config_key::dns1].toString());
+    finalConfig.insert(config_key::dns2, m_rawConfig[config_key::dns2].toString());
     finalConfig.insert(config_key::config, ssXrayConfigStr);
 
     QJsonDocument finalConfigDoc(finalConfig);
@@ -714,6 +822,76 @@ bool IosController::setupAwg()
 {
     QJsonObject config = m_rawConfig[ProtocolProps::key_proto_config_data(amnezia::Proto::Awg)].toObject();
 
+    // For both regular and API configs the wg-quick/AWG INI string inside config.config is
+    // the authoritative source of truth. Parse it and use its values, falling back to JSON
+    // fields only when the INI does not contain a setting.
+    const QString rawIniConfig = config[config_key::config].toString();
+    const QMap<QString, QString> iniValues = parseWgQuickConfig(rawIniConfig);
+    qDebug() << "IosController::setupAwg raw INI config present:" << !rawIniConfig.isEmpty()
+             << "parsed keys:" << iniValues.keys();
+
+    auto fillFromIni = [&](const char *jsonKey, const QString &iniKey) {
+        const QString key(jsonKey);
+        if (iniValues.contains(iniKey)) {
+            const QString value = iniValues.value(iniKey);
+            if (!value.startsWith("$")) {
+                config[key] = value;
+            }
+        }
+    };
+
+    fillFromIni(config_key::client_priv_key, "PrivateKey");
+    fillFromIni(config_key::client_ip, "Address");
+    fillFromIni(config_key::mtu, "MTU");
+    fillFromIni(config_key::server_pub_key, "PublicKey");
+    fillFromIni(config_key::psk_key, "PresharedKey");
+    fillFromIni(config_key::persistent_keep_alive, "PersistentKeepalive");
+    fillFromIni(config_key::junkPacketCount, "Jc");
+    fillFromIni(config_key::junkPacketMinSize, "Jmin");
+    fillFromIni(config_key::junkPacketMaxSize, "Jmax");
+    fillFromIni(config_key::initPacketJunkSize, "S1");
+    fillFromIni(config_key::responsePacketJunkSize, "S2");
+    fillFromIni(config_key::cookieReplyPacketJunkSize, "S3");
+    fillFromIni(config_key::transportPacketJunkSize, "S4");
+    fillFromIni(config_key::initPacketMagicHeader, "H1");
+    fillFromIni(config_key::responsePacketMagicHeader, "H2");
+    fillFromIni(config_key::underloadPacketMagicHeader, "H3");
+    fillFromIni(config_key::transportPacketMagicHeader, "H4");
+    fillFromIni(config_key::specialJunk1, "I1");
+    fillFromIni(config_key::specialJunk2, "I2");
+    fillFromIni(config_key::specialJunk3, "I3");
+    fillFromIni(config_key::specialJunk4, "I4");
+    fillFromIni(config_key::specialJunk5, "I5");
+
+    {
+        QString awgHost = config[config_key::hostName].toString();
+        QString awgPort = config[config_key::port].toVariant().toString();
+
+        // Prefer the endpoint from the wg-quick/AWG INI; it is the authoritative source.
+        const QString endpoint = iniValues.value("Endpoint");
+        if (!endpoint.isEmpty()) {
+            const int colonIndex = endpoint.lastIndexOf(':');
+            if (colonIndex > 0 && colonIndex < endpoint.length() - 1) {
+                awgHost = endpoint.left(colonIndex);
+                awgPort = endpoint.mid(colonIndex + 1);
+            } else {
+                awgHost = endpoint;
+                awgPort.clear();
+            }
+        }
+
+        if (!awgHost.isEmpty()) {
+            m_serverAddress = (awgPort.isEmpty() ? awgHost : QString("%1:%2").arg(awgHost, awgPort)).toNSString();
+        }
+
+        if (!awgPort.isEmpty()) {
+            config[config_key::port] = awgPort.toInt();
+        }
+        if (!awgHost.isEmpty()) {
+            config[config_key::hostName] = awgHost;
+        }
+    }
+
     QJsonObject wgConfig {};
     wgConfig.insert(config_key::dns1, m_rawConfig[config_key::dns1]);
     wgConfig.insert(config_key::dns2, m_rawConfig[config_key::dns2]);
@@ -725,9 +903,27 @@ bool IosController::setupAwg()
     }
 
     wgConfig.insert(config_key::hostName, config[config_key::hostName]);
-    wgConfig.insert(config_key::port, config[config_key::port]);
+    int awgConfigPort = config[config_key::port].toVariant().toString().toInt();
+    if (awgConfigPort <= 0) {
+        awgConfigPort = QString(protocols::awg::defaultPort).toInt();
+    }
+    wgConfig.insert(config_key::port, awgConfigPort);
     wgConfig.insert(config_key::client_ip, config[config_key::client_ip]);
-    wgConfig.insert(config_key::client_priv_key, config[config_key::client_priv_key]);
+
+    QString clientPrivKey = config[config_key::client_priv_key].toString();
+    QString clientPubKey = config[config_key::client_pub_key].toString();
+    if (clientPrivKey == "$WIREGUARD_CLIENT_PRIVATE_KEY" || clientPrivKey.isEmpty()) {
+        auto keys = generateWireGuardKeyPair();
+        clientPrivKey = keys.first;
+        clientPubKey = keys.second;
+    } else {
+        // Always derive the public key from the private key so the pair is consistent.
+        // This matters for API configs where last_config may contain a stale/placeholder public key.
+        clientPubKey = x25519PublicKeyFromPrivate(clientPrivKey);
+    }
+    wgConfig.insert(config_key::client_priv_key, clientPrivKey);
+    wgConfig.insert(config_key::client_pub_key, clientPubKey);
+
     wgConfig.insert(config_key::server_pub_key, config[config_key::server_pub_key]);
     wgConfig.insert(config_key::psk_key, config[config_key::psk_key]);
     wgConfig.insert(config_key::splitTunnelType, m_rawConfig[config_key::splitTunnelType]);
@@ -742,6 +938,15 @@ bool IosController::setupAwg()
 
     if (config.contains(config_key::allowed_ips) && config[config_key::allowed_ips].isArray()) {
         wgConfig.insert(config_key::allowed_ips, config[config_key::allowed_ips]);
+    } else if (iniValues.contains("AllowedIPs")) {
+        QJsonArray allowed_ips;
+        for (const QString &ip : iniValues.value("AllowedIPs").split(',', Qt::SkipEmptyParts)) {
+            allowed_ips.append(ip.trimmed());
+        }
+        if (allowed_ips.isEmpty()) {
+            allowed_ips = QJsonArray { "0.0.0.0/0", "::/0" };
+        }
+        wgConfig.insert(config_key::allowed_ips, allowed_ips);
     } else {
         QJsonArray allowed_ips { "0.0.0.0/0", "::/0" };
         wgConfig.insert(config_key::allowed_ips, allowed_ips);
@@ -775,6 +980,8 @@ bool IosController::setupAwg()
 
     QJsonDocument wgConfigDoc(wgConfig);
     QString wgConfigDocStr(wgConfigDoc.toJson(QJsonDocument::Compact));
+
+    qDebug() << "IosController::setupAwg final config:" << wgConfigDocStr;
 
     return startWireGuard(wgConfigDocStr);
 }

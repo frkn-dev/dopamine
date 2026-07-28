@@ -2,10 +2,12 @@
 
 #include "amnezia_application.h"
 #include "configurators/wireguard_configurator.h"
+#include "containers/containers_defs.h"
 #include "core/api/apiDefs.h"
 #include "core/api/apiUtils.h"
 #include "core/controllers/gatewayController.h"
 #include "core/qrCodeUtils.h"
+#include "protocols/protocols_defs.h"
 #include "ui/controllers/systemController.h"
 #include "version.h"
 #include <QClipboard>
@@ -14,12 +16,50 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QRegularExpression>
 #include <QSet>
 
 #include "platforms/ios/ios_controller.h"
 
+#include <zlib.h>
+
 namespace
 {
+    static QByteArray gzipDecompress(const QByteArray &data)
+    {
+        if (data.size() < 10)
+            return {};
+
+        constexpr int CHUNK = 16384;
+        z_stream strm = {};
+        strm.zalloc = Z_NULL;
+        strm.zfree = Z_NULL;
+        strm.opaque = Z_NULL;
+        strm.avail_in = static_cast<uInt>(data.size());
+        strm.next_in = reinterpret_cast<Bytef *>(const_cast<char *>(data.data()));
+
+        // 15 (max window bits) + 16 (enable gzip decoding)
+        int ret = inflateInit2(&strm, 15 + 16);
+        if (ret != Z_OK)
+            return {};
+
+        QByteArray out;
+        char outBuffer[CHUNK];
+        do {
+            strm.avail_out = CHUNK;
+            strm.next_out = reinterpret_cast<Bytef *>(outBuffer);
+            ret = inflate(&strm, Z_NO_FLUSH);
+            if (ret == Z_NEED_DICT || ret == Z_DATA_ERROR || ret == Z_MEM_ERROR) {
+                inflateEnd(&strm);
+                return {};
+            }
+            out.append(outBuffer, CHUNK - strm.avail_out);
+        } while (ret != Z_STREAM_END);
+
+        inflateEnd(&strm);
+        return out;
+    }
+
     namespace configKey
     {
         constexpr char cloak[] = "cloak";
@@ -45,6 +85,8 @@ namespace
         constexpr char serviceInfo[] = "service_info";
         constexpr char serviceProtocol[] = "service_protocol";
 
+        constexpr char productId[] = "product_id";
+
         constexpr char apiPayload[] = "api_payload";
         constexpr char keyPayload[] = "key_payload";
 
@@ -64,6 +106,19 @@ namespace
         constexpr char amneziaFree[] = "amnezia-free";
         constexpr char amneziaPremium[] = "amnezia-premium";
     }
+
+    struct SubscriptionProductInfo
+    {
+        QString productId;
+        int months;
+    };
+
+    const QList<SubscriptionProductInfo> subscriptionProducts = { { QStringLiteral("frkn_premium_1_month"), 1 },
+                                                                  { QStringLiteral("frkn_premium_3_month"), 3 },
+                                                                  { QStringLiteral("frkn_premium_6_month"), 6 },
+                                                                  { QStringLiteral("frkn_premium_12_month"), 12 } };
+
+    const int defaultSubscriptionPlanIndex = 2; // frkn_premium_6_month
 
     struct GatewayRequestData
     {
@@ -145,14 +200,23 @@ namespace
         QString data = QJsonDocument::fromJson(apiResponseBody).object().value(config_key::config).toString();
 
         data.replace("vpn://", "");
-        QByteArray ba = QByteArray::fromBase64(data.toUtf8(), QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
+
+        // The backend may return standard base64 (with +/=) or URL-safe base64 (with -_ and no padding).
+        QByteArray ba = QByteArray::fromBase64(data.toUtf8());
+        if (ba.isEmpty() || (!ba.startsWith('{') && ba.left(2) != QByteArray("\x1f\x8b", 2))) {
+            ba = QByteArray::fromBase64(data.toUtf8(), QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
+        }
 
         if (ba.isEmpty()) {
             qDebug() << "empty vpn key";
             return ErrorCode::ApiConfigEmptyError;
         }
 
+        // The payload may be plain JSON, zlib-compressed (qUncompress) or gzip-compressed.
         QByteArray ba_uncompressed = qUncompress(ba);
+        if (ba_uncompressed.isEmpty()) {
+            ba_uncompressed = gzipDecompress(ba);
+        }
         if (!ba_uncompressed.isEmpty()) {
             ba = ba_uncompressed;
         }
@@ -162,7 +226,30 @@ namespace
             configStr.replace("<key>", "<key>\n");
             configStr.replace("$OPENVPN_PRIV_KEY", apiPayloadData.certRequest.privKey);
         } else if (protocol == configKey::awg) {
-            configStr.replace("$WIREGUARD_CLIENT_PRIVATE_KEY", apiPayloadData.wireGuardClientPrivKey);
+            // The server may either return a placeholder (client generates the key) or a real
+            // client private key in last_config. Prefer the server-provided key when present,
+            // otherwise fall back to the locally generated key we already sent in the request.
+            QString effectiveClientPrivKey = apiPayloadData.wireGuardClientPrivKey;
+            {
+                const auto previewServerConfig = QJsonDocument::fromJson(configStr.toUtf8()).object();
+                const auto previewContainers = previewServerConfig.value(config_key::containers).toArray();
+                if (!previewContainers.isEmpty()) {
+                    const auto previewContainerObject = previewContainers.at(0).toObject();
+                    const auto previewContainerType =
+                            ContainerProps::containerFromString(previewContainerObject.value(config_key::container).toString());
+                    const QString previewContainerName = ContainerProps::containerTypeToString(previewContainerType);
+                    const auto previewServerProtocolConfig = previewContainerObject.value(previewContainerName).toObject();
+                    const auto previewClientProtocolConfig = QJsonDocument::fromJson(
+                            previewServerProtocolConfig.value(config_key::last_config).toString().toUtf8()).object();
+                    const QString previewPrivKey = previewClientProtocolConfig.value(config_key::client_priv_key).toString();
+                    if (!previewPrivKey.isEmpty() && previewPrivKey != "$WIREGUARD_CLIENT_PRIVATE_KEY") {
+                        effectiveClientPrivKey = previewPrivKey;
+                        qDebug() << "[API IMPORT] using server-provided AWG private key";
+                    }
+                }
+            }
+
+            configStr.replace("$WIREGUARD_CLIENT_PRIVATE_KEY", effectiveClientPrivKey);
             auto newServerConfig = QJsonDocument::fromJson(configStr.toUtf8()).object();
             auto containers = newServerConfig.value(config_key::containers).toArray();
             if (containers.isEmpty()) {
@@ -171,10 +258,42 @@ namespace
             }
             auto containerObject = containers.at(0).toObject();
             auto containerType = ContainerProps::containerFromString(containerObject.value(config_key::container).toString());
-            QString containerName = ContainerProps::containerTypeToString(containerType);
+            // Use the exact container key from the API payload (e.g. "amnezia-awg"), not the
+            // display alias returned by containerTypeToString (which is "awg" for AWG).
+            QString containerName = containerObject.value(config_key::container).toString();
             auto serverProtocolConfig = containerObject.value(containerName).toObject();
             auto clientProtocolConfig =
                     QJsonDocument::fromJson(serverProtocolConfig.value(config_key::last_config).toString().toUtf8()).object();
+
+            // Persist the actual private key inside last_config as well, so reconnects can reuse it.
+            // The server returns client_private_key as a placeholder or omits it, but the public key
+            // it stores is the one we sent in the API request. If we regenerate keys on every connect
+            // the server peer changes and traffic stops flowing.
+            const QString apiClientPrivKey = clientProtocolConfig.value(config_key::client_priv_key).toString();
+            if (apiClientPrivKey == "$WIREGUARD_CLIENT_PRIVATE_KEY" || apiClientPrivKey.isEmpty()) {
+                clientProtocolConfig[config_key::client_priv_key] = effectiveClientPrivKey;
+                // Always derive the public key from the private key we persist. The payload public
+                // key should already match, but if it ever drifts the server would store a key
+                // that does not match the private key used for handshakes.
+                clientProtocolConfig[config_key::client_pub_key] =
+                        WireguardConfigurator::genPublicKeyFromPrivate(effectiveClientPrivKey);
+                serverProtocolConfig[config_key::last_config] =
+                        QString(QJsonDocument(clientProtocolConfig).toJson(QJsonDocument::Compact));
+                qDebug() << "[API IMPORT] persisted AWG client key in last_config";
+            }
+
+            // Sync the core keys from last_config into the protocol config object so that
+            // both JSON and INI consumers see the same values (especially client_priv_key).
+            serverProtocolConfig[config_key::client_priv_key] = clientProtocolConfig.value(config_key::client_priv_key);
+            serverProtocolConfig[config_key::client_pub_key] = clientProtocolConfig.value(config_key::client_pub_key);
+            serverProtocolConfig[config_key::server_pub_key] = clientProtocolConfig.value(config_key::server_pub_key);
+            serverProtocolConfig[config_key::psk_key] = clientProtocolConfig.value(config_key::psk_key);
+            serverProtocolConfig[config_key::client_ip] = clientProtocolConfig.value(config_key::client_ip);
+            serverProtocolConfig[config_key::mtu] = clientProtocolConfig.value(config_key::mtu);
+            serverProtocolConfig[config_key::port] = clientProtocolConfig.value(config_key::port);
+            serverProtocolConfig[config_key::hostName] = clientProtocolConfig.value(config_key::hostName);
+            serverProtocolConfig[config_key::persistent_keep_alive] =
+                    clientProtocolConfig.value(config_key::persistent_keep_alive).toString("25");
 
             // TODO looks like this block can be removed after v1 configs EOL
 
@@ -196,9 +315,77 @@ namespace
             serverProtocolConfig[config_key::specialJunk4] = clientProtocolConfig.value(config_key::specialJunk4);
             serverProtocolConfig[config_key::specialJunk5] = clientProtocolConfig.value(config_key::specialJunk5);
 
+            // Ensure a wg-quick/AWG INI is always present in config.config. The iOS extension and the
+            // settings screen treat this INI as the single source of truth. If the API payload already
+            // contains a valid INI we keep it; otherwise synthesise one from the JSON last_config.
+            {
+                QString iniConfig = serverProtocolConfig.value(config_key::config).toString();
+                const QRegularExpression privateKeyRe("PrivateKey\\s*=\\s*(\\S+)");
+                const auto privateKeyMatch = privateKeyRe.match(iniConfig);
+                const bool hasValidPrivateKey = privateKeyMatch.hasMatch()
+                                                && !privateKeyMatch.captured(1).startsWith("$");
+                if (!iniConfig.contains("[Interface]") || !hasValidPrivateKey) {
+                    const QString hostName = newServerConfig.value(config_key::hostName).toString();
+                    const QString port = clientProtocolConfig.value(config_key::port).toString(protocols::awg::defaultPort);
+                    const QString dns1 = newServerConfig.value(config_key::dns1).toString();
+
+                    QStringList lines;
+                    lines << "[Interface]";
+                    lines << QString("PrivateKey = %1").arg(clientProtocolConfig.value(config_key::client_priv_key).toString());
+                    lines << QString("Address = %1").arg(clientProtocolConfig.value(config_key::client_ip).toString());
+                    lines << QString("MTU = %1").arg(clientProtocolConfig.value(config_key::mtu).toString(protocols::awg::defaultMtu));
+                    if (!dns1.isEmpty()) {
+                        lines << QString("DNS = %1").arg(dns1);
+                    }
+                    lines << QString("Jc = %1").arg(clientProtocolConfig.value(config_key::junkPacketCount).toString());
+                    lines << QString("Jmin = %1").arg(clientProtocolConfig.value(config_key::junkPacketMinSize).toString());
+                    lines << QString("Jmax = %1").arg(clientProtocolConfig.value(config_key::junkPacketMaxSize).toString());
+                    lines << QString("S1 = %1").arg(clientProtocolConfig.value(config_key::initPacketJunkSize).toString());
+                    lines << QString("S2 = %1").arg(clientProtocolConfig.value(config_key::responsePacketJunkSize).toString());
+                    lines << QString("S3 = %1").arg(clientProtocolConfig.value(config_key::cookieReplyPacketJunkSize).toString());
+                    lines << QString("S4 = %1").arg(clientProtocolConfig.value(config_key::transportPacketJunkSize).toString());
+                    lines << QString("H1 = %1").arg(clientProtocolConfig.value(config_key::initPacketMagicHeader).toString());
+                    lines << QString("H2 = %1").arg(clientProtocolConfig.value(config_key::responsePacketMagicHeader).toString());
+                    lines << QString("H3 = %1").arg(clientProtocolConfig.value(config_key::underloadPacketMagicHeader).toString());
+                    lines << QString("H4 = %1").arg(clientProtocolConfig.value(config_key::transportPacketMagicHeader).toString());
+                    lines << QString("I1 = %1").arg(clientProtocolConfig.value(config_key::specialJunk1).toString());
+                    lines << QString("I2 = %1").arg(clientProtocolConfig.value(config_key::specialJunk2).toString());
+                    lines << QString("I3 = %1").arg(clientProtocolConfig.value(config_key::specialJunk3).toString());
+                    lines << QString("I4 = %1").arg(clientProtocolConfig.value(config_key::specialJunk4).toString());
+                    lines << QString("I5 = %1").arg(clientProtocolConfig.value(config_key::specialJunk5).toString());
+                    lines << "";
+                    lines << "[Peer]";
+                    lines << QString("PublicKey = %1").arg(clientProtocolConfig.value(config_key::server_pub_key).toString());
+                    const QString psk = clientProtocolConfig.value(config_key::psk_key).toString();
+                    if (!psk.isEmpty()) {
+                        lines << QString("PresharedKey = %1").arg(psk);
+                    }
+                    lines << QString("Endpoint = %1:%2").arg(hostName, port);
+                    lines << "AllowedIPs = 0.0.0.0/0, ::/0";
+                    lines << QString("PersistentKeepalive = %1")
+                                        .arg(clientProtocolConfig.value(config_key::persistent_keep_alive).toString("25"));
+
+                    serverProtocolConfig[config_key::config] = lines.join("\n");
+                    qDebug().noquote() << "[API IMPORT] generated AWG INI config:\n" << serverProtocolConfig.value(config_key::config).toString();
+                }
+
+                // Persist the INI inside last_config as well. The VPN configuration builder on iOS
+                // reads containerConfig["awg"]["last_config"], parses it as JSON, and then uses the
+                // "config" field as the wg-quick/AWG INI source of truth.
+                clientProtocolConfig[config_key::config] = serverProtocolConfig.value(config_key::config).toString();
+                serverProtocolConfig[config_key::last_config] =
+                        QString(QJsonDocument(clientProtocolConfig).toJson(QJsonDocument::Compact));
+            }
+
             //
 
             containerObject[containerName] = serverProtocolConfig;
+            // The iOS connection path looks up the AWG protocol data by the short key "awg",
+            // while API configs store the full config under the container key "amnezia-awg".
+            // Keep both keys in sync so the VPN configuration builder finds a complete config.
+            if (containerType == DockerContainer::Awg || containerType == DockerContainer::Awg2) {
+                containerObject[configKey::awg] = serverProtocolConfig;
+            }
             containers.replace(0, containerObject);
             newServerConfig[config_key::containers] = containers;
             configStr = QString(QJsonDocument(newServerConfig).toJson());
@@ -212,8 +399,17 @@ namespace
 
         if (newServerConfig.value(config_key::configVersion).toInt() == apiDefs::ConfigSource::AmneziaGateway) {
             serverConfig[config_key::configVersion] = newServerConfig.value(config_key::configVersion);
-            serverConfig[config_key::description] = newServerConfig.value(config_key::description);
-            serverConfig[config_key::name] = newServerConfig.value(config_key::name);
+            // Never overwrite the user-visible name/description from the API response.
+            // The API config payload contains generic names like "FRKN VLESS"; we keep
+            // the names generated during import/reload (reelsoprovod <country> <protocol>).
+            if (!serverConfig.contains(config_key::name)) {
+                serverConfig[config_key::name] = newServerConfig.value(config_key::name);
+            }
+            if (!serverConfig.contains(config_key::description)) {
+                serverConfig[config_key::description] = newServerConfig.value(config_key::description);
+            }
+        } else if (!serverConfig.contains(config_key::configVersion)) {
+            serverConfig[config_key::configVersion] = apiDefs::ConfigSource::AmneziaGateway;
         }
 
         auto defaultContainer = newServerConfig.value(config_key::defaultContainer).toString();
@@ -225,6 +421,12 @@ namespace
         QVariantMap map = serverConfig.value(configKey::apiConfig).toObject().toVariantMap();
         map.insert(newServerConfig.value(configKey::apiConfig).toObject().toVariantMap());
         auto apiConfig = QJsonObject::fromVariantMap(map);
+
+        // Preserve auth_data passed in the outer serverConfig (subscription / import flows)
+        // because the decrypted vpn key does not contain it.
+        if (serverConfig.contains(configKey::authData)) {
+            apiConfig.insert(configKey::authData, serverConfig.value(configKey::authData));
+        }
 
         if (newServerConfig.value(config_key::configVersion).toInt() == apiDefs::ConfigSource::AmneziaGateway) {
             apiConfig.insert(apiDefs::key::supportedProtocols,
@@ -245,6 +447,15 @@ ApiConfigsController::ApiConfigsController(const QSharedPointer<ServersModel> &s
                                            const std::shared_ptr<Settings> &settings, QObject *parent)
     : QObject(parent), m_serversModel(serversModel), m_apiServicesModel(apiServicesModel), m_settings(settings)
 {
+    m_selectedPlanIndex = defaultSubscriptionPlanIndex;
+    for (const auto &product : subscriptionProducts) {
+        QVariantMap plan;
+        plan[QStringLiteral("productId")] = product.productId;
+        plan[QStringLiteral("months")] = product.months;
+        plan[QStringLiteral("price")] = QString();
+        plan[QStringLiteral("currency")] = QString();
+        m_subscriptionPlans.append(plan);
+    }
 }
 
 QString ApiConfigsController::getSubscriptionId() const
@@ -278,6 +489,41 @@ bool ApiConfigsController::getImportAllCountries() const
     return m_importAllCountries;
 }
 
+QVariantList ApiConfigsController::subscriptionPlans() const
+{
+    return m_subscriptionPlans;
+}
+
+int ApiConfigsController::selectedPlanIndex() const
+{
+    return m_selectedPlanIndex;
+}
+
+void ApiConfigsController::setSelectedPlanIndex(int index)
+{
+    if (index < 0 || index >= m_subscriptionPlans.size()) {
+        return;
+    }
+    if (m_selectedPlanIndex != index) {
+        m_selectedPlanIndex = index;
+
+#if defined(Q_OS_IOS) || defined(MACOS_NE)
+        const QVariantMap plan = m_subscriptionPlans.at(index).toMap();
+        const QString price = plan.value(QStringLiteral("price")).toString();
+        if (!price.isEmpty()) {
+            QString formattedPrice = price;
+            const QString currency = plan.value(QStringLiteral("currency")).toString();
+            if (!currency.isEmpty()) {
+                formattedPrice += " " + currency;
+            }
+            m_apiServicesModel->updateServicePrice(formattedPrice);
+        }
+#endif
+
+        emit selectedPlanIndexChanged();
+    }
+}
+
 void ApiConfigsController::setImportAllCountries(bool importAll)
 {
     if (m_importAllCountries != importAll) {
@@ -294,16 +540,18 @@ bool ApiConfigsController::createTrial(const QString &email, const QString &refe
     }
 
     QJsonObject body;
+    body["trial"] = true;
     if (!email.isEmpty()) {
         body["email"] = email;
-    } else {
-        body["user"] = QUuid::createUuid().toString(QUuid::WithoutBraces);
     }
     body["referred_by"] = referralCode.isEmpty() ? QString("WEB") : referralCode;
     body["language"] = m_settings->getAppLanguage().name().split("_").first();
+    body["os"] = QSysInfo::productType();
+    body["app_version"] = QString(APP_VERSION);
+    body["installation_uuid"] = m_settings->getInstallationUuid(true);
 
     QNetworkRequest request;
-    request.setUrl(QUrl("https://api.frkn.org/trial"));
+    request.setUrl(QUrl("https://api.frkn.org/account"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setTransferTimeout(30000);
 
@@ -315,15 +563,15 @@ bool ApiConfigsController::createTrial(const QString &email, const QString &refe
         QByteArray responseData = reply->readAll();
         if (reply->error() != QNetworkReply::NoError) {
             qWarning() << "[TRIAL] request failed:" << reply->errorString() << "response:" << responseData;
-            emit errorOccurred(ErrorCode::ApiConfigDecryptionError);
+            emit errorOccurred(ErrorCode::InternalError);
             return;
         }
 
         QJsonObject response = QJsonDocument::fromJson(responseData).object();
-        QString id = response.value("response").toObject().value("id").toString();
+        QString id = response.value("subscription_id").toString();
         if (id.isEmpty()) {
             qWarning() << "[TRIAL] no subscription id in response:" << responseData;
-            emit errorOccurred(ErrorCode::ApiConfigDecryptionError);
+            emit errorOccurred(ErrorCode::InternalError);
             return;
         }
 
@@ -470,37 +718,58 @@ bool ApiConfigsController::fillAvailableServices()
     qDebug().noquote() << "[API SERVICES] response:" << QJsonDocument(data).toJson(QJsonDocument::Indented);
 
 #if defined(Q_OS_IOS) || defined(MACOS_NE)
+    QStringList productIds;
+    for (const auto &product : subscriptionProducts) {
+        productIds << product.productId;
+    }
+
     QEventLoop waitProducts;
-    bool productsFetched = false;
-    QString productPrice;
-    QString productCurrency;
-    
-    IosController::Instance()->fetchProducts(QStringList() << QStringLiteral("frkn_premium_6_month"),
+    QList<QVariantMap> fetchedProducts;
+
+    IosController::Instance()->fetchProducts(productIds,
                                              [&](const QList<QVariantMap> &products,
                                                  const QStringList &invalidIds,
                                                  const QString &errorString) {
                                                  if (!errorString.isEmpty() || products.isEmpty()) {
-                                                     qWarning().noquote() << "[IAP] Failed to fetch product price:" << errorString;
+                                                     qWarning().noquote() << "[IAP] Failed to fetch product prices:" << errorString
+                                                                          << "invalid ids:" << invalidIds;
                                                  } else {
-                                                     const auto &product = products.first();
-                                                     productPrice = product.value("price").toString();
-                                                     productCurrency = product.value("currencyCode").toString();
-                                                     productsFetched = true;
-                                                     qInfo().noquote() << "[IAP] Fetched product price:" << productPrice << productCurrency;
+                                                     fetchedProducts = products;
                                                  }
                                                  waitProducts.quit();
                                              });
     waitProducts.exec();
-    
-    if (productsFetched && !productPrice.isEmpty()) {
+
+    QString defaultPlanPrice;
+    QString defaultPlanCurrency;
+    for (int i = 0; i < m_subscriptionPlans.size(); ++i) {
+        QVariantMap plan = m_subscriptionPlans[i].toMap();
+        for (const auto &product : fetchedProducts) {
+            if (product.value(QStringLiteral("productId")).toString() == plan.value(QStringLiteral("productId")).toString()) {
+                plan[QStringLiteral("price")] = product.value(QStringLiteral("price")).toString();
+                plan[QStringLiteral("currency")] = product.value(QStringLiteral("currencyCode")).toString();
+                m_subscriptionPlans[i] = plan;
+                if (i == defaultSubscriptionPlanIndex) {
+                    defaultPlanPrice = plan.value(QStringLiteral("price")).toString();
+                    defaultPlanCurrency = plan.value(QStringLiteral("currency")).toString();
+                }
+                qInfo().noquote() << "[IAP] Fetched product price:" << plan.value(QStringLiteral("productId")).toString()
+                                  << plan.value(QStringLiteral("price")).toString() << plan.value(QStringLiteral("currency")).toString();
+                break;
+            }
+        }
+    }
+    emit subscriptionPlansChanged();
+
+    if (!defaultPlanPrice.isEmpty()) {
         QJsonArray services = data.value("services").toArray();
         for (int i = 0; i < services.size(); ++i) {
             QJsonObject service = services[i].toObject();
             if (service.value(configKey::serviceType).toString() == serviceType::amneziaPremium) {
                 QJsonObject serviceInfo = service.value(configKey::serviceInfo).toObject();
-                QString formattedPrice = productPrice;
-                if (!productCurrency.isEmpty()) {
-                    formattedPrice += " " + productCurrency;
+                QString formattedPrice = defaultPlanPrice;
+                if (!defaultPlanCurrency.isEmpty()) {
+                    formattedPrice += " " + defaultPlanCurrency;
                 }
                 serviceInfo["price"] = formattedPrice;
                 service[configKey::serviceInfo] = serviceInfo;
@@ -543,13 +812,18 @@ bool ApiConfigsController::importService()
 bool ApiConfigsController::importSerivceFromAppStore()
 {
 #if defined(Q_OS_IOS) || defined(MACOS_NE)
+    QString selectedProductId = QStringLiteral("frkn_premium_6_month");
+    if (m_selectedPlanIndex >= 0 && m_selectedPlanIndex < m_subscriptionPlans.size()) {
+        selectedProductId = m_subscriptionPlans[m_selectedPlanIndex].toMap().value(QStringLiteral("productId")).toString();
+    }
+
     bool purchaseOk = false;
     QString originalTransactionId;
     QString storeTransactionId;
     QString storeProductId;
     QString purchaseError;
     QEventLoop waitPurchase;
-    IosController::Instance()->purchaseProduct(QStringLiteral("frkn_premium_6_month"),
+    IosController::Instance()->purchaseProduct(selectedProductId,
                                                [&](bool success, const QString &txId, const QString &purchasedProductId,
                                                    const QString &originalTxId, const QString &errorString) {
                                                    purchaseOk = success;
@@ -581,6 +855,7 @@ bool ApiConfigsController::importSerivceFromAppStore()
 
     QJsonObject apiPayload = gatewayRequestData.toJsonObject();
     apiPayload[apiDefs::key::transactionId] = originalTransactionId;
+    apiPayload[configKey::productId] = storeProductId.isEmpty() ? selectedProductId : storeProductId;
     auto isTestPurchase = IosController::Instance()->isTestFlight();
 
     ErrorCode errorCode;
@@ -693,6 +968,9 @@ bool ApiConfigsController::restoreSerivceFromAppStore()
 
         QJsonObject apiPayload = gatewayRequestData.toJsonObject();
         apiPayload[apiDefs::key::transactionId] = originalTransactionId;
+        if (!productId.isEmpty()) {
+            apiPayload[configKey::productId] = productId;
+        }
         auto isTestPurchase = IosController::Instance()->isTestFlight();
         QByteArray responseBody;
         ErrorCode errorCode = executeRequest(QString("%1v1/subscriptions"), apiPayload, responseBody, isTestPurchase);
@@ -732,7 +1010,8 @@ bool ApiConfigsController::restoreSerivceFromAppStore()
 bool ApiConfigsController::importServiceForCountry(const QString &serverCountryCode, const ProtocolData &protocolData)
 {
     QJsonObject authData;
-    authData["id"] = m_subscriptionId.isEmpty() ? m_settings->getInstallationUuid(true) : m_subscriptionId;
+    authData[apiDefs::key::apiKey] = m_subscriptionId.isEmpty() ? m_settings->getInstallationUuid(true) : m_subscriptionId;
+    authData[apiDefs::key::id] = m_subscriptionId.isEmpty() ? m_settings->getInstallationUuid(true) : m_subscriptionId;
 
     QString userCountryCode = m_apiServicesModel->getCountryCode();
 
@@ -771,20 +1050,38 @@ bool ApiConfigsController::importServiceForCountry(const QString &serverCountryC
             return false;
         }
 
+        // fillServerConfig may have lost auth_data when the decrypted config didn't include it;
+        // restore it from the request payload before saving.
+        serverConfig.insert(configKey::authData, authData);
+
         QJsonObject apiConfig = serverConfig.value(configKey::apiConfig).toObject();
         apiConfig.insert(configKey::userCountryCode, serverCountryCode);
         apiConfig.insert(configKey::serviceType, m_apiServicesModel->getSelectedServiceType());
-        apiConfig.insert(configKey::serviceProtocol, m_apiServicesModel->getSelectedServiceProtocol());
+        // Prefer the protocol reported by the gateway for this specific config;
+        // the service card protocol ("vless" for the merged premium card) is only a fallback.
+        if (apiConfig.value(configKey::serviceProtocol).toString().isEmpty()) {
+            apiConfig.insert(configKey::serviceProtocol, m_apiServicesModel->getSelectedServiceProtocol());
+        }
+        apiConfig.insert(configKey::authData, authData);
 
         serverConfig.insert(configKey::apiConfig, apiConfig);
+        serverConfig.insert(configKey::authData, authData);
 
         QString hostName = serverConfig.value(config_key::hostName).toString();
-        QString protocolName = gatewayRequestData.serviceProtocol.toUpper();
-        QString name = QString("FRKN %1").arg(serverCountryCode.toUpper());
+        QString protocolName = apiConfig.value(configKey::serviceProtocol).toString(gatewayRequestData.serviceProtocol).toUpper();
+        QString name = QString("reelsoprovod %1 %2").arg(serverCountryCode.toUpper(), protocolName);
         QString description = QString("%1 %2").arg(protocolName, hostName);
 
         serverConfig[config_key::name] = name;
         serverConfig[config_key::description] = description;
+
+        QJsonObject displayInfo;
+        displayInfo["countryCode"] = serverCountryCode.toUpper();
+        displayInfo["countryName"] = serverCountryCode.toUpper();
+        displayInfo["protocol"] = protocolName;
+        displayInfo["hostName"] = hostName;
+        displayInfo["serviceName"] = m_apiServicesModel->getSelectedServiceName();
+        serverConfig["displayInfo"] = displayInfo;
 
         m_serversModel->addServer(serverConfig);
         return true;
@@ -851,6 +1148,22 @@ bool ApiConfigsController::updateServiceFromGateway(const int serverIndex, const
     auto serverConfig = m_serversModel->getServerConfig(serverIndex);
     auto apiConfig = serverConfig.value(configKey::apiConfig).toObject();
 
+    qDebug().noquote() << "[UPDATE GATEWAY] serverIndex:" << serverIndex
+                       << "configVersion:" << serverConfig.value("config_version").toInt()
+                       << "apiConfig keys:" << apiConfig.keys()
+                       << "authData keys:" << serverConfig.value(configKey::authData).toObject().keys();
+
+    const bool isConnectEvent = newCountryCode.isEmpty() && newCountryName.isEmpty() && !reloadServiceConfig;
+
+    QJsonObject authData = apiConfig.value(configKey::authData).toObject();
+    if (authData.isEmpty()) {
+        authData = serverConfig.value(configKey::authData).toObject();
+    }
+    // Ensure we always send api_key for the new AGW endpoints.
+    if (!authData.contains(apiDefs::key::apiKey) && authData.contains(apiDefs::key::id)) {
+        authData[apiDefs::key::apiKey] = authData.value(apiDefs::key::id);
+    }
+
     GatewayRequestData gatewayRequestData { QSysInfo::productType(),
                                             QString(APP_VERSION),
                                             m_settings->getAppLanguage().name().split("_").first(),
@@ -859,14 +1172,56 @@ bool ApiConfigsController::updateServiceFromGateway(const int serverIndex, const
                                             newCountryCode,
                                             apiConfig.value(configKey::serviceType).toString(),
                                             apiConfig.value(configKey::serviceProtocol).toString(),
-                                            serverConfig.value(configKey::authData).toObject() };
+                                            authData };
 
     ProtocolData protocolData = generateProtocolData(gatewayRequestData.serviceProtocol);
+
+    // Re-use the previously generated WireGuard key pair on every reconnect so that
+    // the server peer entry (which is keyed by the public key) stays the same.
+    // Otherwise each connection gets a brand new key, the server creates a new peer
+    // for the same client IP and the handshake is dropped or races with the old one.
+    if (isConnectEvent && gatewayRequestData.serviceProtocol == configKey::awg) {
+        const auto containers = serverConfig.value(config_key::containers).toArray();
+        const QString containerName = ContainerProps::containerTypeToString(DockerContainer::Awg);
+        for (const QJsonValue &containerValue : containers) {
+            const auto awgProtocolConfig = containerValue.toObject().value(containerName).toObject();
+            if (awgProtocolConfig.isEmpty()) {
+                continue;
+            }
+            const auto lastConfig = QJsonDocument::fromJson(awgProtocolConfig.value(config_key::last_config).toString().toUtf8()).object();
+            QString savedClientPrivKey = lastConfig.value(config_key::client_priv_key).toString();
+            QString savedClientPubKey = lastConfig.value(config_key::client_pub_key).toString();
+
+            // The public key can always be derived from the private key, so a stored
+            // private key alone is enough to keep the same server-side peer on reconnect.
+            // AGW configs often persist only client_priv_key, which previously blocked reuse
+            // and caused a fresh key (and a new server peer for the same client IP) every time.
+            if (!savedClientPrivKey.isEmpty()) {
+                const QString derivedPubKey = WireguardConfigurator::genPublicKeyFromPrivate(savedClientPrivKey);
+                if (savedClientPubKey.isEmpty()) {
+                    savedClientPubKey = derivedPubKey;
+                } else if (savedClientPubKey != derivedPubKey) {
+                    qWarning() << "[API IMPORT] saved AWG public key does not match private key, deriving correct one"
+                                << "serverIndex:" << serverIndex;
+                    savedClientPubKey = derivedPubKey;
+                }
+            }
+
+            if (!savedClientPrivKey.isEmpty() && !savedClientPubKey.isEmpty()) {
+                protocolData.wireGuardClientPrivKey = savedClientPrivKey;
+                protocolData.wireGuardClientPubKey = savedClientPubKey;
+                qDebug() << "[API IMPORT] reusing existing AWG client key for connect event, serverIndex:" << serverIndex;
+            } else {
+                qDebug() << "[API IMPORT] no saved AWG client key to reuse, generating new one, serverIndex:" << serverIndex;
+            }
+            break;
+        }
+    }
 
     QJsonObject apiPayload = gatewayRequestData.toJsonObject();
     appendProtocolDataToApiPayload(gatewayRequestData.serviceProtocol, protocolData, apiPayload);
 
-    if (newCountryCode.isEmpty() && newCountryName.isEmpty() && !reloadServiceConfig) {
+    if (isConnectEvent) {
         apiPayload.insert(configKey::isConnectEvent, true);
     }
 
@@ -890,12 +1245,26 @@ bool ApiConfigsController::updateServiceFromGateway(const int serverIndex, const
 
         newServerConfig.insert(configKey::apiConfig, newApiConfig);
         newServerConfig.insert(configKey::authData, gatewayRequestData.authData);
+        newApiConfig.insert(configKey::authData, gatewayRequestData.authData);
+        newServerConfig.insert(configKey::apiConfig, newApiConfig);
         newServerConfig.insert(config_key::crc, serverConfig.value(config_key::crc));
 
         if (serverConfig.value(config_key::nameOverriddenByUser).toBool()) {
             newServerConfig.insert(config_key::name, serverConfig.value(config_key::name));
             newServerConfig.insert(config_key::nameOverriddenByUser, true);
+        } else {
+            // Keep the existing generated name (reelsoprovod <country> <protocol>) instead of
+            // overwriting it with the generic name returned by the API config endpoint.
+            // fillServerConfig already preserves name/description unless they were missing.
+            newServerConfig.insert(config_key::name, serverConfig.value(config_key::name));
+            newServerConfig.insert(config_key::description, serverConfig.value(config_key::description));
         }
+
+        // Preserve displayInfo so the UI can keep the country/protocol label after reload.
+        if (serverConfig.contains("displayInfo")) {
+            newServerConfig.insert("displayInfo", serverConfig.value("displayInfo"));
+        }
+
         m_serversModel->editServer(newServerConfig, serverIndex);
         if (reloadServiceConfig) {
             emit reloadServerFromApiFinished(tr("API config reloaded"));
@@ -1033,15 +1402,23 @@ bool ApiConfigsController::isConfigValid()
     QJsonObject serverConfigObject = m_serversModel->getServerConfig(serverIndex);
     auto configSource = apiUtils::getConfigSource(serverConfigObject);
 
+    qDebug().noquote() << "[IS CONFIG VALID] serverIndex:" << serverIndex
+                       << "configSource:" << static_cast<int>(configSource)
+                       << "configVersion:" << serverConfigObject.value("config_version").toInt()
+                       << "hasInstalledContainers:" << m_serversModel->data(serverIndex, ServersModel::Roles::HasInstalledContainers).toBool()
+                       << "apiConfig keys:" << serverConfigObject.value(configKey::apiConfig).toObject().keys()
+                       << "authData keys:" << serverConfigObject.value(configKey::authData).toObject().keys();
+
     if (configSource == apiDefs::ConfigSource::Telegram
         && !m_serversModel->data(serverIndex, ServersModel::Roles::HasInstalledContainers).toBool()) {
         m_serversModel->removeApiConfig(serverIndex);
         return updateServiceFromTelegram(serverIndex);
     } else if (configSource == apiDefs::ConfigSource::AmneziaGateway
                && !m_serversModel->data(serverIndex, ServersModel::Roles::HasInstalledContainers).toBool()) {
+        qDebug() << "[IS CONFIG VALID] updating gateway config";
         return updateServiceFromGateway(serverIndex, "", "");
     } else if (configSource && m_serversModel->isApiKeyExpired(serverIndex)) {
-        qDebug() << "attempt to update api config by expires_at event";
+        qDebug() << "[IS CONFIG VALID] updating by expires_at event";
         if (configSource == apiDefs::ConfigSource::AmneziaGateway) {
             return updateServiceFromGateway(serverIndex, "", "");
         } else {
@@ -1077,10 +1454,220 @@ bool ApiConfigsController::isVlessProtocol()
     return false;
 }
 
+bool ApiConfigsController::isAwgProtocol()
+{
+    auto serverIndex = m_serversModel->getProcessedServerIndex();
+    auto serverConfigObject = m_serversModel->getServerConfig(serverIndex);
+    auto apiConfigObject = serverConfigObject.value(configKey::apiConfig).toObject();
+
+    return apiConfigObject[configKey::serviceProtocol].toString() == "awg";
+}
+
 QString ApiConfigsController::getCurrentServerConfigJson()
 {
     auto serverConfig = m_serversModel->getServerConfig(m_serversModel->getProcessedServerIndex());
     return QString(QJsonDocument(serverConfig).toJson(QJsonDocument::Indented));
+}
+
+QString ApiConfigsController::getCurrentServerConfigIni()
+{
+    auto serverConfig = m_serversModel->getServerConfig(m_serversModel->getProcessedServerIndex());
+    auto containers = serverConfig.value(config_key::containers).toArray();
+    if (containers.isEmpty()) {
+        return "";
+    }
+
+    auto containerObj = containers.at(0).toObject();
+    auto containerType = ContainerProps::containerFromString(containerObj.value(config_key::container).toString());
+    QString containerName = ContainerProps::containerTypeToString(containerType);
+    auto protocolConfig = containerObj.value(containerName).toObject();
+
+    // For AWG/WireGuard the raw wg-quick INI is stored in the 'config' field.
+    QString iniConfig = protocolConfig.value(config_key::config).toString();
+    const QRegularExpression privateKeyRe("PrivateKey\\s*=\\s*(\\S+)");
+    const auto privateKeyMatch = privateKeyRe.match(iniConfig);
+    const bool hasValidPrivateKey = privateKeyMatch.hasMatch() && !privateKeyMatch.captured(1).startsWith("$");
+    if (!iniConfig.isEmpty() && hasValidPrivateKey) {
+        return iniConfig;
+    }
+
+    // Fallback: build an INI from the JSON last_config fields so the UI always has something to show.
+    auto lastConfig = QJsonDocument::fromJson(protocolConfig.value(config_key::last_config).toString().toUtf8()).object();
+    if (lastConfig.isEmpty()) {
+        return "";
+    }
+
+    QStringList lines;
+    lines << "[Interface]";
+    lines << QString("PrivateKey = %1").arg(lastConfig.value(config_key::client_priv_key).toString());
+    lines << QString("Address = %1").arg(lastConfig.value(config_key::client_ip).toString());
+    lines << QString("MTU = %1").arg(lastConfig.value(config_key::mtu).toString());
+    lines << QString("DNS = %1").arg(serverConfig.value(config_key::dns1).toString());
+
+    if (containerType == DockerContainer::Awg || containerType == DockerContainer::Awg2) {
+        lines << QString("Jc = %1").arg(lastConfig.value(config_key::junkPacketCount).toString());
+        lines << QString("Jmin = %1").arg(lastConfig.value(config_key::junkPacketMinSize).toString());
+        lines << QString("Jmax = %1").arg(lastConfig.value(config_key::junkPacketMaxSize).toString());
+        lines << QString("S1 = %1").arg(lastConfig.value(config_key::initPacketJunkSize).toString());
+        lines << QString("S2 = %1").arg(lastConfig.value(config_key::responsePacketJunkSize).toString());
+        lines << QString("S3 = %1").arg(lastConfig.value(config_key::cookieReplyPacketJunkSize).toString());
+        lines << QString("S4 = %1").arg(lastConfig.value(config_key::transportPacketJunkSize).toString());
+        lines << QString("H1 = %1").arg(lastConfig.value(config_key::initPacketMagicHeader).toString());
+        lines << QString("H2 = %1").arg(lastConfig.value(config_key::responsePacketMagicHeader).toString());
+        lines << QString("H3 = %1").arg(lastConfig.value(config_key::underloadPacketMagicHeader).toString());
+        lines << QString("H4 = %1").arg(lastConfig.value(config_key::transportPacketMagicHeader).toString());
+        lines << QString("I1 = %1").arg(lastConfig.value(config_key::specialJunk1).toString());
+        lines << QString("I2 = %1").arg(lastConfig.value(config_key::specialJunk2).toString());
+        lines << QString("I3 = %1").arg(lastConfig.value(config_key::specialJunk3).toString());
+        lines << QString("I4 = %1").arg(lastConfig.value(config_key::specialJunk4).toString());
+        lines << QString("I5 = %1").arg(lastConfig.value(config_key::specialJunk5).toString());
+    }
+
+    lines << "";
+    lines << "[Peer]";
+    lines << QString("PublicKey = %1").arg(lastConfig.value(config_key::server_pub_key).toString());
+    if (!lastConfig.value(config_key::psk_key).toString().isEmpty()) {
+        lines << QString("PresharedKey = %1").arg(lastConfig.value(config_key::psk_key).toString());
+    }
+
+    QString hostName = serverConfig.value(config_key::hostName).toString();
+    if (hostName.isEmpty()) {
+        hostName = lastConfig.value(config_key::hostName).toString();
+    }
+    QString port = protocolConfig.value(config_key::port).toString();
+    if (port.isEmpty()) {
+        port = lastConfig.value(config_key::port).toString();
+    }
+    if (port.isEmpty()) {
+        port = (containerType == DockerContainer::Awg || containerType == DockerContainer::Awg2)
+                ? protocols::awg::defaultPort : protocols::wireguard::defaultPort;
+    }
+    lines << QString("Endpoint = %1:%2").arg(hostName, port);
+
+    lines << "AllowedIPs = 0.0.0.0/0, ::/0";
+    lines << QString("PersistentKeepalive = %1").arg(lastConfig.value(config_key::persistent_keep_alive).toString("25"));
+
+    return lines.join("\n");
+}
+
+QString ApiConfigsController::getCurrentServerTunnelParams()
+{
+    auto serverConfig = m_serversModel->getServerConfig(m_serversModel->getProcessedServerIndex());
+    auto apiConfig = serverConfig.value(configKey::apiConfig).toObject();
+    auto containers = serverConfig.value(config_key::containers).toArray();
+
+    QJsonObject result;
+    result["name"] = serverConfig.value(config_key::name);
+    result["hostName"] = serverConfig.value(config_key::hostName);
+    result["defaultContainer"] = serverConfig.value(config_key::defaultContainer);
+    result["serviceProtocol"] = apiConfig.value(configKey::serviceProtocol);
+    result["userCountryCode"] = apiConfig.value(configKey::userCountryCode);
+    result["serverCountryCode"] = apiConfig.value(configKey::serverCountryCode);
+    result["dns1"] = serverConfig.value(config_key::dns1);
+    result["dns2"] = serverConfig.value(config_key::dns2);
+
+    if (!containers.isEmpty()) {
+        auto containerObj = containers.at(0).toObject();
+        auto containerType = ContainerProps::containerFromString(containerObj.value(config_key::container).toString());
+        QString containerName = ContainerProps::containerTypeToString(containerType);
+        auto protocolConfig = containerObj.value(containerName).toObject();
+        auto lastConfig = QJsonDocument::fromJson(protocolConfig.value(config_key::last_config).toString().toUtf8()).object();
+
+        result["mtu"] = lastConfig.value(config_key::mtu);
+        result["client_ip"] = lastConfig.value(config_key::client_ip);
+
+        QJsonObject keys;
+        keys["client_priv_key"] = lastConfig.value(config_key::client_priv_key);
+        keys["client_pub_key"] = lastConfig.value(config_key::client_pub_key);
+        keys["server_pub_key"] = lastConfig.value(config_key::server_pub_key);
+        keys["psk_key"] = lastConfig.value(config_key::psk_key);
+        result["keys"] = keys;
+
+        QJsonObject awgParams;
+        awgParams["Jc"] = lastConfig.value(config_key::junkPacketCount);
+        awgParams["Jmin"] = lastConfig.value(config_key::junkPacketMinSize);
+        awgParams["Jmax"] = lastConfig.value(config_key::junkPacketMaxSize);
+        awgParams["S1"] = lastConfig.value(config_key::initPacketJunkSize);
+        awgParams["S2"] = lastConfig.value(config_key::responsePacketJunkSize);
+        awgParams["S3"] = lastConfig.value(config_key::cookieReplyPacketJunkSize);
+        awgParams["S4"] = lastConfig.value(config_key::transportPacketJunkSize);
+        awgParams["H1"] = lastConfig.value(config_key::initPacketMagicHeader);
+        awgParams["H2"] = lastConfig.value(config_key::responsePacketMagicHeader);
+        awgParams["H3"] = lastConfig.value(config_key::underloadPacketMagicHeader);
+        awgParams["H4"] = lastConfig.value(config_key::transportPacketMagicHeader);
+        result["awgParams"] = awgParams;
+
+        if (containerType == DockerContainer::Awg || containerType == DockerContainer::Awg2) {
+            QString port = protocolConfig.value(config_key::port).toString();
+            if (port.isEmpty()) {
+                port = lastConfig.value(config_key::port).toString();
+            }
+            if (port.isEmpty()) {
+                // The raw wg-quick INI is the authoritative source for the endpoint/port.
+                const QString iniConfig = protocolConfig.value(config_key::config).toString();
+                const QRegularExpression endpointRe("Endpoint\\s*=\\s*([^\\s:]+):(\\d+)");
+                const auto match = endpointRe.match(iniConfig);
+                if (match.hasMatch()) {
+                    port = match.captured(2);
+                }
+            }
+            if (port.isEmpty()) {
+                port = protocols::awg::defaultPort;
+            }
+            result["endpoint"] = QString("%1:%2").arg(serverConfig.value(config_key::hostName).toString(), port);
+        }
+    }
+
+    return QString(QJsonDocument(result).toJson(QJsonDocument::Indented));
+}
+
+QString ApiConfigsController::getCurrentServerMtu()
+{
+    auto serverConfig = m_serversModel->getServerConfig(m_serversModel->getProcessedServerIndex());
+    auto containers = serverConfig.value(config_key::containers).toArray();
+    if (containers.isEmpty()) {
+        return "";
+    }
+
+    auto containerObj = containers.at(0).toObject();
+    QString containerName = ContainerProps::containerTypeToString(
+            ContainerProps::containerFromString(containerObj.value(config_key::container).toString()));
+    auto protocolConfig = containerObj.value(containerName).toObject();
+    auto lastConfig = QJsonDocument::fromJson(protocolConfig.value(config_key::last_config).toString().toUtf8()).object();
+    return lastConfig.value(config_key::mtu).toString();
+}
+
+QString ApiConfigsController::getCurrentServerDns()
+{
+    auto serverConfig = m_serversModel->getServerConfig(m_serversModel->getProcessedServerIndex());
+    QString dns1 = serverConfig.value(config_key::dns1).toString();
+    QString dns2 = serverConfig.value(config_key::dns2).toString();
+    if (dns1.isEmpty() && dns2.isEmpty()) {
+        return "";
+    }
+    if (dns2.isEmpty()) {
+        return dns1;
+    }
+    if (dns1.isEmpty()) {
+        return dns2;
+    }
+    return QString("%1, %2").arg(dns1, dns2);
+}
+
+QString ApiConfigsController::getCurrentServerClientIp()
+{
+    auto serverConfig = m_serversModel->getServerConfig(m_serversModel->getProcessedServerIndex());
+    auto containers = serverConfig.value(config_key::containers).toArray();
+    if (containers.isEmpty()) {
+        return "";
+    }
+
+    auto containerObj = containers.at(0).toObject();
+    QString containerName = ContainerProps::containerTypeToString(
+            ContainerProps::containerFromString(containerObj.value(config_key::container).toString()));
+    auto protocolConfig = containerObj.value(containerName).toObject();
+    auto lastConfig = QJsonDocument::fromJson(protocolConfig.value(config_key::last_config).toString().toUtf8()).object();
+    return lastConfig.value(config_key::client_ip).toString();
 }
 
 bool ApiConfigsController::fetchSubscriptionConfigs(const QString &subscriptionId)
@@ -1095,7 +1682,8 @@ bool ApiConfigsController::fetchSubscriptionConfigs(const QString &subscriptionI
     emit subscriptionConfigsChanged();
 
     QJsonObject authData;
-    authData["id"] = subscriptionId;
+    authData[apiDefs::key::apiKey] = subscriptionId;
+    authData[apiDefs::key::id] = subscriptionId;
 
     QJsonObject servicesPayload;
     servicesPayload[configKey::osVersion] = QSysInfo::productType();
@@ -1188,18 +1776,27 @@ bool ApiConfigsController::fetchSubscriptionConfigs(const QString &subscriptionI
                 continue;
             }
 
+            // fillServerConfig may have lost auth_data when the decrypted config didn't include it;
+            // restore it from the request payload before saving.
+            serverConfig.insert(configKey::authData, authData);
+
             QJsonObject apiConfig = serverConfig.value(configKey::apiConfig).toObject();
             apiConfig.insert(configKey::userCountryCode, serverCountryCode);
             apiConfig.insert(configKey::serviceType, serviceType);
-            apiConfig.insert(configKey::serviceProtocol, serviceProtocol);
+            // Prefer the protocol reported by the gateway for this specific config;
+            // the service card protocol is only a fallback.
+            if (apiConfig.value(configKey::serviceProtocol).toString().isEmpty()) {
+                apiConfig.insert(configKey::serviceProtocol, serviceProtocol);
+            }
             apiConfig.insert(configKey::authData, authData);
             apiConfig.insert("connection_uuid", connectionUuid);
             serverConfig.insert(configKey::apiConfig, apiConfig);
+            serverConfig.insert(configKey::authData, authData);
 
             QString hostName = serverConfig.value(config_key::hostName).toString();
-            QString protocolName = serviceProtocol.toUpper();
+            QString protocolName = apiConfig.value(configKey::serviceProtocol).toString(serviceProtocol).toUpper();
             QString displayLabel = connectionLabel.remove(QChar(0x200D)).replace("<200d>", "");
-            QString name = displayLabel.isEmpty() ? QString("FRKN %1").arg(serverCountryCode.toUpper()) : displayLabel;
+            QString name = displayLabel.isEmpty() ? QString("reelsoprovod %1 %2").arg(serverCountryCode.toUpper(), protocolName) : displayLabel;
             QString description = QString("%1 %2").arg(protocolName, hostName);
 
             serverConfig[config_key::name] = name;
@@ -1281,6 +1878,17 @@ bool ApiConfigsController::installSubscriptionConfig(int index)
     QString connectionUuid = apiConfig.value("connection_uuid").toString();
 
     qDebug() << "[SUBSCRIPTION] protocol:" << serviceProtocol << "country:" << serverCountryCode << "connection:" << connectionUuid;
+
+    QJsonObject authData = apiConfig.value(configKey::authData).toObject();
+    if (authData.isEmpty()) {
+        authData = serverConfig.value(configKey::authData).toObject();
+    }
+    if (!authData.contains(apiDefs::key::apiKey) && authData.contains(apiDefs::key::id)) {
+        authData[apiDefs::key::apiKey] = authData.value(apiDefs::key::id);
+    }
+    serverConfig.insert(configKey::authData, authData);
+    apiConfig.insert(configKey::authData, authData);
+    serverConfig.insert(configKey::apiConfig, apiConfig);
 
     int serversBefore = m_serversModel->getServersCount();
     QString serverName = serverConfig.value(config_key::name).toString();
@@ -1364,6 +1972,8 @@ ErrorCode ApiConfigsController::importServiceFromBilling(const QByteArray &respo
 ErrorCode ApiConfigsController::executeRequest(const QString &endpoint, const QJsonObject &apiPayload, QByteArray &responseBody,
                                                bool isTestPurchase)
 {
+    qDebug().noquote() << "[AGW EXECUTE] endpoint:" << endpoint.arg(m_settings->getGatewayEndpoint(isTestPurchase))
+                       << "payload keys:" << apiPayload.keys();
     GatewayController gatewayController(m_settings->getGatewayEndpoint(isTestPurchase), m_settings->isDevGatewayEnv(isTestPurchase),
                                         apiDefs::requestTimeoutMsecs, m_settings->isStrictKillSwitchEnabled());
     return gatewayController.post(endpoint, apiPayload, responseBody);

@@ -178,6 +178,63 @@ PageType {
                 }
             }
 
+            ColumnLayout {
+                Layout.fillWidth: true
+                Layout.topMargin: 16
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+
+                visible: (Qt.platform.os === "ios" || IsMacOsNeBuild) && ApiServicesModel.getSelectedServiceType() === "amnezia-premium"
+                spacing: 0
+
+                ButtonGroup {
+                    id: plansRadioButtonGroup
+                }
+
+                ListView {
+                    id: plansListView
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: contentHeight
+
+                    interactive: false
+                    spacing: 0
+
+                    model: ApiConfigsController.subscriptionPlans
+
+                    delegate: ColumnLayout {
+                        width: plansListView.width
+
+                        VerticalRadioButton {
+                            Layout.fillWidth: true
+
+                            text: {
+                                var months = modelData.months
+                                if (months === 1) return qsTr("1 month")
+                                if (months === 3) return qsTr("3 months")
+                                if (months === 6) return qsTr("6 months")
+                                return qsTr("12 months")
+                            }
+                            descriptionText: {
+                                var price = modelData.price
+                                if (price === "") return ""
+                                if (modelData.currency !== "") return price + " " + modelData.currency
+                                return price
+                            }
+                            ButtonGroup.group: plansRadioButtonGroup
+                            checked: index === ApiConfigsController.selectedPlanIndex
+
+                            onClicked: {
+                                ApiConfigsController.selectedPlanIndex = index
+                            }
+                        }
+
+                        DividerType {
+                            Layout.fillWidth: true
+                        }
+                    }
+                }
+            }
+
             ParagraphTextType {
                 Layout.fillWidth: true
                 Layout.topMargin: 16
@@ -235,7 +292,7 @@ PageType {
 
                 text: {
                     var termsUrl = "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
-                    var privacyUrl = LanguageModel.getCurrentSiteUrl("policy")
+                    var privacyUrl = LanguageModel.getCurrentSiteUrl("privacy-policy")
                     return qsTr("By continuing, you agree to the <a href=\"%1\" style=\"color: #FBB26A;\">Terms of Use</a> and <a href=\"%2\" style=\"color: #FBB26A;\">Privacy Policy</a>").arg(termsUrl).arg(privacyUrl)
                 }
 
@@ -274,8 +331,16 @@ PageType {
 
         readonly property string imagePath: "qrc:/images/controls/tag.svg"
         readonly property string lText: qsTr("Price")
-        readonly property string rText: ApiServicesModel.getSelectedServiceData("price")
+        property string rText: ApiServicesModel.getSelectedServiceData("price")
         property bool isVisible: true
+    }
+
+    Connections {
+        target: ApiConfigsController
+
+        function onSelectedPlanIndexChanged() {
+            price.rText = ApiServicesModel.getSelectedServiceData("price")
+        }
     }
 
     QtObject {

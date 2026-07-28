@@ -48,7 +48,11 @@ QVariant ApiAccountInfoModel::data(const QModelIndex &index, int role) const
         return tr("%1 out of %2").arg(m_accountInfoData.activeDeviceCount).arg(m_accountInfoData.maxDeviceCount);
     }
     case ServiceDescriptionRole: {
-        return m_accountInfoData.subscriptionDescription;
+        QString description = m_accountInfoData.subscriptionDescription;
+        if (description.contains("FRKN", Qt::CaseInsensitive)) {
+            return "Reelsoprovod";
+        }
+        return description;
     }
     case IsComponentVisibleRole: {
         return m_accountInfoData.configType == apiDefs::ConfigType::AmneziaPremiumV2

@@ -92,13 +92,64 @@ QJsonObject VpnConfigurationsController::createVpnConfiguration(const QPair<QStr
             continue;
         }
 
-        QString protocolConfigString =
-                containerConfig.value(ProtocolProps::protoToString(proto)).toObject().value(config_key::last_config).toString();
+        QJsonObject protoConfig = containerConfig.value(ProtocolProps::protoToString(proto)).toObject();
+        if (protoConfig.isEmpty()) {
+            // Backend may key the protocol object by container name ("amnezia-awg")
+            // instead of protocol name ("awg"): take the first object holding a config.
+            for (auto it = containerConfig.begin(); it != containerConfig.end(); ++it) {
+                if (it.value().isObject()
+                    && (it.value().toObject().contains(config_key::last_config)
+                        || it.value().toObject().contains(config_key::config))) {
+                    protoConfig = it.value().toObject();
+                    break;
+                }
+            }
+        }
+
+        QString protocolConfigString = protoConfig.value(config_key::last_config).toString();
+        if (protocolConfigString.isEmpty()) {
+            protocolConfigString = protoConfig.value(config_key::config).toString();
+        }
+        if (protocolConfigString.isEmpty()) {
+            // CDN form: the container object itself holds the protocol config
+            // (no protocol sub-object): {container, position, config, last_config, ...}
+            protocolConfigString = containerConfig.value(config_key::last_config).toString();
+        }
+        if (protocolConfigString.isEmpty()) {
+            protocolConfigString = containerConfig.value(config_key::config).toString();
+        }
 
         auto configurator = createConfigurator(proto);
         protocolConfigString = configurator->processConfigWithLocalSettings(dns, isApiConfig, protocolConfigString);
 
         QJsonObject vpnConfigData = QJsonDocument::fromJson(protocolConfigString.toUtf8()).object();
+
+        // Normalize AWG junk parameter names: backend last_config uses long names
+        // ("junkPacketCount", "initPacketMagicHeader", ...), the app expects short ones
+        // ("Jc", "H1", ...).
+        static const QList<QPair<QString, QString>> awgJunkKeyMap = {
+            { "junkPacketCount", config_key::junkPacketCount },
+            { "junkPacketMinSize", config_key::junkPacketMinSize },
+            { "junkPacketMaxSize", config_key::junkPacketMaxSize },
+            { "initPacketJunkSize", config_key::initPacketJunkSize },
+            { "responsePacketJunkSize", config_key::responsePacketJunkSize },
+            { "cookieReplyPacketJunkSize", config_key::cookieReplyPacketJunkSize },
+            { "transportPacketJunkSize", config_key::transportPacketJunkSize },
+            { "initPacketMagicHeader", config_key::initPacketMagicHeader },
+            { "responsePacketMagicHeader", config_key::responsePacketMagicHeader },
+            { "underloadPacketMagicHeader", config_key::underloadPacketMagicHeader },
+            { "transportPacketMagicHeader", config_key::transportPacketMagicHeader },
+            { "specialJunk1", config_key::specialJunk1 },
+            { "specialJunk2", config_key::specialJunk2 },
+            { "specialJunk3", config_key::specialJunk3 },
+            { "specialJunk4", config_key::specialJunk4 },
+            { "specialJunk5", config_key::specialJunk5 },
+        };
+        for (const auto &[longName, shortName] : awgJunkKeyMap) {
+            if (vpnConfigData.contains(longName) && !vpnConfigData.contains(shortName)) {
+                vpnConfigData[shortName] = vpnConfigData.value(longName);
+            }
+        }
         if (ContainerProps::isAwgContainer(container) || container == DockerContainer::WireGuard) {
             // add mtu for old configs
             if (vpnConfigData[config_key::mtu].toString().isEmpty()) {

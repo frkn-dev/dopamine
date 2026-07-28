@@ -112,11 +112,7 @@ QVariant ApiServicesModel::data(const QModelIndex &index, int role) const
         if (price == "free") {
             return tr("Free");
         }
-#if defined(Q_OS_IOS) || defined(MACOS_NE)
-        return tr("%1 $").arg(price);
-#else
-        return tr("%1 $/month").arg(price);
-#endif
+        return price;
     }
     case EndDateRole: {
         return QDateTime::fromString(apiServiceData.subscription.endDate, Qt::ISODate).toLocalTime().toString("d MMM yyyy");
@@ -161,6 +157,18 @@ void ApiServicesModel::updateModel(const QJsonObject &data)
 void ApiServicesModel::setServiceIndex(const int index)
 {
     m_selectedServiceIndex = index;
+}
+
+void ApiServicesModel::updateServicePrice(const QString &price)
+{
+    for (int i = 0; i < m_services.size(); ++i) {
+        if (m_services.at(i).type == serviceType::amneziaPremium) {
+            m_services[i].serviceInfo.price = price;
+            const QModelIndex modelIndex = createIndex(i, 0);
+            emit dataChanged(modelIndex, modelIndex, { PriceRole });
+            break;
+        }
+    }
 }
 
 QJsonObject ApiServicesModel::getSelectedServiceInfo()

@@ -37,6 +37,11 @@ public:
 
     static ConnectionData genClientKeys();
 
+    // Derive the X25519 public key (base64) from a base64-encoded private key.
+    // Returns an empty string on failure. Lets us keep a client's key pair stable
+    // across reconnects when only the private key was persisted in last_config.
+    static QString genPublicKeyFromPrivate(const QString &privateKeyBase64);
+
 private:
     QList<QHostAddress> getIpsFromConf(const QString &input);
     ConnectionData prepareWireguardConfig(const ServerCredentials &credentials, DockerContainer container,

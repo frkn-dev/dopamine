@@ -51,8 +51,15 @@ ServersModel::ServersModel(std::shared_ptr<Settings> settings, QObject *parent) 
         updateDefaultServerContainersModel();
     });
 
-    connect(this, &ServersModel::processedServerIndexChanged, this, &ServersModel::processedServerChanged);
-    connect(this, &ServersModel::dataChanged, this, &ServersModel::processedServerChanged);
+    connect(this, &ServersModel::dataChanged, this, [this](const QModelIndex &topLeft, const QModelIndex &bottomRight) {
+        for (int i = topLeft.row(); i <= bottomRight.row(); ++i) {
+            if (i == m_defaultServerIndex) {
+                emit defaultServerNameChanged();
+                emit defaultServerDescriptionChanged();
+            }
+        }
+        emit processedServerChanged();
+    });
 
     connect(this, &QAbstractItemModel::modelReset, this, &ServersModel::recomputeGatewayStacks);
 }
@@ -226,7 +233,19 @@ QString ServersModel::getServerDescription(const QJsonObject &server, const int 
     QString description;
 
     if (configVersion && !apiConfig.value(configKey::serverCountryCode).toString().isEmpty()) {
-        return apiConfig.value(configKey::serverCountryName).toString();
+        QString protocol = apiConfig.value(configKey::serviceProtocol).toString().toUpper();
+        QString countryName = apiConfig.value(configKey::serverCountryName).toString();
+        QString countryCode = apiConfig.value(configKey::serverCountryCode).toString().toUpper();
+        if (!countryName.isEmpty() && !protocol.isEmpty()) {
+            return QString("%1 · %2").arg(countryName, protocol);
+        }
+        if (!countryName.isEmpty()) {
+            return countryName;
+        }
+        if (!protocol.isEmpty()) {
+            return QString("%1 · %2").arg(countryCode, protocol);
+        }
+        return countryCode;
     } else if (configVersion) {
         return server.value(config_key::description).toString();
     } else if (data(index, HasWriteAccessRole).toBool()) {
@@ -696,18 +715,26 @@ QStringList ServersModel::getAllInstalledServicesName(const int serverIndex)
 {
     QStringList servicesName;
     QJsonObject server = m_servers.at(serverIndex).toObject();
-    const auto containers = server.value(config_key::containers).toArray();
-    for (auto it = containers.begin(); it != containers.end(); it++) {
-        auto container = ContainerProps::containerFromString(it->toObject().value(config_key::container).toString());
-        if (ContainerProps::containerService(container) == ServiceType::Other) {
-            if (container == DockerContainer::Dns) {
-                servicesName.append("DNS");
-            } else if (container == DockerContainer::Sftp) {
-                servicesName.append("SFTP");
-            } else if (container == DockerContainer::TorWebSite) {
-                servicesName.append("TOR");
-            } else if (container == DockerContainer::Socks5Proxy) {
-                servicesName.append("SOCKS5");
+    const auto apiConfig = server.value(configKey::apiConfig).toObject();
+    if (!apiConfig.isEmpty()) {
+        const QString protocol = apiConfig.value(configKey::serviceProtocol).toString().toUpper();
+        if (!protocol.isEmpty()) {
+            servicesName.append(protocol);
+        }
+    } else {
+        const auto containers = server.value(config_key::containers).toArray();
+        for (auto it = containers.begin(); it != containers.end(); it++) {
+            auto container = ContainerProps::containerFromString(it->toObject().value(config_key::container).toString());
+            if (ContainerProps::containerService(container) == ServiceType::Other) {
+                if (container == DockerContainer::Dns) {
+                    servicesName.append("DNS");
+                } else if (container == DockerContainer::Sftp) {
+                    servicesName.append("SFTP");
+                } else if (container == DockerContainer::TorWebSite) {
+                    servicesName.append("TOR");
+                } else if (container == DockerContainer::Socks5Proxy) {
+                    servicesName.append("SOCKS5");
+                }
             }
         }
     }
@@ -967,7 +994,7 @@ void ServersModel::removeApiConfig(const int serverIndex)
                                .arg(serverConfig[config_key::hostName].toString())
                                .arg(serverConfig[config_key::vpnproto].toString());
 
-    FRKN::removeVPNC(vpncName.toStdString());
+    Dopamine::removeVPNC(vpncName.toStdString());
 #endif
 
     serverConfig.remove(config_key::dns1);

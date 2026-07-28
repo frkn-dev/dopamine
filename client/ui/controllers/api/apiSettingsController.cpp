@@ -5,6 +5,7 @@
 
 #include "core/api/apiUtils.h"
 #include "core/controllers/gatewayController.h"
+#include "core/api/apiDefs.h"
 #include "platforms/ios/ios_controller.h"
 #include "version.h"
 
@@ -44,16 +45,56 @@ ApiSettingsController::~ApiSettingsController()
 
 bool ApiSettingsController::getAccountInfo(bool reload)
 {
+    auto processedIndex = m_serversModel->getProcessedServerIndex();
+    auto serverConfig = m_serversModel->getServerConfig(processedIndex);
+    auto apiConfig = serverConfig.value(configKey::apiConfig).toObject();
+
+    // When just opening the settings screen we can show whatever we have stored locally
+    // without waiting for an API round-trip. Refresh/reload still hits the server.
+    if (!reload) {
+        QJsonObject localAccountInfo;
+        localAccountInfo[apiDefs::key::availableCountries] = apiConfig.value(apiDefs::key::availableCountries).toArray();
+        localAccountInfo[apiDefs::key::supportedProtocols] = apiConfig.value(apiDefs::key::supportedProtocols).toArray();
+
+        QString serviceType = apiConfig.value(configKey::serviceType).toString();
+        if (serviceType == "amnezia-free") {
+            localAccountInfo[apiDefs::key::subscriptionDescription] = "FRKN Free subscription";
+        } else if (serviceType == "amnezia-premium") {
+            localAccountInfo[apiDefs::key::subscriptionDescription] = "FRKN Premium subscription";
+        } else if (serviceType == "external-premium") {
+            localAccountInfo[apiDefs::key::subscriptionDescription] = "External Premium subscription";
+        } else {
+            localAccountInfo[apiDefs::key::subscriptionDescription] = serviceType;
+        }
+
+        m_apiAccountInfoModel->updateModel(localAccountInfo, serverConfig);
+        updateApiCountryModel();
+        return true;
+    }
+
     if (reload) {
         QEventLoop wait;
         QTimer::singleShot(1000, &wait, &QEventLoop::quit);
         wait.exec(QEventLoop::ExcludeUserInputEvents);
     }
 
-    auto processedIndex = m_serversModel->getProcessedServerIndex();
-    auto serverConfig = m_serversModel->getServerConfig(processedIndex);
-    auto apiConfig = serverConfig.value(configKey::apiConfig).toObject();
-    auto authData = serverConfig.value(configKey::authData).toObject();
+    auto rootAuthData = serverConfig.value(configKey::authData).toObject();
+
+    qDebug().noquote() << "[ACCOUNT INFO] serverIndex:" << processedIndex
+                       << "configVersion:" << serverConfig.value("config_version").toInt()
+                       << "apiConfig keys:" << apiConfig.keys()
+                       << "rootAuthData keys:" << rootAuthData.keys()
+                       << "rootAuthData:" << QJsonDocument(rootAuthData).toJson(QJsonDocument::Compact);
+
+    QJsonObject authData = apiConfig.value(configKey::authData).toObject();
+    if (authData.isEmpty()) {
+        authData = rootAuthData;
+    }
+    if (!authData.contains(apiDefs::key::apiKey) && authData.contains(apiDefs::key::id)) {
+        authData[apiDefs::key::apiKey] = authData.value(apiDefs::key::id);
+    }
+
+    qDebug().noquote() << "[ACCOUNT INFO] authData after fix:" << QJsonDocument(authData).toJson(QJsonDocument::Compact);
 
     bool isTestPurchase = apiConfig.value(apiDefs::key::isTestPurchase).toBool(false);
     GatewayController gatewayController(m_settings->getGatewayEndpoint(isTestPurchase), m_settings->isDevGatewayEnv(isTestPurchase),

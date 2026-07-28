@@ -231,6 +231,10 @@ void VpnConnection::connectToVpn(int serverIndex, const ServerCredentials &crede
     setConnectionState(Vpn::ConnectionState::Connecting);
 
     m_vpnConfiguration = vpnConfiguration;
+    // Keep the server entry index in the config so platform controllers (e.g. iOS)
+    // can build a unique tunnel identity even when several server entries share the
+    // same hostName/description (otherwise their VPN profiles collide into one).
+    m_vpnConfiguration[config_key::serverIndex] = serverIndex;
 
 #ifdef AMNEZIA_DESKTOP
     if (m_vpnProtocol) {

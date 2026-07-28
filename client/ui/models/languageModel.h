@@ -12,13 +12,7 @@ namespace LanguageSettings
     enum class AvailableLanguageEnum {
         English,
         Russian,
-        China_cn,
-        Ukrainian,
-        Persian,
-        Arabic,
-        Burmese,
-        Urdu,
-        Hindi
+        Ukrainian
     };
     Q_ENUM_NS(AvailableLanguageEnum)
 

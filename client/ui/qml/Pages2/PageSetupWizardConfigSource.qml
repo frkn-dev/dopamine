@@ -307,6 +307,8 @@ PageType {
 
     property list<QtObject> variants: [
         qrScan,
+        amneziaVpn,
+        restorePurchases,
         siteLink
     ]
 

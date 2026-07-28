@@ -31,6 +31,8 @@ public:
     Q_PROPERTY(QString selectedServerCountryCode READ getSelectedServerCountryCode WRITE setSelectedServerCountryCode NOTIFY selectedServerCountryCodeChanged)
     Q_PROPERTY(bool importAllCountries READ getImportAllCountries WRITE setImportAllCountries NOTIFY importAllCountriesChanged)
     Q_PROPERTY(QVariantList subscriptionConfigs READ getSubscriptionConfigs NOTIFY subscriptionConfigsChanged)
+    Q_PROPERTY(QVariantList subscriptionPlans READ subscriptionPlans NOTIFY subscriptionPlansChanged)
+    Q_PROPERTY(int selectedPlanIndex READ selectedPlanIndex WRITE setSelectedPlanIndex NOTIFY selectedPlanIndexChanged)
 
 public slots:
     bool exportNativeConfig(const QString &serverCountryCode, const QString &fileName);
@@ -65,13 +67,23 @@ public slots:
 
     void setCurrentProtocol(const QString &protocolName);
     bool isVlessProtocol();
+    Q_INVOKABLE bool isAwgProtocol();
 
     Q_INVOKABLE QString getCurrentServerConfigJson();
+    Q_INVOKABLE QString getCurrentServerConfigIni();
+    Q_INVOKABLE QString getCurrentServerTunnelParams();
+    Q_INVOKABLE QString getCurrentServerMtu();
+    Q_INVOKABLE QString getCurrentServerDns();
+    Q_INVOKABLE QString getCurrentServerClientIp();
 
     Q_INVOKABLE bool fetchSubscriptionConfigs(const QString &subscriptionId);
     Q_INVOKABLE bool installSubscriptionConfig(int index);
 
     QVariantList getSubscriptionConfigs() const;
+
+    QVariantList subscriptionPlans() const;
+    int selectedPlanIndex() const;
+    void setSelectedPlanIndex(int index);
 
 signals:
     void errorOccurred(ErrorCode errorCode);
@@ -79,6 +91,8 @@ signals:
     void selectedServerCountryCodeChanged();
     void importAllCountriesChanged();
     void subscriptionConfigsChanged();
+    void subscriptionPlansChanged();
+    void selectedPlanIndexChanged();
 
     void installServerFromApiFinished(const QString &message);
     void changeApiCountryFinished(const QString &message);
@@ -109,6 +123,9 @@ private:
     bool m_importAllCountries = false;
 
     QJsonArray m_subscriptionConfigs;
+
+    QVariantList m_subscriptionPlans;
+    int m_selectedPlanIndex = 2; // default: 6-month plan
 };
 
 #endif // APICONFIGSCONTROLLER_H

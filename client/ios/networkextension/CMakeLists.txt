@@ -8,8 +8,8 @@ set_target_properties(networkextension PROPERTIES
     BUNDLE_EXTENSION appex
 
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in
-    MACOSX_BUNDLE_INFO_STRING "FRKNNetworkExtension"
-    MACOSX_BUNDLE_BUNDLE_NAME "FRKNNetworkExtension"
+    MACOSX_BUNDLE_INFO_STRING "DopamineNetworkExtension"
+    MACOSX_BUNDLE_BUNDLE_NAME "DopamineNetworkExtension"
     MACOSX_BUNDLE_GUI_IDENTIFIER "${BUILD_IOS_APP_IDENTIFIER}.network-extension"
     MACOSX_BUNDLE_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION_TWEAK}"
     MACOSX_BUNDLE_LONG_VERSION_STRING "${APPLE_PROJECT_VERSION}-${CMAKE_PROJECT_VERSION_TWEAK}"
@@ -33,8 +33,9 @@ if(DEPLOY)
         XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "Apple Distribution"
         XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY[variant=Debug] "Apple Development"
         XCODE_ATTRIBUTE_CODE_SIGN_STYLE Manual
-        XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER "match AppStore org.frkn.client.network-extension"
-        XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER[variant=Debug] "Development org.frkn.client.network-extension"
+        XCODE_ATTRIBUTE_CODE_SIGN_STYLE[variant=Debug] Automatic
+        XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER "match AppStore org.frkn.dopamine.network-extension"
+        XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER[variant=Debug] ""
     )
 else()
     set_target_properties(networkextension PROPERTIES

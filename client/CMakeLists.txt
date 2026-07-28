@@ -23,10 +23,12 @@ execute_process(
 
 add_definitions(-DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}")
 
-add_definitions(-DPROD_AGW_PUBLIC_KEY="$ENV{PROD_AGW_PUBLIC_KEY}")
-add_definitions(-DPROD_S3_ENDPOINT="$ENV{PROD_S3_ENDPOINT}")
+# AGW public key: embed agw_public.pem via Qt resource system.
+if(EXISTS "${CMAKE_SOURCE_DIR}/agw_public.pem" AND NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/agw_public.pem")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink "${CMAKE_SOURCE_DIR}/agw_public.pem" "${CMAKE_CURRENT_SOURCE_DIR}/agw_public.pem")
+endif()
 
-add_definitions(-DDEV_AGW_PUBLIC_KEY="$ENV{DEV_AGW_PUBLIC_KEY}")
+add_definitions(-DPROD_S3_ENDPOINT="$ENV{PROD_S3_ENDPOINT}")
 add_definitions(-DDEV_AGW_ENDPOINT="$ENV{DEV_AGW_ENDPOINT}")
 add_definitions(-DDEV_S3_ENDPOINT="$ENV{DEV_S3_ENDPOINT}")
 
@@ -69,6 +71,7 @@ set(CMAKE_AUTORCC ON)
 set(DOPAMINE_TS_FILES
     ${CMAKE_CURRENT_LIST_DIR}/translations/amneziavpn_en_US.ts
     ${CMAKE_CURRENT_LIST_DIR}/translations/amneziavpn_ru_RU.ts
+    ${CMAKE_CURRENT_LIST_DIR}/translations/amneziavpn_uk_UA.ts
 )
 
 file(GLOB_RECURSE DOPAMINE_TS_SOURCES *.qrc *.cpp *.h *.ui)
@@ -148,13 +151,13 @@ if(APPLE)
     cmake_policy(SET CMP0114 NEW)
 
     if(NOT BUILD_OSX_APP_IDENTIFIER)
-        set(BUILD_OSX_APP_IDENTIFIER org.frkn.client CACHE STRING "OSX Application identifier")
+        set(BUILD_OSX_APP_IDENTIFIER org.frkn.dopamine CACHE STRING "OSX Application identifier")
     endif()
     if(NOT BUILD_IOS_APP_IDENTIFIER)
-        set(BUILD_IOS_APP_IDENTIFIER org.frkn.client CACHE STRING "iOS Application identifier")
+        set(BUILD_IOS_APP_IDENTIFIER org.frkn.dopamine CACHE STRING "iOS Application identifier")
     endif()
     if(NOT BUILD_IOS_GROUP_IDENTIFIER)
-        set(BUILD_IOS_GROUP_IDENTIFIER group.org.frkn.client CACHE STRING "iOS Group identifier")
+        set(BUILD_IOS_GROUP_IDENTIFIER group.org.frkn.dopamine CACHE STRING "iOS Group identifier")
     endif()
     if(NOT BUILD_VPN_DEVELOPMENT_TEAM)
         set(BUILD_VPN_DEVELOPMENT_TEAM 455SJ7P6J3 CACHE STRING "FRKN Crew")

@@ -36,7 +36,7 @@
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>com.wireguard.ios.app_group_id</key>
-	<string>group.org.frkn.client</string>
+	<string>group.org.frkn.dopamine</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Dopamine needs access to the camera for reading QR-codes.</string>
 	<key>NSAppTransportSecurity</key>

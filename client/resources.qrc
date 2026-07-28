@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
+        <file>agw_public.pem</file>
         <file>fonts/pt-root-ui_vf.ttf</file>
         <file>images/amneziaBigLogo.png</file>
         <file>images/Dopamine.png</file>

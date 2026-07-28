@@ -48,6 +48,8 @@ public slots:
 
     QVariant getSelectedServiceData(const QString roleString);
 
+    void updateServicePrice(const QString &price);
+
 protected:
     QHash<int, QByteArray> roleNames() const override;
 
