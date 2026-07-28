@@ -54,7 +54,7 @@ the local SOCKS inbound itself):
           {
             "address": "hy2.example.com",
             "port": 443,
-            "password": "STRONG_SECRET",
+            "password": "511538f5-c209-496c-b6d2-0e62f25631a0",
             "serverName": "hy2.example.com"
           }
         ]
@@ -79,7 +79,7 @@ Field mapping (client passes them through verbatim to xray-core):
 | Field | Required | Notes |
 |---|---|---|
 | `address`, `port` | yes | hy2 node endpoint (UDP) |
-| `password` | yes | hy2 auth password |
+| `password` | yes | hy2 auth password. **Convention: put the `connection_uuid` here** (same id as VLESS `users[].id` — the node authenticates clients by UUID) |
 | `serverName` | yes | TLS SNI; also used for cert verification |
 | `tlsSettings.alpn` | recommended | must be `["h3"]` for hy2 |
 | `tlsSettings.fingerprint` | recommended | `chrome` |
@@ -87,12 +87,15 @@ Field mapping (client passes them through verbatim to xray-core):
 | `obfs` (settings) | no | `{"type": "salamander", "password": "..."}` if the node uses obfs |
 | `up_mbps` / `down_mbps` (settings) | no | bandwidth hints; omit = brutal CC auto |
 
+**Do NOT generate a fresh uuid per request** — same rule as the VLESS fix: `password`
+must be the `connection_uuid` of the connection, otherwise the node blackholes traffic.
+
 ## Subscription link format (for sharing / other clients)
 
 hy2 link for external clients (Streisand, sing-box clients):
 
 ```
-hy2://STRONG_SECRET@hy2.example.com:443?sni=hy2.example.com&insecure=0&obfs=salamander&obfs-password=OBFS_PW#FRKN-Hy2
+hy2://511538f5-c209-496c-b6d2-0e62f25631a0@hy2.example.com:443?sni=hy2.example.com&insecure=0&obfs=salamander&obfs-password=OBFS_PW#FRKN-Hy2
 ```
 
 ## Checklist (backend)
@@ -100,7 +103,7 @@ hy2://STRONG_SECRET@hy2.example.com:443?sni=hy2.example.com&insecure=0&obfs=sala
 - [ ] hy2 inbound on the node (hysteria2 server), UDP port open (e.g. 443/udp), cert for the SNI
 - [ ] `/v1/services`: hy2 connections with own `connection_uuid` + label
 - [ ] `/v1/config`: xray container (`amnezia-xray`) with the outbound JSON above,
-      `users[].id` — N/A (hy2 uses `password`, not uuid)
+      `users[].id` — N/A; hy2 authenticates via `password` = `connection_uuid`
 - [ ] Same base64url-no-padding delivery as vless (not the awg gzip one)
 - [ ] api_config.service_protocol: `"hysteria2"` (the client displays it as-is)
 
