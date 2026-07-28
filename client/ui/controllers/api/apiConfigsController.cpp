@@ -1783,9 +1783,12 @@ bool ApiConfigsController::fetchSubscriptionConfigs(const QString &subscriptionI
             QJsonObject apiConfig = serverConfig.value(configKey::apiConfig).toObject();
             apiConfig.insert(configKey::userCountryCode, serverCountryCode);
             apiConfig.insert(configKey::serviceType, serviceType);
-            // Prefer the protocol reported by the gateway for this specific config;
-            // the service card protocol is only a fallback.
-            if (apiConfig.value(configKey::serviceProtocol).toString().isEmpty()) {
+            // Prefer the connection's own protocol from /v1/services (accurate since gateway v0.6.10),
+            // then the gateway's api_config.service_protocol, then the service card protocol.
+            const QString connectionProtocol = connectionObject.value("service_protocol").toString();
+            if (!connectionProtocol.isEmpty()) {
+                apiConfig.insert(configKey::serviceProtocol, connectionProtocol);
+            } else if (apiConfig.value(configKey::serviceProtocol).toString().isEmpty()) {
                 apiConfig.insert(configKey::serviceProtocol, serviceProtocol);
             }
             apiConfig.insert(configKey::authData, authData);

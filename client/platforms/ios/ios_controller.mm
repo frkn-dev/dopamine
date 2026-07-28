@@ -777,6 +777,38 @@ bool IosController::setupXray()
         xrayConfigStr = QString(QJsonDocument(config).toJson(QJsonDocument::Compact));
     }
 
+    // Force correct ALPN for Hysteria2 outbounds: hy2 works over HTTP/3 only,
+    // while backends may send a generic HTTPS ALPN (h2, http/1.1).
+    {
+        QJsonDocument cfgDoc = QJsonDocument::fromJson(xrayConfigStr.toUtf8());
+        if (cfgDoc.isObject()) {
+            QJsonObject cfgObj = cfgDoc.object();
+            QJsonArray outbounds = cfgObj.value(QStringLiteral("outbounds")).toArray();
+            bool changed = false;
+            for (int i = 0; i < outbounds.size(); ++i) {
+                QJsonObject outbound = outbounds.at(i).toObject();
+                if (outbound.value(QStringLiteral("protocol")).toString() != QStringLiteral("hysteria2")) {
+                    continue;
+                }
+                QJsonObject streamSettings = outbound.value(QStringLiteral("streamSettings")).toObject();
+                QJsonObject tlsSettings = streamSettings.value(QStringLiteral("tlsSettings")).toObject();
+                const QJsonArray alpn = tlsSettings.value(QStringLiteral("alpn")).toArray();
+                if (alpn.size() != 1 || alpn.first().toString() != QStringLiteral("h3")) {
+                    tlsSettings[QStringLiteral("alpn")] = QJsonArray { QStringLiteral("h3") };
+                    streamSettings[QStringLiteral("tlsSettings")] = tlsSettings;
+                    outbound[QStringLiteral("streamSettings")] = streamSettings;
+                    outbounds[i] = outbound;
+                    changed = true;
+                }
+            }
+            if (changed) {
+                cfgObj[QStringLiteral("outbounds")] = outbounds;
+                xrayConfigStr = QString(QJsonDocument(cfgObj).toJson(QJsonDocument::Compact));
+                qDebug() << "IosController::setupXray forced alpn h3 for hysteria2 outbound";
+            }
+        }
+    }
+
     QJsonObject finalConfig;
     finalConfig.insert(config_key::dns1, m_rawConfig[config_key::dns1].toString());
     finalConfig.insert(config_key::dns2, m_rawConfig[config_key::dns2].toString());
