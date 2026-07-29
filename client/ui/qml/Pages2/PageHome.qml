@@ -220,7 +220,7 @@ PageType {
                 RowLayout {
                     objectName: "rowLayout"
 
-                    Layout.topMargin: 14
+                    Layout.topMargin: drawer.isCollapsedStateActive ? 26 : 14
                     Layout.leftMargin: 24
                     Layout.rightMargin: 24
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
@@ -332,12 +332,13 @@ PageType {
                         buttonTextLabel.font.pixelSize: 13
                         buttonTextLabel.font.weight: 400
 
-                        text: drawer.isCollapsedStateActive ? ServersModel.defaultServerDescriptionCollapsed : ServersModel.defaultServerDescriptionExpanded
-                        leftImageSource: ServersModel.defaultServerImagePathCollapsed
+                        // on the collapsed home card keep the row (card geometry) but show no text/icons
+                        text: drawer.isCollapsedStateActive ? "" : ServersModel.defaultServerDescriptionExpanded
+                        leftImageSource: drawer.isCollapsedStateActive ? "" : ServersModel.defaultServerImagePathCollapsed
                         leftImageColor: ""
                         changeLeftImageSize: false
 
-                        rightImageSource: hoverEnabled ? "qrc:/images/controls/chevron-down.svg" : ""
+                        rightImageSource: drawer.isCollapsedStateActive ? "" : (hoverEnabled ? "qrc:/images/controls/chevron-down.svg" : "")
 
                         Keys.onEnterPressed: this.clicked()
                         Keys.onReturnPressed: this.clicked()
@@ -442,15 +443,6 @@ PageType {
                             Component.onCompleted: updateContainersModelFilters()
                         }
                     }
-                }
-
-                Header2Type {
-                    Layout.fillWidth: true
-                    Layout.topMargin: 48
-                    Layout.leftMargin: 16
-                    Layout.rightMargin: 16
-
-                    headerText: qsTr("Servers")
                 }
             }
 
