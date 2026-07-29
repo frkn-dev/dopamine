@@ -259,6 +259,8 @@ void CoreController::initAppleController()
         }
     });
 
+    connect(IosController::Instance(), &IosController::shakeDetected, m_pageController.get(), &PageController::shakeDetected);
+
     connect(IosController::Instance(), &IosController::importBackupFromOutside, this, [this](QString filePath) {
         emit m_pageController->goToPageHome();
         m_pageController->goToPageSettingsBackup();

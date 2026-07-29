@@ -146,12 +146,14 @@ signals:
 
     void hideMainWindow();
     void raiseMainWindow();
-
     void showPassphraseRequestDrawer();
     void passphraseRequestDrawerClosed(QString passphrase);
 
     void escapePressed();
     void closeTopDrawer();
+
+    // forwarded from the platform shake-gesture hook (iOS only for now)
+    void shakeDetected();
 
 private:
     QSharedPointer<ServersModel> m_serversModel;

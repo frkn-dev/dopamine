@@ -80,11 +80,16 @@ public:
 
     void requestInetAccess();
     bool isTestFlight();
+
+    // called from the UIKit shake-gesture hook (AmneziaSceneDelegateHooks.mm)
+    void notifyShakeDetected() { emit shakeDetected(); }
+
 signals:
     void connectionStateChanged(Vpn::ConnectionState state);
     void bytesChanged(quint64 receivedBytes, quint64 sentBytes);
     void importConfigFromOutside(const QString);
     void importBackupFromOutside(const QString);
+    void shakeDetected();
 
     void finished();
 

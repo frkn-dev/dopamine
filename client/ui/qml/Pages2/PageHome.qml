@@ -572,5 +572,99 @@ PageType {
                 pterodactyl.scale = 1
             }
         }
+
+        SequentialAnimation {
+            id: pterodactylSideTrip
+
+            property real direction: 1
+
+            PropertyAction { target: pterodactyl; property: "x"; value: pterodactyl.perchX }
+            PropertyAction { target: pterodactyl; property: "y"; value: pterodactyl.perchY }
+            PropertyAction { target: pterodactyl; property: "scale"; value: 1.0 }
+            PropertyAction { target: pterodactyl; property: "rotation"; value: 0 }
+            PropertyAction { target: pterodactyl; property: "opacity"; value: 1 }
+
+            ParallelAnimation {
+                NumberAnimation {
+                    target: pterodactyl
+                    property: "x"
+                    to: pterodactyl.perchX + pterodactylSideTrip.direction * root.width * 0.45
+                    duration: 550
+                    easing.type: Easing.OutQuad
+                }
+                NumberAnimation {
+                    target: pterodactyl
+                    property: "y"
+                    to: pterodactyl.perchY - root.height * 0.18
+                    duration: 550
+                    easing.type: Easing.OutQuad
+                }
+                NumberAnimation {
+                    target: pterodactyl
+                    property: "rotation"
+                    to: pterodactylSideTrip.direction * 20
+                    duration: 550
+                    easing.type: Easing.OutQuad
+                }
+            }
+
+            PauseAnimation { duration: 150 }
+
+            ParallelAnimation {
+                NumberAnimation {
+                    target: pterodactyl
+                    property: "x"
+                    to: pterodactyl.perchX
+                    duration: 700
+                    easing.type: Easing.InOutQuad
+                }
+                NumberAnimation {
+                    target: pterodactyl
+                    property: "y"
+                    to: pterodactyl.perchY
+                    duration: 700
+                    easing.type: Easing.InOutQuad
+                }
+                NumberAnimation {
+                    target: pterodactyl
+                    property: "rotation"
+                    to: 0
+                    duration: 700
+                    easing.type: Easing.InOutQuad
+                }
+            }
+
+            PropertyAction { target: pterodactyl; property: "opacity"; value: 0 }
+
+            onStarted: {
+                connectButton.birdPerched = false
+            }
+
+            onStopped: {
+                if (ConnectionController.isConnected) {
+                    connectButton.birdPerched = true
+                }
+            }
+        }
+    }
+
+    Connections {
+        target: PageController
+
+        function onShakeDetected() {
+            // defer out of the signal delivery path
+            Qt.callLater(root.startPterodactylSideTrip)
+        }
+    }
+
+    function startPterodactylSideTrip() {
+        if (!ConnectionController.isConnected || pterodactylFlight.running || pterodactylSideTrip.running) {
+            return
+        }
+        const center = connectButton.mapToItem(root, connectButton.width / 2, connectButton.height / 2)
+        pterodactyl.perchX = center.x - pterodactyl.width / 2
+        pterodactyl.perchY = center.y - pterodactyl.height / 2
+        pterodactylSideTrip.direction = Math.random() < 0.5 ? -1 : 1
+        pterodactylSideTrip.restart()
     }
 }

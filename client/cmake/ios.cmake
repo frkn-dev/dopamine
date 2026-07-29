@@ -17,6 +17,7 @@ find_library(FW_FOUNDATION Foundation)
 find_library(FW_STOREKIT StoreKit)
 find_library(FW_USERNOTIFICATIONS UserNotifications)
 find_library(FW_NETWORKEXTENSION NetworkExtension)
+find_library(FW_COREMOTION CoreMotion)
 
 set(LIBS ${LIBS}
     ${FW_AUTHENTICATIONSERVICES}
@@ -26,6 +27,7 @@ set(LIBS ${LIBS}
     ${FW_STOREKIT}
     ${FW_USERNOTIFICATIONS}
     ${FW_NETWORKEXTENSION}
+    ${FW_COREMOTION}
 )
 
 

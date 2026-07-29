@@ -1,8 +1,11 @@
 #import <UIKit/UIKit.h>
+#import <CoreMotion/CoreMotion.h>
 #import <objc/runtime.h>
 #include <dispatch/dispatch.h>
+#include <math.h>
 
 #include <QByteArray>
+#include <QDebug>
 #include <QFile>
 #include <QString>
 
@@ -79,10 +82,48 @@ static void amnezia_scene_openURLContexts(id self, SEL _cmd, UIScene *scene, NSS
 @interface AmneziaSceneDelegateHooks : NSObject
 @end
 
+// Shake detection via CoreMotion (accelerometer) — no runtime swizzling:
+// spike in acceleration magnitude => shake, throttled to once per 2 seconds.
+static CMMotionManager *g_shakeMotionManager = nil;
+static CFAbsoluteTime g_lastShakeTime = 0;
+
+static void amnezia_startShakeDetection(void)
+{
+    if (g_shakeMotionManager) {
+        return;
+    }
+    CMMotionManager *manager = [CMMotionManager new];
+    if (!manager.isAccelerometerAvailable) {
+        return;
+    }
+    g_shakeMotionManager = manager;
+    manager.accelerometerUpdateInterval = 0.05;
+    [manager startAccelerometerUpdatesToQueue:[NSOperationQueue mainQueue]
+                                  withHandler:^(CMAccelerometerData *data, NSError *error) {
+        if (!data) {
+            return;
+        }
+        const double gx = data.acceleration.x;
+        const double gy = data.acceleration.y;
+        const double gz = data.acceleration.z;
+        const double magnitude = sqrt(gx * gx + gy * gy + gz * gz);
+        const CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
+        if (magnitude > 2.7 && now - g_lastShakeTime > 2.0) {
+            g_lastShakeTime = now;
+            IosController::Instance()->notifyShakeDetected();
+        }
+    }];
+}
+
 @implementation AmneziaSceneDelegateHooks
 
 + (void)load
 {
+    // start shake detection shortly after launch (same deferral pattern as the URL hook)
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        amnezia_startShakeDetection();
+    });
+
     Class cls = objc_getClass("QIOSWindowSceneDelegate");
     if (!cls) {
         return;
