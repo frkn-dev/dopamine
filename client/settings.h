@@ -169,6 +169,24 @@ public:
         m_settings.setValue("Conf/secondaryDns", secondaryDns);
     }
 
+    QString serversProtocolFilter() const
+    {
+        return m_settings.value("Conf/serversProtocolFilter", QString()).toString();
+    }
+    void setServersProtocolFilter(const QString &filter)
+    {
+        m_settings.setValue("Conf/serversProtocolFilter", filter);
+    }
+
+    QString serversEnvFilter() const
+    {
+        return m_settings.value("Conf/serversEnvFilter", QString()).toString();
+    }
+    void setServersEnvFilter(const QString &filter)
+    {
+        m_settings.setValue("Conf/serversEnvFilter", filter);
+    }
+
     //    static constexpr char openNicNs5[] = "94.103.153.176";
     //    static constexpr char openNicNs13[] = "144.76.103.143";
 

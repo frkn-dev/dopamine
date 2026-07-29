@@ -476,4 +476,109 @@ PageType {
             }
         }
     }
+
+    property bool wasConnected: ConnectionController.isConnected
+
+    Component.onCompleted: {
+        connectButton.birdPerched = ConnectionController.isConnected
+    }
+
+    function startPterodactylFlight() {
+        const center = connectButton.mapToItem(root, connectButton.width / 2, connectButton.height / 2)
+        pterodactyl.perchX = center.x - pterodactyl.width / 2
+        pterodactyl.perchY = center.y - pterodactyl.height / 2
+        pterodactylFlight.restart()
+    }
+
+    Connections {
+        target: ConnectionController
+
+        function onConnectionStateChanged() {
+            const connected = ConnectionController.isConnected
+            if (connected && !root.wasConnected && !ConnectionController.isConnectionInProgress) {
+                root.startPterodactylFlight()
+            } else if (!connected && root.wasConnected) {
+                connectButton.birdPerched = false
+                pterodactylFlight.stop()
+                pterodactyl.opacity = 0
+            } else if (connected && root.wasConnected) {
+                // already connected (e.g. restored state) — make sure the bird stays perched
+                connectButton.birdPerched = true
+            }
+            root.wasConnected = connected
+        }
+    }
+
+    Image {
+        id: pterodactyl
+
+        property real perchX: 0
+        property real perchY: 0
+
+        source: "qrc:/images/pterodactyl.png"
+        width: 96
+        height: 96
+        fillMode: Image.PreserveAspectFit
+
+        x: (root.width - width) / 2
+        y: root.height
+        z: 100
+
+        opacity: 0
+        visible: opacity > 0
+
+        SequentialAnimation {
+            id: pterodactylFlight
+
+            PropertyAction { target: pterodactyl; property: "x"; value: (root.width - pterodactyl.width) / 2 }
+            PropertyAction { target: pterodactyl; property: "y"; value: root.height * 0.55 }
+            PropertyAction { target: pterodactyl; property: "scale"; value: 1.3 }
+            PropertyAction { target: pterodactyl; property: "rotation"; value: -8 }
+
+            ParallelAnimation {
+                NumberAnimation {
+                    target: pterodactyl
+                    property: "x"
+                    to: pterodactyl.perchX
+                    duration: 1300
+                    easing.type: Easing.InOutQuad
+                }
+                NumberAnimation {
+                    target: pterodactyl
+                    property: "y"
+                    to: pterodactyl.perchY
+                    duration: 1300
+                    easing.type: Easing.InQuad
+                }
+                NumberAnimation {
+                    target: pterodactyl
+                    property: "scale"
+                    to: 1.0
+                    duration: 1300
+                    easing.type: Easing.InOutQuad
+                }
+
+                SequentialAnimation {
+                    NumberAnimation { target: pterodactyl; property: "opacity"; from: 0; to: 1; duration: 200 }
+                    PauseAnimation { duration: 900 }
+                    NumberAnimation { target: pterodactyl; property: "opacity"; to: 0.22; duration: 200 }
+                }
+
+                SequentialAnimation {
+                    NumberAnimation { target: pterodactyl; property: "rotation"; from: -8; to: 10; duration: 350; easing.type: Easing.InOutSine }
+                    NumberAnimation { target: pterodactyl; property: "rotation"; to: -6; duration: 350; easing.type: Easing.InOutSine }
+                    NumberAnimation { target: pterodactyl; property: "rotation"; to: 0; duration: 300; easing.type: Easing.InOutSine }
+                }
+            }
+
+            PropertyAction { target: pterodactyl; property: "opacity"; value: 0 }
+
+            onStopped: {
+                if (ConnectionController.isConnected) {
+                    connectButton.birdPerched = true
+                }
+                pterodactyl.scale = 1
+            }
+        }
+    }
 }

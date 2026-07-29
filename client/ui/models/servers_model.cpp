@@ -1,5 +1,7 @@
 #include "servers_model.h"
 
+#include <QSet>
+
 #include "core/api/apiDefs.h"
 #include "core/controllers/serverController.h"
 #include "core/networkUtilities.h"
@@ -170,6 +172,26 @@ QVariant ServersModel::data(const QModelIndex &index, int role) const
     case ApiServerCountryCodeRole: {
         return apiConfig.value(configKey::serverCountryCode).toString();
     }
+    case ServiceProtocolRole: {
+        auto protocol = apiConfig.value(configKey::serviceProtocol).toString();
+        if (protocol.isEmpty()) {
+            protocol = server.value(QStringLiteral("displayInfo")).toObject().value(QStringLiteral("protocol")).toString().toLower();
+        }
+        return protocol;
+    }
+    case ConnectionEnvRole: {
+        return apiConfig.value(QStringLiteral("env")).toString();
+    }
+    case CountryCodeRole: {
+        auto countryCode = apiConfig.value(configKey::serverCountryCode).toString();
+        if (countryCode.isEmpty()) {
+            countryCode = apiConfig.value(configKey::userCountryCode).toString();
+        }
+        if (countryCode.isEmpty()) {
+            countryCode = server.value(QStringLiteral("displayInfo")).toObject().value(QStringLiteral("countryCode")).toString();
+        }
+        return countryCode.toUpper();
+    }
     case HasAmneziaDns: {
         QString primaryDns = server.value(config_key::dns1).toString();
         return primaryDns == protocols::dns::amneziaDnsIp;
@@ -204,6 +226,8 @@ void ServersModel::resetModel()
     m_defaultServerIndex = m_settings->defaultServerIndex();
     m_processedServerIndex = m_defaultServerIndex;
     m_isAmneziaDnsEnabled = m_settings->useAmneziaDns();
+    recomputeAvailableProtocols();
+    recomputeAvailableEnvs();
     endResetModel();
     emit defaultServerIndexChanged(m_defaultServerIndex);
 }
@@ -368,6 +392,8 @@ void ServersModel::addServer(const QJsonObject &server)
     beginResetModel();
     m_settings->addServer(server);
     m_servers = m_settings->serversArray();
+    recomputeAvailableProtocols();
+    recomputeAvailableEnvs();
     endResetModel();
 }
 
@@ -376,6 +402,8 @@ void ServersModel::addServers(const QJsonArray &servers)
     beginResetModel();
     m_settings->addServers(servers);
     m_servers = m_settings->serversArray();
+    recomputeAvailableProtocols();
+    recomputeAvailableEnvs();
     endResetModel();
 }
 
@@ -385,6 +413,8 @@ void ServersModel::removeAllServers()
     m_settings->setServersArray(QJsonArray());
     m_servers = QJsonArray();
     setDefaultServerIndex(-1);
+    recomputeAvailableProtocols();
+    recomputeAvailableEnvs();
     endResetModel();
 }
 
@@ -478,6 +508,9 @@ QHash<int, QByteArray> ServersModel::roleNames() const
     roles[AdHeaderRole] = "adHeader";
     roles[AdDescriptionRole] = "adDescription";
     roles[AdEndpointRole] = "adEndpoint";
+    roles[ServiceProtocolRole] = "serviceProtocol";
+    roles[ConnectionEnvRole] = "connectionEnv";
+    roles[CountryCodeRole] = "countryCode";
 
     return roles;
 }
@@ -1041,4 +1074,48 @@ QString ServersModel::adHeader()
 QString ServersModel::adDescription()
 {
     return data(m_defaultServerIndex, AdDescriptionRole).toString();
+}
+
+QStringList ServersModel::availableProtocols() const
+{
+    return m_availableProtocols;
+}
+
+QStringList ServersModel::availableEnvs() const
+{
+    return m_availableEnvs;
+}
+
+void ServersModel::recomputeAvailableEnvs()
+{
+    QSet<QString> envs;
+    for (int i = 0; i < m_servers.size(); ++i) {
+        const QString env = data(index(i), ConnectionEnvRole).toString();
+        if (!env.isEmpty()) {
+            envs.insert(env);
+        }
+    }
+    QStringList sorted = envs.values();
+    sorted.sort();
+    if (sorted != m_availableEnvs) {
+        m_availableEnvs = sorted;
+        emit availableEnvsChanged();
+    }
+}
+
+void ServersModel::recomputeAvailableProtocols()
+{
+    QSet<QString> protocols;
+    for (int i = 0; i < m_servers.size(); ++i) {
+        const QString protocol = data(index(i), ServiceProtocolRole).toString();
+        if (!protocol.isEmpty()) {
+            protocols.insert(protocol);
+        }
+    }
+    QStringList sorted = protocols.values();
+    sorted.sort();
+    if (sorted != m_availableProtocols) {
+        m_availableProtocols = sorted;
+        emit availableProtocolsChanged();
+    }
 }

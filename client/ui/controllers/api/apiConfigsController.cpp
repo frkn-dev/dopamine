@@ -65,6 +65,7 @@ namespace
         constexpr char cloak[] = "cloak";
         constexpr char awg[] = "awg";
         constexpr char vless[] = "vless";
+        constexpr char wireguard[] = "wireguard";
 
         constexpr char apiEndpoint[] = "api_endpoint";
         constexpr char accessToken[] = "api_key";
@@ -172,7 +173,7 @@ namespace
         ProtocolData protocolData;
         if (protocol == configKey::cloak) {
             protocolData.certRequest = OpenVpnConfigurator::createCertRequest();
-        } else if (protocol == configKey::awg) {
+        } else if (protocol == configKey::awg || protocol == configKey::wireguard) {
             auto connData = WireguardConfigurator::genClientKeys();
             protocolData.wireGuardClientPubKey = connData.clientPubKey;
             protocolData.wireGuardClientPrivKey = connData.clientPrivKey;
@@ -187,7 +188,7 @@ namespace
     {
         if (protocol == configKey::cloak) {
             apiPayload[configKey::certificate] = protocolData.certRequest.request;
-        } else if (protocol == configKey::awg) {
+        } else if (protocol == configKey::awg || protocol == configKey::wireguard) {
             apiPayload[configKey::publicKey] = protocolData.wireGuardClientPubKey;
         } else if (protocol == configKey::vless) {
             apiPayload[configKey::publicKey] = protocolData.xrayUuid;
@@ -1791,6 +1792,8 @@ bool ApiConfigsController::fetchSubscriptionConfigs(const QString &subscriptionI
             } else if (apiConfig.value(configKey::serviceProtocol).toString().isEmpty()) {
                 apiConfig.insert(configKey::serviceProtocol, serviceProtocol);
             }
+            // Node environment from /v1/services (dev, wl, ru, experimental, production, custom<name>; empty for the placeholder)
+            apiConfig.insert("env", connectionObject.value("env").toString());
             apiConfig.insert(configKey::authData, authData);
             apiConfig.insert("connection_uuid", connectionUuid);
             serverConfig.insert(configKey::apiConfig, apiConfig);
@@ -1799,8 +1802,24 @@ bool ApiConfigsController::fetchSubscriptionConfigs(const QString &subscriptionI
             QString hostName = serverConfig.value(config_key::hostName).toString();
             QString protocolName = apiConfig.value(configKey::serviceProtocol).toString(serviceProtocol).toUpper();
             QString displayLabel = connectionLabel.remove(QChar(0x200D)).replace("<200d>", "");
-            QString name = displayLabel.isEmpty() ? QString("reelsoprovod %1 %2").arg(serverCountryCode.toUpper(), protocolName) : displayLabel;
-            QString description = QString("%1 %2").arg(protocolName, hostName);
+
+            // connection_label comes as "<name> · <protocol details>" (e.g. "Suomi · AmneziaWG",
+            // "Czech Republic Fast · VLESS TCP Reality"): keep only the name in the title and
+            // move the protocol details to the small description line.
+            QString name = displayLabel;
+            QString protocolDetails;
+            const int separatorPos = displayLabel.indexOf(QStringLiteral(" · "));
+            if (separatorPos > 0) {
+                name = displayLabel.left(separatorPos);
+                protocolDetails = displayLabel.mid(separatorPos + 3);
+            }
+            if (name.isEmpty()) {
+                name = QString("reelsoprovod %1 %2").arg(serverCountryCode.toUpper(), protocolName);
+            }
+            if (protocolDetails.isEmpty()) {
+                protocolDetails = protocolName;
+            }
+            QString description = QString("%1 · %2").arg(protocolDetails, hostName);
 
             serverConfig[config_key::name] = name;
             serverConfig[config_key::description] = description;
@@ -1864,6 +1883,55 @@ QVariantList ApiConfigsController::getSubscriptionConfigs() const
         list.append(config.toObject().toVariantMap());
     }
     return list;
+}
+
+bool ApiConfigsController::reloadSubscriptionConfigs()
+{
+    QString subscriptionId = m_subscriptionId;
+
+    if (subscriptionId.isEmpty()) {
+        // recover the subscription id from an already imported gateway server
+        for (int i = 0; i < m_serversModel->getServersCount(); ++i) {
+            const QJsonObject serverConfig = m_serversModel->getServerConfig(i);
+            const QJsonObject apiConfig = serverConfig.value(configKey::apiConfig).toObject();
+            if (apiConfig.value("connection_uuid").toString().isEmpty()) {
+                continue;
+            }
+            subscriptionId = apiConfig.value(configKey::authData).toObject().value(apiDefs::key::apiKey).toString();
+            if (subscriptionId.isEmpty()) {
+                subscriptionId = serverConfig.value(configKey::authData).toObject().value(apiDefs::key::apiKey).toString();
+            }
+            if (!subscriptionId.isEmpty()) {
+                break;
+            }
+        }
+    }
+
+    if (subscriptionId.isEmpty()) {
+        qWarning() << "[SUBSCRIPTION] reload: no subscription id found";
+        return false;
+    }
+
+    if (!fetchSubscriptionConfigs(subscriptionId)) {
+        return false;
+    }
+
+    // remove previously imported subscription servers (they carry connection_uuid)
+    for (int i = m_serversModel->getServersCount() - 1; i >= 0; --i) {
+        const QJsonObject serverConfig = m_serversModel->getServerConfig(i);
+        const QJsonObject apiConfig = serverConfig.value(configKey::apiConfig).toObject();
+        if (!apiConfig.value("connection_uuid").toString().isEmpty()) {
+            m_serversModel->removeServer(i);
+        }
+    }
+
+    bool anyInstalled = false;
+    for (int i = 0; i < m_subscriptionConfigs.size(); ++i) {
+        if (installSubscriptionConfig(i)) {
+            anyInstalled = true;
+        }
+    }
+    return anyInstalled;
 }
 
 bool ApiConfigsController::installSubscriptionConfig(int index)

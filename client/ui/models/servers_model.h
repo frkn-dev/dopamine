@@ -52,7 +52,10 @@ public:
         AdDescriptionRole,
         AdEndpointRole,
 
-        HasAmneziaDns
+        HasAmneziaDns,
+        ServiceProtocolRole,
+        ConnectionEnvRole,
+        CountryCodeRole
     };
 
     ServersModel(std::shared_ptr<Settings> settings, QObject *parent = nullptr);
@@ -79,6 +82,8 @@ public:
     Q_PROPERTY(bool isDefaultServerFromApi READ isDefaultServerFromApi NOTIFY defaultServerIndexChanged)
 
     Q_PROPERTY(bool hasServersFromGatewayApi READ hasServersFromGatewayApi NOTIFY hasServersFromGatewayApiChanged)
+    Q_PROPERTY(QStringList availableProtocols READ availableProtocols NOTIFY availableProtocolsChanged)
+    Q_PROPERTY(QStringList availableEnvs READ availableEnvs NOTIFY availableEnvsChanged)
 
     Q_PROPERTY(int processedIndex READ getProcessedServerIndex WRITE setProcessedServerIndex NOTIFY processedServerIndexChanged)
     Q_PROPERTY(bool processedServerIsPremium READ processedServerIsPremium NOTIFY processedServerChanged)
@@ -182,6 +187,8 @@ signals:
 
     void hasServersFromGatewayApiChanged();
     void gatewayStacksExpanded();
+    void availableProtocolsChanged();
+    void availableEnvsChanged();
 
 private:
     ServerCredentials serverCredentials(int index) const;
@@ -195,6 +202,12 @@ private:
 
     bool serverHasInstalledContainers(const int serverIndex) const;
 
+    QStringList availableProtocols() const;
+    void recomputeAvailableProtocols();
+
+    QStringList availableEnvs() const;
+    void recomputeAvailableEnvs();
+
     QJsonArray m_servers;
 
     std::shared_ptr<Settings> m_settings;
@@ -206,6 +219,10 @@ private:
 
     GatewayStacks m_gatewayStacks;
     void recomputeGatewayStacks();
+
+    QStringList m_availableProtocols;
+
+    QStringList m_availableEnvs;
 };
 
 #endif // SERVERSMODEL_H

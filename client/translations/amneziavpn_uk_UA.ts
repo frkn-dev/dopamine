@@ -71,24 +71,24 @@
 <context>
     <name>ApiConfigsController</name>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="875"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1112"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1137"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="876"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1113"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1138"/>
         <source>%1 installed successfully.</source>
         <translation>%1 успішно встановлено.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1001"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1002"/>
         <source>Subscription restored successfully.</source>
         <translation>Підписку успішно відновлено.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1270"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1271"/>
         <source>API config reloaded</source>
         <translation>Конфігурацію API перезавантажено</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1274"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1275"/>
         <source>Successfully changed the country of connection to %1</source>
         <translation>Країну підключення змінено на %1</translation>
     </message>
@@ -150,7 +150,7 @@
 <context>
     <name>ConnectButton</name>
     <message>
-        <location filename="../ui/qml/Components/ConnectButton.qml" line="54"/>
+        <location filename="../ui/qml/Components/ConnectButton.qml" line="58"/>
         <source>Unable to disconnect during configuration preparation</source>
         <translation>Неможливо відключитися під час підготовки конфігурації</translation>
     </message>
@@ -2331,34 +2331,70 @@ Already installed containers were found on the server. All installed containers 
         <translation>Вимкнено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="261"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="299"/>
         <source>Reset settings and remove all data from the application</source>
         <translation>Скинути налаштування і видалити всі дані із застосунку</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="266"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="304"/>
         <source>Reset settings and remove all data from the application?</source>
         <translation>Скинути налаштування і видалити всі дані із застосунку?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="267"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="305"/>
         <source>All settings will be reset to default. All installed Dopamine services will still remain on the server.</source>
         <translation>Всі дані із застосунку будуть видалені, всі встановлені сервіси FRKN VPN залишаться на сервері.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="268"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="306"/>
         <source>Continue</source>
         <translation>Продовжити</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="269"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="268"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="307"/>
         <source>Cancel</source>
         <translation>Відмінити</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="273"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="311"/>
         <source>Cannot reset settings during active connection</source>
         <translation>Неможливо скинути налаштування під час активного підключення</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="261"/>
+        <source>Reload all servers from subscription</source>
+        <translation>Перезавантажити всі сервери з підписки</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="265"/>
+        <source>Reload all servers from subscription?</source>
+        <translation>Перезавантажити всі сервери з підписки?</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="266"/>
+        <source>All servers from the current subscription will be removed and downloaded again. Use this if servers stopped working after an update.</source>
+        <translation>Усі сервери поточної підписки будуть видалені та завантажені знову. Використовуйте, якщо сервери перестали працювати після оновлення.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="267"/>
+        <source>Reload</source>
+        <translation>Перезавантажити</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="272"/>
+        <source>Cannot reload configuration during active connection</source>
+        <translation>Неможливо перезавантажити конфігурацію під час активного підключення</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="279"/>
+        <source>Servers reloaded</source>
+        <translation>Сервери перезавантажено</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="282"/>
+        <source>Failed to reload servers</source>
+        <translation>Не вдалося перезавантажити сервери</translation>
     </message>
 </context>
 <context>
@@ -5302,7 +5338,32 @@ This means that AmneziaWG keeps the fast performance of the original while addin
 <context>
     <name>ServersListView</name>
     <message>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="40"/>
         <location filename="../ui/qml/Components/ServersListView.qml" line="79"/>
+        <source>All</source>
+        <translation>Всі</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="82"/>
+        <source>White Elephants</source>
+        <translation>Білі Слони</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="85"/>
+        <source>Regular</source>
+        <translation>Основний</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="88"/>
+        <source>Reverse</source>
+        <translation>Зворотний</translation>
+    </message>
+    <message>
+        <source>Protocol</source>
+        <translation type="vanished">Протокол</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="263"/>
         <source>Unable change server while there is an active connection</source>
         <translation>Не можна змінити сервер при активному підключенні</translation>
     </message>
@@ -5324,17 +5385,17 @@ This means that AmneziaWG keeps the fast performance of the original while addin
 <context>
     <name>SettingsController</name>
     <message>
-        <location filename="../ui/controllers/settingsController.cpp" line="183"/>
+        <location filename="../ui/controllers/settingsController.cpp" line="205"/>
         <source>Can&apos;t open file: %1</source>
         <translation>Неможливо відкрити файл: %1</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/settingsController.cpp" line="269"/>
+        <location filename="../ui/controllers/settingsController.cpp" line="291"/>
         <source>All settings have been reset to default values</source>
         <translation>Всі налаштування були скинуті до значення &quot;По замовчуванню&quot;</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/settingsController.cpp" line="246"/>
+        <location filename="../ui/controllers/settingsController.cpp" line="268"/>
         <source>Backup file is corrupted</source>
         <translation>Backup файл пошкодженно</translation>
     </message>

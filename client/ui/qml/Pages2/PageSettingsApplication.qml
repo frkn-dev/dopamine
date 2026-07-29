@@ -254,6 +254,44 @@ PageType {
             DividerType {}
 
             LabelWithButtonType {
+                id: labelWithButtonReloadConfig
+
+                Layout.fillWidth: true
+
+                text: qsTr("Reload all servers from subscription")
+                rightImageSource: "qrc:/images/controls/chevron-right.svg"
+
+                clickedFunction: function() {
+                    var headerText = qsTr("Reload all servers from subscription?")
+                    var descriptionText = qsTr("All servers from the current subscription will be removed and downloaded again. Use this if servers stopped working after an update.")
+                    var yesButtonText = qsTr("Reload")
+                    var noButtonText = qsTr("Cancel")
+
+                    var yesButtonFunction = function() {
+                        if (ConnectionController.isConnected) {
+                            PageController.showNotificationMessage(qsTr("Cannot reload configuration during active connection"))
+                            return
+                        }
+                        PageController.showBusyIndicator(true)
+                        let result = ApiConfigsController.reloadSubscriptionConfigs()
+                        PageController.showBusyIndicator(false)
+                        if (result) {
+                            PageController.showNotificationMessage(qsTr("Servers reloaded"))
+                            PageController.goToPageHome()
+                        } else {
+                            PageController.showNotificationMessage(qsTr("Failed to reload servers"))
+                        }
+                    }
+                    var noButtonFunction = function() {
+                    }
+
+                    showQuestionDrawer(headerText, descriptionText, yesButtonText, noButtonText, yesButtonFunction, noButtonFunction)
+                }
+            }
+
+            DividerType {}
+
+            LabelWithButtonType {
                 id: labelWithButtonReset
 
                 Layout.fillWidth: true

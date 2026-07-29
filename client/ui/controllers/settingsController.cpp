@@ -90,6 +90,28 @@ void SettingsController::setPrimaryDns(const QString &dns)
     emit primaryDnsChanged();
 }
 
+QString SettingsController::getServersProtocolFilter()
+{
+    return m_settings->serversProtocolFilter();
+}
+
+void SettingsController::setServersProtocolFilter(const QString &filter)
+{
+    m_settings->setServersProtocolFilter(filter);
+    emit serversProtocolFilterChanged();
+}
+
+QString SettingsController::getServersEnvFilter()
+{
+    return m_settings->serversEnvFilter();
+}
+
+void SettingsController::setServersEnvFilter(const QString &filter)
+{
+    m_settings->setServersEnvFilter(filter);
+    emit serversEnvFilterChanged();
+}
+
 QString SettingsController::getSecondaryDns()
 {
     return m_settings->secondaryDns();

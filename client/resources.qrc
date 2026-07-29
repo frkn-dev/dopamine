@@ -4,6 +4,7 @@
         <file>fonts/pt-root-ui_vf.ttf</file>
         <file>images/amneziaBigLogo.png</file>
         <file>images/Dopamine.png</file>
+        <file>images/pterodactyl.png</file>
         <file>images/controls/alert-circle.svg</file>
         <file>images/controls/amnezia.svg</file>
         <file>images/controls/app.svg</file>
@@ -129,6 +130,7 @@
         <file>server_scripts/xray/template.json</file>
         <file>ui/qml/Components/AdLabel.qml</file>
         <file>ui/qml/Components/ConnectButton.qml</file>
+        <file>ui/qml/Components/FilterDropDown.qml</file>
         <file>ui/qml/Components/ConnectionTypeSelectionDrawer.qml</file>
         <file>ui/qml/Components/GamepadLoader.qml</file>
         <file>ui/qml/Components/HomeContainersListView.qml</file>

@@ -36,6 +36,8 @@ public:
     Q_PROPERTY(int safeAreaTopMargin READ getSafeAreaTopMargin NOTIFY safeAreaTopMarginChanged)
     Q_PROPERTY(int safeAreaBottomMargin READ getSafeAreaBottomMargin NOTIFY safeAreaBottomMarginChanged)
     Q_PROPERTY(int imeHeight READ getImeHeight NOTIFY imeHeightChanged)
+    Q_PROPERTY(QString serversProtocolFilter READ getServersProtocolFilter WRITE setServersProtocolFilter NOTIFY serversProtocolFilterChanged)
+    Q_PROPERTY(QString serversEnvFilter READ getServersEnvFilter WRITE setServersEnvFilter NOTIFY serversEnvFilterChanged)
 
 public slots:
     void toggleAmneziaDns(bool enable);
@@ -115,6 +117,12 @@ public slots:
     bool frknDarkMode();
     void toggleFrknDarkMode(bool enable);
 
+    QString getServersProtocolFilter();
+    void setServersProtocolFilter(const QString &filter);
+
+    QString getServersEnvFilter();
+    void setServersEnvFilter(const QString &filter);
+
 signals:
     void primaryDnsChanged();
     void secondaryDnsChanged();
@@ -146,6 +154,9 @@ signals:
 
     void isHomeAdLabelVisibleChanged(bool visible);
     void startMinimizedChanged();
+
+    void serversProtocolFilterChanged();
+    void serversEnvFilterChanged();
 
 private:
     QSharedPointer<ServersModel> m_serversModel;

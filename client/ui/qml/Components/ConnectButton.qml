@@ -14,7 +14,11 @@ Button {
     property string defaultButtonColor: AmneziaStyle.color.slateGray
     property string progressButtonColor: AmneziaStyle.color.deepBrown
     property string connectedButtonColor: AmneziaStyle.color.goldenApricot
+    property string connectedTextColor: "#00FF41"
     property bool buttonActiveFocus: activeFocus && (Qt.platform.os !== "android" || SettingsController.isOnTv())
+
+    // set by PageHome when the flying pterodactyl lands on the button
+    property bool birdPerched: false
 
     property bool isFocusable: true
     
@@ -165,6 +169,24 @@ Button {
                 duration: 1000
             }
         }
+
+        Image {
+            id: perchedBird
+
+            anchors.centerIn: parent
+            width: 96
+            height: 96
+            fillMode: Image.PreserveAspectFit
+
+            source: "qrc:/images/pterodactyl.png"
+
+            opacity: root.birdPerched && ConnectionController.isConnected ? 0.22 : 0
+            visible: opacity > 0
+
+            Behavior on opacity {
+                NumberAnimation { duration: 400 }
+            }
+        }
     }
 
     contentItem: Text {
@@ -174,7 +196,7 @@ Button {
         font.weight: 700
         font.pixelSize: 20
 
-        color: ConnectionController.isConnected ? connectedButtonColor : AmneziaStyle.color.paleGray
+        color: ConnectionController.isConnected ? connectedTextColor : AmneziaStyle.color.paleGray
         text: root.text
 
         horizontalAlignment: Text.AlignHCenter

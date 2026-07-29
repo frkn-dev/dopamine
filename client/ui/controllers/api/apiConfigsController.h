@@ -78,6 +78,7 @@ public slots:
 
     Q_INVOKABLE bool fetchSubscriptionConfigs(const QString &subscriptionId);
     Q_INVOKABLE bool installSubscriptionConfig(int index);
+    Q_INVOKABLE bool reloadSubscriptionConfigs();
 
     QVariantList getSubscriptionConfigs() const;
 
