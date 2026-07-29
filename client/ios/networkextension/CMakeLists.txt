@@ -3,6 +3,8 @@ enable_language(Swift)
 set(CLIENT_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/../..)
 
 add_executable(networkextension)
+# incremental (non-WMO) Swift builds keep DWARF for the NE dSYM
+set_target_properties(networkextension PROPERTIES Swift_COMPILATION_MODE incremental)
 set_target_properties(networkextension PROPERTIES
     XCODE_PRODUCT_TYPE com.apple.product-type.app-extension
     BUNDLE_EXTENSION appex
@@ -16,6 +18,9 @@ set_target_properties(networkextension PROPERTIES
     MACOSX_BUNDLE_SHORT_VERSION_STRING "${APPLE_PROJECT_VERSION}"
 
     XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "${BUILD_IOS_APP_IDENTIFIER}.network-extension"
+    XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"
+    XCODE_ATTRIBUTE_SWIFT_COMPILATION_MODE "incremental"
+    XCODE_ATTRIBUTE_OTHER_SWIFT_FLAGS "$(inherited) -g"
     XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS ${CMAKE_CURRENT_SOURCE_DIR}/FRKNNetworkExtension.entitlements
     XCODE_ATTRIBUTE_MARKETING_VERSION "${APP_MAJOR_VERSION}"
     XCODE_ATTRIBUTE_CURRENT_PROJECT_VERSION "${BUILD_ID}"
@@ -67,6 +72,8 @@ target_link_libraries(networkextension PRIVATE ${FW_LIBRESOLV})
 
 target_compile_options(networkextension PRIVATE -DGROUP_ID=\"${BUILD_IOS_GROUP_IDENTIFIER}\")
 target_compile_options(networkextension PRIVATE -DNETWORK_EXTENSION=1)
+# keep debug info in Swift Release builds so dsymutil can produce the NE dSYM
+target_compile_options(networkextension PRIVATE -g)
 
 set(WG_APPLE_SOURCE_DIR ${CLIENT_ROOT_DIR}/3rd/amneziawg-apple/Sources)
 

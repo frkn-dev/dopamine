@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.25.0 FATAL_ERROR)
 set(PROJECT "Dopamine")
 project(${PROJECT})
 
+# generate dSYMs for all targets (crash symbolication for TestFlight/App Store)
+set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym")
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER "Autogen")
 set_property(GLOBAL PROPERTY AUTOMOC_TARGETS_FOLDER "Autogen")

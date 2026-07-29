@@ -3,6 +3,8 @@ message("Client message >> macos build >> DopamineNetworkExtension")
 set(CLIENT_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/../..)
 
 add_executable(AmneziaVPNNetworkExtension)
+# incremental (non-WMO) Swift builds keep DWARF for the NE dSYM
+set_target_properties(AmneziaVPNNetworkExtension PROPERTIES Swift_COMPILATION_MODE incremental)
 
 message("executable_path is: @executable_path/../../Frameworks")
 set_target_properties(AmneziaVPNNetworkExtension PROPERTIES
@@ -13,6 +15,9 @@ set_target_properties(AmneziaVPNNetworkExtension PROPERTIES
     MACOSX_BUNDLE_INFO_STRING "AmneziaVPNNetworkExtension"
     MACOSX_BUNDLE_BUNDLE_NAME "AmneziaVPNNetworkExtension"
     XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "${BUILD_IOS_APP_IDENTIFIER}.network-extension"
+    XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"
+    XCODE_ATTRIBUTE_SWIFT_COMPILATION_MODE "incremental"
+    XCODE_ATTRIBUTE_OTHER_SWIFT_FLAGS "$(inherited) -g"
     XCODE_ATTRIBUTE_PRODUCT_BUNDLE_NAME "${BUILD_IOS_APP_IDENTIFIER}.network-extension"
     XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS ${CMAKE_CURRENT_SOURCE_DIR}/AmneziaVPNNetworkExtension.entitlements
     XCODE_ATTRIBUTE_MARKETING_VERSION "${APP_MAJOR_VERSION}"
@@ -67,6 +72,8 @@ target_link_libraries(AmneziaVPNNetworkExtension PRIVATE ${FW_LIBRESOLV})
 
 target_compile_options(AmneziaVPNNetworkExtension PRIVATE -DGROUP_ID=\"${BUILD_IOS_GROUP_IDENTIFIER}\")
 target_compile_options(AmneziaVPNNetworkExtension PRIVATE -DNETWORK_EXTENSION=1)
+# keep debug info in Swift Release builds so dsymutil can produce the NE dSYM
+target_compile_options(AmneziaVPNNetworkExtension PRIVATE -g)
 
 set(WG_APPLE_SOURCE_DIR ${CLIENT_ROOT_DIR}/3rd/amneziawg-apple/Sources)
 

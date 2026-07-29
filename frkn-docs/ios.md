@@ -124,6 +124,45 @@ Known pitfalls hit on macOS 15.7 + Xcode 26.1.1:
 - ASC rejects re-uploads of the same version+build: bump the tweak component of
   `DOPAMINE_VERSION` in the root `CMakeLists.txt` before every upload.
 
+## Crash symbolication (dSYMs)
+
+Symbol **upload to App Store Connect is not possible** on this machine: Xcode
+hardcodes `/usr/bin/rsync` (broken openrsync on macOS 15.7), so
+`uploadSymbols` must stay `false`. Instead we keep dSYMs locally and
+symbolicate crash reports ourselves.
+
+The project generates dSYMs at build time (`dwarf-with-dsym` on all targets;
+`Swift_COMPILATION_MODE incremental` for the network extension — WMO/LTO
+discards Swift DWARF, which is why the NE dSYM was missing). After every
+archive, collect them into the archive:
+
+```bash
+cd build-ios-upload
+mkdir -p Dopamine.xcarchive/dSYMs
+cp -R client/Release-iphoneos/Dopamine.app.dSYM Dopamine.xcarchive/dSYMs/
+cp -R client/ios/networkextension/Release-iphoneos/FRKNNetworkExtension.appex.dSYM Dopamine.xcarchive/dSYMs/
+```
+
+Keep each build's `.xcarchive` — it is the symbol key for that build.
+
+To read a crash report (Xcode → Organizer → Crashes → right-click a crash →
+export, or a `.crash`/`.ips` file from a tester):
+
+```bash
+export DEVELOPER_DIR=/Applications/Xcode-26.1.1.app/Contents/Developer
+xcrun symbolicatecrash --dsym=build-ios-upload/Dopamine.xcarchive/dSYMs/Dopamine.app.dSYM \
+    crash.ips > symbolicated.txt
+# use .../dSYMs/FRKNNetworkExtension.appex.dSYM when the crashed thread is in the
+# network extension (process name FRKNNetworkExtension)
+```
+
+`symbolicatecrash` lives at
+`$DEVELOPER_DIR/Contents/SharedFrameworks/DVTFoundation.framework/Versions/A/Resources/symbolicatecrash`.
+
+macOS build: same flow in `build-macos-tf` (app +
+`AmneziaVPNNetworkExtension` dSYMs, `client/macos/networkextension/Release/...`).
+
+
 ### Build & archive manually via Xcode
 
 If you prefer a GUI or need to produce an `.ipa`:
