@@ -207,7 +207,7 @@ void CoreController::initControllers()
     m_apiNewsController.reset(new ApiNewsController(m_newsModel, m_settings, m_serversModel, this));
     m_engine->rootContext()->setContextProperty("ApiNewsController", m_apiNewsController.get());
 
-    m_splitPresetsModel.reset(new SplitPresetsModel(m_settings, m_sitesModel, m_serversModel, this));
+    m_splitPresetsModel.reset(new SplitPresetsModel(m_settings, m_serversModel, this));
     m_engine->rootContext()->setContextProperty("SplitPresetsModel", m_splitPresetsModel.get());
 }
 

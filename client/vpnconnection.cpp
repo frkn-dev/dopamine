@@ -4,6 +4,7 @@
 #include <QEventLoop>
 #include <QFile>
 #include <QHostInfo>
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QObject>
 #include <QSharedPointer>
@@ -369,6 +370,49 @@ void VpnConnection::appendSplitTunnelingConfig()
 
     m_vpnConfiguration.insert(config_key::splitTunnelType, routeMode);
     m_vpnConfiguration.insert(config_key::splitTunnelSites, sitesJsonArray);
+
+    // 2x2 split tunneling: the manual site list (direction = routeMode) and the
+    // service presets are flattened into include/exclude sets. A checked preset is
+    // always the EXCEPTION to the default: it goes direct when the default route is
+    // VPN (routeMode != VpnOnlyForwardSites) and via VPN when the default is direct.
+    // The iOS network extension applies both sets simultaneously (excluded wins).
+    QJsonArray includeSitesJsonArray;
+    QJsonArray excludeSitesJsonArray;
+    if (m_settings->isSitesSplitTunnelingEnabled() && allowSiteBasedSplitTunneling) {
+        if (routeMode == Settings::VpnOnlyForwardSites) {
+            includeSitesJsonArray = sitesJsonArray;
+        } else if (routeMode == Settings::VpnAllExceptSites) {
+            excludeSitesJsonArray = sitesJsonArray;
+        }
+
+        const QStringList enabledPresets = m_settings->splitPresetsEnabled();
+        if (!enabledPresets.isEmpty()) {
+            QJsonArray presetDomains;
+            const QJsonArray presets = QJsonDocument::fromJson(m_settings->splitPresetsCache().toUtf8()).array();
+            for (const auto &value : presets) {
+                const QJsonObject preset = value.toObject();
+                if (!enabledPresets.contains(preset.value("id").toString())) {
+                    continue;
+                }
+                const QJsonArray domains = preset.value("domains").toArray();
+                for (const auto &domain : domains) {
+                    presetDomains.append(domain);
+                }
+            }
+            // default-direct base => presets go via VPN; default-VPN base => presets bypass
+            if (routeMode == Settings::VpnOnlyForwardSites) {
+                for (const auto &domain : presetDomains) {
+                    includeSitesJsonArray.append(domain);
+                }
+            } else {
+                for (const auto &domain : presetDomains) {
+                    excludeSitesJsonArray.append(domain);
+                }
+            }
+        }
+    }
+    m_vpnConfiguration.insert(config_key::splitTunnelIncludeSites, includeSitesJsonArray);
+    m_vpnConfiguration.insert(config_key::splitTunnelExcludeSites, excludeSitesJsonArray);
 
     Settings::AppsRouteMode appsRouteMode = Settings::AppsRouteMode::VpnAllApps;
     QJsonArray appsJsonArray;

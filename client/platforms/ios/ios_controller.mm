@@ -731,6 +731,18 @@ bool IosController::setupWireGuard()
 
     wgConfig.insert(config_key::splitTunnelSites, splitTunnelSites);
 
+    QJsonArray splitTunnelIncludeSites = m_rawConfig[config_key::splitTunnelIncludeSites].toArray();
+    for (int index = 0; index < splitTunnelIncludeSites.count(); index++) {
+        splitTunnelIncludeSites[index] = splitTunnelIncludeSites[index].toString().remove(" ");
+    }
+    wgConfig.insert(config_key::splitTunnelIncludeSites, splitTunnelIncludeSites);
+
+    QJsonArray splitTunnelExcludeSites = m_rawConfig[config_key::splitTunnelExcludeSites].toArray();
+    for (int index = 0; index < splitTunnelExcludeSites.count(); index++) {
+        splitTunnelExcludeSites[index] = splitTunnelExcludeSites[index].toString().remove(" ");
+    }
+    wgConfig.insert(config_key::splitTunnelExcludeSites, splitTunnelExcludeSites);
+
     if (config.contains(config_key::allowed_ips) && config[config_key::allowed_ips].isArray()) {
         wgConfig.insert(config_key::allowed_ips, config[config_key::allowed_ips]);
     } else {
@@ -821,6 +833,19 @@ bool IosController::setupXray()
     }
 
     finalConfig.insert(config_key::splitTunnelSites, splitTunnelSites);
+
+    QJsonArray splitTunnelIncludeSites = m_rawConfig[config_key::splitTunnelIncludeSites].toArray();
+    for (int index = 0; index < splitTunnelIncludeSites.count(); index++) {
+        splitTunnelIncludeSites[index] = splitTunnelIncludeSites[index].toString().remove(" ");
+    }
+    finalConfig.insert(config_key::splitTunnelIncludeSites, splitTunnelIncludeSites);
+
+    QJsonArray splitTunnelExcludeSites = m_rawConfig[config_key::splitTunnelExcludeSites].toArray();
+    for (int index = 0; index < splitTunnelExcludeSites.count(); index++) {
+        splitTunnelExcludeSites[index] = splitTunnelExcludeSites[index].toString().remove(" ");
+    }
+    finalConfig.insert(config_key::splitTunnelExcludeSites, splitTunnelExcludeSites);
+
     finalConfig.insert(config_key::config, xrayConfigStr);
 
     QJsonDocument finalConfigDoc(finalConfig);
@@ -967,6 +992,18 @@ bool IosController::setupAwg()
     }
 
     wgConfig.insert(config_key::splitTunnelSites, splitTunnelSites);
+
+    QJsonArray splitTunnelIncludeSites = m_rawConfig[config_key::splitTunnelIncludeSites].toArray();
+    for (int index = 0; index < splitTunnelIncludeSites.count(); index++) {
+        splitTunnelIncludeSites[index] = splitTunnelIncludeSites[index].toString().remove(" ");
+    }
+    wgConfig.insert(config_key::splitTunnelIncludeSites, splitTunnelIncludeSites);
+
+    QJsonArray splitTunnelExcludeSites = m_rawConfig[config_key::splitTunnelExcludeSites].toArray();
+    for (int index = 0; index < splitTunnelExcludeSites.count(); index++) {
+        splitTunnelExcludeSites[index] = splitTunnelExcludeSites[index].toString().remove(" ");
+    }
+    wgConfig.insert(config_key::splitTunnelExcludeSites, splitTunnelExcludeSites);
 
     if (config.contains(config_key::allowed_ips) && config[config_key::allowed_ips].isArray()) {
         wgConfig.insert(config_key::allowed_ips, config[config_key::allowed_ips]);

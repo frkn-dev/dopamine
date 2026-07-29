@@ -7,9 +7,9 @@
 #include "core/api/apiDefs.h"
 #include "core/controllers/gatewayController.h"
 
-SplitPresetsModel::SplitPresetsModel(std::shared_ptr<Settings> settings, const QSharedPointer<SitesModel> &sitesModel,
-                                     const QSharedPointer<ServersModel> &serversModel, QObject *parent)
-    : QAbstractListModel(parent), m_settings(settings), m_sitesModel(sitesModel), m_serversModel(serversModel)
+SplitPresetsModel::SplitPresetsModel(std::shared_ptr<Settings> settings, const QSharedPointer<ServersModel> &serversModel,
+                                     QObject *parent)
+    : QAbstractListModel(parent), m_settings(settings), m_serversModel(serversModel)
 {
     m_enabledPresets = QSet<QString>(m_settings->splitPresetsEnabled().begin(), m_settings->splitPresetsEnabled().end());
     loadFromCache();
@@ -45,6 +45,20 @@ QHash<int, QByteArray> SplitPresetsModel::roleNames() const
     roles[DomainsCountRole] = "domainsCount";
     roles[EnabledRole] = "enabled";
     return roles;
+}
+
+int SplitPresetsModel::routeMode() const
+{
+    return m_settings->splitPresetsRouteMode();
+}
+
+void SplitPresetsModel::setRouteMode(int routeMode)
+{
+    if (m_settings->splitPresetsRouteMode() == routeMode) {
+        return;
+    }
+    m_settings->setSplitPresetsRouteMode(routeMode);
+    emit routeModeChanged();
 }
 
 void SplitPresetsModel::fetchPresets()
@@ -84,8 +98,6 @@ void SplitPresetsModel::fetchPresets()
             return;
         }
 
-        const QList<Preset> oldPresets = m_presets;
-
         beginResetModel();
         m_presets.clear();
         for (const auto &value : presetsArray) {
@@ -105,7 +117,6 @@ void SplitPresetsModel::fetchPresets()
         endResetModel();
 
         saveToCache();
-        reapplyEnabledPresets(oldPresets);
         emit countChanged();
         emit fetchPresetsFinished();
     });
@@ -117,70 +128,22 @@ void SplitPresetsModel::setPresetEnabled(int row, bool enabled)
         return;
     }
 
-    const Preset &preset = m_presets.at(row);
-    const bool wasEnabled = m_enabledPresets.contains(preset.id);
+    const QString id = m_presets.at(row).id;
+    const bool wasEnabled = m_enabledPresets.contains(id);
     if (wasEnabled == enabled) {
         return;
     }
 
     if (enabled) {
-        m_enabledPresets.insert(preset.id);
+        m_enabledPresets.insert(id);
     } else {
-        m_enabledPresets.remove(preset.id);
+        m_enabledPresets.remove(id);
     }
     m_settings->setSplitPresetsEnabled(m_enabledPresets.values());
 
-    applyPreset(preset, enabled);
-
     const QModelIndex modelIndex = index(row);
     emit dataChanged(modelIndex, modelIndex, { EnabledRole });
-}
-
-void SplitPresetsModel::applyPreset(const Preset &preset, bool enabled)
-{
-    if (m_sitesModel.isNull()) {
-        return;
-    }
-    if (enabled) {
-        QMap<QString, QString> sites;
-        for (const auto &domain : preset.domains) {
-            sites.insert(domain, QString());
-        }
-        m_sitesModel->addSites(sites, false);
-    } else {
-        m_sitesModel->removeSitesByDomains(preset.domains);
-    }
-}
-
-void SplitPresetsModel::reapplyEnabledPresets(const QList<Preset> &oldPresets)
-{
-    // backend may have changed a bundle: swap old domains for new ones on enabled presets
-    for (const auto &newPreset : m_presets) {
-        if (!m_enabledPresets.contains(newPreset.id)) {
-            continue;
-        }
-        int oldIndex = -1;
-        for (int i = 0; i < oldPresets.size(); ++i) {
-            if (oldPresets.at(i).id == newPreset.id) {
-                oldIndex = i;
-                break;
-            }
-        }
-        if (oldIndex >= 0 && oldPresets.at(oldIndex).domains != newPreset.domains) {
-            applyPreset(oldPresets.at(oldIndex), false);
-            applyPreset(newPreset, true);
-        }
-    }
-}
-
-int SplitPresetsModel::indexOfPreset(const QString &id) const
-{
-    for (int i = 0; i < m_presets.size(); ++i) {
-        if (m_presets.at(i).id == id) {
-            return i;
-        }
-    }
-    return -1;
+    emit enabledCountChanged();
 }
 
 void SplitPresetsModel::loadFromCache()

@@ -280,19 +280,36 @@ Can&apos;t be disabled for current server</translation>
         <translation>Site-based split tunneling</translation>
     </message>
     <message>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="81"/>
+        <source>Service-based split tunneling</source>
+        <translation>Service-based split tunneling</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="60"/>
+        <source>via VPN</source>
+        <translation>via VPN</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="68"/>
+        <source>bypass VPN</source>
+        <translation>bypass VPN</translation>
+    </message>
+    <message>
         <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="65"/>
-        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="84"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="82"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="101"/>
         <source>Enabled</source>
         <translation>Enabled</translation>
     </message>
     <message>
         <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="65"/>
-        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="84"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="82"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="101"/>
         <source>Disabled</source>
         <translation>Disabled</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="83"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="100"/>
         <source>App-based split tunneling</source>
         <translation>App-based split tunneling</translation>
     </message>
@@ -497,8 +514,8 @@ Already installed containers were found on the server. All installed containers 
     <name>PageHome</name>
     <message>
         <location filename="../ui/qml/Pages2/PageHome.qml" line="83"/>
-        <source>Logging enabled</source>
-        <translation>Logging enabled</translation>
+        <source>Diagnostic Mode Enabled</source>
+        <translation>Diagnostic Mode Enabled</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageHome.qml" line="111"/>
@@ -2993,129 +3010,182 @@ Already installed containers were found on the server. All installed containers 
     </message>
 </context>
 <context>
-    <name>PageSettingsSplitTunneling</name>
+    <name>PageSettingsSplitPresets</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="31"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitPresets.qml" line="24"/>
         <source>Cannot change split tunneling settings during active connection</source>
         <translation>Cannot change split tunneling settings during active connection</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="34"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitPresets.qml" line="49"/>
+        <source>Service-based split tunneling</source>
+        <translation>Service-based split tunneling</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitPresets.qml" line="50"/>
+        <source>Selected services are routed opposite to the default connection: bypass VPN when everything goes through it, or via VPN when the default is direct. Changes apply on the next connection.</source>
+        <translation>Selected services are routed opposite to the default connection: bypass VPN when everything goes through it, or via VPN when the default is direct. Changes apply on the next connection.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitPresets.qml" line="60"/>
+        <source>Current direction: everything goes through VPN, selected services bypass it</source>
+        <translation>Current direction: everything goes through VPN, selected services bypass it</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitPresets.qml" line="60"/>
+        <source>Current direction: only selected sites and services go through VPN</source>
+        <translation>Current direction: only selected sites and services go through VPN</translation>
+    </message>
+    <message>
+        <source>via VPN</source>
+        <translation type="vanished">via VPN</translation>
+    </message>
+    <message>
+        <source>bypass VPN</source>
+        <translation type="vanished">bypass VPN</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitPresets.qml" line="96"/>
+        <source>No services available yet. They will appear after the subscription sync.</source>
+        <translation>No services available yet. They will appear after the subscription sync.</translation>
+    </message>
+</context>
+<context>
+    <name>PageSettingsSplitTunneling</name>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="30"/>
+        <source>Cannot change split tunneling settings during active connection</source>
+        <translation>Cannot change split tunneling settings during active connection</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="33"/>
         <source>Default server does not support split tunneling function</source>
         <translation>Default server does not support split tunneling function</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="67"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="66"/>
         <source>Only the sites listed here will be accessed through the VPN</source>
         <translation>Only the sites listed here will be accessed through the VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="72"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="71"/>
         <source>Addresses from the list should not be accessed via VPN</source>
         <translation>Addresses from the list should not be accessed via VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="103"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="102"/>
         <source>Split tunneling</source>
         <translation>Split tunneling</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="188"/>
-        <source>Services</source>
-        <translation>Services</translation>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="102"/>
+        <source>Site-based split tunneling</source>
+        <translation>Site-based split tunneling</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="218"/>
+        <source>Services</source>
+        <translation type="vanished">Services</translation>
+    </message>
+    <message>
+        <source>via VPN</source>
+        <translation type="vanished">via VPN</translation>
+    </message>
+    <message>
+        <source>bypass VPN</source>
+        <translation type="vanished">bypass VPN</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="139"/>
         <source>Sites</source>
         <translation>Sites</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="130"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="155"/>
         <source>Mode</source>
         <translation>Mode</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="254"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="222"/>
         <source>Remove </source>
         <translation>Remove </translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="255"/>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="405"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="223"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="373"/>
         <source>Continue</source>
         <translation>Continue</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="256"/>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="406"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="224"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="374"/>
         <source>Cancel</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="306"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="274"/>
         <source>website or IP</source>
         <translation>website or IP</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="352"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="320"/>
         <source>Additional options</source>
         <translation>Additional options</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="359"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="327"/>
         <source>Import</source>
         <translation>Import</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="372"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="340"/>
         <source>Save site list</source>
         <translation>Save site list</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="379"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="347"/>
         <source>Save sites</source>
         <translation>Save sites</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="380"/>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="506"/>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="519"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="348"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="474"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="487"/>
         <source>Sites files (*.json)</source>
         <translation>Sites files (*.json)</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="400"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="368"/>
         <source>Clear site list</source>
         <translation>Clear site list</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="403"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="371"/>
         <source>Clear site list?</source>
         <translation>Clear site list?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="404"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="372"/>
         <source>All sites will be removed from list.</source>
         <translation>All sites will be removed from list.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="468"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="436"/>
         <source>Import a list of sites</source>
         <translation>Import a list of sites</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="503"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="471"/>
         <source>Replace site list</source>
         <translation>Replace site list</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="505"/>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="518"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="473"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="486"/>
         <source>Open sites file</source>
         <translation>Open sites file</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="516"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="484"/>
         <source>Add imported sites to existing ones</source>
         <translation>Add imported sites to existing ones</translation>
     </message>
@@ -5237,23 +5307,23 @@ For more detailed information, you can
 <context>
     <name>ServersListView</name>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="40"/>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="79"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="41"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="80"/>
         <source>All</source>
         <translation>All</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="82"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="83"/>
         <source>White Elephants</source>
         <translation>White Elephants</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="85"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="86"/>
         <source>Regular</source>
         <translation>Regular</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="88"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="89"/>
         <source>Reverse</source>
         <translation>Reverse</translation>
     </message>
@@ -5262,7 +5332,7 @@ For more detailed information, you can
         <translation type="vanished">Protocol</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="263"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="275"/>
         <source>Unable change server while there is an active connection</source>
         <translation>Unable change server while there is an active connection</translation>
     </message>
@@ -5402,7 +5472,7 @@ For more detailed information, you can
 <context>
     <name>VpnConnection</name>
     <message>
-        <location filename="../vpnconnection.cpp" line="427"/>
+        <location filename="../vpnconnection.cpp" line="471"/>
         <source>Mbps</source>
         <translation>Mbps</translation>
     </message>

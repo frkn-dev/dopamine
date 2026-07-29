@@ -297,19 +297,36 @@ Can&apos;t be disabled for current server</source>
         <translation>Роздільне тунелювання по сайтам</translation>
     </message>
     <message>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="81"/>
+        <source>Service-based split tunneling</source>
+        <translation>Роздільне тунелювання за сервісами</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="60"/>
+        <source>via VPN</source>
+        <translation>через VPN</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="68"/>
+        <source>bypass VPN</source>
+        <translation>повз VPN</translation>
+    </message>
+    <message>
         <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="65"/>
-        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="84"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="82"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="101"/>
         <source>Enabled</source>
         <translation>Увімкнено</translation>
     </message>
     <message>
         <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="65"/>
-        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="84"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="82"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="101"/>
         <source>Disabled</source>
         <translation>Вимкнено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="83"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="100"/>
         <source>App-based split tunneling</source>
         <translation>Роздільне тунелювання застосунків</translation>
     </message>
@@ -513,8 +530,8 @@ Already installed containers were found on the server. All installed containers 
     <name>PageHome</name>
     <message>
         <location filename="../ui/qml/Pages2/PageHome.qml" line="83"/>
-        <source>Logging enabled</source>
-        <translation>Логування увімкнено</translation>
+        <source>Diagnostic Mode Enabled</source>
+        <translation>Режим діагностики увімкнено</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageHome.qml" line="111"/>
@@ -3072,46 +3089,99 @@ Already installed containers were found on the server. All installed containers 
     </message>
 </context>
 <context>
+    <name>PageSettingsSplitPresets</name>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitPresets.qml" line="24"/>
+        <source>Cannot change split tunneling settings during active connection</source>
+        <translation>Неможливо змінити налаштування роздільного тунелювання під час активного підключення</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitPresets.qml" line="49"/>
+        <source>Service-based split tunneling</source>
+        <translation>Роздільне тунелювання за сервісами</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitPresets.qml" line="50"/>
+        <source>Selected services are routed opposite to the default connection: bypass VPN when everything goes through it, or via VPN when the default is direct. Changes apply on the next connection.</source>
+        <translation>Вибрані сервіси йдуть протилежно основному з&apos;єднанню: повз VPN, коли все йде через нього, або через VPN, коли за замовчуванням все напряму. Зміни застосуються при наступному підключенні.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitPresets.qml" line="60"/>
+        <source>Current direction: everything goes through VPN, selected services bypass it</source>
+        <translation>Поточний напрямок: все йде через VPN, вибрані сервіси — повз</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitPresets.qml" line="60"/>
+        <source>Current direction: only selected sites and services go through VPN</source>
+        <translation>Поточний напрямок: через VPN йдуть лише вибрані сайти та сервіси</translation>
+    </message>
+    <message>
+        <source>via VPN</source>
+        <translation type="vanished">через VPN</translation>
+    </message>
+    <message>
+        <source>bypass VPN</source>
+        <translation type="vanished">повз VPN</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitPresets.qml" line="96"/>
+        <source>No services available yet. They will appear after the subscription sync.</source>
+        <translation>Сервіси поки недоступні. Вони з&apos;являться після синхронізації підписки.</translation>
+    </message>
+</context>
+<context>
     <name>PageSettingsSplitTunneling</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="72"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="71"/>
         <source>Addresses from the list should not be accessed via VPN</source>
         <translation>Адреси із списку не повинні відкриватись через VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="103"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="102"/>
         <source>Split tunneling</source>
         <translation>Роздільне VPN-тунелювання</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="188"/>
-        <source>Services</source>
-        <translation>Сервіси</translation>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="102"/>
+        <source>Site-based split tunneling</source>
+        <translation>Роздільне тунелювання по сайтам</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="218"/>
+        <source>Services</source>
+        <translation type="vanished">Сервіси</translation>
+    </message>
+    <message>
+        <source>via VPN</source>
+        <translation type="vanished">через VPN</translation>
+    </message>
+    <message>
+        <source>bypass VPN</source>
+        <translation type="vanished">повз VPN</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="139"/>
         <source>Sites</source>
         <translation>Сайти</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="130"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="155"/>
         <source>Mode</source>
         <translation>Режим</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="254"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="222"/>
         <source>Remove </source>
         <translation>Видалити </translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="255"/>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="405"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="223"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="373"/>
         <source>Continue</source>
         <translation>Продовжити</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="256"/>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="406"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="224"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="374"/>
         <source>Cancel</source>
         <translation>Відмінити</translation>
     </message>
@@ -3120,85 +3190,85 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Імпорт / Експорт Сайтів</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="67"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="66"/>
         <source>Only the sites listed here will be accessed through the VPN</source>
         <translation>Тільки адреси зі списку повинні відкриватись через VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="31"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="30"/>
         <source>Cannot change split tunneling settings during active connection</source>
         <translation>Не можна змінити налаштування роздільного тунелювання при підключеному VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="34"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="33"/>
         <source>Default server does not support split tunneling function</source>
         <translation>Сервер за замовчуванням не підтримує функцію роздільного тунелювання</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="306"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="274"/>
         <source>website or IP</source>
         <translation>вебсайт або IP</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="352"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="320"/>
         <source>Additional options</source>
         <translation>Додаткові параметри</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="359"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="327"/>
         <source>Import</source>
         <translation>Імпорт</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="372"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="340"/>
         <source>Save site list</source>
         <translation>Зберегти список сайтів</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="379"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="347"/>
         <source>Save sites</source>
         <translation>Зберегти</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="380"/>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="506"/>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="519"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="348"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="474"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="487"/>
         <source>Sites files (*.json)</source>
         <translation>Sites files (*.json)</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="400"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="368"/>
         <source>Clear site list</source>
         <translation>Очистити список сайтів</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="403"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="371"/>
         <source>Clear site list?</source>
         <translation>Очистити список сайтів?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="404"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="372"/>
         <source>All sites will be removed from list.</source>
         <translation>Усі сайти будуть видалені зі списку.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="468"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="436"/>
         <source>Import a list of sites</source>
         <translation>Імпортувати список із сайтами</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="503"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="471"/>
         <source>Replace site list</source>
         <translation>Замінити список із сайтами</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="505"/>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="518"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="473"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="486"/>
         <source>Open sites file</source>
         <translation>Відкрити список із сайтами</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="516"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="484"/>
         <source>Add imported sites to existing ones</source>
         <translation>Додати імпортовані сайти до існуючих</translation>
     </message>
@@ -5347,23 +5417,23 @@ This means that AmneziaWG keeps the fast performance of the original while addin
 <context>
     <name>ServersListView</name>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="40"/>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="79"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="41"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="80"/>
         <source>All</source>
         <translation>Всі</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="82"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="83"/>
         <source>White Elephants</source>
         <translation>Білі Слони</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="85"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="86"/>
         <source>Regular</source>
         <translation>Основний</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="88"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="89"/>
         <source>Reverse</source>
         <translation>Зворотний</translation>
     </message>
@@ -5372,7 +5442,7 @@ This means that AmneziaWG keeps the fast performance of the original while addin
         <translation type="vanished">Протокол</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="263"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="275"/>
         <source>Unable change server while there is an active connection</source>
         <translation>Не можна змінити сервер при активному підключенні</translation>
     </message>
@@ -5532,7 +5602,7 @@ This means that AmneziaWG keeps the fast performance of the original while addin
 <context>
     <name>VpnConnection</name>
     <message>
-        <location filename="../vpnconnection.cpp" line="427"/>
+        <location filename="../vpnconnection.cpp" line="471"/>
         <source>Mbps</source>
         <translation>Mbps</translation>
     </message>

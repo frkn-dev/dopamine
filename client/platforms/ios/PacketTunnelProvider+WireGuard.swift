@@ -28,7 +28,36 @@ extension PacketTunnelProvider {
             if tunnelConfiguration.peers.first!.allowedIPs
                 .map({ $0.stringRepresentation })
                 .joined(separator: ", ") == "0.0.0.0/0, ::/0" {
-                if wgConfig.splitTunnelType == 1 {
+                if let includeSites = wgConfig.splitTunnelIncludeSites,
+                   let excludeSites = wgConfig.splitTunnelExcludeSites {
+                    // 2x2 mode: include (via VPN) + exclude (bypass) sets at once.
+                    // splitTunnelType keeps the base direction of the manual list:
+                    // 1 = default-direct (allowedIPs = include set), otherwise full
+                    // tunnel and excludeIPs are subtracted by WireGuardKit.
+                    for index in tunnelConfiguration.peers.indices {
+                        if wgConfig.splitTunnelType == 1 {
+                            var allowedIPs = [IPAddressRange]()
+
+                            for includeIPString in includeSites {
+                                if let includeIP = IPAddressRange(from: includeIPString) {
+                                    allowedIPs.append(includeIP)
+                                }
+                            }
+
+                            tunnelConfiguration.peers[index].allowedIPs = allowedIPs
+                        }
+
+                        var excludeIPs = [IPAddressRange]()
+
+                        for excludeIPString in excludeSites {
+                            if let excludeIP = IPAddressRange(from: excludeIPString) {
+                                excludeIPs.append(excludeIP)
+                            }
+                        }
+
+                        tunnelConfiguration.peers[index].excludeIPs = excludeIPs
+                    }
+                } else if wgConfig.splitTunnelType == 1 {
                     for index in tunnelConfiguration.peers.indices {
                         tunnelConfiguration.peers[index].allowedIPs.removeAll()
                         var allowedIPs = [IPAddressRange]()

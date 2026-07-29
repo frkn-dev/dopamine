@@ -6,12 +6,12 @@
 #include <QSharedPointer>
 
 #include "settings.h"
-#include "sites_model.h"
 #include "servers_model.h"
 
 // Split-tunneling service presets (see frkn-docs/api-split-presets.md):
 // bundles of domains per service (YouTube, ChatGPT, ...) fetched from the
-// gateway and applied to the split-tunneling site list as a group.
+// gateway. Enabled presets and the section direction are stored here; the
+// actual include/exclude sets are computed at connect time (vpnconnection).
 class SplitPresetsModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -24,19 +24,28 @@ public:
         EnabledRole
     };
 
-    explicit SplitPresetsModel(std::shared_ptr<Settings> settings, const QSharedPointer<SitesModel> &sitesModel,
-                               const QSharedPointer<ServersModel> &serversModel, QObject *parent = nullptr);
+    explicit SplitPresetsModel(std::shared_ptr<Settings> settings, const QSharedPointer<ServersModel> &serversModel,
+                               QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
+    Q_PROPERTY(int routeMode READ routeMode WRITE setRouteMode NOTIFY routeModeChanged)
+    Q_PROPERTY(int enabledCount READ enabledCount NOTIFY enabledCountChanged)
 
     Q_INVOKABLE void fetchPresets();
     Q_INVOKABLE void setPresetEnabled(int row, bool enabled);
 
+    int routeMode() const;
+    void setRouteMode(int routeMode);
+
+    int enabledCount() const { return m_enabledPresets.size(); }
+
 signals:
     void countChanged();
+    void routeModeChanged();
+    void enabledCountChanged();
     void fetchPresetsFinished();
 
 protected:
@@ -52,12 +61,8 @@ private:
 
     void loadFromCache();
     void saveToCache() const;
-    void applyPreset(const Preset &preset, bool enabled);
-    void reapplyEnabledPresets(const QList<Preset> &oldPresets);
-    int indexOfPreset(const QString &id) const;
 
     std::shared_ptr<Settings> m_settings;
-    QSharedPointer<SitesModel> m_sitesModel;
     QSharedPointer<ServersModel> m_serversModel;
 
     QList<Preset> m_presets;

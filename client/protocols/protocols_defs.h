@@ -100,6 +100,10 @@ namespace amnezia
 
         constexpr char splitTunnelSites[] = "splitTunnelSites";
         constexpr char splitTunnelType[] = "splitTunnelType";
+        // 2x2 split tunneling (services/sites x via/bypass): flattened include/exclude
+        // domain sets, consumed by the iOS network extension (see vpnconnection.cpp)
+        constexpr char splitTunnelIncludeSites[] = "splitTunnelIncludeSites";
+        constexpr char splitTunnelExcludeSites[] = "splitTunnelExcludeSites";
 
         constexpr char splitTunnelApps[] = "splitTunnelApps";
         constexpr char appSplitTunnelType[] = "appSplitTunnelType";

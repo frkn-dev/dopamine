@@ -62,6 +62,24 @@ extension PacketTunnelProvider {
 
     private func applyXraySplitTunnel(_ xrayConfig: XrayConfig,
                                       settings: NEPacketTunnelNetworkSettings) {
+        // 2x2 mode: include (via VPN) and exclude (bypass) sets at the same time;
+        // excluded routes win on overlap (Apple's NE rule). splitTunnelType keeps
+        // the base direction of the manual site list: 1 = default-direct.
+        if let includeSites = xrayConfig.splitTunnelIncludeSites,
+           let excludeSites = xrayConfig.splitTunnelExcludeSites {
+            func routes(_ sites: [String]) -> [NEIPv4Route] {
+                sites.compactMap { IPAddressRange(from: $0) }
+                     .map { NEIPv4Route(destinationAddress: "\($0.address)", subnetMask: "\($0.subnetMask())") }
+            }
+
+            if xrayConfig.splitTunnelType == 1 {
+                settings.ipv4Settings?.includedRoutes = routes(includeSites)
+            }
+            settings.ipv4Settings?.excludedRoutes = routes(excludeSites)
+            return
+        }
+
+        // legacy single-list mode
         guard let splitTunnelType = xrayConfig.splitTunnelType else {
             return
         }

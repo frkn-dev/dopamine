@@ -80,7 +80,7 @@ PageType {
                 borderWidth: 0
 
                 visible: isLoggingEnabled ? true : false
-                text: qsTr("Logging enabled")
+                text: qsTr("Diagnostic Mode Enabled")
 
                 Keys.onEnterPressed: this.clicked()
                 Keys.onReturnPressed: this.clicked()

@@ -35,6 +35,46 @@ DrawerType2 {
             descriptionText:  qsTr("Allows you to connect to some sites or applications through a VPN connection and bypass others")
         }
 
+        SwitcherType {
+            Layout.fillWidth: true
+            Layout.leftMargin: 16
+            Layout.rightMargin: 16
+
+            text: qsTr("Split tunneling")
+            checked: SitesModel.isTunnelingEnabled
+
+            onToggled: function() {
+                SitesModel.toggleSplitTunneling(checked)
+            }
+        }
+
+        Row {
+            Layout.topMargin: 4
+            Layout.leftMargin: 16
+            Layout.bottomMargin: 8
+            spacing: 8
+
+            ButtonGroup {
+                id: routeModeGroup
+            }
+
+            HorizontalRadioButton {
+                text: qsTr("via VPN")
+                checkable: true
+                checked: SitesModel.routeMode !== 2
+                ButtonGroup.group: routeModeGroup
+                onClicked: SitesModel.routeMode = 1
+            }
+
+            HorizontalRadioButton {
+                text: qsTr("bypass VPN")
+                checkable: true
+                checked: SitesModel.routeMode === 2
+                ButtonGroup.group: routeModeGroup
+                onClicked: SitesModel.routeMode = 2
+            }
+        }
+
         LabelWithButtonType {
             id: splitTunnelingSwitch
             Layout.fillWidth: true
@@ -67,6 +107,23 @@ DrawerType2 {
 
             clickedFunction: function() {
                 PageController.goToPage(PageEnum.PageSettingsSplitTunneling)
+                root.closeTriggered()
+            }
+        }
+
+        DividerType {
+        }
+
+        LabelWithButtonType {
+            id: serviceBasedSplitTunnelingSwitch
+            Layout.fillWidth: true
+
+            text: qsTr("Service-based split tunneling")
+            descriptionText: SplitPresetsModel.enabledCount > 0 ? qsTr("Enabled") : qsTr("Disabled")
+            rightImageSource: "qrc:/images/controls/chevron-right.svg"
+
+            clickedFunction: function() {
+                PageController.goToPage(PageEnum.PageSettingsSplitPresets)
                 root.closeTriggered()
             }
         }

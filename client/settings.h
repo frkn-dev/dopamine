@@ -211,6 +211,15 @@ public:
     {
         m_settings.setValue("Conf/splitPresetsEnabled", enabled);
     }
+    // direction of the whole presets section: 1 = via VPN, 2 = bypass VPN (mirrors RouteMode)
+    int splitPresetsRouteMode() const
+    {
+        return m_settings.value("Conf/splitPresetsRouteMode", 1).toInt();
+    }
+    void setSplitPresetsRouteMode(int mode)
+    {
+        m_settings.setValue("Conf/splitPresetsRouteMode", mode);
+    }
 
     //    static constexpr char openNicNs5[] = "94.103.153.176";
     //    static constexpr char openNicNs13[] = "144.76.103.143";

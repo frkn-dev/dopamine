@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
 
 import SortFilterProxyModel 0.2
 
@@ -230,6 +231,8 @@ ListViewType {
                 Layout.fillWidth: true
 
                 Image {
+                    id: serverCountryFlag
+
                     objectName: "serverCountryFlag"
 
                     Layout.alignment: Qt.AlignVCenter
@@ -242,6 +245,15 @@ ListViewType {
 
                     visible: countryCode !== "" && status !== Image.Error
                     source: visible ? "qrc:/countriesFlags/images/flagKit/" + root.flagCountryCode(countryCode) + ".svg" : ""
+
+                    layer.enabled: true
+                    layer.effect: OpacityMask {
+                        maskSource: Rectangle {
+                            width: serverCountryFlag.width
+                            height: serverCountryFlag.height
+                            radius: 5
+                        }
+                    }
                 }
 
                 VerticalRadioButton {

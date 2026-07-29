@@ -26,7 +26,6 @@ PageType {
     property bool pageEnabled
 
     Component.onCompleted: {
-        SplitPresetsModel.fetchPresets()
         if (ConnectionController.isConnected) {
             PageController.showNotificationMessage(qsTr("Cannot change split tunneling settings during active connection"))
             root.pageEnabled = false
@@ -95,70 +94,13 @@ PageType {
             id: backButton
         }
 
-        HeaderTypeWithSwitcher {
+        BaseHeaderType {
             Layout.fillWidth: true
             Layout.leftMargin: 16
             Layout.rightMargin: 16
 
-            headerText: qsTr("Split tunneling")
-
-            enabled: root.pageEnabled
-            showSwitcher: true
-            switcher {
-                checked: SitesModel.isTunnelingEnabled
-                enabled: root.pageEnabled
-            }
-            switcherFunction: function(checked) {
-                SitesModel.toggleSplitTunneling(checked)
-                selector.text = root.routeModesModel[getRouteModesModelIndex()].name
-            }
-        }
-
-        DropDownType {
-            id: selector
-
-            Layout.fillWidth: true
-            Layout.topMargin: 32
-            Layout.leftMargin: 16
-            Layout.rightMargin: 16
-
-            drawerHeight: 0.4375
-            drawerParent: root
-
-            enabled: root.pageEnabled
-
-            headerText: qsTr("Mode")
-
-            listView: ListViewWithRadioButtonType {
-                rootWidth: root.width
-
-                model: root.routeModesModel
-
-                selectedIndex: getRouteModesModelIndex()
-
-                clickedFunction: function() {
-                    selector.text = selectedText
-                    selector.closeTriggered()
-                    if (SitesModel.routeMode !== root.routeModesModel[selectedIndex].type) {
-                        SitesModel.routeMode = root.routeModesModel[selectedIndex].type
-                    }
-                }
-
-                Component.onCompleted: {
-                    if (root.routeModesModel[selectedIndex].type === SitesModel.routeMode) {
-                        selector.text = selectedText
-                    } else {
-                        selector.text = root.routeModesModel[0].name
-                    }
-                }
-
-                Connections {
-                    target: SitesModel
-                    function onRouteModeChanged() {
-                        selectedIndex = getRouteModesModelIndex()
-                    }
-                }
-            }
+            headerText: qsTr("Site-based split tunneling")
+            descriptionText: root.routeModesModel[root.getRouteModesModelIndex()].name
         }
     }
 
@@ -179,37 +121,6 @@ PageType {
 
         header: ColumnLayout {
             width: listView.width
-            visible: SplitPresetsModel.count > 0
-
-            Header2Type {
-                Layout.fillWidth: true
-                Layout.margins: 16
-
-                headerText: qsTr("Services")
-            }
-
-            Repeater {
-                model: SplitPresetsModel
-
-                delegate: ColumnLayout {
-                    width: listView.width
-
-                    SwitcherType {
-                        Layout.fillWidth: true
-                        Layout.leftMargin: 16
-                        Layout.rightMargin: 16
-
-                        text: name
-                        checked: enabled
-
-                        onToggled: function() {
-                            SplitPresetsModel.setPresetEnabled(index, checked)
-                        }
-                    }
-
-                    DividerType {}
-                }
-            }
 
             Header2Type {
                 Layout.fillWidth: true
