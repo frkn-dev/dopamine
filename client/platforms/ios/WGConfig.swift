@@ -45,6 +45,49 @@ struct WGConfig: Decodable {
     case splitTunnelExcludeSites
   }
 
+  // The AWG backend sends port as a number, the plain-WG backend as a string —
+  // accept both.
+  init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    initPacketMagicHeader = try c.decodeIfPresent(String.self, forKey: .initPacketMagicHeader)
+    responsePacketMagicHeader = try c.decodeIfPresent(String.self, forKey: .responsePacketMagicHeader)
+    underloadPacketMagicHeader = try c.decodeIfPresent(String.self, forKey: .underloadPacketMagicHeader)
+    transportPacketMagicHeader = try c.decodeIfPresent(String.self, forKey: .transportPacketMagicHeader)
+    junkPacketCount = try c.decodeIfPresent(String.self, forKey: .junkPacketCount)
+    junkPacketMinSize = try c.decodeIfPresent(String.self, forKey: .junkPacketMinSize)
+    junkPacketMaxSize = try c.decodeIfPresent(String.self, forKey: .junkPacketMaxSize)
+    initPacketJunkSize = try c.decodeIfPresent(String.self, forKey: .initPacketJunkSize)
+    responsePacketJunkSize = try c.decodeIfPresent(String.self, forKey: .responsePacketJunkSize)
+    cookieReplyPacketJunkSize = try c.decodeIfPresent(String.self, forKey: .cookieReplyPacketJunkSize)
+    transportPacketJunkSize = try c.decodeIfPresent(String.self, forKey: .transportPacketJunkSize)
+    specialJunk1 = try c.decodeIfPresent(String.self, forKey: .specialJunk1)
+    specialJunk2 = try c.decodeIfPresent(String.self, forKey: .specialJunk2)
+    specialJunk3 = try c.decodeIfPresent(String.self, forKey: .specialJunk3)
+    specialJunk4 = try c.decodeIfPresent(String.self, forKey: .specialJunk4)
+    specialJunk5 = try c.decodeIfPresent(String.self, forKey: .specialJunk5)
+    dns1 = try c.decode(String.self, forKey: .dns1)
+    dns2 = try c.decode(String.self, forKey: .dns2)
+    mtu = try c.decode(String.self, forKey: .mtu)
+    hostName = try c.decode(String.self, forKey: .hostName)
+    if let intPort = try? c.decode(Int.self, forKey: .port) {
+        port = intPort
+    } else if let strPort = try c.decodeIfPresent(String.self, forKey: .port), let intPort = Int(strPort) {
+        port = intPort
+    } else {
+        throw DecodingError.typeMismatch(Int.self, .init(codingPath: [CodingKeys.port], debugDescription: "Expected Int or numeric string for port"))
+    }
+    clientIP = try c.decode(String.self, forKey: .clientIP)
+    clientPrivateKey = try c.decode(String.self, forKey: .clientPrivateKey)
+    serverPublicKey = try c.decode(String.self, forKey: .serverPublicKey)
+    presharedKey = try c.decodeIfPresent(String.self, forKey: .presharedKey)
+    allowedIPs = try c.decode([String].self, forKey: .allowedIPs)
+    persistentKeepAlive = try c.decode(String.self, forKey: .persistentKeepAlive)
+    splitTunnelType = try c.decode(Int.self, forKey: .splitTunnelType)
+    splitTunnelSites = try c.decode([String].self, forKey: .splitTunnelSites)
+    splitTunnelIncludeSites = try c.decodeIfPresent([String].self, forKey: .splitTunnelIncludeSites)
+    splitTunnelExcludeSites = try c.decodeIfPresent([String].self, forKey: .splitTunnelExcludeSites)
+  }
+
   var settings: String {
     func trimmed(_ value: String?) -> String? {
       guard let value = value?.trimmingCharacters(in: .whitespacesAndNewlines),
