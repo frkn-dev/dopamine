@@ -26,6 +26,7 @@ PageType {
     property bool pageEnabled
 
     Component.onCompleted: {
+        SplitPresetsModel.fetchPresets()
         if (ConnectionController.isConnected) {
             PageController.showNotificationMessage(qsTr("Cannot change split tunneling settings during active connection"))
             root.pageEnabled = false
@@ -175,6 +176,48 @@ PageType {
 
         enabled: root.pageEnabled
         clip: true
+
+        header: ColumnLayout {
+            width: listView.width
+            visible: SplitPresetsModel.count > 0
+
+            Header2Type {
+                Layout.fillWidth: true
+                Layout.margins: 16
+
+                headerText: qsTr("Services")
+            }
+
+            Repeater {
+                model: SplitPresetsModel
+
+                delegate: ColumnLayout {
+                    width: listView.width
+
+                    SwitcherType {
+                        Layout.fillWidth: true
+                        Layout.leftMargin: 16
+                        Layout.rightMargin: 16
+
+                        text: name
+                        checked: enabled
+
+                        onToggled: function() {
+                            SplitPresetsModel.setPresetEnabled(index, checked)
+                        }
+                    }
+
+                    DividerType {}
+                }
+            }
+
+            Header2Type {
+                Layout.fillWidth: true
+                Layout.margins: 16
+
+                headerText: qsTr("Sites")
+            }
+        }
 
         model: SortFilterProxyModel {
             id: proxySitesModel

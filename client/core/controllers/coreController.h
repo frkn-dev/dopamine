@@ -48,6 +48,7 @@
 #include "ui/models/services/socks5ProxyConfigModel.h"
 #include "ui/models/sites_model.h"
 #include "ui/models/newsModel.h"
+#include "ui/models/splitPresetsModel.h"
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     #include "ui/notificationhandler.h"
@@ -128,6 +129,7 @@ private:
     QSharedPointer<ProtocolsModel> m_protocolsModel;
     QSharedPointer<SitesModel> m_sitesModel;
     QSharedPointer<NewsModel> m_newsModel;
+    QSharedPointer<SplitPresetsModel> m_splitPresetsModel;
     QSharedPointer<AllowedDnsModel> m_allowedDnsModel;
     QSharedPointer<AppSplitTunnelingModel> m_appSplitTunnelingModel;
     QSharedPointer<ClientManagementModel> m_clientManagementModel;

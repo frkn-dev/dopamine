@@ -93,6 +93,18 @@ void SitesModel::removeSites()
     endResetModel();
 }
 
+void SitesModel::removeSitesByDomains(const QStringList &domains)
+{
+    beginResetModel();
+
+    for (const auto &domain : domains) {
+        m_settings->removeVpnSite(m_currentRouteMode, domain);
+    }
+    fillSites();
+
+    endResetModel();
+}
+
 int SitesModel::getRouteMode()
 {
     return m_currentRouteMode;

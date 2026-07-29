@@ -516,14 +516,13 @@ Already installed containers were found on the server. All installed containers 
         <translation>Split tunneling disabled</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="400"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="401"/>
         <source>VPN protocol</source>
         <translation>VPN protocol</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="453"/>
         <source>Servers</source>
-        <translation>Servers</translation>
+        <translation type="vanished">Servers</translation>
     </message>
 </context>
 <context>
@@ -2250,8 +2249,8 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="245"/>
-        <source>Logging</source>
-        <translation>Logging</translation>
+        <source>Diagnostics</source>
+        <translation>Diagnostics</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="246"/>
@@ -2683,13 +2682,13 @@ Already installed containers were found on the server. All installed containers 
     <name>PageSettingsLogging</name>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="50"/>
-        <source>Logging</source>
-        <translation>Logging</translation>
+        <source>Diagnostics</source>
+        <translation>Diagnostics</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="51"/>
-        <source>Enabling this function will save application&apos;s logs automatically. By default, logging functionality is disabled. Enable log saving in case of application malfunction.</source>
-        <translation>Enabling this function will save application&apos;s logs automatically. By default, logging functionality is disabled. Enable log saving in case of application malfunction.</translation>
+        <source>Logs are stored only on this device. Enable log saving in case of application malfunction. By default, logging functionality is disabled.</source>
+        <translation>Logs are stored only on this device. Enable log saving in case of application malfunction. By default, logging functionality is disabled.</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="182"/>
@@ -2996,117 +2995,127 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageSettingsSplitTunneling</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="30"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="31"/>
         <source>Cannot change split tunneling settings during active connection</source>
         <translation>Cannot change split tunneling settings during active connection</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="33"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="34"/>
         <source>Default server does not support split tunneling function</source>
         <translation>Default server does not support split tunneling function</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="66"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="67"/>
         <source>Only the sites listed here will be accessed through the VPN</source>
         <translation>Only the sites listed here will be accessed through the VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="71"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="72"/>
         <source>Addresses from the list should not be accessed via VPN</source>
         <translation>Addresses from the list should not be accessed via VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="102"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="103"/>
         <source>Split tunneling</source>
         <translation>Split tunneling</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="129"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="188"/>
+        <source>Services</source>
+        <translation>Services</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="218"/>
+        <source>Sites</source>
+        <translation>Sites</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="130"/>
         <source>Mode</source>
         <translation>Mode</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="211"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="254"/>
         <source>Remove </source>
         <translation>Remove </translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="212"/>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="362"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="255"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="405"/>
         <source>Continue</source>
         <translation>Continue</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="213"/>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="363"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="256"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="406"/>
         <source>Cancel</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="263"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="306"/>
         <source>website or IP</source>
         <translation>website or IP</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="309"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="352"/>
         <source>Additional options</source>
         <translation>Additional options</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="316"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="359"/>
         <source>Import</source>
         <translation>Import</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="329"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="372"/>
         <source>Save site list</source>
         <translation>Save site list</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="336"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="379"/>
         <source>Save sites</source>
         <translation>Save sites</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="337"/>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="463"/>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="476"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="380"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="506"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="519"/>
         <source>Sites files (*.json)</source>
         <translation>Sites files (*.json)</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="357"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="400"/>
         <source>Clear site list</source>
         <translation>Clear site list</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="360"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="403"/>
         <source>Clear site list?</source>
         <translation>Clear site list?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="361"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="404"/>
         <source>All sites will be removed from list.</source>
         <translation>All sites will be removed from list.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="425"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="468"/>
         <source>Import a list of sites</source>
         <translation>Import a list of sites</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="460"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="503"/>
         <source>Replace site list</source>
         <translation>Replace site list</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="462"/>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="475"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="505"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="518"/>
         <source>Open sites file</source>
         <translation>Open sites file</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="473"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="516"/>
         <source>Add imported sites to existing ones</source>
         <translation>Add imported sites to existing ones</translation>
     </message>

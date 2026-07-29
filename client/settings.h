@@ -187,6 +187,31 @@ public:
         m_settings.setValue("Conf/serversEnvFilter", filter);
     }
 
+    QString splitPresetsVersion() const
+    {
+        return m_settings.value("Conf/splitPresetsVersion", QString()).toString();
+    }
+    void setSplitPresetsVersion(const QString &version)
+    {
+        m_settings.setValue("Conf/splitPresetsVersion", version);
+    }
+    QString splitPresetsCache() const
+    {
+        return m_settings.value("Conf/splitPresetsCache", QString()).toString();
+    }
+    void setSplitPresetsCache(const QString &cache)
+    {
+        m_settings.setValue("Conf/splitPresetsCache", cache);
+    }
+    QStringList splitPresetsEnabled() const
+    {
+        return m_settings.value("Conf/splitPresetsEnabled", QStringList()).toStringList();
+    }
+    void setSplitPresetsEnabled(const QStringList &enabled)
+    {
+        m_settings.setValue("Conf/splitPresetsEnabled", enabled);
+    }
+
     //    static constexpr char openNicNs5[] = "94.103.153.176";
     //    static constexpr char openNicNs13[] = "144.76.103.143";
 
