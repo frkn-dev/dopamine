@@ -47,9 +47,9 @@ PageType {
                 Layout.leftMargin: 16
                 Layout.rightMargin: 16
 
-                headerText: qsTr("Logging")
-                descriptionText: qsTr("Enabling this function will save application's logs automatically. " +
-                                      "By default, logging functionality is disabled. Enable log saving in case of application malfunction.")
+                headerText: qsTr("Diagnostics")
+                descriptionText: qsTr("Logs are stored only on this device. Enable log saving in case of application malfunction. " +
+                                      "By default, logging functionality is disabled.")
             }
 
             SwitcherType {

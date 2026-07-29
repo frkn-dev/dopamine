@@ -14,7 +14,7 @@ Button {
     property string defaultButtonColor: AmneziaStyle.color.slateGray
     property string progressButtonColor: AmneziaStyle.color.deepBrown
     property string connectedButtonColor: AmneziaStyle.color.goldenApricot
-    property string connectedTextColor: "#00FF41"
+    property string connectedTextColor: "#00AEEF"
     property bool buttonActiveFocus: activeFocus && (Qt.platform.os !== "android" || SettingsController.isOnTv())
 
     // set by PageHome when the flying pterodactyl lands on the button

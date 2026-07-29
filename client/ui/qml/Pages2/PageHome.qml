@@ -585,52 +585,53 @@ PageType {
             PropertyAction { target: pterodactyl; property: "opacity"; value: 1 }
 
             ParallelAnimation {
-                NumberAnimation {
+                // loop-the-loop: out to a random side, arc over the top to the other
+                // side, then dive back into the connect button
+                PathAnimation {
                     target: pterodactyl
-                    property: "x"
-                    to: pterodactyl.perchX + pterodactylSideTrip.direction * root.width * 0.45
-                    duration: 550
-                    easing.type: Easing.OutQuad
-                }
-                NumberAnimation {
-                    target: pterodactyl
-                    property: "y"
-                    to: pterodactyl.perchY - root.height * 0.18
-                    duration: 550
-                    easing.type: Easing.OutQuad
-                }
-                NumberAnimation {
-                    target: pterodactyl
-                    property: "rotation"
-                    to: pterodactylSideTrip.direction * 20
-                    duration: 550
-                    easing.type: Easing.OutQuad
-                }
-            }
+                    duration: 1600
+                    easing.type: Easing.InOutSine
+                    anchorPoint: Qt.point(pterodactyl.width / 2, pterodactyl.height / 2)
 
-            PauseAnimation { duration: 150 }
+                    path: Path {
+                        id: tripPath
 
-            ParallelAnimation {
-                NumberAnimation {
-                    target: pterodactyl
-                    property: "x"
-                    to: pterodactyl.perchX
-                    duration: 700
-                    easing.type: Easing.InOutQuad
+                        property real centerX: pterodactyl.perchX + pterodactyl.width / 2
+                        property real centerY: pterodactyl.perchY + pterodactyl.height / 2
+                        property real dir: pterodactylSideTrip.direction
+
+                        startX: centerX
+                        startY: centerY
+
+                        PathQuad {
+                            x: tripPath.centerX + tripPath.dir * root.width * 0.45
+                            y: tripPath.centerY - root.height * 0.16
+                            controlX: tripPath.centerX + tripPath.dir * root.width * 0.3
+                            controlY: tripPath.centerY - root.height * 0.02
+                        }
+
+                        PathCubic {
+                            x: tripPath.centerX - tripPath.dir * root.width * 0.2
+                            y: tripPath.centerY - root.height * 0.34
+                            control1X: tripPath.centerX + tripPath.dir * root.width * 0.5
+                            control1Y: tripPath.centerY - root.height * 0.4
+                            control2X: tripPath.centerX - tripPath.dir * root.width * 0.12
+                            control2Y: tripPath.centerY - root.height * 0.45
+                        }
+
+                        PathQuad {
+                            x: tripPath.centerX
+                            y: tripPath.centerY
+                            controlX: tripPath.centerX - tripPath.dir * root.width * 0.25
+                            controlY: tripPath.centerY - root.height * 0.12
+                        }
+                    }
                 }
-                NumberAnimation {
-                    target: pterodactyl
-                    property: "y"
-                    to: pterodactyl.perchY
-                    duration: 700
-                    easing.type: Easing.InOutQuad
-                }
-                NumberAnimation {
-                    target: pterodactyl
-                    property: "rotation"
-                    to: 0
-                    duration: 700
-                    easing.type: Easing.InOutQuad
+
+                SequentialAnimation {
+                    NumberAnimation { target: pterodactyl; property: "rotation"; from: 0; to: pterodactylSideTrip.direction * 18; duration: 500; easing.type: Easing.InOutSine }
+                    NumberAnimation { target: pterodactyl; property: "rotation"; to: -pterodactylSideTrip.direction * 10; duration: 600; easing.type: Easing.InOutSine }
+                    NumberAnimation { target: pterodactyl; property: "rotation"; to: 0; duration: 500; easing.type: Easing.InOutSine }
                 }
             }
 
