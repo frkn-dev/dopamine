@@ -31,8 +31,16 @@ QVariant ApiAccountInfoModel::data(const QModelIndex &index, int role) const
             return tr("Active");
         }
 
-        return apiUtils::isSubscriptionExpired(m_accountInfoData.subscriptionEndDate) ? tr("<p><a style=\"color: #EB5757;\">Inactive</a>")
-                                                                                      : tr("Active");
+        // empty end date must not read as expired (invalid QDateTime compares as < now)
+        if (!m_accountInfoData.subscriptionEndDate.isEmpty() && apiUtils::isSubscriptionExpired(m_accountInfoData.subscriptionEndDate)) {
+            return tr("<p><a style=\"color: #EB5757;\">Inactive</a>");
+        }
+
+        const QDateTime endDate = QDateTime::fromString(m_accountInfoData.subscriptionEndDate, Qt::ISODateWithMs).toLocalTime();
+        if (endDate.isValid()) {
+            return tr("Active · until %1").arg(endDate.toString("d MMM yyyy"));
+        }
+        return tr("Active");
     }
     case EndDateRole: {
         if (m_accountInfoData.configType == apiDefs::ConfigType::AmneziaFreeV3) {

@@ -77,6 +77,22 @@ PageType {
                 Layout.fillWidth: true
                 Layout.topMargin: -8
 
+                text: qsTr("Subscription ID")
+                descriptionText: ApiConfigsController.subscriptionId !== "" ? ApiConfigsController.subscriptionId : qsTr("not set")
+                rightImageSource: "qrc:/images/controls/copy.svg"
+
+                clickedFunction: function() {
+                    ApiConfigsController.copySubscriptionIdToClipboard()
+                    PageController.showNotificationMessage(qsTr("Subscription ID copied"))
+                }
+            }
+
+            DividerType {}
+
+            LabelWithButtonType {
+                Layout.fillWidth: true
+                Layout.topMargin: -8
+
                 text: qsTr("Clear logs")
                 leftImageSource: "qrc:/images/controls/trash.svg"
                 isSmallLeftImage: true
@@ -179,7 +195,7 @@ PageType {
         id: clientLogs
 
         readonly property string title: qsTr("Client logs")
-        readonly property string description: qsTr("FRKN logs")
+        readonly property string description: qsTr("Dopamine logs")
         readonly property bool isVisible: true
         readonly property var openLogsHandler: function() {
             SettingsController.openLogsFolder()
@@ -208,7 +224,7 @@ PageType {
         id: serviceLogs
 
         readonly property string title: qsTr("Service logs")
-        readonly property string description: qsTr("FRKN-service logs")
+        readonly property string description: qsTr("Dopamine-service logs")
         readonly property bool isVisible: !GC.isMobile() && !IsMacOsNeBuild
         readonly property var openLogsHandler: function() {
             SettingsController.openServiceLogsFolder()

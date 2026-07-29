@@ -151,32 +151,6 @@ PageType {
 
             readonly property bool isVisibleForAmneziaFree: ApiAccountInfoModel.data("isComponentVisible")
 
-            SwitcherType {
-                id: switcher
-
-                readonly property bool isVlessProtocol: ApiConfigsController.isVlessProtocol()
-
-                Layout.fillWidth: true
-                Layout.topMargin: 24
-                Layout.rightMargin: 16
-                Layout.leftMargin: 16
-
-                visible: ApiAccountInfoModel.data("isProtocolSelectionSupported") && !ApiConfigsController.isAwgProtocol()
-
-                text: qsTr("Use VLESS protocol")
-                checked: switcher.isVlessProtocol
-                onToggled: function() {
-                    if (ServersModel.isDefaultServerCurrentlyProcessed() && ConnectionController.isConnected) {
-                        PageController.showNotificationMessage(qsTr("Cannot change protocol during active connection"))
-                    } else {
-                        PageController.showBusyIndicator(true)
-                        ApiConfigsController.setCurrentProtocol(switcher.isVlessProtocol ? "awg" : "vless")
-                        ApiConfigsController.updateServiceFromGateway(ServersModel.processedIndex, "", "", true)
-                        PageController.showBusyIndicator(false)
-                    }
-                }
-            }
-
             WarningType {
                 id: warning
 
@@ -231,43 +205,20 @@ PageType {
             }
 
             LabelWithButtonType {
-                id: vpnKey
-
                 Layout.fillWidth: true
                 Layout.topMargin: warning.visible ? 16 : 32
 
-                visible: footer.isVisibleForAmneziaFree
-
-                text: qsTr("Subscription Key")
-                rightImageSource: "qrc:/images/controls/chevron-right.svg"
-
-                clickedFunction: function() {
-                    PageController.goToPage(PageEnum.PageSettingsApiSubscriptionKey)
-                    PageController.showBusyIndicator(true)
-
-                    ApiConfigsController.prepareVpnKeyExport()
-
-                    PageController.showBusyIndicator(false)
-                }
-            }
-
-            DividerType {
-                visible: footer.isVisibleForAmneziaFree
-            }
-
-            LabelWithButtonType {
-                Layout.fillWidth: true
-
-                visible: footer.isVisibleForAmneziaFree
-
                 text: qsTr("Configuration Files")
 
-                descriptionText: qsTr("Manage configuration files")
+                descriptionText: qsTr("WireGuard configuration file (INI) for routers and other clients")
                 rightImageSource: "qrc:/images/controls/chevron-right.svg"
 
+                visible: ApiConfigsController.getCurrentServerConfigIni() !== ""
+
                 clickedFunction: function() {
-                    ApiSettingsController.updateApiCountryModel()
-                    PageController.goToPage(PageEnum.PageSettingsApiNativeConfigs)
+                    configPopup.text = ApiConfigsController.getCurrentServerConfigIni()
+                    configPopup.titleText = qsTr("Configuration file (INI)")
+                    configPopup.open()
                 }
             }
 
@@ -300,10 +251,11 @@ PageType {
                 Layout.topMargin: footer.isVisibleForAmneziaFree ? 0 : 32
 
                 text: qsTr("Support")
+                descriptionText: "frkn.org/support"
                 rightImageSource: "qrc:/images/controls/chevron-right.svg"
 
                 clickedFunction: function() {
-                    PageController.goToPage(PageEnum.PageSettingsApiSupport)
+                    Qt.openUrlExternally("https://frkn.org/support")
                 }
             }
 
@@ -315,10 +267,11 @@ PageType {
                 visible: footer.isVisibleForAmneziaFree
 
                 text: qsTr("How to connect on another device")
+                descriptionText: "frkn.org/setup"
                 rightImageSource: "qrc:/images/controls/chevron-right.svg"
 
                 clickedFunction: function() {
-                    PageController.goToPage(PageEnum.PageSettingsApiInstructions)
+                    Qt.openUrlExternally("https://frkn.org/setup")
                 }
             }
 
@@ -335,36 +288,6 @@ PageType {
                 clickedFunction: function() {
                     configPopup.text = ApiConfigsController.getCurrentServerConfigJson()
                     configPopup.titleText = qsTr("Raw JSON")
-                    configPopup.open()
-                }
-            }
-
-            DividerType {}
-
-            LabelWithButtonType {
-                Layout.fillWidth: true
-
-                text: qsTr("Show connection options")
-                rightImageSource: "qrc:/images/controls/chevron-right.svg"
-
-                clickedFunction: function() {
-                    configPopup.text = ApiConfigsController.getCurrentServerConfigIni()
-                    configPopup.titleText = qsTr("Connection options %1").arg(ApiConfigsController.isAwgProtocol() ? "AmneziaWG" : "VLESS")
-                    configPopup.open()
-                }
-            }
-
-            DividerType {}
-
-            LabelWithButtonType {
-                Layout.fillWidth: true
-
-                text: qsTr("Show tunnel params")
-                rightImageSource: "qrc:/images/controls/chevron-right.svg"
-
-                clickedFunction: function() {
-                    configPopup.text = ApiConfigsController.getCurrentServerTunnelParams()
-                    configPopup.titleText = qsTr("Tunnel params")
                     configPopup.open()
                 }
             }

@@ -93,24 +93,6 @@ PageType {
                 }
             }
 
-            DividerType {}
-
-            LabelWithButtonType {
-                id: splitTunnelingButton
-
-                Layout.fillWidth: true
-
-                text: qsTr("Site-based split tunneling")
-                descriptionText: qsTr("Allows you to select which sites you want to access through the VPN")
-                rightImageSource: "qrc:/images/controls/chevron-right.svg"
-
-                clickedFunction: function() {
-                    PageController.goToPage(PageEnum.PageSettingsSplitTunneling)
-                }
-            }
-
-            DividerType {}
-
         }
 
         footer: ColumnLayout { // TODO(CyAn84): move to delegate,add DelegateChooser when have migrated to 6.9

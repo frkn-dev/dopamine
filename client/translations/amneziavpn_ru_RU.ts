@@ -53,17 +53,22 @@
     <name>ApiAccountInfoModel</name>
     <message>
         <location filename="../ui/models/api/apiAccountInfoModel.cpp" line="31"/>
-        <location filename="../ui/models/api/apiAccountInfoModel.cpp" line="35"/>
+        <location filename="../ui/models/api/apiAccountInfoModel.cpp" line="43"/>
         <source>Active</source>
         <translation>Активна</translation>
     </message>
     <message>
-        <location filename="../ui/models/api/apiAccountInfoModel.cpp" line="34"/>
+        <location filename="../ui/models/api/apiAccountInfoModel.cpp" line="41"/>
+        <source>Active · until %1</source>
+        <translation>Активна · до %1</translation>
+    </message>
+    <message>
+        <location filename="../ui/models/api/apiAccountInfoModel.cpp" line="36"/>
         <source>&lt;p&gt;&lt;a style=&quot;color: #EB5757;&quot;&gt;Inactive&lt;/a&gt;</source>
         <translation>&lt;p&gt;&lt;a style=&quot;color: #EB5757;&quot;&gt;Неактивна&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/models/api/apiAccountInfoModel.cpp" line="48"/>
+        <location filename="../ui/models/api/apiAccountInfoModel.cpp" line="56"/>
         <source>%1 out of %2</source>
         <translation>%1 из %2</translation>
     </message>
@@ -71,24 +76,24 @@
 <context>
     <name>ApiConfigsController</name>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="876"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1113"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1138"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="905"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1142"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1167"/>
         <source>%1 installed successfully.</source>
         <translation>%1 установлено успешно.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1002"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1031"/>
         <source>Subscription restored successfully.</source>
         <translation>Подписка успешно восстановлена.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1271"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1300"/>
         <source>API config reloaded</source>
         <translation>Конфигурация API перезагружена</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1275"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1304"/>
         <source>Successfully changed the country of connection to %1</source>
         <translation>Страна подключения изменена на %1</translation>
     </message>
@@ -275,6 +280,7 @@
     <name>HomeSplitTunnelingDrawer</name>
     <message>
         <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="34"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="43"/>
         <source>Split tunneling</source>
         <translation>Раздельное VPN-туннелирование</translation>
     </message>
@@ -284,7 +290,7 @@
         <translation>Позволяет подключаться к одним сайтам или приложениям через VPN-соединение, а к другим — в обход него</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="45"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="85"/>
         <source>Split tunneling on the server</source>
         <translation>Раздельное туннелирование на сервере</translation>
     </message>
@@ -295,48 +301,48 @@ Can&apos;t be disabled for current server</source>
 Невозможно отключить для текущего сервера</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="46"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="86"/>
         <source>Enabled 
 Can&apos;t be disabled for current server</source>
         <translation>Включено 
 Невозможно отключить для текущего сервера</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="64"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="104"/>
         <source>Site-based split tunneling</source>
         <translation>Раздельное туннелирование сайтов</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="81"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="121"/>
         <source>Service-based split tunneling</source>
         <translation>Раздельное туннелирование по сервисам</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="60"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="62"/>
         <source>via VPN</source>
         <translation>через VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="68"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="70"/>
         <source>bypass VPN</source>
         <translation>мимо VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="65"/>
-        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="82"/>
-        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="101"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="105"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="122"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="141"/>
         <source>Enabled</source>
         <translation>Включено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="65"/>
-        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="82"/>
-        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="101"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="105"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="122"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="141"/>
         <source>Disabled</source>
         <translation>Отключено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="100"/>
+        <location filename="../ui/qml/Components/HomeSplitTunnelingDrawer.qml" line="140"/>
         <source>App-based split tunneling</source>
         <translation>Раздельное туннелирование приложений</translation>
     </message>
@@ -1984,7 +1990,7 @@ Already installed containers were found on the server. All installed containers 
         <translation type="obsolete">Скорость</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="435"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="358"/>
         <source>Copied</source>
         <translation>Скопировано</translation>
     </message>
@@ -2004,171 +2010,173 @@ Already installed containers were found on the server. All installed containers 
         <translation>Активные подключения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="166"/>
         <source>Use VLESS protocol</source>
-        <translation>Использовать протокол VLESS</translation>
+        <translation type="vanished">Использовать протокол VLESS</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="170"/>
         <source>Cannot change protocol during active connection</source>
-        <translation>Невозможно сменить протокол во время активного подключения</translation>
+        <translation type="vanished">Невозможно сменить протокол во время активного подключения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="190"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="164"/>
         <source>Configurations have been updated for some countries. Download and install the updated configuration files</source>
         <translation>Конфигурации обновлены для некоторых стран. Скачайте и установите обновлённые файлы конфигурации</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="208"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="182"/>
         <source>DNS</source>
         <translation>DNS</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="218"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="192"/>
         <source>MTU</source>
         <translation>MTU</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="228"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="202"/>
         <source>Tunnel IP</source>
         <translation>IP-адрес туннеля</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="241"/>
         <source>Subscription Key</source>
-        <translation>Ключ подписки</translation>
+        <translation type="vanished">Ключ подписки</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="263"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="211"/>
         <source>Configuration Files</source>
         <translation>Файлы конфигурации</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="265"/>
-        <source>Manage configuration files</source>
-        <translation>Управление файлами конфигурации</translation>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="213"/>
+        <source>WireGuard configuration file (INI) for routers and other clients</source>
+        <translation>Конфигурационный файл WireGuard (INI) для роутеров и других клиентов</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="283"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="220"/>
+        <source>Configuration file (INI)</source>
+        <translation>Конфигурационный файл (INI)</translation>
+    </message>
+    <message>
+        <source>Manage configuration files</source>
+        <translation type="vanished">Управление файлами конфигурации</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="234"/>
         <source>Active Devices</source>
         <translation>Активные устройства</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="285"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="236"/>
         <source>Manage currently connected devices</source>
         <translation>Управление подключёнными устройствами</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="302"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="253"/>
         <source>Support</source>
         <translation>Поддержка</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="317"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="269"/>
         <source>How to connect on another device</source>
         <translation>Как подключиться на другом устройстве</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="332"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="285"/>
         <source>Show raw config</source>
         <translation>Показать исходную конфигурацию</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="337"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="290"/>
         <source>Raw JSON</source>
         <translation>Исходный JSON</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="347"/>
         <source>Show connection options</source>
-        <translation>Показать параметры подключения</translation>
+        <translation type="vanished">Показать параметры подключения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="352"/>
         <source>Connection options %1</source>
-        <translation>Параметры подключения %1</translation>
+        <translation type="vanished">Параметры подключения %1</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="362"/>
         <source>Show tunnel params</source>
-        <translation>Показать параметры туннеля</translation>
+        <translation type="vanished">Показать параметры туннеля</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="367"/>
         <source>Tunnel params</source>
-        <translation>Параметры туннеля</translation>
+        <translation type="vanished">Параметры туннеля</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="431"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="354"/>
         <source>Copy</source>
         <translation>Скопировать</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="452"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="375"/>
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="475"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="398"/>
         <source>Reload API config</source>
         <translation>Перезагрузить конфигурацию API</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="478"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="401"/>
         <source>Reload API config?</source>
         <translation>Перезагрузить конфигурацию API?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="479"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="517"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="554"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="402"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="440"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="477"/>
         <source>Continue</source>
         <translation>Продолжить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="480"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="518"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="555"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="403"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="441"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="478"/>
         <source>Cancel</source>
         <translation>Отменить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="484"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="407"/>
         <source>Cannot reload API config during active connection</source>
         <translation>Невозможно перезагрузить конфигурацию API во время активного подключения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="512"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="435"/>
         <source>Unlink this device</source>
         <translation>Отвязать устройство</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="515"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="438"/>
         <source>Are you sure you want to unlink this device?</source>
         <translation>Вы уверены, что хотите отвязать это устройство?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="516"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="439"/>
         <source>This will unlink the device from your subscription. You can reconnect it anytime by pressing&#xa0;&quot;Reload API config&quot; in subscription settings on device.</source>
         <translation>Устройство будет отвязано от подписки. Вы можете подключить его снова, нажав&#xa0;&quot;Перезагрузить конфигурацию API&quot; в настройках подписки на устройстве.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="522"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="445"/>
         <source>Cannot unlink device during active connection</source>
         <translation>Невозможно отвязать устройство во время активного подключения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="550"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="473"/>
         <source>Remove from application</source>
         <translation>Удалить из приложения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="553"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="476"/>
         <source>Remove from application?</source>
         <translation>Удалить из приложения?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="559"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="482"/>
         <source>Cannot remove server during active connection</source>
         <translation>Невозможно удалить сервер во время активного соединения</translation>
     </message>
@@ -2591,17 +2599,17 @@ Already installed containers were found on the server. All installed containers 
         <translation>Позволяет использовать предпочитаемые адреса DNS серверов</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="128"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="110"/>
         <source>Allows you to use the VPN only for certain Apps</source>
         <translation>Позволяет использовать VPN только для определенных приложений</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="146"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="128"/>
         <source>KillSwitch</source>
         <translation>Аварийный выключатель</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="147"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="129"/>
         <source>Blocks network connections without VPN</source>
         <translation>Блокирует сетевые подключения без VPN</translation>
     </message>
@@ -2614,17 +2622,23 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Невозможно изменить настройки аварийного выключателя во время активного соединения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="103"/>
         <source>Site-based split tunneling</source>
-        <translation>Раздельное туннелирование сайтов</translation>
+        <translation type="vanished">Раздельное туннелирование сайтов</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="104"/>
+        <source>Service-based split tunneling</source>
+        <translation type="vanished">Раздельное туннелирование по сервисам</translation>
+    </message>
+    <message>
+        <source>Allows you to select which services you want to access through or bypass the VPN</source>
+        <translation type="vanished">Позволяет выбрать, какие сервисы идут через VPN, а какие — мимо</translation>
+    </message>
+    <message>
         <source>Allows you to select which sites you want to access through the VPN</source>
-        <translation>Позволяет выбирать, к каким сайтам подключаться через VPN</translation>
+        <translation type="vanished">Позволяет выбирать, к каким сайтам подключаться через VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="127"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="109"/>
         <source>App-based split tunneling</source>
         <translation>Раздельное туннелирование приложений</translation>
     </message>
@@ -2849,37 +2863,52 @@ Already installed containers were found on the server. All installed containers 
         <translation>Диагностика</translation>
     </message>
     <message>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="80"/>
+        <source>Subscription ID</source>
+        <translation>ID подписки</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="81"/>
+        <source>not set</source>
+        <translation>не задан</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="86"/>
+        <source>Subscription ID copied</source>
+        <translation>ID подписки скопирован</translation>
+    </message>
+    <message>
         <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="51"/>
         <source>Logs are stored only on this device. Enable log saving in case of application malfunction. By default, logging functionality is disabled.</source>
         <translation>Логи хранятся только на этом устройстве. Включите сохранение логов в случае сбоев в работе приложения. По умолчанию логирование отключено.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="182"/>
-        <source>FRKN logs</source>
-        <translation>Логи FRKN</translation>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="198"/>
+        <source>Dopamine logs</source>
+        <translation>Логи Dopamine</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="192"/>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="218"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="208"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="234"/>
         <source>Save</source>
         <translation>Сохранить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="193"/>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="219"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="209"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="235"/>
         <source>Logs files (*.log)</source>
         <translation>Файлы логов (*.log)</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="202"/>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="227"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="218"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="243"/>
         <source>Logs file saved</source>
         <translation>Файл с логами сохранен</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="211"/>
-        <source>FRKN-service logs</source>
-        <translation>Логи сервиса FRKN</translation>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="227"/>
+        <source>Dopamine-service logs</source>
+        <translation>Логи сервиса Dopamine</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="63"/>
@@ -2887,55 +2916,47 @@ Already installed containers were found on the server. All installed containers 
         <translation>Включить логи</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="85"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="101"/>
         <source>Clear logs?</source>
         <translation>Очистить логи?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="86"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="102"/>
         <source>Continue</source>
         <translation>Продолжить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="87"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="103"/>
         <source>Cancel</source>
         <translation>Отменить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="93"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="109"/>
         <source>Logs have been cleaned up</source>
         <translation>Логи очищены</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="181"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="197"/>
         <source>Client logs</source>
         <translation>Логи клиента</translation>
     </message>
     <message>
-        <source>Dopamine logs</source>
-        <translation type="vanished">Логи FRKN</translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="143"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="159"/>
         <source>Open logs folder</source>
         <translation>Открыть папку с логами</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="157"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="173"/>
         <source>Export logs</source>
         <translation>Выгрузить логи</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="210"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="226"/>
         <source>Service logs</source>
         <translation>Логи сервиса</translation>
     </message>
     <message>
-        <source>Dopamine-service logs</source>
-        <translation type="vanished">Логи сервиса FRKN</translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="80"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="96"/>
         <source>Clear logs</source>
         <translation>Очистить логи</translation>
     </message>
@@ -3189,12 +3210,12 @@ Already installed containers were found on the server. All installed containers 
         <translation>Выбранные сервисы идут противоположно основному соединению: мимо VPN, когда всё идёт через него, или через VPN, когда по умолчанию всё напрямую. Изменения применятся при следующем подключении.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitPresets.qml" line="60"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitPresets.qml" line="61"/>
         <source>Current direction: everything goes through VPN, selected services bypass it</source>
         <translation>Текущее направление: всё идёт через VPN, выбранные сервисы — мимо</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitPresets.qml" line="60"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitPresets.qml" line="62"/>
         <source>Current direction: only selected sites and services go through VPN</source>
         <translation>Текущее направление: через VPN идут только выбранные сайты и сервисы</translation>
     </message>
@@ -3207,7 +3228,7 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">мимо VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitPresets.qml" line="96"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitPresets.qml" line="109"/>
         <source>No services available yet. They will appear after the subscription sync.</source>
         <translation>Сервисы пока недоступны. Они появятся после синхронизации подписки.</translation>
     </message>
@@ -3225,9 +3246,8 @@ Already installed containers were found on the server. All installed containers 
         <translation>Адреса из списка не должны открываться через VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="102"/>
         <source>Split tunneling</source>
-        <translation>Раздельное туннелирование</translation>
+        <translation type="vanished">Раздельное туннелирование</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="102"/>
@@ -3247,29 +3267,28 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">мимо VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="139"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="129"/>
         <source>Sites</source>
         <translation>Сайты</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="155"/>
         <source>Mode</source>
-        <translation>Режим</translation>
+        <translation type="vanished">Режим</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="222"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="165"/>
         <source>Remove </source>
         <translation>Удалить </translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="223"/>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="373"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="166"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="316"/>
         <source>Continue</source>
         <translation>Продолжить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="224"/>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="374"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="167"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="317"/>
         <source>Cancel</source>
         <translation>Отменить</translation>
     </message>
@@ -3288,70 +3307,70 @@ Already installed containers were found on the server. All installed containers 
         <translation>Невозможно изменить настройки раздельного туннелирования во время активного соединения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="274"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="217"/>
         <source>website or IP</source>
         <translation>веб-сайт или IP</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="320"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="263"/>
         <source>Additional options</source>
         <translation>Дополнительные опции</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="327"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="270"/>
         <source>Import</source>
         <translation>Импорт</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="340"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="283"/>
         <source>Save site list</source>
         <translation>Сохранить список сайтов</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="347"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="290"/>
         <source>Save sites</source>
         <translation>Сохранить сайты</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="348"/>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="474"/>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="487"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="291"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="417"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="430"/>
         <source>Sites files (*.json)</source>
         <translation>Файлы сайтов (*.json)</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="368"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="311"/>
         <source>Clear site list</source>
         <translation>Очистить список сайтов</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="371"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="314"/>
         <source>Clear site list?</source>
         <translation>Очистить список сайтов?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="372"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="315"/>
         <source>All sites will be removed from list.</source>
         <translation>Все сайты будут удалены из списка.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="436"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="379"/>
         <source>Import a list of sites</source>
         <translation>Импортировать список с сайтами</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="471"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="414"/>
         <source>Replace site list</source>
         <translation>Заменить список с сайтами</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="473"/>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="486"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="416"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="429"/>
         <source>Open sites file</source>
         <translation>Открыть список с сайтами</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="484"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="427"/>
         <source>Add imported sites to existing ones</source>
         <translation>Добавить импортированные сайты к существующим</translation>
     </message>

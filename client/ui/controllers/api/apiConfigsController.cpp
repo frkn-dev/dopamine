@@ -461,7 +461,30 @@ ApiConfigsController::ApiConfigsController(const QSharedPointer<ServersModel> &s
 
 QString ApiConfigsController::getSubscriptionId() const
 {
-    return m_subscriptionId;
+    return resolveSubscriptionId();
+}
+
+QString ApiConfigsController::resolveSubscriptionId() const
+{
+    if (!m_subscriptionId.isEmpty()) {
+        return m_subscriptionId;
+    }
+    // recover the subscription id from an already imported gateway server
+    for (int i = 0; i < m_serversModel->getServersCount(); ++i) {
+        const QJsonObject serverConfig = m_serversModel->getServerConfig(i);
+        const QJsonObject apiConfig = serverConfig.value(configKey::apiConfig).toObject();
+        if (apiConfig.value("connection_uuid").toString().isEmpty()) {
+            continue;
+        }
+        QString subscriptionId = apiConfig.value(configKey::authData).toObject().value(apiDefs::key::apiKey).toString();
+        if (subscriptionId.isEmpty()) {
+            subscriptionId = serverConfig.value(configKey::authData).toObject().value(apiDefs::key::apiKey).toString();
+        }
+        if (!subscriptionId.isEmpty()) {
+            return subscriptionId;
+        }
+    }
+    return QString();
 }
 
 void ApiConfigsController::setSubscriptionId(const QString &subscriptionId)
@@ -693,6 +716,12 @@ void ApiConfigsController::copyVpnKeyToClipboard()
 {
     auto clipboard = amnApp->getClipboard();
     clipboard->setText(m_vpnKey);
+}
+
+void ApiConfigsController::copySubscriptionIdToClipboard()
+{
+    auto clipboard = amnApp->getClipboard();
+    clipboard->setText(resolveSubscriptionId());
 }
 
 bool ApiConfigsController::fillAvailableServices()
@@ -1480,7 +1509,9 @@ QString ApiConfigsController::getCurrentServerConfigIni()
 
     auto containerObj = containers.at(0).toObject();
     auto containerType = ContainerProps::containerFromString(containerObj.value(config_key::container).toString());
-    QString containerName = ContainerProps::containerTypeToString(containerType);
+    // Use the exact container key from the config (e.g. "amnezia-awg"), not the
+    // display alias from containerTypeToString ("awg") — the JSON is keyed by it.
+    QString containerName = containerObj.value(config_key::container).toString();
     auto protocolConfig = containerObj.value(containerName).toObject();
 
     // For AWG/WireGuard the raw wg-quick INI is stored in the 'config' field.
@@ -1887,25 +1918,7 @@ QVariantList ApiConfigsController::getSubscriptionConfigs() const
 
 bool ApiConfigsController::reloadSubscriptionConfigs()
 {
-    QString subscriptionId = m_subscriptionId;
-
-    if (subscriptionId.isEmpty()) {
-        // recover the subscription id from an already imported gateway server
-        for (int i = 0; i < m_serversModel->getServersCount(); ++i) {
-            const QJsonObject serverConfig = m_serversModel->getServerConfig(i);
-            const QJsonObject apiConfig = serverConfig.value(configKey::apiConfig).toObject();
-            if (apiConfig.value("connection_uuid").toString().isEmpty()) {
-                continue;
-            }
-            subscriptionId = apiConfig.value(configKey::authData).toObject().value(apiDefs::key::apiKey).toString();
-            if (subscriptionId.isEmpty()) {
-                subscriptionId = serverConfig.value(configKey::authData).toObject().value(apiDefs::key::apiKey).toString();
-            }
-            if (!subscriptionId.isEmpty()) {
-                break;
-            }
-        }
-    }
+    const QString subscriptionId = resolveSubscriptionId();
 
     if (subscriptionId.isEmpty()) {
         qWarning() << "[SUBSCRIPTION] reload: no subscription id found";

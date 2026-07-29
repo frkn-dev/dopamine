@@ -49,6 +49,7 @@ public slots:
 
     QString getSubscriptionId() const;
     void setSubscriptionId(const QString &subscriptionId);
+    Q_INVOKABLE void copySubscriptionIdToClipboard();
     Q_INVOKABLE bool createTrial(const QString &email, const QString &referralCode = "WEB");
 
     QString getSelectedServerCountryCode() const;
@@ -111,6 +112,9 @@ private:
     ErrorCode importServiceFromBilling(const QByteArray &responseBody, const bool isTestPurchase);
 
     bool importServiceForCountry(const QString &serverCountryCode, const ProtocolData &protocolData);
+
+    // m_subscriptionId, or recovered from an already imported gateway server
+    QString resolveSubscriptionId() const;
 
     QList<QString> m_qrCodes;
     QString m_vpnKey;
