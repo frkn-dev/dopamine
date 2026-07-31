@@ -380,14 +380,12 @@ void CoreController::initContainerModelUpdateHandler()
     connect(m_serversModel.get(), &ServersModel::gatewayStacksExpanded, this, [this]() {
         if (m_serversModel->hasServersFromGatewayApi()) {
             m_apiNewsController->fetchNews(false);
-            m_splitPresetsModel->fetchPresets();
         }
+        m_splitPresetsModel->fetchPresets();
     });
     m_serversModel->resetModel();
-    // stacks unchanged on app start => no gatewayStacksExpanded; fetch once anyway
-    if (m_serversModel->hasServersFromGatewayApi()) {
-        m_splitPresetsModel->fetchPresets();
-    }
+    // the presets catalog is public — fetch on every app start
+    m_splitPresetsModel->fetchPresets();
 }
 
 void CoreController::initAdminConfigRevokedHandler()

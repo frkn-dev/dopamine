@@ -64,15 +64,8 @@ void SplitPresetsModel::setRouteMode(int routeMode)
 
 void SplitPresetsModel::fetchPresets()
 {
-    if (m_serversModel.isNull()) {
-        return;
-    }
-    const auto stacks = m_serversModel->gatewayStacks();
-    if (stacks.isEmpty()) {
-        qDebug() << "[PRESETS] skip fetch: no gateway stacks";
-        return;
-    }
-
+    // the presets catalog is public (no auth, like news) — no gateway stacks
+    // required: users with manually added configs must get presets too
     qDebug() << "[PRESETS] fetching, cached version:" << m_version;
 
     auto gatewayController = QSharedPointer<GatewayController>::create(m_settings->getGatewayEndpoint(), m_settings->isDevGatewayEnv(),
