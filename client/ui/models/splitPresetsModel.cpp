@@ -69,8 +69,11 @@ void SplitPresetsModel::fetchPresets()
     }
     const auto stacks = m_serversModel->gatewayStacks();
     if (stacks.isEmpty()) {
+        qDebug() << "[PRESETS] skip fetch: no gateway stacks";
         return;
     }
+
+    qDebug() << "[PRESETS] fetching, cached version:" << m_version;
 
     auto gatewayController = QSharedPointer<GatewayController>::create(m_settings->getGatewayEndpoint(), m_settings->isDevGatewayEnv(),
                                                                        apiDefs::requestTimeoutMsecs, m_settings->isStrictKillSwitchEnabled());
@@ -84,6 +87,7 @@ void SplitPresetsModel::fetchPresets()
     future.then(this, [this, gatewayController](QPair<ErrorCode, QByteArray> result) {
         const auto [errorCode, responseBody] = result;
         if (errorCode != ErrorCode::NoError) {
+            qWarning() << "[PRESETS] fetch failed:" << static_cast<int>(errorCode);
             // silent: cached presets stay in effect
             emit fetchPresetsFinished();
             return;
@@ -92,6 +96,7 @@ void SplitPresetsModel::fetchPresets()
         const QJsonObject obj = QJsonDocument::fromJson(responseBody).object();
         const QString newVersion = obj.value("version").toString();
         const QJsonArray presetsArray = obj.value("presets").toArray();
+        qDebug() << "[PRESETS] response: version" << newVersion << "count" << presetsArray.size();
 
         // empty list with the same version = cache is still valid
         if (!newVersion.isEmpty() && newVersion == m_version && presetsArray.isEmpty()) {

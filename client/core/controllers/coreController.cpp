@@ -384,6 +384,10 @@ void CoreController::initContainerModelUpdateHandler()
         }
     });
     m_serversModel->resetModel();
+    // stacks unchanged on app start => no gatewayStacksExpanded; fetch once anyway
+    if (m_serversModel->hasServersFromGatewayApi()) {
+        m_splitPresetsModel->fetchPresets();
+    }
 }
 
 void CoreController::initAdminConfigRevokedHandler()
