@@ -399,14 +399,33 @@ void VpnConnection::appendSplitTunnelingConfig()
                     presetDomains.append(domain);
                 }
             }
+
+            // The network extension routes by IP: resolve preset domains (manual
+            // sites are already stored resolved).
+            QJsonArray presetIps;
+            for (const auto &domainValue : presetDomains) {
+                const QString domain = domainValue.toString();
+                if (NetworkUtilities::checkIpSubnetFormat(domain)) {
+                    presetIps.append(domain);
+                    continue;
+                }
+                const QHostInfo hostInfo = QHostInfo::fromName(domain);
+                for (const auto &addr : hostInfo.addresses()) {
+                    if (addr.protocol() == QAbstractSocket::IPv4Protocol) {
+                        presetIps.append(addr.toString());
+                        break;
+                    }
+                }
+            }
+
             // default-direct base => presets go via VPN; default-VPN base => presets bypass
             if (routeMode == Settings::VpnOnlyForwardSites) {
-                for (const auto &domain : presetDomains) {
-                    includeSitesJsonArray.append(domain);
+                for (const auto &ip : presetIps) {
+                    includeSitesJsonArray.append(ip);
                 }
             } else {
-                for (const auto &domain : presetDomains) {
-                    excludeSitesJsonArray.append(domain);
+                for (const auto &ip : presetIps) {
+                    excludeSitesJsonArray.append(ip);
                 }
             }
         }
