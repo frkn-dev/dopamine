@@ -11,7 +11,8 @@ SplitPresetsModel::SplitPresetsModel(std::shared_ptr<Settings> settings, const Q
                                      QObject *parent)
     : QAbstractListModel(parent), m_settings(settings), m_serversModel(serversModel)
 {
-    m_enabledPresets = QSet<QString>(m_settings->splitPresetsEnabled().begin(), m_settings->splitPresetsEnabled().end());
+    const QStringList enabled = m_settings->splitPresetsEnabled();
+    m_enabledPresets = QSet<QString>(enabled.begin(), enabled.end());
     loadFromCache();
 }
 

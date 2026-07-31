@@ -266,19 +266,19 @@ ListViewType {
                     descriptionText: serverDescription
 
                     checked: index === proxyServersModel.mapFromSource(root.selectedIndex)
-                    checkable: !ConnectionController.isConnected
+                    checkable: true
 
                     ButtonGroup.group: serversRadioButtonGroup
 
                     onClicked: {
-                        if (ConnectionController.isConnected) {
-                            PageController.showNotificationMessage(qsTr("Unable change server while there is an active connection"))
-                            return
-                        }
-
                         root.selectedIndex = proxyServersModel.mapToSource(index)
 
                         ServersModel.defaultIndex = root.selectedIndex
+
+                        // connected already — reconnect to the newly selected server
+                        if (ConnectionController.isConnected) {
+                            ConnectionController.openConnection()
+                        }
                     }
 
                     Keys.onEnterPressed: serverRadioButton.clicked()

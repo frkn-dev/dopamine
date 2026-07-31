@@ -48,31 +48,28 @@ DrawerType2 {
             }
         }
 
-        Row {
+        FilterDropDown {
+            Layout.fillWidth: true
             Layout.topMargin: 4
             Layout.leftMargin: 16
+            Layout.rightMargin: 16
             Layout.bottomMargin: 8
-            spacing: 8
 
-            ButtonGroup {
-                id: routeModeGroup
-            }
+            filterModel: routeModeModel
+            currentValue: SitesModel.routeMode === 2 ? "bypass" : "via"
 
-            HorizontalRadioButton {
-                text: qsTr("via VPN")
-                checkable: true
-                checked: SitesModel.routeMode !== 2
-                ButtonGroup.group: routeModeGroup
-                onClicked: SitesModel.routeMode = 1
+            onSelected: function(value) {
+                SitesModel.routeMode = value === "bypass" ? 2 : 1
             }
+        }
 
-            HorizontalRadioButton {
-                text: qsTr("bypass VPN")
-                checkable: true
-                checked: SitesModel.routeMode === 2
-                ButtonGroup.group: routeModeGroup
-                onClicked: SitesModel.routeMode = 2
-            }
+        ListModel {
+            id: routeModeModel
+        }
+
+        Component.onCompleted: {
+            routeModeModel.append({ "name": qsTr("via VPN"), "value": "via" })
+            routeModeModel.append({ "name": qsTr("bypass VPN"), "value": "bypass" })
         }
 
         LabelWithButtonType {
