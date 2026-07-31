@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25.0 FATAL_ERROR)
 
 set(PROJECT Dopamine)
-set(DOPAMINE_VERSION 4.8.14.26)
+set(DOPAMINE_VERSION 4.8.14.27)
 
 project(${PROJECT} VERSION ${DOPAMINE_VERSION}
         DESCRIPTION "Dopamine by FRKN"
