@@ -26,10 +26,9 @@ PageType {
     property bool pageEnabled
 
     Component.onCompleted: {
-        if (ConnectionController.isConnected) {
-            PageController.showNotificationMessage(qsTr("Cannot change split tunneling settings during active connection"))
-            root.pageEnabled = false
-        } else if (ServersModel.isDefaultServerDefaultContainerHasSplitTunneling) {
+        // split tunneling settings are safe to edit while connected —
+        // they are baked into the tunnel config on the next connect
+        if (ServersModel.isDefaultServerDefaultContainerHasSplitTunneling) {
             PageController.showNotificationMessage(qsTr("Default server does not support split tunneling function"))
             root.pageEnabled = false
         } else {
@@ -101,6 +100,17 @@ PageType {
 
             headerText: qsTr("Site-based split tunneling")
             descriptionText: root.routeModesModel[root.getRouteModesModelIndex()].name
+        }
+
+        CaptionTextType {
+            Layout.fillWidth: true
+            Layout.topMargin: 8
+            Layout.leftMargin: 16
+            Layout.rightMargin: 16
+
+            visible: ConnectionController.isConnected
+            color: AmneziaStyle.color.mutedGray
+            text: qsTr("VPN is connected — changes will apply on the next connection")
         }
     }
 

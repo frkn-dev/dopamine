@@ -20,12 +20,8 @@ PageType {
 
     Component.onCompleted: {
         SplitPresetsModel.fetchPresets()
-        if (ConnectionController.isConnected) {
-            PageController.showNotificationMessage(qsTr("Cannot change split tunneling settings during active connection"))
-            root.pageEnabled = false
-        } else {
-            root.pageEnabled = true
-        }
+        // safe to edit while connected — applies on the next connect
+        root.pageEnabled = true
     }
 
     ColumnLayout {
@@ -48,6 +44,17 @@ PageType {
 
             headerText: qsTr("Service-based split tunneling")
             descriptionText: qsTr("Selected services are routed opposite to the default connection: bypass VPN when everything goes through it, or via VPN when the default is direct. Changes apply on the next connection.")
+        }
+
+        CaptionTextType {
+            Layout.fillWidth: true
+            Layout.topMargin: 8
+            Layout.leftMargin: 16
+            Layout.rightMargin: 16
+
+            visible: ConnectionController.isConnected
+            color: AmneziaStyle.color.mutedGray
+            text: qsTr("VPN is connected — changes will apply on the next connection")
         }
 
         CaptionTextType {
