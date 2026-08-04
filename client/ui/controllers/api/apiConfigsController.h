@@ -59,7 +59,7 @@ public slots:
     void setImportAllCountries(bool importAll);
 
     bool updateServiceFromGateway(const int serverIndex, const QString &newCountryCode, const QString &newCountryName,
-                                  bool reloadServiceConfig = false);
+                                  bool reloadServiceConfig = false, bool silent = false);
     bool updateServiceFromTelegram(const int serverIndex);
     bool deactivateDevice(const bool isRemoveEvent);
     bool deactivateExternalDevice(const QString &uuid, const QString &serverCountryCode);

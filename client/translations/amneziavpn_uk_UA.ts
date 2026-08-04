@@ -88,12 +88,12 @@
         <translation>Підписку успішно відновлено.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1300"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1302"/>
         <source>API config reloaded</source>
         <translation>Конфігурацію API перезавантажено</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1304"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1306"/>
         <source>Successfully changed the country of connection to %1</source>
         <translation>Країну підключення змінено на %1</translation>
     </message>
@@ -5452,25 +5452,30 @@ This means that AmneziaWG keeps the fast performance of the original while addin
 <context>
     <name>ServersListView</name>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="41"/>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="80"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="60"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="99"/>
         <source>All</source>
         <translation>Всі</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="83"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="102"/>
         <source>White Elephants</source>
         <translation>Білі Слони</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="86"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="105"/>
         <source>Regular</source>
         <translation>Основний</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="89"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="108"/>
         <source>Reverse</source>
         <translation>Зворотний</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="317"/>
+        <source>offline</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Protocol</source>

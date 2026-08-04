@@ -88,12 +88,12 @@
         <translation>Subscription restored successfully.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1300"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1302"/>
         <source>API config reloaded</source>
         <translation>API config reloaded</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1304"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1306"/>
         <source>Successfully changed the country of connection to %1</source>
         <translation>Successfully changed the country of connection to %1</translation>
     </message>
@@ -5342,25 +5342,30 @@ For more detailed information, you can
 <context>
     <name>ServersListView</name>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="41"/>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="80"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="60"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="99"/>
         <source>All</source>
         <translation>All</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="83"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="102"/>
         <source>White Elephants</source>
         <translation>White Elephants</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="86"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="105"/>
         <source>Regular</source>
         <translation>Regular</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="89"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="108"/>
         <source>Reverse</source>
         <translation>Reverse</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="317"/>
+        <source>offline</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Protocol</source>

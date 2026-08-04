@@ -1173,7 +1173,7 @@ bool ApiConfigsController::importServiceFromGateway()
 }
 
 bool ApiConfigsController::updateServiceFromGateway(const int serverIndex, const QString &newCountryCode, const QString &newCountryName,
-                                                    bool reloadServiceConfig)
+                                                    bool reloadServiceConfig, bool silent)
 {
     auto serverConfig = m_serversModel->getServerConfig(serverIndex);
     auto apiConfig = serverConfig.value(configKey::apiConfig).toObject();
@@ -1263,7 +1263,9 @@ bool ApiConfigsController::updateServiceFromGateway(const int serverIndex, const
     if (errorCode == ErrorCode::NoError) {
         errorCode = fillServerConfig(gatewayRequestData.serviceProtocol, protocolData, responseBody, newServerConfig);
         if (errorCode != ErrorCode::NoError) {
-            emit errorOccurred(errorCode);
+            if (!silent) {
+                emit errorOccurred(errorCode);
+            }
             return false;
         }
 
@@ -1305,7 +1307,9 @@ bool ApiConfigsController::updateServiceFromGateway(const int serverIndex, const
         }
         return true;
     } else {
-        emit errorOccurred(errorCode);
+        if (!silent) {
+            emit errorOccurred(errorCode);
+        }
         return false;
     }
 }
@@ -1450,7 +1454,15 @@ bool ApiConfigsController::isConfigValid()
     } else if (configSource && m_serversModel->isApiKeyExpired(serverIndex)) {
         qDebug() << "[IS CONFIG VALID] updating by expires_at event";
         if (configSource == apiDefs::ConfigSource::AmneziaGateway) {
-            return updateServiceFromGateway(serverIndex, "", "");
+            const bool hasInstalledConfig = m_serversModel->data(serverIndex, ServersModel::Roles::HasInstalledContainers).toBool();
+            const bool updated = updateServiceFromGateway(serverIndex, "", "", false, hasInstalledConfig);
+            if (!updated && hasInstalledConfig) {
+                // the API is unreachable but a usable config is already installed —
+                // connect with it instead of showing an error
+                qWarning() << "[IS CONFIG VALID] config refresh failed, falling back to the installed config";
+                return true;
+            }
+            return updated;
         } else {
             m_serversModel->removeApiConfig(serverIndex);
             return updateServiceFromTelegram(serverIndex);
