@@ -7,7 +7,7 @@
 #include "core/networkUtilities.h"
 
 #if defined(Q_OS_IOS) || defined(MACOS_NE)
-    #include <AmneziaVPN-Swift.h>
+    #include <Dopamine-Swift.h>
 #endif
 
 #include "core/api/apiUtils.h"
@@ -191,6 +191,10 @@ QVariant ServersModel::data(const QModelIndex &index, int role) const
             countryCode = server.value(QStringLiteral("displayInfo")).toObject().value(QStringLiteral("countryCode")).toString();
         }
         return countryCode.toUpper();
+    }
+    case HealthLatencyRole: {
+        // >=0 latency ms, -1 offline, -2 unknown (not probed yet)
+        return m_healthResults.value(server.value(config_key::hostName).toString(), -2);
     }
     case HasAmneziaDns: {
         QString primaryDns = server.value(config_key::dns1).toString();
@@ -511,6 +515,7 @@ QHash<int, QByteArray> ServersModel::roleNames() const
     roles[ServiceProtocolRole] = "serviceProtocol";
     roles[ConnectionEnvRole] = "connectionEnv";
     roles[CountryCodeRole] = "countryCode";
+    roles[HealthLatencyRole] = "healthLatency";
 
     return roles;
 }
@@ -1084,6 +1089,28 @@ QStringList ServersModel::availableProtocols() const
 QStringList ServersModel::availableEnvs() const
 {
     return m_availableEnvs;
+}
+
+void ServersModel::setHealthResult(const QString &serverKey, int latencyMs)
+{
+    m_healthResults.insert(serverKey, latencyMs);
+    for (int i = 0; i < m_servers.size(); ++i) {
+        if (m_servers.at(i).toObject().value(config_key::hostName).toString() == serverKey) {
+            const QModelIndex modelIndex = index(i);
+            emit dataChanged(modelIndex, modelIndex, { HealthLatencyRole });
+        }
+    }
+}
+
+void ServersModel::clearHealthResults()
+{
+    if (m_healthResults.isEmpty()) {
+        return;
+    }
+    m_healthResults.clear();
+    if (!m_servers.isEmpty()) {
+        emit dataChanged(index(0), index(m_servers.size() - 1), { HealthLatencyRole });
+    }
 }
 
 void ServersModel::recomputeAvailableEnvs()

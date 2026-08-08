@@ -17,6 +17,7 @@
 #include "ui/controllers/connectionController.h"
 #include "ui/controllers/exportController.h"
 #include "ui/controllers/focusController.h"
+#include "ui/controllers/healthCheckController.h"
 #include "ui/controllers/importController.h"
 #include "ui/controllers/installController.h"
 #include "ui/controllers/pageController.h"
@@ -130,6 +131,7 @@ private:
     QSharedPointer<SitesModel> m_sitesModel;
     QSharedPointer<NewsModel> m_newsModel;
     QSharedPointer<SplitPresetsModel> m_splitPresetsModel;
+    QSharedPointer<HealthCheckController> m_healthCheckController;
     QSharedPointer<AllowedDnsModel> m_allowedDnsModel;
     QSharedPointer<AppSplitTunnelingModel> m_appSplitTunnelingModel;
     QSharedPointer<ClientManagementModel> m_clientManagementModel;

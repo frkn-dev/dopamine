@@ -317,7 +317,7 @@ PageType {
 
         property string title: qsTr("VPN by FRKN")
         property string description: qsTr("Connect to classic paid and free VPN services from FRKN")
-        property string imageSource: "qrc:/images/controls/amnezia.svg"
+        property string imageSource: "qrc:/images/controls/app.svg"
         property bool isVisible: true
         property var handler: function() {
             PageController.showBusyIndicator(true)

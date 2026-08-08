@@ -30,6 +30,25 @@ ListViewType {
     anchors.bottom: parent.bottom
     anchors.topMargin: 16
 
+    Component.onCompleted: {
+        const saved = SettingsController.serversProtocolFilter
+        if (saved !== "") {
+            root.protocolFilterTouched = true
+            root.protocolFilter = saved === "all" ? "" : saved
+        }
+        const savedEnv = SettingsController.serversEnvFilter
+        if (savedEnv !== "") {
+            root.envFilter = savedEnv === "all" ? "" : savedEnv
+        }
+        rebuildProtocolsModel()
+        rebuildEnvsModel()
+
+        // probing is meaningful only with VPN off (see healthcheck research)
+        if (!ConnectionController.isConnected) {
+            HealthCheckController.startProbe()
+        }
+    }
+
     function flagCountryCode(cc) {
         // backend sometimes sends non-ISO codes
         const aliases = { "SWE": "SE", "HEL": "FI", "UK": "GB" }
@@ -109,22 +128,8 @@ ListViewType {
         id: envsModel
     }
 
-    Component.onCompleted: {
-        const saved = SettingsController.serversProtocolFilter
-        if (saved !== "") {
-            root.protocolFilterTouched = true
-            root.protocolFilter = saved === "all" ? "" : saved
-        }
-        const savedEnv = SettingsController.serversEnvFilter
-        if (savedEnv !== "") {
-            root.envFilter = savedEnv === "all" ? "" : savedEnv
-        }
-        rebuildProtocolsModel()
-        rebuildEnvsModel()
-    }
-
     header: Item {
-        visible: ServersModel.availableProtocols.length > 1 || ServersModel.availableEnvs.length > 1
+        visible: true
         width: root.width
         height: visible ? filtersRow.implicitHeight + 8 : 0
 
@@ -170,6 +175,22 @@ ListViewType {
                     root.envFilter = value
                     SettingsController.serversEnvFilter = value === "" ? "all" : value
                 }
+            }
+
+            ImageButtonType {
+                id: refreshHealthButton
+
+                Layout.alignment: Qt.AlignVCenter
+
+                implicitWidth: 48
+                implicitHeight: 48
+
+                image: "qrc:/images/controls/gauge.svg"
+                imageColor: AmneziaStyle.color.paleGray
+
+                visible: !ConnectionController.isConnected
+
+                onClicked: HealthCheckController.startProbe(true)
             }
         }
     }
@@ -283,6 +304,53 @@ ListViewType {
 
                     Keys.onEnterPressed: serverRadioButton.clicked()
                     Keys.onReturnPressed: serverRadioButton.clicked()
+                }
+
+                RowLayout {
+                    objectName: "serverHealthBadge"
+
+                    Layout.alignment: Qt.AlignVCenter
+                    Layout.rightMargin: 8
+                    spacing: 6
+
+                    visible: healthLatency !== -2
+
+                    Rectangle {
+                        Layout.alignment: Qt.AlignVCenter
+                        width: 10
+                        height: 10
+                        radius: 5
+
+                        visible: healthLatency >= 0
+
+                        color: healthLatency < 120 ? "#34C759" : (healthLatency < 300 ? "#FF9F0A" : "#FF453A")
+                    }
+
+                    Image {
+                        Layout.alignment: Qt.AlignVCenter
+                        sourceSize.width: 12
+                        sourceSize.height: 12
+
+                        visible: healthLatency === -1
+
+                        source: "qrc:/images/controls/close.svg"
+
+                        layer.enabled: true
+                        layer.effect: ColorOverlay {
+                            color: "#FF453A"
+                        }
+                    }
+
+                    CaptionTextType {
+                        Layout.alignment: Qt.AlignVCenter
+
+                        visible: SettingsController.isServerPingTextVisible
+
+                        text: healthLatency >= 0 ? healthLatency + " ms" : qsTr("offline")
+                        color: healthLatency >= 0
+                               ? (healthLatency < 120 ? "#34C759" : (healthLatency < 300 ? "#FF9F0A" : "#FF453A"))
+                               : AmneziaStyle.color.vibrantRed
+                    }
                 }
 
                 ImageButtonType {

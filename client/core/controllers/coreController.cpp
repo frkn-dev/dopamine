@@ -11,7 +11,7 @@
 
 #if defined(Q_OS_IOS)
     #include "platforms/ios/ios_controller.h"
-    #include <AmneziaVPN-Swift.h>
+    #include <Dopamine-Swift.h>
 #endif
 
 namespace
@@ -209,6 +209,9 @@ void CoreController::initControllers()
 
     m_splitPresetsModel.reset(new SplitPresetsModel(m_settings, m_serversModel, this));
     m_engine->rootContext()->setContextProperty("SplitPresetsModel", m_splitPresetsModel.get());
+
+    m_healthCheckController.reset(new HealthCheckController(m_serversModel, this));
+    m_engine->rootContext()->setContextProperty("HealthCheckController", m_healthCheckController.get());
 }
 
 void CoreController::initAndroidController()
@@ -386,6 +389,8 @@ void CoreController::initContainerModelUpdateHandler()
     m_serversModel->resetModel();
     // the presets catalog is public — fetch on every app start
     m_splitPresetsModel->fetchPresets();
+    // pick up backend-side config changes (e.g. node IP updates) — throttled inside
+    m_apiConfigsController->refreshSubscriptionConfigs();
 }
 
 void CoreController::initAdminConfigRevokedHandler()

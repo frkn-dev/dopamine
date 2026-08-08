@@ -18,6 +18,7 @@ find_library(FW_STOREKIT StoreKit)
 find_library(FW_USERNOTIFICATIONS UserNotifications)
 find_library(FW_NETWORKEXTENSION NetworkExtension)
 find_library(FW_COREMOTION CoreMotion)
+find_library(FW_LIBRESOLV libresolv.9.tbd)
 
 set(LIBS ${LIBS}
     ${FW_AUTHENTICATIONSERVICES}
@@ -28,6 +29,7 @@ set(LIBS ${LIBS}
     ${FW_USERNOTIFICATIONS}
     ${FW_NETWORKEXTENSION}
     ${FW_COREMOTION}
+    ${FW_LIBRESOLV}
 )
 
 
@@ -103,7 +105,7 @@ set_target_properties(${PROJECT} PROPERTIES
     XCODE_ATTRIBUTE_SWIFT_VERSION "5.0"
     XCODE_ATTRIBUTE_CLANG_ENABLE_MODULES "YES"
     XCODE_ATTRIBUTE_SWIFT_PRECOMPILE_BRIDGING_HEADER "NO"
-    XCODE_ATTRIBUTE_SWIFT_OBJC_INTERFACE_HEADER_NAME "AmneziaVPN-Swift.h"
+    XCODE_ATTRIBUTE_SWIFT_OBJC_INTERFACE_HEADER_NAME "Dopamine-Swift.h"
     XCODE_ATTRIBUTE_SWIFT_OBJC_INTEROP_MODE "objcxx"
 )
 set_target_properties(${PROJECT} PROPERTIES
@@ -148,4 +150,7 @@ set_property(TARGET ${PROJECT} PROPERTY XCODE_EMBED_FRAMEWORKS
 
 set(CMAKE_XCODE_ATTRIBUTE_FRAMEWORK_SEARCH_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/3rd-prebuilt/3rd-prebuilt/openvpn/apple/OpenVPNAdapter-ios/)
 target_link_libraries("networkextension" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/3rd-prebuilt/3rd-prebuilt/openvpn/apple/OpenVPNAdapter-ios/OpenVPNAdapter.framework")
+
+# WG/AWG handshake probe (server health check) runs in the app process
+target_link_libraries(${PROJECT} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/3rd-prebuilt/3rd-prebuilt/wireguard/ios/arm64/libwg-go.a)
 

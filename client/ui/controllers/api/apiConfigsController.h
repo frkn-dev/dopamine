@@ -60,6 +60,9 @@ public slots:
 
     bool updateServiceFromGateway(const int serverIndex, const QString &newCountryCode, const QString &newCountryName,
                                   bool reloadServiceConfig = false, bool silent = false);
+    // Silently refreshes gateway-issued server configs (throttled, called on app start)
+    // so backend-side changes like a node IP update reach the client.
+    void refreshSubscriptionConfigs();
     bool updateServiceFromTelegram(const int serverIndex);
     bool deactivateDevice(const bool isRemoveEvent);
     bool deactivateExternalDevice(const QString &uuid, const QString &serverCountryCode);
@@ -116,6 +119,8 @@ private:
     // m_subscriptionId, or recovered from an already imported gateway server
     QString resolveSubscriptionId() const;
 
+    void processNextSubscriptionRefresh();
+
     QList<QString> m_qrCodes;
     QString m_vpnKey;
 
@@ -126,6 +131,8 @@ private:
     QString m_subscriptionId;
     QString m_selectedServerCountryCode;
     bool m_importAllCountries = false;
+
+    QList<int> m_pendingSubscriptionRefresh;
 
     QJsonArray m_subscriptionConfigs;
 

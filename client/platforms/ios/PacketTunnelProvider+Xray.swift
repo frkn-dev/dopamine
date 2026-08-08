@@ -9,6 +9,7 @@ enum XrayErrors: Error {
     case cantParseListenAndPort
     case cantAcquireLocalPort
     case cantSaveHevSocksConfig
+    case xrayStartFailed
 }
 
 extension Constants {
@@ -336,9 +337,18 @@ extension PacketTunnelProvider {
         }
         LibXraySetSockCallback(cb, ctx)
 
-        LibXrayRunXray(nil,
-                       path,
-                       Int64.max)
+        // RunXray returns an empty C string on success and the error message on
+        // failure (e.g. a config the core rejects). Without this check the tunnel
+        // reported "connected" while xray never started and no traffic flowed.
+        if let result = LibXrayRunXray(nil, path, Int64.max) {
+            let message = String(cString: result)
+            free(result)
+            if !message.isEmpty {
+                xrayLog(.error, message: "LibXrayRunXray failed: \(message)")
+                completionHandler(XrayErrors.xrayStartFailed)
+                return
+            }
+        }
 
         completionHandler(nil)
         xrayLog(.info, message: "Xray started")

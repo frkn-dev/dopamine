@@ -7,6 +7,7 @@ find_library(FW_COREWLAN CoreWLAN)
 find_library(FW_NETWORK Network)
 find_library(FW_USER_NOTIFICATIONS UserNotifications)
 find_library(FW_NETWORK_EXTENSION NetworkExtension)
+find_library(FW_LIBRESOLV libresolv.9.tbd)
 
 set(LIBS ${LIBS}
     ${FW_SYSTEMCONFIG}
@@ -16,6 +17,7 @@ set(LIBS ${LIBS}
     ${FW_NETWORK}
     ${FW_USER_NOTIFICATIONS}
     ${FW_NETWORK_EXTENSION}
+    ${FW_LIBRESOLV}
 )
 
 set_target_properties(${PROJECT} PROPERTIES
@@ -58,4 +60,7 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 message("OSX_SDK_PATH is: ${OSX_SDK_PATH}")
+
+# WG/AWG handshake probe (server health check) runs in the app process
+target_link_libraries(${PROJECT} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/3rd-prebuilt/3rd-prebuilt/wireguard/macos/universal2/libwg-go.a)
 

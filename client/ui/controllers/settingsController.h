@@ -23,6 +23,7 @@ public:
     Q_PROPERTY(QString primaryDns READ getPrimaryDns WRITE setPrimaryDns NOTIFY primaryDnsChanged)
     Q_PROPERTY(QString secondaryDns READ getSecondaryDns WRITE setSecondaryDns NOTIFY secondaryDnsChanged)
     Q_PROPERTY(bool isLoggingEnabled READ isLoggingEnabled WRITE toggleLogging NOTIFY loggingStateChanged)
+    Q_PROPERTY(bool isServerPingTextVisible READ isServerPingTextVisible WRITE setServerPingTextVisible NOTIFY serverPingTextVisibleChanged)
     Q_PROPERTY(bool isNotificationPermissionGranted READ isNotificationPermissionGranted NOTIFY onNotificationStateChanged)
     Q_PROPERTY(bool isKillSwitchEnabled READ isKillSwitchEnabled WRITE toggleKillSwitch NOTIFY killSwitchEnabledChanged)
     Q_PROPERTY(bool strictKillSwitchEnabled READ isStrictKillSwitchEnabled WRITE toggleStrictKillSwitch NOTIFY strictKillSwitchEnabledChanged)
@@ -51,6 +52,9 @@ public slots:
 
     bool isLoggingEnabled();
     void toggleLogging(bool enable);
+
+    bool isServerPingTextVisible();
+    void setServerPingTextVisible(bool visible);
 
     void openLogsFolder();
     void openServiceLogsFolder();
@@ -127,6 +131,7 @@ signals:
     void primaryDnsChanged();
     void secondaryDnsChanged();
     void loggingStateChanged();
+    void serverPingTextVisibleChanged();
     void killSwitchEnabledChanged();
     void strictKillSwitchEnabledChanged(bool enabled);
 

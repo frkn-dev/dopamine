@@ -11,6 +11,7 @@
 #include "ui/controllers/systemController.h"
 #include "version.h"
 #include <QClipboard>
+#include <QDateTime>
 #include <QDebug>
 #include <QEventLoop>
 #include <QNetworkAccessManager>
@@ -18,6 +19,7 @@
 #include <QNetworkRequest>
 #include <QRegularExpression>
 #include <QSet>
+#include <QTimer>
 
 #include "platforms/ios/ios_controller.h"
 
@@ -1249,6 +1251,20 @@ bool ApiConfigsController::updateServiceFromGateway(const int serverIndex, const
     }
 
     QJsonObject apiPayload = gatewayRequestData.toJsonObject();
+    // Pin the exact node on refresh/reconnect: without connection_id the backend picks
+    // any node matching (protocol, country) and two same-country servers end up with
+    // each other's configs (server card shows one IP, the stored config has another).
+    // Not sent on explicit country change — there a different node is the whole point.
+    const QString connectionUuid = apiConfig.value(QStringLiteral("connection_uuid")).toString();
+    if (!connectionUuid.isEmpty() && newCountryCode.isEmpty()) {
+        apiPayload.insert(QStringLiteral("connection_id"), connectionUuid);
+    }
+    // node_id (gateway v0.6.19+): connection_uuid alone is shared by all nodes of one
+    // (env, protocol) group — pin the exact node. Survives refreshes via the apiConfig merge.
+    const QString nodeId = apiConfig.value(QStringLiteral("node_id")).toString();
+    if (!nodeId.isEmpty() && newCountryCode.isEmpty()) {
+        apiPayload.insert(QStringLiteral("node_id"), nodeId);
+    }
     appendProtocolDataToApiPayload(gatewayRequestData.serviceProtocol, protocolData, apiPayload);
 
     if (isConnectEvent) {
@@ -1269,7 +1285,14 @@ bool ApiConfigsController::updateServiceFromGateway(const int serverIndex, const
             return false;
         }
 
-        QJsonObject newApiConfig = newServerConfig.value(configKey::apiConfig).toObject();
+        // Preserve existing apiConfig keys (env, connection_uuid, service_info, ...) —
+        // the gateway config payload doesn't carry them, and losing e.g. env removes
+        // the server from its environment filter.
+        QJsonObject newApiConfig = apiConfig;
+        const QJsonObject fetchedApiConfig = newServerConfig.value(configKey::apiConfig).toObject();
+        for (auto it = fetchedApiConfig.constBegin(); it != fetchedApiConfig.constEnd(); ++it) {
+            newApiConfig.insert(it.key(), it.value());
+        }
         newApiConfig.insert(configKey::userCountryCode, apiConfig.value(configKey::userCountryCode));
         newApiConfig.insert(configKey::serviceType, apiConfig.value(configKey::serviceType));
         newApiConfig.insert(configKey::serviceProtocol, apiConfig.value(configKey::serviceProtocol));
@@ -1297,6 +1320,20 @@ bool ApiConfigsController::updateServiceFromGateway(const int serverIndex, const
             newServerConfig.insert("displayInfo", serverConfig.value("displayInfo"));
         }
 
+        // Guard against a poisoned gateway response (e.g. backend returning an empty
+        // config when the subscription is expired): never overwrite a good local
+        // config with one that has no hostname or no containers.
+        const auto containers = newServerConfig.value(config_key::containers).toArray();
+        if (newServerConfig.value(config_key::hostName).toString().isEmpty() || containers.isEmpty()) {
+            qWarning() << "ApiConfigsController::updateServiceFromGateway: refusing to save an empty"
+                          "server config received from the gateway (hostName or containers missing),"
+                          "keeping the local one";
+            if (!silent) {
+                emit errorOccurred(ErrorCode::ApiConfigDownloadError);
+            }
+            return false;
+        }
+
         m_serversModel->editServer(newServerConfig, serverIndex);
         if (reloadServiceConfig) {
             emit reloadServerFromApiFinished(tr("API config reloaded"));
@@ -1312,6 +1349,44 @@ bool ApiConfigsController::updateServiceFromGateway(const int serverIndex, const
         }
         return false;
     }
+}
+
+void ApiConfigsController::refreshSubscriptionConfigs()
+{
+    // Throttle: at most once per 6 hours — this runs on every app start.
+    const qint64 now = QDateTime::currentSecsSinceEpoch();
+    if (now - m_settings->lastSubscriptionRefresh() < 6 * 60 * 60) {
+        return;
+    }
+    m_settings->setLastSubscriptionRefresh(now);
+
+    m_pendingSubscriptionRefresh.clear();
+    const int serversCount = m_serversModel->getServersCount();
+    for (int i = 0; i < serversCount; ++i) {
+        const auto apiConfig = m_serversModel->getServerConfig(i).value(configKey::apiConfig).toObject();
+        // only gateway-issued configs can be refreshed; manual/self-hosted ones are skipped
+        if (!apiConfig.value("connection_uuid").toString().isEmpty()) {
+            m_pendingSubscriptionRefresh.append(i);
+        }
+    }
+    if (m_pendingSubscriptionRefresh.isEmpty()) {
+        return;
+    }
+
+    qDebug() << "[SUBSCRIPTION] refreshing" << m_pendingSubscriptionRefresh.size() << "server config(s) from the gateway";
+    processNextSubscriptionRefresh();
+}
+
+void ApiConfigsController::processNextSubscriptionRefresh()
+{
+    if (m_pendingSubscriptionRefresh.isEmpty()) {
+        return;
+    }
+    const int serverIndex = m_pendingSubscriptionRefresh.takeFirst();
+    // updateServiceFromGateway is synchronous but spins its own event loop, so the UI
+    // stays responsive; servers are refreshed one-by-one, silent failures keep the local config
+    updateServiceFromGateway(serverIndex, "", "", false, true);
+    QTimer::singleShot(0, this, [this]() { processNextSubscriptionRefresh(); });
 }
 
 bool ApiConfigsController::updateServiceFromTelegram(const int serverIndex)
@@ -1781,11 +1856,15 @@ bool ApiConfigsController::fetchSubscriptionConfigs(const QString &subscriptionI
             QString serverCountryCode = connectionObject.value(configKey::countryCode).toString();
             QString connectionUuid = connectionObject.value("connection_uuid").toString();
             QString connectionLabel = connectionObject.value("connection_label").toString();
+            // node_id pins the exact node (gateway v0.6.19+): connection_uuid alone is
+            // shared by all nodes of one (env, protocol) group
+            QString nodeId = connectionObject.value("node_id").toString();
 
             qDebug().noquote() << "[SUBSCRIPTION] connection:"
                                << "protocol=" << serviceProtocol
                                << "country=" << serverCountryCode
                                << "uuid=" << connectionUuid
+                               << "node=" << nodeId
                                << "label=" << connectionLabel;
 
             ProtocolData protocolData = generateProtocolData(serviceProtocol);
@@ -1803,6 +1882,9 @@ bool ApiConfigsController::fetchSubscriptionConfigs(const QString &subscriptionI
             QJsonObject apiPayload = gatewayRequestData.toJsonObject();
             if (!connectionUuid.isEmpty()) {
                 apiPayload["connection_id"] = connectionUuid;
+            }
+            if (!nodeId.isEmpty()) {
+                apiPayload["node_id"] = nodeId;
             }
             appendProtocolDataToApiPayload(serviceProtocol, protocolData, apiPayload);
 
@@ -1839,6 +1921,7 @@ bool ApiConfigsController::fetchSubscriptionConfigs(const QString &subscriptionI
             apiConfig.insert("env", connectionObject.value("env").toString());
             apiConfig.insert(configKey::authData, authData);
             apiConfig.insert("connection_uuid", connectionUuid);
+            apiConfig.insert("node_id", nodeId);
             serverConfig.insert(configKey::apiConfig, apiConfig);
             serverConfig.insert(configKey::authData, authData);
 

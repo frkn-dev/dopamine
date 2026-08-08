@@ -2,27 +2,27 @@ enable_language(Swift)
 message("Client message >> macos build >> DopamineNetworkExtension")
 set(CLIENT_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/../..)
 
-add_executable(AmneziaVPNNetworkExtension)
+add_executable(DopamineNetworkExtension)
 # incremental (non-WMO) Swift builds keep DWARF for the NE dSYM
-set_target_properties(AmneziaVPNNetworkExtension PROPERTIES Swift_COMPILATION_MODE incremental)
+set_target_properties(DopamineNetworkExtension PROPERTIES Swift_COMPILATION_MODE incremental)
 
 message("executable_path is: @executable_path/../../Frameworks")
-set_target_properties(AmneziaVPNNetworkExtension PROPERTIES
+set_target_properties(DopamineNetworkExtension PROPERTIES
     XCODE_PRODUCT_TYPE com.apple.product-type.app-extension
     # MACOSX_BUNDLE YES
     BUNDLE_EXTENSION appex
     MACOSX_BUNDLE_SHORT_VERSION_STRING "${APPLE_PROJECT_VERSION}"
-    MACOSX_BUNDLE_INFO_STRING "AmneziaVPNNetworkExtension"
-    MACOSX_BUNDLE_BUNDLE_NAME "AmneziaVPNNetworkExtension"
+    MACOSX_BUNDLE_INFO_STRING "DopamineNetworkExtension"
+    MACOSX_BUNDLE_BUNDLE_NAME "DopamineNetworkExtension"
     XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "${BUILD_IOS_APP_IDENTIFIER}.network-extension"
     XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"
     XCODE_ATTRIBUTE_SWIFT_COMPILATION_MODE "incremental"
     XCODE_ATTRIBUTE_OTHER_SWIFT_FLAGS "$(inherited) -g"
     XCODE_ATTRIBUTE_PRODUCT_BUNDLE_NAME "${BUILD_IOS_APP_IDENTIFIER}.network-extension"
-    XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS ${CMAKE_CURRENT_SOURCE_DIR}/AmneziaVPNNetworkExtension.entitlements
+    XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS ${CMAKE_CURRENT_SOURCE_DIR}/DopamineNetworkExtension.entitlements
     XCODE_ATTRIBUTE_MARKETING_VERSION "${APP_MAJOR_VERSION}"
     XCODE_ATTRIBUTE_CURRENT_PROJECT_VERSION "${BUILD_ID}"
-    XCODE_ATTRIBUTE_PRODUCT_NAME "AmneziaVPNNetworkExtension"
+    XCODE_ATTRIBUTE_PRODUCT_NAME "DopamineNetworkExtension"
 
     XCODE_ATTRIBUTE_APPLICATION_EXTENSION_API_ONLY "YES"
     XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
@@ -34,7 +34,7 @@ set_target_properties(AmneziaVPNNetworkExtension PROPERTIES
 
 if(DEPLOY)
     message("DEPLOY is ON")
-    set_target_properties(AmneziaVPNNetworkExtension PROPERTIES
+    set_target_properties(DopamineNetworkExtension PROPERTIES
         XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "Apple Distribution"
         XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY[variant=Debug] "Apple Development"
         XCODE_ATTRIBUTE_CODE_SIGN_STYLE Manual
@@ -42,12 +42,12 @@ if(DEPLOY)
         XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER[variant=Debug] "dev macos.org.amnezia.amneziaVPN.NE"
     )
 else()
-    set_target_properties(AmneziaVPNNetworkExtension PROPERTIES
+    set_target_properties(DopamineNetworkExtension PROPERTIES
         XCODE_ATTRIBUTE_CODE_SIGN_STYLE Automatic
     )
 endif()
 
-set_target_properties(AmneziaVPNNetworkExtension PROPERTIES
+set_target_properties(DopamineNetworkExtension PROPERTIES
     XCODE_ATTRIBUTE_SWIFT_VERSION "5.0"
     XCODE_ATTRIBUTE_CLANG_ENABLE_MODULES "YES"
     XCODE_ATTRIBUTE_SWIFT_OBJC_BRIDGING_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/WireGuardNetworkExtension-Bridging-Header.h"
@@ -55,7 +55,7 @@ set_target_properties(AmneziaVPNNetworkExtension PROPERTIES
     XCODE_ATTRIBUTE_SWIFT_PRECOMPILE_BRIDGING_HEADER "NO"
 )
 
-set_target_properties("AmneziaVPNNetworkExtension" PROPERTIES
+set_target_properties("DopamineNetworkExtension" PROPERTIES
     XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "X7UJ388FXK"
 )
 
@@ -68,19 +68,19 @@ find_library(FW_LIBRESOLV libresolv.9.tbd)
 # Set the root directory
 set(CLIENT_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/../..)
 
-target_link_libraries(AmneziaVPNNetworkExtension PRIVATE ${FW_LIBRESOLV})
+target_link_libraries(DopamineNetworkExtension PRIVATE ${FW_LIBRESOLV})
 
-target_compile_options(AmneziaVPNNetworkExtension PRIVATE -DGROUP_ID=\"${BUILD_IOS_GROUP_IDENTIFIER}\")
-target_compile_options(AmneziaVPNNetworkExtension PRIVATE -DNETWORK_EXTENSION=1)
+target_compile_options(DopamineNetworkExtension PRIVATE -DGROUP_ID=\"${BUILD_IOS_GROUP_IDENTIFIER}\")
+target_compile_options(DopamineNetworkExtension PRIVATE -DNETWORK_EXTENSION=1)
 # keep debug info in Swift Release builds so dsymutil can produce the NE dSYM
-target_compile_options(AmneziaVPNNetworkExtension PRIVATE -g)
+target_compile_options(DopamineNetworkExtension PRIVATE -g)
 
 set(WG_APPLE_SOURCE_DIR ${CLIENT_ROOT_DIR}/3rd/amneziawg-apple/Sources)
 
 message("WG_APPLE_SOURCE_DIR is: ${WG_APPLE_SOURCE_DIR}")
 message("CLIENT_ROOT_DIR is: ${CLIENT_ROOT_DIR}")
 
-target_sources(AmneziaVPNNetworkExtension PRIVATE
+target_sources(DopamineNetworkExtension PRIVATE
     ${WG_APPLE_SOURCE_DIR}/WireGuardKit/WireGuardAdapter.swift
     ${WG_APPLE_SOURCE_DIR}/WireGuardKit/PacketTunnelSettingsGenerator.swift
     ${WG_APPLE_SOURCE_DIR}/WireGuardKit/DNSResolver.swift
@@ -113,11 +113,11 @@ target_sources(AmneziaVPNNetworkExtension PRIVATE
     ${CLIENT_ROOT_DIR}/platforms/ios/XrayConfig.swift
 )
 
-target_sources(AmneziaVPNNetworkExtension PRIVATE
+target_sources(DopamineNetworkExtension PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/PrivacyInfo.xcprivacy
 )
 
-set_property(TARGET AmneziaVPNNetworkExtension APPEND PROPERTY RESOURCE
+set_property(TARGET DopamineNetworkExtension APPEND PROPERTY RESOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/PrivacyInfo.xcprivacy
 )
 
@@ -130,16 +130,16 @@ execute_process(
 string(REGEX REPLACE ".*v\([0-9.]*\).*" "\\1" WG_VERSION_STRING 1.1.1)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wireguard-go-version.h.in
                ${CMAKE_CURRENT_BINARY_DIR}/wireguard-go-version.h)
-target_sources(AmneziaVPNNetworkExtension PRIVATE
+target_sources(DopamineNetworkExtension PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/wireguard-go-version.h)
 
-target_include_directories(AmneziaVPNNetworkExtension PRIVATE ${CLIENT_ROOT_DIR})
-target_include_directories(AmneziaVPNNetworkExtension PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(DopamineNetworkExtension PRIVATE ${CLIENT_ROOT_DIR})
+target_include_directories(DopamineNetworkExtension PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
-target_link_libraries(AmneziaVPNNetworkExtension PRIVATE ${CLIENT_ROOT_DIR}/3rd-prebuilt/3rd-prebuilt/wireguard/macos/universal2/libwg-go.a)
+target_link_libraries(DopamineNetworkExtension PRIVATE ${CLIENT_ROOT_DIR}/3rd-prebuilt/3rd-prebuilt/wireguard/macos/universal2/libwg-go.a)
 
 message(${CLIENT_ROOT_DIR})
 message(${CLIENT_ROOT_DIR}/3rd-prebuilt/3rd-prebuilt/xray/HevSocks5Tunnel.xcframework/macos-arm64_x86_64/libhev-socks5-tunnel.a)
-target_link_libraries(AmneziaVPNNetworkExtension PRIVATE ${CLIENT_ROOT_DIR}/3rd-prebuilt/3rd-prebuilt/xray/HevSocks5Tunnel.xcframework/macos-arm64_x86_64/libhev-socks5-tunnel.a)
+target_link_libraries(DopamineNetworkExtension PRIVATE ${CLIENT_ROOT_DIR}/3rd-prebuilt/3rd-prebuilt/xray/HevSocks5Tunnel.xcframework/macos-arm64_x86_64/libhev-socks5-tunnel.a)
 
-target_include_directories(AmneziaVPNNetworkExtension PRIVATE ${CLIENT_ROOT_DIR}/3rd-prebuilt/3rd-prebuilt/xray/HevSocks5Tunnel.xcframework/macos-arm64_x86_64/Headers)
+target_include_directories(DopamineNetworkExtension PRIVATE ${CLIENT_ROOT_DIR}/3rd-prebuilt/3rd-prebuilt/xray/HevSocks5Tunnel.xcframework/macos-arm64_x86_64/Headers)

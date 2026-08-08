@@ -20,6 +20,7 @@ find_library(FW_STOREKIT StoreKit)
 find_library(FW_SERVICEMGMT ServiceManagement)
 find_library(FW_USERNOTIFICATIONS UserNotifications)
 find_library(FW_NETWORKEXTENSION NetworkExtension)
+find_library(FW_LIBRESOLV libresolv.9.tbd)
 
 set(LIBS ${LIBS}
     ${FW_AUTHENTICATIONSERVICES}
@@ -29,6 +30,7 @@ set(LIBS ${LIBS}
     ${FW_SERVICEMGMT}
     ${FW_USERNOTIFICATIONS}
     ${FW_NETWORKEXTENSION}
+    ${FW_LIBRESOLV}
 )
 
 
@@ -90,7 +92,7 @@ set_target_properties(${PROJECT} PROPERTIES
 
     XCODE_LINK_BUILD_PHASE_MODE KNOWN_LOCATION
     XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/../Frameworks"
-    XCODE_EMBED_APP_EXTENSIONS AmneziaVPNNetworkExtension
+    XCODE_EMBED_APP_EXTENSIONS DopamineNetworkExtension
 )
 
 if(DEPLOY)
@@ -111,7 +113,7 @@ set_target_properties(${PROJECT} PROPERTIES
     XCODE_ATTRIBUTE_SWIFT_VERSION "5.0"
     XCODE_ATTRIBUTE_CLANG_ENABLE_MODULES "YES"
     XCODE_ATTRIBUTE_SWIFT_PRECOMPILE_BRIDGING_HEADER "NO"
-    XCODE_ATTRIBUTE_SWIFT_OBJC_INTERFACE_HEADER_NAME "AmneziaVPN-Swift.h"
+    XCODE_ATTRIBUTE_SWIFT_OBJC_INTERFACE_HEADER_NAME "Dopamine-Swift.h"
     XCODE_ATTRIBUTE_SWIFT_OBJC_INTEROP_MODE "objcxx"
 )
 set_target_properties(${PROJECT} PROPERTIES
@@ -145,7 +147,7 @@ set_property(TARGET ${PROJECT} APPEND PROPERTY RESOURCE
 )
 
 add_subdirectory(macos/networkextension)
-add_dependencies(${PROJECT} AmneziaVPNNetworkExtension)
+add_dependencies(${PROJECT} DopamineNetworkExtension)
 
 get_target_property(QtCore_location Qt6::Core LOCATION)
 message("QtCore_location")
@@ -158,7 +160,10 @@ set_property(TARGET ${PROJECT} PROPERTY XCODE_EMBED_FRAMEWORKS
 )
 
 set(CMAKE_XCODE_ATTRIBUTE_FRAMEWORK_SEARCH_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/3rd-prebuilt/3rd-prebuilt/openvpn/apple/OpenVPNAdapter-macos)
-target_link_libraries("AmneziaVPNNetworkExtension" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/3rd-prebuilt/3rd-prebuilt/openvpn/apple/OpenVPNAdapter-macos/OpenVPNAdapter.framework")
+target_link_libraries("DopamineNetworkExtension" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/3rd-prebuilt/3rd-prebuilt/openvpn/apple/OpenVPNAdapter-macos/OpenVPNAdapter.framework")
+
+# WG/AWG handshake probe (server health check) runs in the app process
+target_link_libraries(${PROJECT} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/3rd-prebuilt/3rd-prebuilt/wireguard/macos/universal2/libwg-go.a)
 
 add_custom_command(TARGET ${PROJECT} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory

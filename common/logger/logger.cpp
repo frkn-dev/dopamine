@@ -17,7 +17,7 @@
 #endif
 
 #ifdef Q_OS_IOS
-    #include <AmneziaVPN-Swift.h>
+    #include <Dopamine-Swift.h>
 #endif
 
 QFile Logger::m_file;

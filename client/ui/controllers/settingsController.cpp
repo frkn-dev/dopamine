@@ -13,7 +13,7 @@
 #endif
 
 #if defined(Q_OS_IOS) || defined(MACOS_NE)
-    #include <AmneziaVPN-Swift.h>
+    #include <Dopamine-Swift.h>
 #endif
 
 SettingsController::SettingsController(const QSharedPointer<ServersModel> &serversModel,
@@ -126,6 +126,17 @@ void SettingsController::setSecondaryDns(const QString &dns)
 bool SettingsController::isLoggingEnabled()
 {
     return m_settings->isSaveLogs();
+}
+
+bool SettingsController::isServerPingTextVisible()
+{
+    return m_settings->isServerPingTextVisible();
+}
+
+void SettingsController::setServerPingTextVisible(bool visible)
+{
+    m_settings->setServerPingTextVisible(visible);
+    emit serverPingTextVisibleChanged();
 }
 
 void SettingsController::toggleLogging(bool enable)

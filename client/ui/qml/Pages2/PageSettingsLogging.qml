@@ -73,6 +73,27 @@ PageType {
 
             DividerType {}
 
+            SwitcherType {
+                id: pingTextSwitcher
+
+                Layout.fillWidth: true
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+
+                text: qsTr("Show server ping values")
+                descriptionText: qsTr("By default the server list shows only a colored status dot. Enable to see the exact latency in milliseconds.")
+
+                checked: SettingsController.isServerPingTextVisible
+
+                onToggled: function() {
+                    if (checked !== SettingsController.isServerPingTextVisible) {
+                        SettingsController.isServerPingTextVisible = checked
+                    }
+                }
+            }
+
+            DividerType {}
+
             LabelWithButtonType {
                 Layout.fillWidth: true
                 Layout.topMargin: -8

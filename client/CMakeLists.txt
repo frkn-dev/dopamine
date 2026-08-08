@@ -72,9 +72,9 @@ qt6_add_resources(QRC ${QRC} ${CMAKE_CURRENT_LIST_DIR}/resources.qrc)
 set(CMAKE_AUTORCC ON)
 
 set(DOPAMINE_TS_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/translations/amneziavpn_en_US.ts
-    ${CMAKE_CURRENT_LIST_DIR}/translations/amneziavpn_ru_RU.ts
-    ${CMAKE_CURRENT_LIST_DIR}/translations/amneziavpn_uk_UA.ts
+    ${CMAKE_CURRENT_LIST_DIR}/translations/dopamine_en_US.ts
+    ${CMAKE_CURRENT_LIST_DIR}/translations/dopamine_ru_RU.ts
+    ${CMAKE_CURRENT_LIST_DIR}/translations/dopamine_uk_UA.ts
 )
 
 file(GLOB_RECURSE DOPAMINE_TS_SOURCES *.qrc *.cpp *.h *.ui)

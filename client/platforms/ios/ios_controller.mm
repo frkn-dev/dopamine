@@ -789,8 +789,14 @@ bool IosController::setupXray()
         xrayConfigStr = QString(QJsonDocument(config).toJson(QJsonDocument::Compact));
     }
 
-    // Force correct ALPN for Hysteria2 outbounds: hy2 works over HTTP/3 only,
-    // while backends may send a generic HTTPS ALPN (h2, http/1.1).
+    // Translate Hysteria2 outbounds to the schema of the current amnezia-xray-core:
+    // the backend sends the legacy form (protocol "hysteria2", settings.servers[],
+    // network "udp"), which the new core rejects with "unknown transport protocol: udp"
+    // (xray then fails to start at all and the tunnel passes no traffic).
+    // New form: protocol "hysteria", settings {version,address,port},
+    // network "hysteria" + hysteriaSettings {version, auth}.
+    // Also force ALPN h3: hy2 works over HTTP/3 only, while backends may send
+    // a generic HTTPS ALPN (h2, http/1.1).
     {
         QJsonDocument cfgDoc = QJsonDocument::fromJson(xrayConfigStr.toUtf8());
         if (cfgDoc.isObject()) {
@@ -802,21 +808,38 @@ bool IosController::setupXray()
                 if (outbound.value(QStringLiteral("protocol")).toString() != QStringLiteral("hysteria2")) {
                     continue;
                 }
+
+                const QJsonArray servers = outbound.value(QStringLiteral("settings")).toObject()
+                                                   .value(QStringLiteral("servers")).toArray();
+                const QJsonObject server = servers.isEmpty() ? QJsonObject() : servers.at(0).toObject();
+
                 QJsonObject streamSettings = outbound.value(QStringLiteral("streamSettings")).toObject();
                 QJsonObject tlsSettings = streamSettings.value(QStringLiteral("tlsSettings")).toObject();
-                const QJsonArray alpn = tlsSettings.value(QStringLiteral("alpn")).toArray();
-                if (alpn.size() != 1 || alpn.first().toString() != QStringLiteral("h3")) {
-                    tlsSettings[QStringLiteral("alpn")] = QJsonArray { QStringLiteral("h3") };
-                    streamSettings[QStringLiteral("tlsSettings")] = tlsSettings;
-                    outbound[QStringLiteral("streamSettings")] = streamSettings;
-                    outbounds[i] = outbound;
-                    changed = true;
-                }
+                tlsSettings[QStringLiteral("alpn")] = QJsonArray { QStringLiteral("h3") };
+
+                QJsonObject hysteriaSettings;
+                hysteriaSettings[QStringLiteral("version")] = 2;
+                hysteriaSettings[QStringLiteral("auth")] = server.value(QStringLiteral("password")).toString();
+
+                streamSettings[QStringLiteral("network")] = QStringLiteral("hysteria");
+                streamSettings[QStringLiteral("tlsSettings")] = tlsSettings;
+                streamSettings[QStringLiteral("hysteriaSettings")] = hysteriaSettings;
+
+                QJsonObject settings;
+                settings[QStringLiteral("version")] = 2;
+                settings[QStringLiteral("address")] = server.value(QStringLiteral("address")).toString();
+                settings[QStringLiteral("port")] = server.value(QStringLiteral("port")).toInt();
+
+                outbound[QStringLiteral("protocol")] = QStringLiteral("hysteria");
+                outbound[QStringLiteral("settings")] = settings;
+                outbound[QStringLiteral("streamSettings")] = streamSettings;
+                outbounds[i] = outbound;
+                changed = true;
             }
             if (changed) {
                 cfgObj[QStringLiteral("outbounds")] = outbounds;
                 xrayConfigStr = QString(QJsonDocument(cfgObj).toJson(QJsonDocument::Compact));
-                qDebug() << "IosController::setupXray forced alpn h3 for hysteria2 outbound";
+                qDebug() << "IosController::setupXray translated hysteria2 outbound to the new core schema (alpn h3)";
             }
         }
     }

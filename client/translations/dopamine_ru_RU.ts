@@ -76,24 +76,24 @@
 <context>
     <name>ApiConfigsController</name>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="905"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1142"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1167"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="907"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1144"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1169"/>
         <source>%1 installed successfully.</source>
         <translation>%1 установлено успешно.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1031"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1033"/>
         <source>Subscription restored successfully.</source>
         <translation>Подписка успешно восстановлена.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1302"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1339"/>
         <source>API config reloaded</source>
         <translation>Конфигурация API перезагружена</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1306"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1343"/>
         <source>Successfully changed the country of connection to %1</source>
         <translation>Страна подключения изменена на %1</translation>
     </message>
@@ -2863,17 +2863,17 @@ Already installed containers were found on the server. All installed containers 
         <translation>Диагностика</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="80"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="101"/>
         <source>Subscription ID</source>
         <translation>ID подписки</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="81"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="102"/>
         <source>not set</source>
         <translation>не задан</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="86"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="107"/>
         <source>Subscription ID copied</source>
         <translation>ID подписки скопирован</translation>
     </message>
@@ -2883,30 +2883,40 @@ Already installed containers were found on the server. All installed containers 
         <translation>Логи хранятся только на этом устройстве. Включите сохранение логов в случае сбоев в работе приложения. По умолчанию логирование отключено.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="198"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="83"/>
+        <source>Show server ping values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="84"/>
+        <source>By default the server list shows only a colored status dot. Enable to see the exact latency in milliseconds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="219"/>
         <source>Dopamine logs</source>
         <translation>Логи Dopamine</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="208"/>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="234"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="229"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="255"/>
         <source>Save</source>
         <translation>Сохранить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="209"/>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="235"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="230"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="256"/>
         <source>Logs files (*.log)</source>
         <translation>Файлы логов (*.log)</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="218"/>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="243"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="239"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="264"/>
         <source>Logs file saved</source>
         <translation>Файл с логами сохранен</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="227"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="248"/>
         <source>Dopamine-service logs</source>
         <translation>Логи сервиса Dopamine</translation>
     </message>
@@ -2916,47 +2926,47 @@ Already installed containers were found on the server. All installed containers 
         <translation>Включить логи</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="101"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="122"/>
         <source>Clear logs?</source>
         <translation>Очистить логи?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="102"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="123"/>
         <source>Continue</source>
         <translation>Продолжить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="103"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="124"/>
         <source>Cancel</source>
         <translation>Отменить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="109"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="130"/>
         <source>Logs have been cleaned up</source>
         <translation>Логи очищены</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="197"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="218"/>
         <source>Client logs</source>
         <translation>Логи клиента</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="159"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="180"/>
         <source>Open logs folder</source>
         <translation>Открыть папку с логами</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="173"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="194"/>
         <source>Export logs</source>
         <translation>Выгрузить логи</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="226"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="247"/>
         <source>Service logs</source>
         <translation>Логи сервиса</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="96"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="117"/>
         <source>Clear logs</source>
         <translation>Очистить логи</translation>
     </message>
@@ -5620,7 +5630,7 @@ This means that AmneziaWG keeps the fast performance of the original while addin
         <translation>Обратный</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="317"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="334"/>
         <source>offline</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5650,17 +5660,17 @@ This means that AmneziaWG keeps the fast performance of the original while addin
 <context>
     <name>SettingsController</name>
     <message>
-        <location filename="../ui/controllers/settingsController.cpp" line="205"/>
+        <location filename="../ui/controllers/settingsController.cpp" line="216"/>
         <source>Can&apos;t open file: %1</source>
         <translation>Невозможно открыть файл: %1</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/settingsController.cpp" line="291"/>
+        <location filename="../ui/controllers/settingsController.cpp" line="302"/>
         <source>All settings have been reset to default values</source>
         <translation>Все настройки сброшены до значений по умолчанию</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/settingsController.cpp" line="268"/>
+        <location filename="../ui/controllers/settingsController.cpp" line="279"/>
         <source>Backup file is corrupted</source>
         <translation>Файл резервной копии поврежден</translation>
     </message>

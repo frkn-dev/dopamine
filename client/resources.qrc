@@ -2,11 +2,10 @@
     <qresource prefix="/">
         <file>agw_public.pem</file>
         <file>fonts/pt-root-ui_vf.ttf</file>
-        <file>images/amneziaBigLogo.png</file>
+        <file>images/dopamineBigLogo.png</file>
         <file>images/Dopamine.png</file>
         <file>images/pterodactyl.png</file>
         <file>images/controls/alert-circle.svg</file>
-        <file>images/controls/amnezia.svg</file>
         <file>images/controls/app.svg</file>
         <file>images/controls/archive-restore.svg</file>
         <file>images/controls/arrow-left.svg</file>

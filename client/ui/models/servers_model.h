@@ -55,7 +55,8 @@ public:
         HasAmneziaDns,
         ServiceProtocolRole,
         ConnectionEnvRole,
-        CountryCodeRole
+        CountryCodeRole,
+        HealthLatencyRole
     };
 
     ServersModel(std::shared_ptr<Settings> settings, QObject *parent = nullptr);
@@ -125,6 +126,11 @@ public slots:
     void editServer(const QJsonObject &server, const int serverIndex);
     void removeServer();
     void removeServer(const int serverIndex);
+
+    // health probe result for a server (key = hostName): >=0 latency ms,
+    // -1 offline, missing = unknown
+    void setHealthResult(const QString &serverKey, int latencyMs);
+    void clearHealthResults();
 
     QJsonObject getServerConfig(const int serverIndex) const;
 
@@ -223,6 +229,8 @@ private:
     QStringList m_availableProtocols;
 
     QStringList m_availableEnvs;
+
+    QHash<QString, int> m_healthResults;
 };
 
 #endif // SERVERSMODEL_H

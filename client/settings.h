@@ -187,6 +187,25 @@ public:
         m_settings.setValue("Conf/serversEnvFilter", filter);
     }
 
+    qint64 lastSubscriptionRefresh() const
+    {
+        return m_settings.value("Conf/lastSubscriptionRefresh", 0).toLongLong();
+    }
+    void setLastSubscriptionRefresh(qint64 timestamp)
+    {
+        m_settings.setValue("Conf/lastSubscriptionRefresh", timestamp);
+    }
+
+    // server list shows only a colored dot by default; this brings back the ping text
+    bool isServerPingTextVisible() const
+    {
+        return m_settings.value("Conf/showServerPingText", false).toBool();
+    }
+    void setServerPingTextVisible(bool visible)
+    {
+        m_settings.setValue("Conf/showServerPingText", visible);
+    }
+
     QString splitPresetsVersion() const
     {
         return m_settings.value("Conf/splitPresetsVersion", QString()).toString();
