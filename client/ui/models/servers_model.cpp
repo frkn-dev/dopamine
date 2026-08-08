@@ -177,7 +177,7 @@ QVariant ServersModel::data(const QModelIndex &index, int role) const
         if (protocol.isEmpty()) {
             protocol = server.value(QStringLiteral("displayInfo")).toObject().value(QStringLiteral("protocol")).toString().toLower();
         }
-        return protocol;
+        return canonicalServiceProtocol(protocol);
     }
     case ConnectionEnvRole: {
         return apiConfig.value(QStringLiteral("env")).toString();

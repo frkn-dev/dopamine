@@ -7,6 +7,17 @@
 
 namespace amnezia
 {
+    // Backend protocol tags that are wire-compatible with a base protocol are
+    // normalized for internal comparisons: AmneziaWgMobile behaves exactly
+    // like AmneziaWG ("awg"). Everything else passes through unchanged.
+    inline QString canonicalServiceProtocol(const QString &protocol)
+    {
+        if (protocol.compare(QStringLiteral("AmneziaWgMobile"), Qt::CaseInsensitive) == 0) {
+            return QStringLiteral("awg");
+        }
+        return protocol;
+    }
+
     namespace config_key
     {
 

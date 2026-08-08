@@ -3,6 +3,7 @@
 #include <QJsonObject>
 
 #include "logger.h"
+#include "protocols/protocols_defs.h"
 
 namespace
 {
@@ -266,7 +267,7 @@ ApiServicesModel::ApiServicesData ApiServicesModel::getApiServicesData(const QJs
     serviceData.serviceInfo.features = serviceDescription.value(configKey::features).toString();
 
     serviceData.type = serviceType;
-    serviceData.protocol = serviceProtocol;
+    serviceData.protocol = amnezia::canonicalServiceProtocol(serviceProtocol);
 
     serviceData.storeEndpoint = data.value(configKey::storeEndpoint).toString();
 

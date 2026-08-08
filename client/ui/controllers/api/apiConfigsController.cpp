@@ -1834,7 +1834,7 @@ bool ApiConfigsController::fetchSubscriptionConfigs(const QString &subscriptionI
     for (const auto &service : services) {
         QJsonObject serviceObject = service.toObject();
         QString serviceType = serviceObject.value(configKey::serviceType).toString();
-        QString serviceProtocol = serviceObject.value(configKey::serviceProtocol).toString();
+        QString serviceProtocol = canonicalServiceProtocol(serviceObject.value(configKey::serviceProtocol).toString());
 
         auto connections = serviceObject.value("connections").toArray();
         if (connections.isEmpty()) {
@@ -1911,7 +1911,7 @@ bool ApiConfigsController::fetchSubscriptionConfigs(const QString &subscriptionI
             apiConfig.insert(configKey::serviceType, serviceType);
             // Prefer the connection's own protocol from /v1/services (accurate since gateway v0.6.10),
             // then the gateway's api_config.service_protocol, then the service card protocol.
-            const QString connectionProtocol = connectionObject.value("service_protocol").toString();
+            const QString connectionProtocol = canonicalServiceProtocol(connectionObject.value("service_protocol").toString());
             if (!connectionProtocol.isEmpty()) {
                 apiConfig.insert(configKey::serviceProtocol, connectionProtocol);
             } else if (apiConfig.value(configKey::serviceProtocol).toString().isEmpty()) {
