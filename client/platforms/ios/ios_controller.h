@@ -129,6 +129,7 @@ private:
     bool m_handshakeAwaiting = false;
     bool m_handshakeConfirmed = false;
     QElapsedTimer m_handshakeTimer;
+    int m_handshakeRetries = 0;
     Vpn::ConnectionState m_lastEmittedState = Vpn::ConnectionState::Unknown;
     std::atomic_bool m_statusRequestInFlight { false };
 };

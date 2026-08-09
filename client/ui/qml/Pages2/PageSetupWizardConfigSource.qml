@@ -330,18 +330,6 @@ PageType {
     }
 
     QtObject {
-        id: selfHostVpn
-
-        property string title: qsTr("Self-hosted VPN")
-        property string description: qsTr("Configure Dopamine VPN on your own server")
-        property string imageSource: "qrc:/images/controls/server.svg"
-        property bool isVisible: true
-        property var handler: function() {
-            PageController.goToPage(PageEnum.PageSetupWizardCredentials)
-        }
-    }
-
-    QtObject {
         id: backupRestore
 
         property string title: qsTr("Restore from backup")

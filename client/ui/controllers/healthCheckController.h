@@ -4,6 +4,7 @@
 #include <QElapsedTimer>
 #include <QFutureWatcher>
 #include <QHash>
+#include <QJsonObject>
 #include <QObject>
 #include <QSet>
 #include <QSharedPointer>
@@ -27,7 +28,7 @@ public:
 private:
     struct Target
     {
-        QString key;
+        QList<int> rows; // server indices sharing this endpoint
         QString host;
         quint16 port;
 
@@ -41,7 +42,7 @@ private:
 
     struct WgTarget
     {
-        QString key;
+        QList<int> rows; // server indices sharing this endpoint
         QString host;
         quint16 port;
         QString clientPrivKey;
@@ -51,11 +52,25 @@ private:
         int attempts = 1; // lives on the target, not the watcher — retries requeue the target
     };
 
+    struct H2Target
+    {
+        QList<int> rows; // server indices sharing this endpoint
+        QString host;
+        quint16 port;
+        QJsonObject outbound; // legacy hysteria2 outbound from the stored config
+    };
+
     void startNext();
     void finishSocket(QTcpSocket *socket, int latencyMs);
 
     void startNextWg();
     void finishWatcher(QFutureWatcher<int> *watcher);
+
+    // hysteria2: full-path probe via LibXrayPing (real handshake+auth+HTTP through
+    // the server) — a bare QUIC version-negotiation probe is unreliable (some live
+    // servers ignore it). Runs strictly one at a time: libxray holds global state.
+    void startNextH2();
+    void finishH2Watcher(QFutureWatcher<int> *watcher);
 
     QSharedPointer<ServersModel> m_serversModel;
 
@@ -63,11 +78,15 @@ private:
     QHash<QTcpSocket *, Target> m_socketTargets;
     QHash<QTcpSocket *, QElapsedTimer> m_timers;
     QHash<QTcpSocket *, int> m_attempts;
-    QSet<QString> m_seenTcpEndpoints;
+    QHash<QString, int> m_seenTcpEndpoints; // endpoint -> position in m_queue
 
     QList<WgTarget> m_wgQueue;
     QHash<QFutureWatcher<int> *, WgTarget> m_wgWatchers;
-    QSet<QString> m_seenWgEndpoints;
+    QHash<QString, int> m_seenWgEndpoints; // endpoint -> position in m_wgQueue
+
+    QList<H2Target> m_h2Queue;
+    QHash<QFutureWatcher<int> *, H2Target> m_h2Watchers;
+    QHash<QString, int> m_seenH2Endpoints; // endpoint -> position in m_h2Queue
 
     qint64 m_lastRunMsecs = 0;
 
@@ -76,6 +95,7 @@ private:
     static constexpr int kTimeoutMs = 2500;
     static constexpr int kHttpsTimeoutMs = 4000;
     static constexpr int kWgTimeoutMs = 4000;
+    static constexpr int kH2TimeoutSec = 6;
     static constexpr qint64 kThrottleMs = 30000;
 };
 

@@ -267,7 +267,7 @@ ApiServicesModel::ApiServicesData ApiServicesModel::getApiServicesData(const QJs
     serviceData.serviceInfo.features = serviceDescription.value(configKey::features).toString();
 
     serviceData.type = serviceType;
-    serviceData.protocol = amnezia::canonicalServiceProtocol(serviceProtocol);
+    serviceData.protocol = serviceProtocol;
 
     serviceData.storeEndpoint = data.value(configKey::storeEndpoint).toString();
 

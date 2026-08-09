@@ -1,17 +1,28 @@
 #include "healthCheckController.h"
 
 #include <QDateTime>
+#include <QDir>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSslSocket>
+#include <QTemporaryFile>
 #include <QTimer>
 #include <QtConcurrent/QtConcurrent>
+
+#include <atomic>
+
+#include "core/api/apiUtils.h"
 
 #if defined(Q_OS_IOS) || defined(Q_OS_MACOS)
 // from libwg-go.a (api-probe.go): blocking WG/AWG handshake probe, returns RTT ms or -1
 extern "C" int WgProbeRTT(const char *host, int port, const char *clientPrivKeyB64, const char *serverPubKeyB64,
                           const char *pskB64, const char *junkParamsJSON, int timeoutMs);
+// from libwg-go.a (api-xray.go): full-path probe — starts a real xray instance with
+// the given config and measures an HTTP request through it; returns C string
+// "delayMs:error" (empty error on success), caller frees
+extern "C" char *LibXrayPing(const char *datDir, const char *configPath, int timeoutSec, const char *url,
+                             const char *proxy);
 #endif
 
 HealthCheckController::HealthCheckController(const QSharedPointer<ServersModel> &serversModel, QObject *parent)
@@ -108,15 +119,19 @@ void HealthCheckController::startProbe(bool force)
         }
         const QString probeHost = connectAddress.isEmpty() ? host : connectAddress;
 
-        // one probe per host:port — duplicate rows share the node
+        // one probe per host:port — duplicate rows share the node; every sharing
+        // row gets the result (rows can share a host on different ports, e.g.
+        // AWG and its mobile variant, so results are applied per row, not per host)
         const QString endpoint = QStringLiteral("%1:%2").arg(probeHost).arg(port);
-        if (m_seenTcpEndpoints.contains(endpoint)) {
+        const auto seen = m_seenTcpEndpoints.constFind(endpoint);
+        if (seen != m_seenTcpEndpoints.constEnd()) {
+            m_queue[seen.value()].rows.append(i);
             continue;
         }
-        m_seenTcpEndpoints.insert(endpoint);
+        m_seenTcpEndpoints.insert(endpoint, m_queue.size());
 
         Target target;
-        target.key = host;
+        target.rows.append(i);
         target.host = probeHost;
         target.port = port;
         target.httpsProbe = httpsProbe;
@@ -159,6 +174,17 @@ void HealthCheckController::startProbe(bool force)
             continue;
         }
 
+        // one probe per host:port — duplicate entries (same node in several
+        // server rows) racing handshakes with the same key get dropped by the
+        // server and show up as random timeouts; sharing rows get the result
+        // applied per row (rows can share a host on different ports)
+        const QString endpoint = QStringLiteral("%1:%2").arg(host).arg(port);
+        const auto seen = m_seenWgEndpoints.constFind(endpoint);
+        if (seen != m_seenWgEndpoints.constEnd()) {
+            m_wgQueue[seen.value()].rows.append(i);
+            continue;
+        }
+
         // AWG junk params (plain WG has none -> "{}"): last_config keys are
         // the short wg-quick names already (Jc, Jmin, ..., H1..H4)
         QJsonObject junk;
@@ -191,7 +217,7 @@ void HealthCheckController::startProbe(bool force)
         }
 
         WgTarget target;
-        target.key = host;
+        target.rows.append(i);
         target.host = host;
         target.port = port;
         target.clientPrivKey = lastConfig.value(QStringLiteral("client_priv_key")).toString();
@@ -204,24 +230,72 @@ void HealthCheckController::startProbe(bool force)
             continue;
         }
 
-        // one probe per host:port — duplicate entries (same node in several
-        // server rows) racing handshakes with the same key get dropped by the
-        // server and show up as random timeouts
-        const QString endpoint = QStringLiteral("%1:%2").arg(host).arg(port);
-        if (m_seenWgEndpoints.contains(endpoint)) {
-            continue;
-        }
-        m_seenWgEndpoints.insert(endpoint);
+        m_seenWgEndpoints.insert(endpoint, m_wgQueue.size());
 
         if (!junk.isEmpty()) {
             qDebug() << "[HEALTH] wg probe queued:" << host << port << "junk:" << target.junkParamsJson;
         }
         m_wgQueue.append(target);
     }
+
+    // collect hysteria2 targets: a bare QUIC version-negotiation probe is unreliable
+    // (live servers may ignore it), so H2 gets a full-path probe via LibXrayPing —
+    // real handshake + auth + HTTP request through the server
+    for (int i = 0; i < count; ++i) {
+        const QString protocol = m_serversModel->data(i, ServersModel::Roles::ServiceProtocolRole).toString();
+        if (protocol != QStringLiteral("hysteria2")) {
+            continue;
+        }
+
+        const QJsonObject serverConfig = m_serversModel->getServerConfig(i);
+        const QJsonArray containers = serverConfig.value(QStringLiteral("containers")).toArray();
+        if (containers.isEmpty()) {
+            continue;
+        }
+        const QJsonObject containerObject = containers.at(0).toObject();
+        const QJsonObject xray = containerObject.value(QStringLiteral("xray")).toObject();
+        QJsonObject configRoot = QJsonDocument::fromJson(xray.value(QStringLiteral("config")).toString().toUtf8()).object();
+        if (configRoot.isEmpty()) {
+            configRoot = QJsonDocument::fromJson(containerObject.value(QStringLiteral("config")).toString().toUtf8()).object();
+        }
+        const QJsonArray outbounds = configRoot.value(QStringLiteral("outbounds")).toArray();
+        if (outbounds.isEmpty()) {
+            continue;
+        }
+        const QJsonObject outbound = outbounds.at(0).toObject();
+        const QJsonArray servers = outbound.value(QStringLiteral("settings")).toObject()
+                                           .value(QStringLiteral("servers")).toArray();
+        if (servers.isEmpty()) {
+            continue;
+        }
+        const QJsonObject server = servers.at(0).toObject();
+        const QString host = server.value(QStringLiteral("address")).toString();
+        const quint16 port = static_cast<quint16>(server.value(QStringLiteral("port")).toInt());
+        if (host.isEmpty() || port == 0) {
+            continue;
+        }
+
+        // one probe per host:port, result applied to every sharing row
+        const QString endpoint = QStringLiteral("%1:%2").arg(host).arg(port);
+        const auto seen = m_seenH2Endpoints.constFind(endpoint);
+        if (seen != m_seenH2Endpoints.constEnd()) {
+            m_h2Queue[seen.value()].rows.append(i);
+            continue;
+        }
+        m_seenH2Endpoints.insert(endpoint, m_h2Queue.size());
+
+        H2Target target;
+        target.rows.append(i);
+        target.host = host;
+        target.port = port;
+        target.outbound = outbound;
+        m_h2Queue.append(target);
+    }
 #endif
 
     startNext();
     startNextWg();
+    startNextH2();
 }
 
 void HealthCheckController::stopProbe()
@@ -245,6 +319,16 @@ void HealthCheckController::stopProbe()
     }
     m_wgWatchers.clear();
     m_wgQueue.clear();
+
+    // in-flight H2 pings run a full xray instance and cannot be cancelled cheaply;
+    // detach the watchers and let them finish harmlessly
+    for (QFutureWatcher<int> *watcher : m_h2Watchers.keys()) {
+        disconnect(watcher, nullptr, this, nullptr);
+        watcher->deleteLater();
+    }
+    m_h2Watchers.clear();
+    m_h2Queue.clear();
+    m_seenH2Endpoints.clear();
 }
 
 void HealthCheckController::startNext()
@@ -339,7 +423,9 @@ void HealthCheckController::finishSocket(QTcpSocket *socket, int latencyMs)
     m_attempts.remove(socket);
     socket->deleteLater();
 
-    m_serversModel->setHealthResult(target.key, latencyMs);
+    for (const int row : target.rows) {
+        m_serversModel->setHealthResult(row, latencyMs);
+    }
 
     startNext();
 }
@@ -378,7 +464,7 @@ void HealthCheckController::finishWatcher(QFutureWatcher<int> *watcher)
     }
     WgTarget target = m_wgWatchers.take(watcher);
     const int rttMs = watcher->result();
-    qDebug() << "[HEALTH] wg probe" << target.key << "rtt:" << rttMs << "attempt:" << target.attempts;
+    qDebug() << "[HEALTH] wg probe" << target.host << "rtt:" << rttMs << "attempt:" << target.attempts;
     watcher->deleteLater();
 
     // one retry on timeout — UDP probes on flaky links drop packets
@@ -386,8 +472,84 @@ void HealthCheckController::finishWatcher(QFutureWatcher<int> *watcher)
         target.attempts++;
         m_wgQueue.append(target);
     } else {
-        m_serversModel->setHealthResult(target.key, rttMs);
+        for (const int row : target.rows) {
+            m_serversModel->setHealthResult(row, rttMs);
+        }
     }
 
     startNextWg();
+}
+
+void HealthCheckController::startNextH2()
+{
+#if defined(Q_OS_IOS) || defined(Q_OS_MACOS)
+    // strictly one at a time: each ping spins up a full xray instance and
+    // libxray keeps global state
+    if (!m_h2Watchers.isEmpty() || m_h2Queue.isEmpty()) {
+        return;
+    }
+    const H2Target target = m_h2Queue.takeFirst();
+
+    QFutureWatcher<int> *watcher = new QFutureWatcher<int>(this);
+    m_h2Watchers.insert(watcher, target);
+    connect(watcher, &QFutureWatcher<int>::finished, this, [this, watcher]() { finishH2Watcher(watcher); });
+
+    watcher->setFuture(QtConcurrent::run([target]() -> int {
+        static std::atomic<int> probePort { 19081 };
+        const int localPort = probePort.fetch_add(1);
+
+        QJsonObject inbound;
+        inbound[QStringLiteral("listen")] = QStringLiteral("127.0.0.1");
+        inbound[QStringLiteral("port")] = localPort;
+        inbound[QStringLiteral("protocol")] = QStringLiteral("socks");
+        inbound[QStringLiteral("settings")] = QJsonObject { { QStringLiteral("auth"), QStringLiteral("noauth") },
+                                                            { QStringLiteral("udp"), true } };
+
+        QJsonObject probeConfig;
+        probeConfig[QStringLiteral("inbounds")] = QJsonArray { inbound };
+        probeConfig[QStringLiteral("outbounds")] =
+                QJsonArray { apiUtils::translateLegacyHysteria2Outbound(target.outbound) };
+
+        QTemporaryFile file(QDir::tempPath() + QStringLiteral("/dopamine-h2probe-XXXXXX.json"));
+        if (!file.open()) {
+            return -1;
+        }
+        file.write(QJsonDocument(probeConfig).toJson(QJsonDocument::Compact));
+        file.flush();
+
+        const QByteArray proxy = QStringLiteral("socks5://127.0.0.1:%1").arg(localPort).toUtf8();
+        char *reply = LibXrayPing(nullptr, file.fileName().toUtf8().constData(), kH2TimeoutSec,
+                                  "https://www.google.com/generate_204", proxy.constData());
+        if (!reply) {
+            return -1;
+        }
+        const QString result = QString::fromUtf8(reply);
+        free(reply);
+
+        // libxray answers "delayMs:error"; delays >= 10000 are its failure markers
+        const int delay = result.section(QLatin1Char(':'), 0, 0).toInt();
+        const bool failed = !result.section(QLatin1Char(':'), 1).isEmpty();
+        if (failed || delay <= 0 || delay >= 10000) {
+            return -1;
+        }
+        return delay;
+    }));
+#endif
+}
+
+void HealthCheckController::finishH2Watcher(QFutureWatcher<int> *watcher)
+{
+    if (!m_h2Watchers.contains(watcher)) {
+        return;
+    }
+    const H2Target target = m_h2Watchers.take(watcher);
+    const int delayMs = watcher->result();
+    qDebug() << "[HEALTH] h2 probe" << target.host << "delay:" << delayMs;
+    watcher->deleteLater();
+
+    for (const int row : target.rows) {
+        m_serversModel->setHealthResult(row, delayMs);
+    }
+
+    startNextH2();
 }

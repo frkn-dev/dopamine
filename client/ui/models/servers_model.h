@@ -54,6 +54,10 @@ public:
 
         HasAmneziaDns,
         ServiceProtocolRole,
+        // raw backend protocol tag lowercased (e.g. "amneziawgmobile") — protocol
+        // variants get their own entry in the UI filter while ServiceProtocolRole
+        // stays canonical for logic
+        ServiceProtocolFilterRole,
         ConnectionEnvRole,
         CountryCodeRole,
         HealthLatencyRole
@@ -127,9 +131,9 @@ public slots:
     void removeServer();
     void removeServer(const int serverIndex);
 
-    // health probe result for a server (key = hostName): >=0 latency ms,
+    // health probe result for a server (key = row index): >=0 latency ms,
     // -1 offline, missing = unknown
-    void setHealthResult(const QString &serverKey, int latencyMs);
+    void setHealthResult(int serverIndex, int latencyMs);
     void clearHealthResults();
 
     QJsonObject getServerConfig(const int serverIndex) const;
@@ -230,7 +234,7 @@ private:
 
     QStringList m_availableEnvs;
 
-    QHash<QString, int> m_healthResults;
+    QHash<int, int> m_healthResults;
 };
 
 #endif // SERVERSMODEL_H

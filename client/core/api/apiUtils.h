@@ -24,6 +24,12 @@ namespace apiUtils
 
     QString getPremiumV1VpnKey(const QJsonObject &serverConfigObject);
     QString getPremiumV2VpnKey(const QJsonObject &serverConfigObject);
+
+    // Translates a legacy hysteria2 outbound (protocol "hysteria2", settings.servers[],
+    // network "udp") to the schema the current amnezia-xray-core accepts
+    // (protocol "hysteria" + network "hysteria" + hysteriaSettings.auth, ALPN h3).
+    // Non-hysteria2 outbounds pass through unchanged.
+    QJsonObject translateLegacyHysteria2Outbound(const QJsonObject &outbound);
 }
 
 #endif // APIUTILS_H

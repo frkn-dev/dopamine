@@ -212,6 +212,16 @@ void CoreController::initControllers()
 
     m_healthCheckController.reset(new HealthCheckController(m_serversModel, this));
     m_engine->rootContext()->setContextProperty("HealthCheckController", m_healthCheckController.get());
+
+    // probes are only meaningful with the VPN off — once a tunnel comes up, in-flight
+    // probes die (their traffic routes into the tunnel) and stale "offline" badges
+    // would linger next to the very server we are connected to
+    connect(m_vpnConnection.get(), &VpnConnection::connectionStateChanged, this, [this](Vpn::ConnectionState state) {
+        if (state == Vpn::ConnectionState::Connecting || state == Vpn::ConnectionState::Connected) {
+            m_healthCheckController->stopProbe();
+            m_serversModel->clearHealthResults();
+        }
+    });
 }
 
 void CoreController::initAndroidController()

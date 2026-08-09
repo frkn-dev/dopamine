@@ -172,14 +172,16 @@ namespace
 
     ProtocolData generateProtocolData(const QString &protocol)
     {
+        // callers may pass raw backend tags (e.g. AmneziaWgMobile) — normalize for logic
+        const QString p = canonicalServiceProtocol(protocol);
         ProtocolData protocolData;
-        if (protocol == configKey::cloak) {
+        if (p == configKey::cloak) {
             protocolData.certRequest = OpenVpnConfigurator::createCertRequest();
-        } else if (protocol == configKey::awg || protocol == configKey::wireguard) {
+        } else if (p == configKey::awg || p == configKey::wireguard) {
             auto connData = WireguardConfigurator::genClientKeys();
             protocolData.wireGuardClientPubKey = connData.clientPubKey;
             protocolData.wireGuardClientPrivKey = connData.clientPrivKey;
-        } else if (protocol == configKey::vless) {
+        } else if (p == configKey::vless) {
             protocolData.xrayUuid = QUuid::createUuid().toString(QUuid::WithoutBraces);
         }
 
@@ -188,11 +190,12 @@ namespace
 
     void appendProtocolDataToApiPayload(const QString &protocol, const ProtocolData &protocolData, QJsonObject &apiPayload)
     {
-        if (protocol == configKey::cloak) {
+        const QString p = canonicalServiceProtocol(protocol);
+        if (p == configKey::cloak) {
             apiPayload[configKey::certificate] = protocolData.certRequest.request;
-        } else if (protocol == configKey::awg || protocol == configKey::wireguard) {
+        } else if (p == configKey::awg || p == configKey::wireguard) {
             apiPayload[configKey::publicKey] = protocolData.wireGuardClientPubKey;
-        } else if (protocol == configKey::vless) {
+        } else if (p == configKey::vless) {
             apiPayload[configKey::publicKey] = protocolData.xrayUuid;
         }
     }
@@ -200,6 +203,8 @@ namespace
     ErrorCode fillServerConfig(const QString &protocol, const ProtocolData &apiPayloadData, const QByteArray &apiResponseBody,
                                QJsonObject &serverConfig)
     {
+        // callers may pass raw backend tags (e.g. AmneziaWgMobile) — normalize for logic
+        const QString canonicalProtocol = canonicalServiceProtocol(protocol);
         QString data = QJsonDocument::fromJson(apiResponseBody).object().value(config_key::config).toString();
 
         data.replace("vpn://", "");
@@ -225,10 +230,10 @@ namespace
         }
 
         QString configStr = ba;
-        if (protocol == configKey::cloak) {
+        if (canonicalProtocol == configKey::cloak) {
             configStr.replace("<key>", "<key>\n");
             configStr.replace("$OPENVPN_PRIV_KEY", apiPayloadData.certRequest.privKey);
-        } else if (protocol == configKey::awg) {
+        } else if (canonicalProtocol == configKey::awg) {
             // The server may either return a placeholder (client generates the key) or a real
             // client private key in last_config. Prefer the server-provided key when present,
             // otherwise fall back to the locally generated key we already sent in the request.
@@ -1149,7 +1154,7 @@ bool ApiConfigsController::importServiceFromGateway()
         }
     }
 
-    if (serverCountryCode.isEmpty() && m_apiServicesModel->getSelectedServiceProtocol() == configKey::awg) {
+    if (serverCountryCode.isEmpty() && canonicalServiceProtocol(m_apiServicesModel->getSelectedServiceProtocol()) == configKey::awg) {
         auto availableCountries = m_apiServicesModel->getSelectedServiceCountries();
         bool countryAvailable = false;
         for (const auto &country : availableCountries) {
@@ -1212,7 +1217,7 @@ bool ApiConfigsController::updateServiceFromGateway(const int serverIndex, const
     // the server peer entry (which is keyed by the public key) stays the same.
     // Otherwise each connection gets a brand new key, the server creates a new peer
     // for the same client IP and the handshake is dropped or races with the old one.
-    if (isConnectEvent && gatewayRequestData.serviceProtocol == configKey::awg) {
+    if (isConnectEvent && canonicalServiceProtocol(gatewayRequestData.serviceProtocol) == configKey::awg) {
         const auto containers = serverConfig.value(config_key::containers).toArray();
         const QString containerName = ContainerProps::containerTypeToString(DockerContainer::Awg);
         for (const QJsonValue &containerValue : containers) {
@@ -1577,7 +1582,7 @@ bool ApiConfigsController::isAwgProtocol()
     auto serverConfigObject = m_serversModel->getServerConfig(serverIndex);
     auto apiConfigObject = serverConfigObject.value(configKey::apiConfig).toObject();
 
-    return apiConfigObject[configKey::serviceProtocol].toString() == "awg";
+    return canonicalServiceProtocol(apiConfigObject[configKey::serviceProtocol].toString()) == "awg";
 }
 
 QString ApiConfigsController::getCurrentServerConfigJson()
@@ -1834,7 +1839,7 @@ bool ApiConfigsController::fetchSubscriptionConfigs(const QString &subscriptionI
     for (const auto &service : services) {
         QJsonObject serviceObject = service.toObject();
         QString serviceType = serviceObject.value(configKey::serviceType).toString();
-        QString serviceProtocol = canonicalServiceProtocol(serviceObject.value(configKey::serviceProtocol).toString());
+        QString serviceProtocol = serviceObject.value(configKey::serviceProtocol).toString();
 
         auto connections = serviceObject.value("connections").toArray();
         if (connections.isEmpty()) {
@@ -1911,9 +1916,17 @@ bool ApiConfigsController::fetchSubscriptionConfigs(const QString &subscriptionI
             apiConfig.insert(configKey::serviceType, serviceType);
             // Prefer the connection's own protocol from /v1/services (accurate since gateway v0.6.10),
             // then the gateway's api_config.service_protocol, then the service card protocol.
-            const QString connectionProtocol = canonicalServiceProtocol(connectionObject.value("service_protocol").toString());
-            if (!connectionProtocol.isEmpty()) {
-                apiConfig.insert(configKey::serviceProtocol, connectionProtocol);
+            const QString connectionProtocolRaw = connectionObject.value("service_protocol").toString();
+            const QString connectionProtocol = canonicalServiceProtocol(connectionProtocolRaw);
+            // Wire-compatible variant tags (e.g. AmneziaWgMobile) use the canonical protocol
+            // for logic, but the UI shows the backend's own tag so users can tell them apart.
+            const QString protocolVariant = connectionProtocolRaw.compare(connectionProtocol, Qt::CaseInsensitive) != 0
+                    ? serviceProtocolDisplayName(connectionProtocolRaw) : QString();
+            if (!connectionProtocolRaw.isEmpty()) {
+                // store the RAW tag: API requests must echo exactly what the backend
+                // issued (the mobile config is selected by this value), logic
+                // canonicalizes on read
+                apiConfig.insert(configKey::serviceProtocol, connectionProtocolRaw);
             } else if (apiConfig.value(configKey::serviceProtocol).toString().isEmpty()) {
                 apiConfig.insert(configKey::serviceProtocol, serviceProtocol);
             }
@@ -1942,8 +1955,8 @@ bool ApiConfigsController::fetchSubscriptionConfigs(const QString &subscriptionI
             if (name.isEmpty()) {
                 name = QString("reelsoprovod %1 %2").arg(serverCountryCode.toUpper(), protocolName);
             }
-            if (protocolDetails.isEmpty()) {
-                protocolDetails = protocolName;
+            if (protocolDetails.isEmpty() || !protocolVariant.isEmpty()) {
+                protocolDetails = protocolVariant.isEmpty() ? protocolName : protocolVariant;
             }
             QString description = QString("%1 · %2").arg(protocolDetails, hostName);
 
@@ -1953,7 +1966,7 @@ bool ApiConfigsController::fetchSubscriptionConfigs(const QString &subscriptionI
             QJsonObject displayInfo;
             displayInfo["countryCode"] = serverCountryCode.toUpper();
             displayInfo["countryName"] = connectionObject.value(configKey::countryCode).toString().toUpper();
-            displayInfo["protocol"] = protocolName;
+            displayInfo["protocol"] = protocolVariant.isEmpty() ? protocolName : protocolVariant;
             displayInfo["hostName"] = hostName;
             displayInfo["serviceName"] = serviceObject.value("service_info").toObject().value("name").toString();
             displayInfo["connectionUuid"] = connectionUuid;
@@ -1965,11 +1978,12 @@ bool ApiConfigsController::fetchSubscriptionConfigs(const QString &subscriptionI
         }
     }
 
-    // Add display index for duplicate labels within same country
+    // Add display index for duplicate labels within same country and protocol
     QMap<QString, int> labelCounts;
     for (const auto &config : m_subscriptionConfigs) {
         QJsonObject displayInfo = config.toObject().value("displayInfo").toObject();
-        QString key = displayInfo.value("connectionLabel").toString() + "|" + displayInfo.value("countryCode").toString();
+        QString key = displayInfo.value("connectionLabel").toString() + "|" + displayInfo.value("countryCode").toString()
+                      + "|" + displayInfo.value("protocol").toString();
         labelCounts[key]++;
     }
 
@@ -1978,7 +1992,8 @@ bool ApiConfigsController::fetchSubscriptionConfigs(const QString &subscriptionI
     for (const auto &config : m_subscriptionConfigs) {
         QJsonObject configObject = config.toObject();
         QJsonObject displayInfo = configObject.value("displayInfo").toObject();
-        QString key = displayInfo.value("connectionLabel").toString() + "|" + displayInfo.value("countryCode").toString();
+        QString key = displayInfo.value("connectionLabel").toString() + "|" + displayInfo.value("countryCode").toString()
+                      + "|" + displayInfo.value("protocol").toString();
         int displayIndex = 0;
         if (labelCounts[key] > 1) {
             labelCurrent[key]++;
@@ -2020,6 +2035,19 @@ bool ApiConfigsController::reloadSubscriptionConfigs()
         return false;
     }
 
+    // Remember the currently selected connection so the user doesn't end up with
+    // "no server selected" after the reinstall (which used to dump them into the
+    // legacy self-hosted setup wizard on the next connect attempt).
+    QString prevConnectionUuid;
+    QString prevNodeId;
+    const int prevDefaultIndex = m_serversModel->getDefaultServerIndex();
+    if (prevDefaultIndex >= 0 && prevDefaultIndex < m_serversModel->getServersCount()) {
+        const QJsonObject prevApiConfig = m_serversModel->getServerConfig(prevDefaultIndex)
+                                                  .value(configKey::apiConfig).toObject();
+        prevConnectionUuid = prevApiConfig.value(QStringLiteral("connection_uuid")).toString();
+        prevNodeId = prevApiConfig.value(QStringLiteral("node_id")).toString();
+    }
+
     if (!fetchSubscriptionConfigs(subscriptionId)) {
         return false;
     }
@@ -2039,7 +2067,30 @@ bool ApiConfigsController::reloadSubscriptionConfigs()
             anyInstalled = true;
         }
     }
-    return anyInstalled;
+    if (!anyInstalled) {
+        return false;
+    }
+
+    // Restore the selection: the same connection if it still exists, otherwise
+    // the first server in the list.
+    int newDefaultIndex = -1;
+    if (!prevConnectionUuid.isEmpty()) {
+        for (int i = 0; i < m_serversModel->getServersCount(); ++i) {
+            const QJsonObject apiConfig = m_serversModel->getServerConfig(i).value(configKey::apiConfig).toObject();
+            if (apiConfig.value(QStringLiteral("connection_uuid")).toString() == prevConnectionUuid
+                && apiConfig.value(QStringLiteral("node_id")).toString() == prevNodeId) {
+                newDefaultIndex = i;
+                break;
+            }
+        }
+    }
+    if (newDefaultIndex < 0 && m_serversModel->getServersCount() > 0) {
+        newDefaultIndex = 0;
+    }
+    if (newDefaultIndex >= 0) {
+        m_serversModel->setDefaultServerIndex(newDefaultIndex);
+    }
+    return true;
 }
 
 bool ApiConfigsController::installSubscriptionConfig(int index)

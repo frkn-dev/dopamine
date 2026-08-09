@@ -68,6 +68,9 @@ ListViewType {
         if (proto === "awg") {
             return "AmneziaWG"
         }
+        if (proto === "awg-mobile" || proto === "amneziawgmobile") {
+            return "AmneziaWgMobile"
+        }
         if (proto === "wireguard") {
             return "WireGuard"
         }
@@ -188,7 +191,9 @@ ListViewType {
                 image: "qrc:/images/controls/gauge.svg"
                 imageColor: AmneziaStyle.color.paleGray
 
-                visible: !ConnectionController.isConnected
+                // probing with the VPN on measures the tunnel, not the servers —
+                // keep the button visible but disabled so it doesn't "disappear"
+                enabled: !ConnectionController.isConnected
 
                 onClicked: HealthCheckController.startProbe(true)
             }
@@ -201,7 +206,7 @@ ListViewType {
 
         filters: [
             ValueFilter {
-                roleName: "serviceProtocol"
+                roleName: "serviceProtocolFilter"
                 value: root.protocolFilter
                 enabled: root.protocolFilter !== ""
             },

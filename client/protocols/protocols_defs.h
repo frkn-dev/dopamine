@@ -8,12 +8,25 @@
 namespace amnezia
 {
     // Backend protocol tags that are wire-compatible with a base protocol are
-    // normalized for internal comparisons: AmneziaWgMobile behaves exactly
-    // like AmneziaWG ("awg"). Everything else passes through unchanged.
+    // normalized for internal comparisons: the mobile AWG variant (tag
+    // "awg-mobile", gateway v0.6.22+) behaves exactly like AmneziaWG ("awg").
+    // Everything else passes through unchanged.
     inline QString canonicalServiceProtocol(const QString &protocol)
     {
-        if (protocol.compare(QStringLiteral("AmneziaWgMobile"), Qt::CaseInsensitive) == 0) {
+        if (protocol.compare(QStringLiteral("awg-mobile"), Qt::CaseInsensitive) == 0
+            || protocol.compare(QStringLiteral("AmneziaWgMobile"), Qt::CaseInsensitive) == 0) {
             return QStringLiteral("awg");
+        }
+        return protocol;
+    }
+
+    // Human-readable name for a raw backend protocol tag; canonical tags are
+    // already shown elsewhere in their usual form.
+    inline QString serviceProtocolDisplayName(const QString &protocol)
+    {
+        if (protocol.compare(QStringLiteral("awg-mobile"), Qt::CaseInsensitive) == 0
+            || protocol.compare(QStringLiteral("AmneziaWgMobile"), Qt::CaseInsensitive) == 0) {
+            return QStringLiteral("AmneziaWgMobile");
         }
         return protocol;
     }

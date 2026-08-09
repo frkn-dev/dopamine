@@ -1,6 +1,7 @@
 #include "apiUtils.h"
 
 #include <QDateTime>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 
@@ -221,4 +222,39 @@ QString apiUtils::getPremiumV2VpnKey(const QJsonObject &serverConfigObject)
     vpnKeyText = QString("vpn://%1").arg(QString(signedData.toBase64(QByteArray::Base64UrlEncoding)));
 
     return vpnKeyText;
+}
+
+QJsonObject apiUtils::translateLegacyHysteria2Outbound(const QJsonObject &outbound)
+{
+    if (outbound.value(QStringLiteral("protocol")).toString() != QStringLiteral("hysteria2")) {
+        return outbound;
+    }
+
+    const QJsonArray servers = outbound.value(QStringLiteral("settings")).toObject()
+                                       .value(QStringLiteral("servers")).toArray();
+    const QJsonObject server = servers.isEmpty() ? QJsonObject() : servers.at(0).toObject();
+
+    QJsonObject streamSettings = outbound.value(QStringLiteral("streamSettings")).toObject();
+    QJsonObject tlsSettings = streamSettings.value(QStringLiteral("tlsSettings")).toObject();
+    // hy2 works over HTTP/3 only, while backends may send a generic HTTPS ALPN
+    tlsSettings[QStringLiteral("alpn")] = QJsonArray { QStringLiteral("h3") };
+
+    QJsonObject hysteriaSettings;
+    hysteriaSettings[QStringLiteral("version")] = 2;
+    hysteriaSettings[QStringLiteral("auth")] = server.value(QStringLiteral("password")).toString();
+
+    streamSettings[QStringLiteral("network")] = QStringLiteral("hysteria");
+    streamSettings[QStringLiteral("tlsSettings")] = tlsSettings;
+    streamSettings[QStringLiteral("hysteriaSettings")] = hysteriaSettings;
+
+    QJsonObject settings;
+    settings[QStringLiteral("version")] = 2;
+    settings[QStringLiteral("address")] = server.value(QStringLiteral("address")).toString();
+    settings[QStringLiteral("port")] = server.value(QStringLiteral("port")).toInt();
+
+    QJsonObject translated = outbound;
+    translated[QStringLiteral("protocol")] = QStringLiteral("hysteria");
+    translated[QStringLiteral("settings")] = settings;
+    translated[QStringLiteral("streamSettings")] = streamSettings;
+    return translated;
 }

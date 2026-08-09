@@ -13,6 +13,7 @@
 #include <openssl/rand.h>
 
 #include "../protocols/vpnprotocol.h"
+#include "core/api/apiUtils.h"
 #import "ios_controller_wrapper.h"
 #import "StoreKitController.h"
 
@@ -436,23 +437,37 @@ void IosController::checkStatus()
 
         QMetaObject::invokeMethod(this, [this, txBytes, rxBytes, last_handshake_time_sec]() {
             if (isWireGuardBasedProto(m_proto) && m_handshakeAwaiting) {
-                const bool hasHandshakeData = (last_handshake_time_sec >= 0);
-                const bool hasFreshHandshake = hasHandshakeData &&
-                        ((last_handshake_time_sec > 0) ||
-                         (rxBytes >= kHandshakeRxThreshold) ||
-                         (txBytes >= kHandshakeRxThreshold));
+                // Only server-side evidence counts: a completed handshake or actual
+                // received bytes. Our own tx is NOT proof — with AWG junk packets
+                // and system traffic it crosses any threshold even when the server
+                // is dead, which used to produce a false "Connected".
+                const bool hasFreshHandshake = (last_handshake_time_sec > 0) ||
+                        (rxBytes >= kHandshakeRxThreshold);
 
                 if (hasFreshHandshake) {
                     m_handshakeConfirmed = true;
                     m_handshakeAwaiting = false;
+                    m_handshakeRetries = 0;
                     m_handshakeTimer.invalidate();
                     qDebug() << "IosController::checkStatus : handshake confirmed";
                     emitConnectionStateIfChanged(Vpn::ConnectionState::Connected);
                 } else if (m_handshakeTimer.isValid() &&
                            m_handshakeTimer.elapsed() > kHandshakeTimeoutMs) {
                     m_handshakeTimer.restart();
-                    qDebug() << "IosController::checkStatus : handshake timed out, keeping tunnel alive";
-                    emitConnectionStateIfChanged(Vpn::ConnectionState::Reconnecting);
+                    if (m_handshakeRetries < 1) {
+                        // one grace period — UDP handshakes can be lost on flaky links
+                        m_handshakeRetries++;
+                        qDebug() << "IosController::checkStatus : handshake timed out, retrying";
+                        emitConnectionStateIfChanged(Vpn::ConnectionState::Reconnecting);
+                    } else {
+                        qWarning() << "IosController::checkStatus : WG handshake failed, stopping the tunnel";
+                        m_handshakeAwaiting = false;
+                        m_handshakeConfirmed = false;
+                        m_handshakeRetries = 0;
+                        m_handshakeTimer.invalidate();
+                        [m_currentTunnel.connection stopVPNTunnel];
+                        emitConnectionStateIfChanged(Vpn::ConnectionState::Error);
+                    }
                 }
             }
 
@@ -574,12 +589,14 @@ void IosController::vpnStatusDidChange(void *pNotification)
                 nextState = Vpn::ConnectionState::Connecting;
                 if (!m_handshakeAwaiting) {
                     m_handshakeAwaiting = true;
+                    m_handshakeRetries = 0;
                     m_handshakeTimer.restart();
                 }
             }
         } else if (session.status != NEVPNStatusConnected) {
             m_handshakeAwaiting = false;
             m_handshakeConfirmed = false;
+            m_handshakeRetries = 0;
             m_handshakeTimer.invalidate();
             m_statusRequestInFlight = false;
         }
@@ -793,10 +810,6 @@ bool IosController::setupXray()
     // the backend sends the legacy form (protocol "hysteria2", settings.servers[],
     // network "udp"), which the new core rejects with "unknown transport protocol: udp"
     // (xray then fails to start at all and the tunnel passes no traffic).
-    // New form: protocol "hysteria", settings {version,address,port},
-    // network "hysteria" + hysteriaSettings {version, auth}.
-    // Also force ALPN h3: hy2 works over HTTP/3 only, while backends may send
-    // a generic HTTPS ALPN (h2, http/1.1).
     {
         QJsonDocument cfgDoc = QJsonDocument::fromJson(xrayConfigStr.toUtf8());
         if (cfgDoc.isObject()) {
@@ -804,37 +817,11 @@ bool IosController::setupXray()
             QJsonArray outbounds = cfgObj.value(QStringLiteral("outbounds")).toArray();
             bool changed = false;
             for (int i = 0; i < outbounds.size(); ++i) {
-                QJsonObject outbound = outbounds.at(i).toObject();
-                if (outbound.value(QStringLiteral("protocol")).toString() != QStringLiteral("hysteria2")) {
-                    continue;
+                const QJsonObject translated = apiUtils::translateLegacyHysteria2Outbound(outbounds.at(i).toObject());
+                if (translated != outbounds.at(i).toObject()) {
+                    outbounds[i] = translated;
+                    changed = true;
                 }
-
-                const QJsonArray servers = outbound.value(QStringLiteral("settings")).toObject()
-                                                   .value(QStringLiteral("servers")).toArray();
-                const QJsonObject server = servers.isEmpty() ? QJsonObject() : servers.at(0).toObject();
-
-                QJsonObject streamSettings = outbound.value(QStringLiteral("streamSettings")).toObject();
-                QJsonObject tlsSettings = streamSettings.value(QStringLiteral("tlsSettings")).toObject();
-                tlsSettings[QStringLiteral("alpn")] = QJsonArray { QStringLiteral("h3") };
-
-                QJsonObject hysteriaSettings;
-                hysteriaSettings[QStringLiteral("version")] = 2;
-                hysteriaSettings[QStringLiteral("auth")] = server.value(QStringLiteral("password")).toString();
-
-                streamSettings[QStringLiteral("network")] = QStringLiteral("hysteria");
-                streamSettings[QStringLiteral("tlsSettings")] = tlsSettings;
-                streamSettings[QStringLiteral("hysteriaSettings")] = hysteriaSettings;
-
-                QJsonObject settings;
-                settings[QStringLiteral("version")] = 2;
-                settings[QStringLiteral("address")] = server.value(QStringLiteral("address")).toString();
-                settings[QStringLiteral("port")] = server.value(QStringLiteral("port")).toInt();
-
-                outbound[QStringLiteral("protocol")] = QStringLiteral("hysteria");
-                outbound[QStringLiteral("settings")] = settings;
-                outbound[QStringLiteral("streamSettings")] = streamSettings;
-                outbounds[i] = outbound;
-                changed = true;
             }
             if (changed) {
                 cfgObj[QStringLiteral("outbounds")] = outbounds;
