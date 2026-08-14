@@ -25,6 +25,8 @@ if(TARGET Qt6::CorePrivate)
     set(LIBS ${LIBS} Qt6::CorePrivate)
 endif()
 set(LIBS ${LIBS} -ljnigraphics)
+# zlib from the NDK sysroot (gzipDecompress in apiConfigsController)
+set(LIBS ${LIBS} -lz)
 
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/platforms/android)
 
