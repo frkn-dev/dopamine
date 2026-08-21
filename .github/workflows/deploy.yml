@@ -71,21 +71,21 @@ jobs:
       with:
         name: FRKN_${{ env.VERSION }}_linux_x64.tar.zip
         path: deploy/FRKN_${{ env.VERSION }}_linux_x64.tar.zip
-        retention-days: 7
+        retention-days: 1
 
     - name: 'Upload unpacked artifact'
       uses: actions/upload-artifact@v4
       with:
         name: FRKN_Linux_unpacked
         path: deploy/AppDir
-        retention-days: 7
+        retention-days: 1
 
     - name: 'Upload translations artifact'
       uses: actions/upload-artifact@v4
       with:
         name: FRKN_translations
         path: client/translations
-        retention-days: 7
+        retention-days: 1
 
 # ------------------------------------------------------
 
@@ -177,21 +177,21 @@ jobs:
       with:
         name: FRKN_${{ env.VERSION }}_x64.exe
         path: FRKN_${{ env.VERSION }}_x64.exe
-        retention-days: 7
+        retention-days: 1
 
     - name: 'Upload MSI installer artifact'
       uses: actions/upload-artifact@v4
       with:
         name: FRKN_Windows_MSI_installer
         path: FRKN_x${{ env.BUILD_ARCH }}.msi
-        retention-days: 7
+        retention-days: 1
 
     - name: 'Upload unpacked artifact'
       uses: actions/upload-artifact@v4
       with:
         name: FRKN_Windows_unpacked
         path: deploy\\build_${{ env.BUILD_ARCH }}\\client\\Release
-        retention-days: 7
+        retention-days: 1
 
 # ------------------------------------------------------
 
@@ -292,7 +292,7 @@ jobs:
 #        path: |
 #          ${{ github.workspace }}/Dopamine-iOS.ipa
 #          ${{ github.workspace }}/*.app.dSYM.zip
-#        retention-days: 7
+#        retention-days: 1
 
 # ------------------------------------------------------
 
@@ -363,14 +363,14 @@ jobs:
       with:
         name: FRKN_MacOS_old_installer
         path: deploy/build/pkg/FRKN.pkg
-        retention-days: 7
+        retention-days: 1
 
     - name: 'Upload unpacked artifact'
       uses: actions/upload-artifact@v4
       with:
         name: FRKN_MacOS_old_unpacked
         path: deploy/build/client/FRKN.app
-        retention-days: 7
+        retention-days: 1
 
 # ------------------------------------------------------
 
@@ -454,14 +454,14 @@ jobs:
       with:
         name: FRKN_${{ env.VERSION }}_macos.zip
         path: deploy/FRKN_${{ env.VERSION }}_macos.zip
-        retention-days: 7
+        retention-days: 1
 
     - name: 'Upload unpacked artifact'
       uses: actions/upload-artifact@v4
       with:
         name: FRKN_MacOS_unpacked
         path: deploy/build/client/FRKN.app
-        retention-days: 7
+        retention-days: 1
 
   Build-MacOS-NE:
     runs-on: macos-latest
@@ -539,7 +539,7 @@ jobs:
       with:
         name: FRKN_MacOS_NE_unpacked
         path: deploy/build-macos/client/FRKN.app
-        retention-days: 7
+        retention-days: 1
 
 # ------------------------------------------------------
 
@@ -684,7 +684,7 @@ jobs:
         name: FRKN_${{ env.VERSION }}_android9+_x86_64.apk
         path: deploy/build/FRKN_${{ env.VERSION }}_android9+_x86_64.apk
         compression-level: 0
-        retention-days: 7
+        retention-days: 1
 
     - name: 'Upload x86 apk'
       uses: actions/upload-artifact@v4
@@ -692,7 +692,7 @@ jobs:
         name: FRKN_${{ env.VERSION }}_android9+_x86.apk
         path: deploy/build/FRKN_${{ env.VERSION }}_android9+_x86.apk
         compression-level: 0
-        retention-days: 7
+        retention-days: 1
 
     - name: 'Upload arm64-v8a apk'
       uses: actions/upload-artifact@v4
@@ -700,7 +700,7 @@ jobs:
         name: FRKN_${{ env.VERSION }}_android9+_arm64-v8a.apk
         path: deploy/build/FRKN_${{ env.VERSION }}_android9+_arm64-v8a.apk
         compression-level: 0
-        retention-days: 7
+        retention-days: 1
 
     - name: 'Upload armeabi-v7a apk'
       uses: actions/upload-artifact@v4
@@ -708,7 +708,7 @@ jobs:
         name: FRKN_${{ env.VERSION }}_android9+_armeabi-v7a.apk
         path: deploy/build/FRKN_${{ env.VERSION }}_android9+_armeabi-v7a.apk
         compression-level: 0
-        retention-days: 7
+        retention-days: 1
 
     - name: 'Upload aab'
       uses: actions/upload-artifact@v4
@@ -716,7 +716,7 @@ jobs:
         name: FRKN-android
         path: deploy/build/FRKN-release.aab
         compression-level: 0
-        retention-days: 7
+        retention-days: 1
 
   Extra:
     runs-on: ubuntu-latest
