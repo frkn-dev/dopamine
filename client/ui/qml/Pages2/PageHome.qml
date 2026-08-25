@@ -489,15 +489,14 @@ PageType {
 
         function onConnectionStateChanged() {
             const connected = ConnectionController.isConnected
-            if (connected && !root.wasConnected && !ConnectionController.isConnectionInProgress) {
+            if (connected && !ConnectionController.isConnectionInProgress && !connectButton.birdPerched && !pterodactylFlight.running) {
+                // settled into a real connection — fly (covers auto-select, where the
+                // Connected state arrives while the traffic check is still running)
                 root.startPterodactylFlight()
             } else if (!connected && root.wasConnected) {
                 connectButton.birdPerched = false
                 pterodactylFlight.stop()
                 pterodactyl.opacity = 0
-            } else if (connected && root.wasConnected) {
-                // already connected (e.g. restored state) — make sure the bird stays perched
-                connectButton.birdPerched = true
             }
             root.wasConnected = connected
         }

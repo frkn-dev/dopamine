@@ -306,9 +306,11 @@ void ConnectionController::connectToServerIndexWithIp(int serverIndex, const QSt
     VpnConfigurationsController vpnConfigurationController(m_settings, serverController);
 
     QJsonObject containerConfig;
-    if (!ip.isEmpty()) {
-        // use the patched container entry from the server config itself —
-        // m_containersModel still holds the unpatched primary address.
+    {
+        // Always prefer the container entry from the target server's own config —
+        // m_containersModel may still hold the PREVIOUS server's container when
+        // switching servers (produced "France" name with the old server's config
+        // body: connected to France in the UI, traffic exits the old server).
         // NB: the "container" field holds the container name ("amnezia-awg"),
         // not the protocol alias ("awg") returned by containerTypeToString
         const QString containerName = ContainerProps::containerToString(container);
@@ -624,6 +626,9 @@ void ConnectionController::finalizeAutoSuccess()
     m_autoPhase = AutoPhase::None;
     m_autoCandidates.clear();
     resetIpPool();
+    // isConnectionInProgress just flipped to false — QML must know, otherwise
+    // the connect-button spinner keeps spinning forever under the "Connected" text
+    emit connectionStateChanged();
 }
 
 void ConnectionController::connectCurrentAutoCandidate()

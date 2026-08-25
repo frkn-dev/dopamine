@@ -110,6 +110,7 @@ private:
     bool startXray(const QString &jsonConfig);
 
     void startTunnel();
+    void saveAndStartTunnel();
     void emitConnectionStateIfChanged(Vpn::ConnectionState state);
 
 private:

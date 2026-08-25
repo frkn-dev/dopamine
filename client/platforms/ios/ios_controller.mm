@@ -357,6 +357,7 @@ bool IosController::connectVpn(amnezia::Proto proto, const QJsonObject& configur
             // tunnel. Relying on the system to supersede the old session proved
             // unreliable — the previous tunnel could stay up and keep the traffic
             // while the UI already reported the new server as connected.
+            NSMutableArray<NETunnelProviderManager *> *stoppedManagers = [NSMutableArray array];
             for (NETunnelProviderManager *manager in managers) {
                 if (manager != m_currentTunnel
                     && manager.connection.status != NEVPNStatusDisconnected
@@ -364,6 +365,34 @@ bool IosController::connectVpn(amnezia::Proto proto, const QJsonObject& configur
                     && manager.connection.status != NEVPNStatusInvalid) {
                     qDebug() << "IosController::connectVpn : Stopping previously active tunnel:" << manager.localizedDescription;
                     [manager.connection stopVPNTunnel];
+                    [stoppedManagers addObject:manager];
+                }
+            }
+
+            // The stop above is async — if the new tunnel starts while the old
+            // provider is still alive, both end up with their own utun and the
+            // old one may win the routes (UI says new server, traffic exits the
+            // old one). Wait until every manager we stopped is fully Disconnected.
+            if (stoppedManagers.count > 0) {
+                __block dispatch_semaphore_t stopSem = dispatch_semaphore_create(0);
+                __block id stopObserver = [[NSNotificationCenter defaultCenter]
+                        addObserverForName:NEVPNStatusDidChangeNotification
+                                    object:nil
+                                     queue:nil
+                                usingBlock:^(NSNotification *note) {
+                    for (NETunnelProviderManager *manager in stoppedManagers) {
+                        if (manager.connection.status != NEVPNStatusDisconnected
+                            && manager.connection.status != NEVPNStatusInvalid) {
+                            return;
+                        }
+                    }
+                    dispatch_semaphore_signal(stopSem);
+                }];
+
+                long waitResult = dispatch_semaphore_wait(stopSem, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
+                [[NSNotificationCenter defaultCenter] removeObserver:stopObserver];
+                if (waitResult != 0) {
+                    qWarning() << "IosController::connectVpn : timed out waiting for the previous tunnel to stop";
                 }
             }
 
@@ -1135,6 +1164,53 @@ bool IosController::startXray(const QString &config)
 
 void IosController::startTunnel()
 {
+    m_rxBytes = 0;
+    m_txBytes = 0;
+
+    [m_currentTunnel setEnabled:YES];
+
+    // If the tunnel is alive it keeps running with the OLD providerConfiguration:
+    // startVPNTunnelWithOptions on an active session does not restart the
+    // extension — it spawns a SECOND provider instance, and then two utun
+    // interfaces race for the routes (old server keeps the traffic while the
+    // UI reports the new one). So a server switch on a connected tunnel must
+    // stop it first and start again once Disconnected arrives.
+    // NOTE: stopVPNTunnel, not stopTunnel — the latter is a no-op on a session.
+    if (m_currentTunnel.connection.status != NEVPNStatusDisconnected) {
+        qDebug() << "IosController::startTunnel: tunnel is active, restarting with the new config";
+
+        __block id observer = [[NSNotificationCenter defaultCenter]
+                addObserverForName:NEVPNStatusDidChangeNotification
+                            object:m_currentTunnel.connection
+                             queue:nil
+                        usingBlock:^(NSNotification *note) {
+            if (m_currentTunnel.connection.status == NEVPNStatusDisconnected) {
+                [[NSNotificationCenter defaultCenter] removeObserver:observer];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    saveAndStartTunnel();
+                });
+            }
+        }];
+
+        // If Disconnected never comes, do NOT force-start (that would create a
+        // second provider instance) — surface an error instead.
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            [[NSNotificationCenter defaultCenter] removeObserver:observer];
+            if (m_currentTunnel.connection.status != NEVPNStatusDisconnected) {
+                qWarning() << "IosController::startTunnel: old tunnel did not stop in time, aborting restart";
+                emit connectionStateChanged(Vpn::ConnectionState::Error);
+            }
+        });
+
+        [m_currentTunnel.connection stopVPNTunnel];
+        return;
+    }
+
+    saveAndStartTunnel();
+}
+
+void IosController::saveAndStartTunnel()
+{
     NSString *protocolName = @"Unknown";
 
     NETunnelProviderProtocol *tunnelProtocol = (NETunnelProviderProtocol *)m_currentTunnel.protocolConfiguration;
@@ -1143,11 +1219,6 @@ void IosController::startTunnel()
     } else if (tunnelProtocol.providerConfiguration[@"ovpn"] != nil) {
         protocolName = @"OpenVPN";
     }
-
-    m_rxBytes = 0;
-    m_txBytes = 0;
-
-    [m_currentTunnel setEnabled:YES];
 
     [m_currentTunnel saveToPreferencesWithCompletionHandler:^(NSError *saveError) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{

@@ -176,28 +176,28 @@
  Будь-ласка, встановіть VPN контейнер</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="371"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="775"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="373"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="780"/>
         <source>Connecting...</source>
         <translation>Підключення...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="780"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="785"/>
         <source>Connected</source>
         <translation>Підключено</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="809"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="814"/>
         <source>Preparing...</source>
         <translation>Підготовка...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="833"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="838"/>
         <source>Settings updated successfully, reconnnection...</source>
         <translation>Налаштування оновлено, підключення...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="836"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="841"/>
         <source>Settings updated successfully</source>
         <translation>Налаштування оновлено.</translation>
     </message>
@@ -206,29 +206,29 @@
         <translation type="obsolete">Вибраний протокол не підтримується на цьому пристрої</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="790"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="795"/>
         <source>Reconnecting...</source>
         <translation>Перепідключення...</translation>
     </message>
     <message>
         <location filename="../ui/controllers/connectionController.h" line="165"/>
         <location filename="../ui/controllers/connectionController.cpp" line="194"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="638"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="681"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="749"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="795"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="814"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="821"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="643"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="686"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="754"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="800"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="819"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="826"/>
         <source>Connect</source>
         <translation>Підключитись</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="804"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="809"/>
         <source>Disconnecting...</source>
         <translation>Відключаємось...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="516"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="518"/>
         <source>Searching for the best server...</source>
         <translation>Пошук найкращого сервера...</translation>
     </message>
