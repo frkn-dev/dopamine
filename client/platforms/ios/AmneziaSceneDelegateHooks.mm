@@ -25,9 +25,9 @@ static void amnezia_handleURL(NSURL *url)
     if ([[url scheme] isEqualToString:@"frkn"]) {
         NSString *urlStr = [url absoluteString];
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            // frkn://sub/ is a subscription link — ImportController handles it natively.
-            // Other frkn:// URLs are aliases for https:// (config/subscription endpoints).
-            if ([urlStr hasPrefix:@"frkn://sub/"]) {
+            // frkn://sub/ and frkn://conn/ are subscription/share links — ImportController
+            // handles them natively. Other frkn:// URLs are aliases for https://.
+            if ([urlStr hasPrefix:@"frkn://sub/"] || [urlStr hasPrefix:@"frkn://conn/"]) {
                 IosController::Instance()->importConfigFromOutside(QString::fromNSString(urlStr));
             } else {
                 NSString *httpsUrl = [urlStr stringByReplacingCharactersInRange:NSMakeRange(0, 7) withString:@"https://"];

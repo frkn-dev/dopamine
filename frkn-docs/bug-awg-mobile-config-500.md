@@ -13,7 +13,7 @@ conn: proto='awg-mobile' uuid=42ede480-0503-43ff-ab86-17d9aec12960
 Но `/v1/config` для него — HTTP 500, расшифрованное тело:
 
 ```json
-{"status": 500, "message": "Failed to build VLESS config", "response": null}
+{ "status": 500, "message": "Failed to build VLESS config", "response": null }
 ```
 
 Похоже, config-builder для awg-mobile коннекшна ошибочно идёт по ветке
@@ -23,18 +23,40 @@ VLESS и падает.
 
 ```json
 {
-  "os_version": "linux", "app_version": "4.8.14.33", "app_language": "ru",
+  "os_version": "linux",
+  "app_version": "4.8.14.33",
+  "app_language": "ru",
   "installation_uuid": "...",
-  "auth_data": {"id": "c6831dad-c6b5-4148-9e45-f7a0353fbdbc"},
-  "user_country_code": "RU", "server_country_code": "HEL",
+  "auth_data": { "id": "c6831dad-c6b5-4148-9e45-f7a0353fbdbc" },
+  "user_country_code": "RU",
+  "server_country_code": "HEL",
   "service_type": "amnezia-premium",
-  "service_protocol": "awg-mobile",   // также пробовали "awg" и "vless" — тот же 500
+  "service_protocol": "awg-mobile", // также пробовали "awg" и "vless" — тот же 500
   "connection_id": "42ede480-0503-43ff-ab86-17d9aec12960",
   "node_id": "7a66718f-4b7b-4239-8841-d3c1f9054068"
 }
 ```
 
 Контроль: обычные awg и vless коннекшны той же подписки — 200 OK.
+
+export PATH="/opt/homebrew/opt/gnu-getopt/bin:$PATH" \
+       JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home \
+       QT_HOST_PATH=/Users/2pizza/c/6.10.1/6.10.1/macos \
+       ANDROID_SDK_ROOT=$HOME/Library/Android/sdk \
+ ANDROID_NDK_ROOT=$HOME/Library/Android/sdk/ndk/26.1.10909125 \
+ && bash deploy/build_android.sh -d -a arm64-v8a
+
+unzip -o frkn-android-cert.zip frkn-release-key.jks -d ~/
+
+export PATH="/opt/homebrew/opt/gnu-getopt/bin:$PATH" \
+       JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home \
+       QT_HOST_PATH=/Users/2pizza/c/6.10.1/6.10.1/macos \
+       ANDROID_SDK_ROOT=$HOME/Library/Android/sdk \
+ ANDROID_NDK_ROOT=$HOME/Library/Android/sdk/ndk/26.1.10909125 \
+       ANDROID_KEYSTORE_PATH=$HOME/frkn-release-key.jks \
+ ANDROID_KEYSTORE_KEY_ALIAS=frkn-key \
+ ANDROID_KEYSTORE_KEY_PASS='qwerty' \
+ && bash deploy/build_android.sh -a arm64-v8a
 
 ## Регрессия
 

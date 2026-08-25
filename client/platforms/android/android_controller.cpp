@@ -101,7 +101,8 @@ bool AndroidController::initialize()
         {"onAuthResult", "(Z)V", reinterpret_cast<void *>(onAuthResult)},
         {"decodeQrCode", "(Ljava/lang/String;)Z", reinterpret_cast<bool *>(decodeQrCode)},
         {"onImeInsetsChanged", "(I)V", reinterpret_cast<void *>(onImeInsetsChanged)},
-        {"onSystemBarsInsetsChanged", "(II)V", reinterpret_cast<void *>(onSystemBarsInsetsChanged)}
+        {"onSystemBarsInsetsChanged", "(II)V", reinterpret_cast<void *>(onSystemBarsInsetsChanged)},
+        {"onShakeDetected", "()V", reinterpret_cast<void *>(onShakeDetected)}
     };
 
     QJniEnvironment env;
@@ -556,5 +557,15 @@ void AndroidController::onSystemBarsInsetsChanged(JNIEnv *env, jobject thiz, jin
 
     qDebug() << "Android system bars insets changed: nav bar =" << navBarHeightDp << "dp, status bar =" << statusBarHeightDp << "dp";
     emit AndroidController::instance()->systemBarsInsetsChanged(navBarHeightDp, statusBarHeightDp);
+}
+
+// static
+void AndroidController::onShakeDetected(JNIEnv *env, jobject thiz)
+{
+    Q_UNUSED(env);
+    Q_UNUSED(thiz);
+
+    qDebug() << "Android shake detected";
+    emit AndroidController::instance()->shakeDetected();
 }
 

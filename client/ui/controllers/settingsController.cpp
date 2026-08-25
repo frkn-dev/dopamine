@@ -112,6 +112,17 @@ void SettingsController::setServersEnvFilter(const QString &filter)
     emit serversEnvFilterChanged();
 }
 
+bool SettingsController::isAutoServerSelection()
+{
+    return m_settings->isAutoServerSelection();
+}
+
+void SettingsController::setAutoServerSelection(bool enabled)
+{
+    m_settings->setAutoServerSelection(enabled);
+    emit autoServerSelectionChanged();
+}
+
 QString SettingsController::getSecondaryDns()
 {
     return m_settings->secondaryDns();

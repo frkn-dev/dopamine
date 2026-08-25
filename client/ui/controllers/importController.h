@@ -65,6 +65,7 @@ signals:
     void importFinished();
     void importErrorOccurred(ErrorCode errorCode, bool goToPageHome);
     void frknSubscriptionLinkDetected(const QString &subscriptionId);
+    void frknShareLinkDetected(const QString &shareToken);
 
     void qrDecodingFinished();
 
@@ -85,6 +86,11 @@ private:
 
     bool parseConfigLine(const QString &line, QJsonObject &outConfig);
     void handleSubscriptionResponse(const QByteArray &responseData);
+
+    // FRKN short code (e.g. k7f2-9mxq-4t): resolve via s.frkn.org into a
+    // subscription id, then continue with the regular AGW flow; a 404 falls
+    // back to the legacy subscriber-id fetch
+    void resolveShortCode(const QString &rawInput, const QString &normalizedCode);
 
 #if defined Q_OS_ANDROID || defined Q_OS_IOS
     void stopDecodingQr();

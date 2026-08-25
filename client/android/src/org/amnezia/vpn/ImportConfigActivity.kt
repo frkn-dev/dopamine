@@ -76,8 +76,13 @@ class ImportConfigActivity : ComponentActivity() {
                     "vpn" -> intent.data?.toString()?.let(::startMainActivity)
 
                     "frkn" -> intent.data?.toString()?.let { frknUrl ->
-                        val httpsUrl = frknUrl.replaceFirst("frkn://", "https://")
-                        startMainActivity(httpsUrl)
+                        // frkn://sub/ and frkn://conn/ are handled natively by ImportController;
+                        // other frkn:// URLs are aliases for https://
+                        if (frknUrl.startsWith("frkn://sub/") || frknUrl.startsWith("frkn://conn/")) {
+                            startMainActivity(frknUrl)
+                        } else {
+                            startMainActivity(frknUrl.replaceFirst("frkn://", "https://"))
+                        }
                     }
                 }
 

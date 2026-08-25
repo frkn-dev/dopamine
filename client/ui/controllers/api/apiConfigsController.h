@@ -2,6 +2,7 @@
 #define APICONFIGSCONTROLLER_H
 
 #include <QObject>
+#include <QJsonArray>
 
 #include "configurators/openvpn_configurator.h"
 #include "ui/models/api/apiServicesModel.h"
@@ -33,6 +34,7 @@ public:
     Q_PROPERTY(QVariantList subscriptionConfigs READ getSubscriptionConfigs NOTIFY subscriptionConfigsChanged)
     Q_PROPERTY(QVariantList subscriptionPlans READ subscriptionPlans NOTIFY subscriptionPlansChanged)
     Q_PROPERTY(int selectedPlanIndex READ selectedPlanIndex WRITE setSelectedPlanIndex NOTIFY selectedPlanIndexChanged)
+    Q_PROPERTY(QString shortCode READ getShortCode NOTIFY shortCodeChanged)
 
 public slots:
     bool exportNativeConfig(const QString &serverCountryCode, const QString &fileName);
@@ -40,6 +42,12 @@ public slots:
     bool exportVpnKey(const QString &fileName);
     void prepareVpnKeyExport();
     void copyVpnKeyToClipboard();
+
+    // FRKN short code (k7f2-9mxq-4t) for the processed server's subscription —
+    // fetched from the backend on demand, empty until loaded/unsupported
+    Q_INVOKABLE void fetchShortCode();
+    Q_INVOKABLE void copyShortCodeToClipboard();
+    QString getShortCode() const { return m_shortCode; }
 
     bool fillAvailableServices();
     bool importService();
@@ -84,6 +92,16 @@ public slots:
     Q_INVOKABLE bool installSubscriptionConfig(int index);
     Q_INVOKABLE bool reloadSubscriptionConfigs();
 
+    // FRKN connection sharing (frkn://conn/<share_token>): the recipient imports a single
+    // shared connection via importSharedConnection; the owner creates/lists/revokes share
+    // tokens with shareConnection/listShares/revokeShare. All of them are synchronous
+    // (executeRequest spins its own event loop) and report via signals, like
+    // updateServiceFromGateway.
+    Q_INVOKABLE bool importSharedConnection(const QString &shareToken);
+    Q_INVOKABLE void shareConnection(int serverIndex, const QString &label);
+    Q_INVOKABLE void listShares();
+    Q_INVOKABLE void revokeShare(const QString &shareToken);
+
     QVariantList getSubscriptionConfigs() const;
 
     QVariantList subscriptionPlans() const;
@@ -104,7 +122,13 @@ signals:
     void reloadServerFromApiFinished(const QString &message);
     void updateServerFromApiFinished();
 
+    void sharedConnectionImported(const QString &message, int serverIndex);
+    void connectionShareCreated(const QString &shareUrl, const QString &shareToken);
+    void sharesListed(const QJsonArray &shares);
+    void shareRevoked(const QString &shareToken);
+
     void vpnKeyExportReady();
+    void shortCodeChanged();
 
 private:
     QList<QString> getQrCodes();
@@ -123,6 +147,7 @@ private:
 
     QList<QString> m_qrCodes;
     QString m_vpnKey;
+    QString m_shortCode;
 
     QSharedPointer<ServersModel> m_serversModel;
     QSharedPointer<ApiServicesModel> m_apiServicesModel;

@@ -32,13 +32,13 @@ ListViewType {
 
     Component.onCompleted: {
         const saved = SettingsController.serversProtocolFilter
-        if (saved !== "") {
+        if (saved !== "" && saved !== "all") {
             root.protocolFilterTouched = true
-            root.protocolFilter = saved === "all" ? "" : saved
+            root.protocolFilter = saved
         }
         const savedEnv = SettingsController.serversEnvFilter
-        if (savedEnv !== "") {
-            root.envFilter = savedEnv === "all" ? "" : savedEnv
+        if (savedEnv !== "" && savedEnv !== "all") {
+            root.envFilter = savedEnv
         }
         rebuildProtocolsModel()
         rebuildEnvsModel()
@@ -78,16 +78,23 @@ ListViewType {
     }
 
     function rebuildProtocolsModel() {
-        const protos = ServersModel.availableProtocols
+        // only protocols the selected env actually has — no dead options
+        const protos = ServersModel.availableProtocolsForEnv(root.envFilter)
+
+        // same priority as auto-select: mobile AWG first, then plain AWG
+        function pickDefault() {
+            if (protos.indexOf("awg-mobile") >= 0) return "awg-mobile"
+            if (protos.indexOf("awg") >= 0) return "awg"
+            return protos.length > 0 ? protos[0] : ""
+        }
 
         if (!root.protocolFilterTouched) {
-            root.protocolFilter = protos.indexOf("awg") >= 0 ? "awg" : ""
-        } else if (protos.length > 0 && root.protocolFilter !== "" && protos.indexOf(root.protocolFilter) < 0) {
-            root.protocolFilter = ""
+            root.protocolFilter = pickDefault()
+        } else if (protos.length > 0 && protos.indexOf(root.protocolFilter) < 0) {
+            root.protocolFilter = pickDefault()
         }
 
         protocolsModel.clear()
-        protocolsModel.append({ "name": protocolLabel(""), "value": "" })
         for (let i = 0; i < protos.length; i++) {
             protocolsModel.append({ "name": protocolLabel(protos[i]), "value": protos[i] })
         }
@@ -134,68 +141,106 @@ ListViewType {
     header: Item {
         visible: true
         width: root.width
-        height: visible ? filtersRow.implicitHeight + 8 : 0
+        height: visible ? headerColumn.implicitHeight + 8 : 0
 
-        RowLayout {
-            id: filtersRow
+        ColumnLayout {
+            id: headerColumn
 
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.leftMargin: 16
-            anchors.rightMargin: 16
-
             spacing: 8
 
-            FilterDropDown {
-                id: protocolFilterDropDown
+            RowLayout {
+                id: filtersRow
 
                 Layout.fillWidth: true
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
 
-                visible: ServersModel.availableProtocols.length > 1
+                spacing: 8
 
-                filterModel: protocolsModel
-                currentValue: root.protocolFilter
+                FilterDropDown {
+                    id: envFilterDropDown
 
-                onSelected: function(value) {
-                    root.protocolFilterTouched = true
-                    root.protocolFilter = value
-                    SettingsController.serversProtocolFilter = value === "" ? "all" : value
+                    Layout.fillWidth: true
+
+                    visible: ServersModel.availableEnvs.length > 1
+
+                    filterModel: envsModel
+                    currentValue: root.envFilter
+
+                    onSelected: function(value) {
+                        root.envFilter = value
+                        SettingsController.serversEnvFilter = value === "" ? "all" : value
+                        // protocol options depend on the env
+                        root.rebuildProtocolsModel()
+                    }
+                }
+
+                FilterDropDown {
+                    id: protocolFilterDropDown
+
+                    Layout.fillWidth: true
+
+                    visible: protocolsModel.count > 1
+
+                    filterModel: protocolsModel
+                    currentValue: root.protocolFilter
+
+                    onSelected: function(value) {
+                        root.protocolFilterTouched = true
+                        root.protocolFilter = value
+                        SettingsController.serversProtocolFilter = value === "" ? "all" : value
+                    }
+                }
+
+                ImageButtonType {
+                    id: refreshHealthButton
+
+                    Layout.alignment: Qt.AlignVCenter
+
+                    implicitWidth: 48
+                    implicitHeight: 48
+
+                    image: "qrc:/images/controls/gauge.svg"
+                    imageColor: AmneziaStyle.color.paleGray
+
+                    // probing with the VPN on measures the tunnel, not the servers —
+                    // keep the button visible but disabled so it doesn't "disappear"
+                    enabled: !ConnectionController.isConnected
+
+                    onClicked: HealthCheckController.startProbe(true)
                 }
             }
 
-            FilterDropDown {
-                id: envFilterDropDown
+            VerticalRadioButton {
+                id: autoSelectButton
+                objectName: "autoSelectButton"
 
                 Layout.fillWidth: true
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
 
-                visible: ServersModel.availableEnvs.length > 1
+                text: qsTr("Auto-select")
+                descriptionText: qsTr("Fastest available server")
 
-                filterModel: envsModel
-                currentValue: root.envFilter
+                checked: SettingsController.autoServerSelection
+                checkable: true
 
-                onSelected: function(value) {
-                    root.envFilter = value
-                    SettingsController.serversEnvFilter = value === "" ? "all" : value
+                ButtonGroup.group: serversRadioButtonGroup
+
+                onClicked: {
+                    SettingsController.autoServerSelection = true
+
+                    // connected already — reconnect to the auto-picked server
+                    if (ConnectionController.isConnected) {
+                        ConnectionController.openConnection()
+                    }
                 }
-            }
 
-            ImageButtonType {
-                id: refreshHealthButton
-
-                Layout.alignment: Qt.AlignVCenter
-
-                implicitWidth: 48
-                implicitHeight: 48
-
-                image: "qrc:/images/controls/gauge.svg"
-                imageColor: AmneziaStyle.color.paleGray
-
-                // probing with the VPN on measures the tunnel, not the servers —
-                // keep the button visible but disabled so it doesn't "disappear"
-                enabled: !ConnectionController.isConnected
-
-                onClicked: HealthCheckController.startProbe(true)
+                Keys.onEnterPressed: autoSelectButton.clicked()
+                Keys.onReturnPressed: autoSelectButton.clicked()
             }
         }
     }
@@ -289,14 +334,18 @@ ListViewType {
                     Layout.fillWidth: true
 
                     text: name
-                    descriptionText: serverDescription
+                    // no address/protocol/country here — technical details live
+                    // on the server details card; legacy servers keep services
+                    descriptionText: isServerFromGatewayApi ? "" : serverDescription
 
-                    checked: index === proxyServersModel.mapFromSource(root.selectedIndex)
+                    checked: index === proxyServersModel.mapFromSource(root.selectedIndex) && !SettingsController.autoServerSelection
                     checkable: true
 
                     ButtonGroup.group: serversRadioButtonGroup
 
                     onClicked: {
+                        SettingsController.autoServerSelection = false
+
                         root.selectedIndex = proxyServersModel.mapToSource(index)
 
                         ServersModel.defaultIndex = root.selectedIndex

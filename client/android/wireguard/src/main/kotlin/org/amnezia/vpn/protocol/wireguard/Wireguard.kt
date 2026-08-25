@@ -134,7 +134,16 @@ open class Wireguard : Protocol() {
         configData.optStringOrNull("I3")?.let { setI3(it) }
         configData.optStringOrNull("I4")?.let { setI4(it) }
         configData.optStringOrNull("I5")?.let { setI5(it) }
+        configData.optStringOrNull("RandomTrailers")?.let { setRandomTrailers(it.isAwgOnValue()) }
+        configData.optStringOrNull("DisableCookies")?.let { setDisableCookies(it.isAwgOnValue()) }
     }
+
+    // AWG 3.1 boolean params come from the backend as "on"/"off" strings
+    private fun String.isAwgOnValue(): Boolean =
+        when (trim().lowercase()) {
+            "on", "1", "true", "t", "yes" -> true
+            else -> false
+        }
 
     private fun start(
         config: WireguardConfig,

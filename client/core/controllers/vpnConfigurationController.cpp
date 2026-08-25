@@ -1,5 +1,9 @@
 #include "vpnConfigurationController.h"
 
+#include <QJsonArray>
+
+#include "core/api/apiUtils.h"
+
 #include "configurators/awg_configurator.h"
 #include "configurators/cloak_configurator.h"
 #include "configurators/ikev2_configurator.h"
@@ -144,6 +148,8 @@ QJsonObject VpnConfigurationsController::createVpnConfiguration(const QPair<QStr
             { "specialJunk3", config_key::specialJunk3 },
             { "specialJunk4", config_key::specialJunk4 },
             { "specialJunk5", config_key::specialJunk5 },
+            { "randomTrailers", config_key::randomTrailers },
+            { "disableCookies", config_key::disableCookies },
         };
         for (const auto &[longName, shortName] : awgJunkKeyMap) {
             if (vpnConfigData.contains(longName) && !vpnConfigData.contains(shortName)) {
@@ -156,6 +162,101 @@ QJsonObject VpnConfigurationsController::createVpnConfiguration(const QPair<QStr
                 vpnConfigData[config_key::mtu] =
                         ContainerProps::isAwgContainer(container) ? protocols::awg::defaultMtu :
                         protocols::wireguard::defaultMtu;
+            }
+
+            // Android (Wireguard.kt) hard-requires client_ip and allowed_ips, but
+            // backend last_config payloads may omit them (the INI is the source
+            // of truth there) — recover from any INI we have.
+            QString iniConfig = vpnConfigData.value(config_key::config).toString();
+            if (iniConfig.isEmpty()) {
+                iniConfig = protoConfig.value(config_key::config).toString();
+            }
+            if (iniConfig.isEmpty()) {
+                iniConfig = containerConfig.value(config_key::config).toString();
+            }
+
+            if (vpnConfigData.value(config_key::client_ip).toString().isEmpty()) {
+                for (const auto &line : iniConfig.split("\n")) {
+                    if (line.startsWith("Address")) {
+                        const auto parts = line.split(" = ");
+                        if (parts.size() >= 2 && !parts.at(1).trimmed().isEmpty()) {
+                            vpnConfigData[config_key::client_ip] = parts.at(1).trimmed();
+                        }
+                        break;
+                    }
+                }
+            }
+
+            if (!vpnConfigData.value(config_key::allowed_ips).isArray()) {
+                QJsonArray allowedIps;
+                for (const auto &line : iniConfig.split("\n")) {
+                    if (line.contains("AllowedIPs")) {
+                        const auto parts = line.split(" = ");
+                        if (parts.size() >= 2) {
+                            allowedIps = QJsonArray::fromStringList(parts.at(1).split(", "));
+                        }
+                        break;
+                    }
+                }
+                if (allowedIps.isEmpty()) {
+                    allowedIps = QJsonArray { "0.0.0.0/0", "::/0" };
+                }
+                vpnConfigData[config_key::allowed_ips] = allowedIps;
+            }
+
+            // Backend uses "persistent_keepalive", the app expects "persistent_keep_alive"
+            if (vpnConfigData.value(config_key::persistent_keep_alive).isUndefined()
+                && vpnConfigData.contains(QStringLiteral("persistent_keepalive"))) {
+                vpnConfigData[config_key::persistent_keep_alive] =
+                        vpnConfigData.value(QStringLiteral("persistent_keepalive"));
+            }
+
+            // AWG 3.1: backend may send RandomTrailers/DisableCookies only inside the
+            // INI string — recover them into the JSON the platform layers consume.
+            for (const auto &key : { config_key::randomTrailers, config_key::disableCookies }) {
+                if (!vpnConfigData.value(key).toString().isEmpty()) {
+                    continue;
+                }
+                for (const auto &line : iniConfig.split("\n")) {
+                    if (line.startsWith(key)) {
+                        const auto parts = line.split(" = ");
+                        if (parts.size() >= 2 && !parts.at(1).trimmed().isEmpty()) {
+                            vpnConfigData[key] = parts.at(1).trimmed();
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Backend xray/hysteria2 payloads carry only outbounds; the local socks inbound
+        // is a client-side concern. Android (Xray.kt) and the desktop daemon both expect
+        // a complete config with inbounds.
+        if (container == DockerContainer::Xray) {
+            // The backend sends hysteria2 outbounds in the legacy schema (protocol
+            // "hysteria2", settings.servers[], network "udp", generic HTTPS ALPN), which
+            // the current amnezia-xray-core rejects. iOS translates them on its side;
+            // do it here once so every platform gets the new schema (alpn h3).
+            QJsonArray outbounds = vpnConfigData.value(QStringLiteral("outbounds")).toArray();
+            bool outboundsChanged = false;
+            for (int i = 0; i < outbounds.size(); ++i) {
+                const QJsonObject translated = apiUtils::translateLegacyHysteria2Outbound(outbounds.at(i).toObject());
+                if (translated != outbounds.at(i).toObject()) {
+                    outbounds[i] = translated;
+                    outboundsChanged = true;
+                }
+            }
+            if (outboundsChanged) {
+                vpnConfigData[QStringLiteral("outbounds")] = outbounds;
+            }
+
+            if (!vpnConfigData.contains(QStringLiteral("inbounds"))) {
+                QJsonObject inbound;
+                inbound[QStringLiteral("listen")] = QStringLiteral("127.0.0.1");
+                inbound[QStringLiteral("port")] = QString(protocols::xray::defaultLocalProxyPort).toInt();
+                inbound[QStringLiteral("protocol")] = QStringLiteral("socks");
+                inbound[QStringLiteral("settings")] = QJsonObject { { QStringLiteral("udp"), true } };
+                vpnConfigData[QStringLiteral("inbounds")] = QJsonArray { inbound };
             }
         }
 

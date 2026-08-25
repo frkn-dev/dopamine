@@ -441,6 +441,13 @@ bool Daemon::parseConfig(const QJsonObject& obj, InterfaceConfig& config) {
     config.m_specialJunk["I5"] = obj.value("I5").toString();
   }
 
+  if (!obj.value("RandomTrailers").isNull()) {
+    config.m_randomTrailers = obj.value("RandomTrailers").toString();
+  }
+  if (!obj.value("DisableCookies").isNull()) {
+    config.m_disableCookies = obj.value("DisableCookies").toString();
+  }
+
   return true;
 }
 

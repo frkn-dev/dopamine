@@ -107,6 +107,8 @@ namespace amnezia
         constexpr char specialJunk3[] = "I3";
         constexpr char specialJunk4[] = "I4";
         constexpr char specialJunk5[] = "I5";
+        constexpr char randomTrailers[] = "RandomTrailers";
+        constexpr char disableCookies[] = "DisableCookies";
 
         constexpr char protocolVersion[] = "protocol_version";
 

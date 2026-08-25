@@ -35,12 +35,7 @@ set_target_properties(networkextension PROPERTIES
 
 if(DEPLOY)
     set_target_properties(networkextension PROPERTIES
-        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "Apple Distribution"
-        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY[variant=Debug] "Apple Development"
-        XCODE_ATTRIBUTE_CODE_SIGN_STYLE Manual
-        XCODE_ATTRIBUTE_CODE_SIGN_STYLE[variant=Debug] Automatic
-        XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER "match AppStore org.frkn.dopamine.network-extension"
-        XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER[variant=Debug] ""
+        XCODE_ATTRIBUTE_CODE_SIGN_STYLE Automatic
     )
 else()
     set_target_properties(networkextension PROPERTIES

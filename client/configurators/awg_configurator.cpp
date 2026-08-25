@@ -52,6 +52,14 @@ QString AwgConfigurator::createConfig(const ServerCredentials &credentials, Dock
     jsonConfig[config_key::specialJunk4] = configMap.value(amnezia::config_key::specialJunk4);
     jsonConfig[config_key::specialJunk5] = configMap.value(amnezia::config_key::specialJunk5);
 
+    // AWG 3.1 optional booleans ("on"/"off")
+    if (configMap.contains(config_key::randomTrailers)) {
+        jsonConfig[config_key::randomTrailers] = configMap.value(config_key::randomTrailers);
+    }
+    if (configMap.contains(config_key::disableCookies)) {
+        jsonConfig[config_key::disableCookies] = configMap.value(config_key::disableCookies);
+    }
+
     jsonConfig[config_key::mtu] =
             containerConfig.value(ProtocolProps::protoToString(Proto::Awg)).toObject().value(config_key::mtu).toString(protocols::awg::defaultMtu);
 

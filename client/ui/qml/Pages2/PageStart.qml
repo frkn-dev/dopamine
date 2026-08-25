@@ -240,6 +240,16 @@ PageType {
             PageController.showNotificationMessage(message)
         }
 
+        function onSharedConnectionImported(message, serverIndex) {
+            if (!ConnectionController.isConnected) {
+                ServersModel.setDefaultServerIndex(serverIndex);
+                ServersModel.processedIndex = ServersModel.defaultIndex
+            }
+
+            PageController.goToPageHome()
+            PageController.showNotificationMessage(message)
+        }
+
         function onChangeApiCountryFinished(message) {
             PageController.goToPageHome()
             PageController.showNotificationMessage(message)

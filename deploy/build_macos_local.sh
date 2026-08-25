@@ -19,7 +19,8 @@ set -o errexit -o nounset
 
 PROJECT_DIR=$(pwd)
 DEPLOY_DIR="$PROJECT_DIR/deploy"
-BUILD_DIR="$DEPLOY_DIR/build-macos-local"
+# MACOS_ARCH=x86_64|arm64 cross-slice build; empty = host arch
+BUILD_DIR="$DEPLOY_DIR/build-macos-local${MACOS_ARCH:+-$MACOS_ARCH}"
 APP_NAME=dopamine
 APP_FILENAME="$APP_NAME.app"
 
@@ -40,7 +41,7 @@ cmake --version
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 
-"$QT_BIN_DIR/qt-cmake" -S "$PROJECT_DIR" -B "$BUILD_DIR" -G Ninja
+"$QT_BIN_DIR/qt-cmake" -S "$PROJECT_DIR" -B "$BUILD_DIR" -G Ninja ${MACOS_ARCH:+-DCMAKE_OSX_ARCHITECTURES=$MACOS_ARCH}
 
 cmake --build "$BUILD_DIR" --config release --target all
 
@@ -48,6 +49,11 @@ BUNDLE_DIR="$BUILD_DIR/client/$APP_FILENAME"
 
 echo "Deploying Qt frameworks..."
 "$QT_BIN_DIR/macdeployqt" "$BUNDLE_DIR" -always-overwrite -qmldir="$PROJECT_DIR/client"
+
+# The plist template keeps $(PRODUCT_NAME) for Xcode builds; a plain Ninja build
+# leaves the literal "{PRODUCT_NAME}" as CFBundleDisplayName, which then shows up
+# in the menu bar and the privileged-helper password prompt.
+plutil -replace CFBundleDisplayName -string "Dopamine" "$BUNDLE_DIR/Contents/Info.plist"
 
 echo "Copying service binary..."
 cp -v "$BUILD_DIR/service/server/$APP_NAME-service" "$BUNDLE_DIR/Contents/macOS/"
@@ -64,3 +70,15 @@ echo "Finished. Unsigned bundle: $BUNDLE_DIR"
 echo ""
 echo "To run locally (unsigned apps may require allowing in System Settings):"
 echo "  $BUNDLE_DIR/Contents/MacOS/Dopamine"
+
+# The app needs its privileged helper in /Library/LaunchDaemons — only an
+# installer package can put it there, so the PKG (not the bare app) is the
+# distributable artifact.
+PKG_NAME="Dopamine.pkg"
+if [ -n "${MACOS_ARCH:-}" ]; then
+  case "$MACOS_ARCH" in
+    arm64) PKG_NAME="Dopamine-arm64.pkg" ;;
+    x86_64) PKG_NAME="Dopamine-intel.pkg" ;;
+  esac
+fi
+bash "$DEPLOY_DIR/package_macos_pkg.sh" "$BUILD_DIR" "$PKG_NAME"

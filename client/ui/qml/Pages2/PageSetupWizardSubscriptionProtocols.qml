@@ -126,7 +126,9 @@ PageType {
 
                     Text {
                         Layout.fillWidth: true
-                        text: model.countryCode + " · " + model.hostName
+                        // no entry address here — technical details live in diagnostics
+                        text: model.countryName !== "" ? model.countryName : model.countryCode
+                        visible: text !== ""
                         color: AmneziaStyle.color.mutedGray
                         font.pixelSize: 13
                         font.weight: 400

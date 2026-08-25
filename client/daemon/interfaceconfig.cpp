@@ -153,6 +153,13 @@ QString InterfaceConfig::toWgConf(const QMap<QString, QString>& extra) const {
     out << key << " = " << m_specialJunk[key] << "\n";
   }
 
+  if (!m_randomTrailers.isEmpty()) {
+    out << "RandomTrailers = " << m_randomTrailers << "\n";
+  }
+  if (!m_disableCookies.isEmpty()) {
+    out << "DisableCookies = " << m_disableCookies << "\n";
+  }
+
   // If any extra config was provided, append it now.
   for (const QString& key : extra.keys()) {
     out << key << " = " << extra[key] << "\n";

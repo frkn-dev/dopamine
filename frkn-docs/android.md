@@ -86,6 +86,19 @@ jarsigner \
 
 For Google Play you can also let Play App Signing handle the final signing after upload.
 
+cd /Users/2pizza/c/f/dopamine && \
+ export PATH="/opt/homebrew/opt/gnu-getopt/bin:$PATH" \
+            JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home \
+            QT_HOST_PATH=/Users/2pizza/c/6.10.1/6.10.1/macos \
+            ANDROID_SDK_ROOT=$HOME/Library/Android/sdk \
+ ANDROID_NDK_ROOT=$HOME/Library/Android/sdk/ndk/26.1.10909125 \
+            ANDROID_KEYSTORE_PATH=$HOME/frkn-release-key.jks \
+ ANDROID_KEYSTORE_KEY_ALIAS=frkn-key \
+ ANDROID_KEYSTORE_KEY_PASS='qwerty' && \
+ bash deploy/build_android.sh -a arm64-v8a
+
+~/Library/Android/sdk/platform-tools/adb install -r deploy/build/client/android-build/build/outputs/apk/debug/FRKN-arm64-v8a-debug.apk
+
 ---
 
 ## Google Play Release Checklist
@@ -120,12 +133,12 @@ The CI workflow `.github/workflows/deploy.yml` builds AAB with:
 
 The Android build expects these secrets/variables (set in CI or local env):
 
-| Variable / Secret | Purpose |
-|-------------------|---------|
-| `PROD_AGW_PUBLIC_KEY` | Public key for AGW-encrypted API requests |
-| `PROD_S3_ENDPOINT` | Production endpoint for configs |
-| `DEV_AGW_PUBLIC_KEY` / `DEV_AGW_ENDPOINT` | Dev / staging environment |
-| `FREE_V2_ENDPOINT` / `PREM_V1_ENDPOINT` | VPN endpoints |
+| Variable / Secret                         | Purpose                                   |
+| ----------------------------------------- | ----------------------------------------- |
+| `PROD_AGW_PUBLIC_KEY`                     | Public key for AGW-encrypted API requests |
+| `PROD_S3_ENDPOINT`                        | Production endpoint for configs           |
+| `DEV_AGW_PUBLIC_KEY` / `DEV_AGW_ENDPOINT` | Dev / staging environment                 |
+| `FREE_V2_ENDPOINT` / `PREM_V1_ENDPOINT`   | VPN endpoints                             |
 
 Locally you can pass them to CMake or set in the environment before running `build_android.sh`.
 
@@ -154,12 +167,12 @@ Project metadata lives in `metadata/en-US/`.
 
 ### 7. Release tracks
 
-| Track | Use case |
-|-------|----------|
-| Internal testing | Immediate distribution to up to 100 testers |
-| Closed testing | Larger controlled group, requires review for some regions |
-| Open testing | Public beta, review required |
-| Production | Public release, full review |
+| Track            | Use case                                                  |
+| ---------------- | --------------------------------------------------------- |
+| Internal testing | Immediate distribution to up to 100 testers               |
+| Closed testing   | Larger controlled group, requires review for some regions |
+| Open testing     | Public beta, review required                              |
+| Production       | Public release, full review                               |
 
 Upload the signed AAB to the desired track and roll out.
 
@@ -177,11 +190,11 @@ Currently the Android build does **not** use Google Play Billing; subscriptions 
 
 ## Common Issues
 
-| Problem | Cause / Fix |
-|---------|-------------|
-| `Could not find Android NDK` | `ANDROID_NDK_ROOT` is not set or points to the wrong directory. |
-| `qt-cmake not found` | `QT_HOST_PATH` or `QT_BIN_DIR` is missing or wrong ABI. |
-| `Keystore file not found` | `ANDROID_KEYSTORE_PATH` must be an absolute path. |
-| `JAR signer error` | Wrong keystore password, alias, or the AAB is already signed with a different certificate. |
-| `Google Play rejects upload` | Version code is not incremented or certificate does not match the upload key in Play Console. |
-| `App name shows FRKN` | Translations or `AndroidManifest.xml` still reference old branding; run a global search for `FRKN`. |
+| Problem                      | Cause / Fix                                                                                         |
+| ---------------------------- | --------------------------------------------------------------------------------------------------- |
+| `Could not find Android NDK` | `ANDROID_NDK_ROOT` is not set or points to the wrong directory.                                     |
+| `qt-cmake not found`         | `QT_HOST_PATH` or `QT_BIN_DIR` is missing or wrong ABI.                                             |
+| `Keystore file not found`    | `ANDROID_KEYSTORE_PATH` must be an absolute path.                                                   |
+| `JAR signer error`           | Wrong keystore password, alias, or the AAB is already signed with a different certificate.          |
+| `Google Play rejects upload` | Version code is not incremented or certificate does not match the upload key in Play Console.       |
+| `App name shows FRKN`        | Translations or `AndroidManifest.xml` still reference old branding; run a global search for `FRKN`. |

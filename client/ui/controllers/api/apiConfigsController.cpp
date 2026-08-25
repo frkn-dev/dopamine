@@ -405,6 +405,17 @@ namespace
         serverConfig[config_key::containers] = newServerConfig.value(config_key::containers);
         serverConfig[config_key::hostName] = newServerConfig.value(config_key::hostName);
 
+        // multi-IP nodes: the response may carry node_ips next to the config blob
+        // (top-level, also on share-token fetches) — persist it so connect time can
+        // pick a random entry address and fail over between them. Absent = single
+        // address, and a previously stored list must not linger
+        const QJsonArray nodeIps = QJsonDocument::fromJson(apiResponseBody).object().value(QStringLiteral("node_ips")).toArray();
+        if (!nodeIps.isEmpty()) {
+            serverConfig[QStringLiteral("node_ips")] = nodeIps;
+        } else {
+            serverConfig.remove(QStringLiteral("node_ips"));
+        }
+
         if (newServerConfig.value(config_key::configVersion).toInt() == apiDefs::ConfigSource::AmneziaGateway) {
             serverConfig[config_key::configVersion] = newServerConfig.value(config_key::configVersion);
             // Never overwrite the user-visible name/description from the API response.
@@ -447,6 +458,41 @@ namespace
         serverConfig[configKey::apiConfig] = apiConfig;
 
         return ErrorCode::NoError;
+    }
+
+    // Best-effort protocol detection for share imports, where the client does not know
+    // the protocol up front: decode the config container (same steps as fillServerConfig)
+    // and map its default container to a service protocol tag.
+    QString detectProtocolFromApiResponse(const QByteArray &apiResponseBody)
+    {
+        QString data = QJsonDocument::fromJson(apiResponseBody).object().value(config_key::config).toString();
+
+        data.replace("vpn://", "");
+
+        QByteArray ba = QByteArray::fromBase64(data.toUtf8());
+        if (ba.isEmpty() || (!ba.startsWith('{') && ba.left(2) != QByteArray("\x1f\x8b", 2))) {
+            ba = QByteArray::fromBase64(data.toUtf8(), QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
+        }
+
+        QByteArray baUncompressed = qUncompress(ba);
+        if (baUncompressed.isEmpty()) {
+            baUncompressed = gzipDecompress(ba);
+        }
+        if (!baUncompressed.isEmpty()) {
+            ba = baUncompressed;
+        }
+
+        const auto container = ContainerProps::containerFromString(
+                QJsonDocument::fromJson(ba).object().value(config_key::defaultContainer).toString());
+        switch (container) {
+        case DockerContainer::Awg:
+        case DockerContainer::Awg2: return QString(configKey::awg);
+        case DockerContainer::WireGuard: return QString(configKey::wireguard);
+        case DockerContainer::Xray:
+        case DockerContainer::SSXray: return QString(configKey::vless);
+        case DockerContainer::Cloak: return QString(configKey::cloak);
+        default: return QString();
+        }
     }
 }
 
@@ -729,6 +775,50 @@ void ApiConfigsController::copySubscriptionIdToClipboard()
 {
     auto clipboard = amnApp->getClipboard();
     clipboard->setText(resolveSubscriptionId());
+}
+
+void ApiConfigsController::fetchShortCode()
+{
+    if (!m_shortCode.isEmpty()) {
+        m_shortCode.clear();
+        emit shortCodeChanged();
+    }
+
+    const QString subscriptionId = resolveSubscriptionId();
+    if (subscriptionId.isEmpty()) {
+        return;
+    }
+
+    QNetworkRequest request;
+    request.setUrl(QUrl(QStringLiteral("https://api.frkn.org/short?subscription_id=") + subscriptionId));
+    request.setRawHeader("Accept", "application/json");
+    request.setTransferTimeout(10000);
+
+    QNetworkReply *reply = amnApp->networkManager()->get(request);
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        reply->deleteLater();
+
+        if (reply->error() != QNetworkReply::NoError) {
+            qWarning() << "[FRKN] short code fetch failed:" << reply->errorString();
+            return;
+        }
+
+        const QJsonObject body = QJsonDocument::fromJson(reply->readAll()).object();
+        QString code = body.value(QStringLiteral("code")).toString();
+        if (code.isEmpty()) {
+            code = body.value(QStringLiteral("short_code")).toString();
+        }
+        if (!code.isEmpty() && code != m_shortCode) {
+            m_shortCode = code;
+            emit shortCodeChanged();
+        }
+    });
+}
+
+void ApiConfigsController::copyShortCodeToClipboard()
+{
+    auto clipboard = amnApp->getClipboard();
+    clipboard->setText(m_shortCode);
 }
 
 bool ApiConfigsController::fillAvailableServices()
@@ -1356,6 +1446,244 @@ bool ApiConfigsController::updateServiceFromGateway(const int serverIndex, const
     }
 }
 
+bool ApiConfigsController::importSharedConnection(const QString &shareToken)
+{
+    qDebug() << "[SHARE IMPORT] importing shared connection";
+
+    // Dedup: a repeated import of the same link must not create a duplicate card.
+    // Closest existing behavior is the repeated subscription import — a no-op success.
+    for (int i = 0; i < m_serversModel->getServersCount(); ++i) {
+        const QJsonObject serverConfig = m_serversModel->getServerConfig(i);
+        const QJsonObject apiConfig = serverConfig.value(configKey::apiConfig).toObject();
+        if (apiConfig.value(configKey::authData).toObject().value(QStringLiteral("share_token")).toString() == shareToken) {
+            const QString existingName = serverConfig.value(config_key::name).toString();
+            qDebug() << "[SHARE IMPORT] server with this share token already exists:" << existingName;
+            emit sharedConnectionImported(tr("%1 installed successfully.").arg(existingName), i);
+            return true;
+        }
+    }
+
+    QJsonObject authData;
+    authData[QStringLiteral("share_token")] = shareToken;
+
+    GatewayRequestData gatewayRequestData { QSysInfo::productType(),
+                                            QString(APP_VERSION),
+                                            m_settings->getAppLanguage().name().split("_").first(),
+                                            m_settings->getInstallationUuid(true),
+                                            "",
+                                            "",
+                                            "",
+                                            "",
+                                            authData };
+
+    // The protocol is unknown until the first fetch, so always generate WireGuard keys
+    // and send public_key — the backend ignores it for non-WG protocols.
+    ProtocolData protocolData = generateProtocolData(configKey::awg);
+
+    QJsonObject apiPayload = gatewayRequestData.toJsonObject();
+    appendProtocolDataToApiPayload(configKey::awg, protocolData, apiPayload);
+
+    QByteArray responseBody;
+    ErrorCode errorCode = executeRequest(QString("%1v1/config"), apiPayload, responseBody);
+    if (errorCode != ErrorCode::NoError) {
+        qWarning() << "[SHARE IMPORT] config request failed:" << static_cast<int>(errorCode);
+        emit errorOccurred(errorCode);
+        return false;
+    }
+
+    // Display fields are added to the /v1/config response for share_token auth (the
+    // recipient has no access to /v1/services): share_label, country_code, country_name,
+    // service_protocol.
+    const QJsonObject responseObject = QJsonDocument::fromJson(responseBody).object();
+    QString serviceProtocol = responseObject.value(configKey::serviceProtocol).toString();
+    if (serviceProtocol.isEmpty()) {
+        // fallback when the backend does not report the protocol: sniff the container
+        // type of the decrypted config payload
+        serviceProtocol = detectProtocolFromApiResponse(responseBody);
+    }
+    if (serviceProtocol.isEmpty()) {
+        qWarning() << "[SHARE IMPORT] failed to detect the service protocol";
+        emit errorOccurred(ErrorCode::ApiConfigEmptyError);
+        return false;
+    }
+
+    QJsonObject serverConfig;
+    errorCode = fillServerConfig(serviceProtocol, protocolData, responseBody, serverConfig);
+    if (errorCode != ErrorCode::NoError) {
+        qWarning() << "[SHARE IMPORT] failed to fill config:" << static_cast<int>(errorCode);
+        emit errorOccurred(errorCode);
+        return false;
+    }
+
+    // fillServerConfig may have lost auth_data when the decrypted config didn't include it;
+    // restore it from the request payload before saving. The refresh path
+    // (updateServiceFromGateway) picks auth_data up from here and re-fetches /v1/config
+    // with the same share_token, so a shared server refreshes like any gateway server.
+    serverConfig.insert(configKey::authData, authData);
+
+    QJsonObject apiConfig = serverConfig.value(configKey::apiConfig).toObject();
+    apiConfig.insert(configKey::authData, authData);
+    apiConfig.insert(configKey::serviceProtocol, serviceProtocol);
+    apiConfig.insert(configKey::countryCode, responseObject.value(configKey::countryCode));
+    apiConfig.insert(QStringLiteral("country_name"), responseObject.value(QStringLiteral("country_name")));
+    // marker for the UI: this server came from a share link, not from a subscription
+    apiConfig.insert(QStringLiteral("shared"), true);
+    serverConfig.insert(configKey::apiConfig, apiConfig);
+
+    const QString shareLabel = responseObject.value(QStringLiteral("share_label")).toString();
+    const QString hostName = serverConfig.value(config_key::hostName).toString();
+    const QString protocolName = serviceProtocol.toUpper();
+    const QString name = shareLabel.isEmpty() ? tr("Shared connection") : shareLabel;
+
+    serverConfig[config_key::name] = name;
+    serverConfig[config_key::description] = QString("%1 %2").arg(protocolName, hostName);
+
+    QJsonObject displayInfo;
+    displayInfo["countryCode"] = responseObject.value(configKey::countryCode).toString().toUpper();
+    displayInfo["countryName"] = responseObject.value(QStringLiteral("country_name")).toString();
+    displayInfo["protocol"] = protocolName;
+    displayInfo["hostName"] = hostName;
+    displayInfo["connectionLabel"] = shareLabel;
+    serverConfig["displayInfo"] = displayInfo;
+
+    m_serversModel->addServer(serverConfig);
+
+    // Shared servers carry no env tag: with a concrete env filter active the freshly
+    // imported server would be invisible in the list, so reset the filter to "all".
+    const QString envFilter = m_settings->serversEnvFilter();
+    if (!envFilter.isEmpty() && envFilter != QStringLiteral("all")) {
+        m_settings->setServersEnvFilter(QStringLiteral("all"));
+    }
+
+    emit sharedConnectionImported(tr("%1 installed successfully.").arg(name), m_serversModel->getServersCount() - 1);
+    return true;
+}
+
+void ApiConfigsController::shareConnection(int serverIndex, const QString &label)
+{
+    const auto serverConfig = m_serversModel->getServerConfig(serverIndex);
+    const auto apiConfig = serverConfig.value(configKey::apiConfig).toObject();
+
+    const QString connectionUuid = apiConfig.value(QStringLiteral("connection_uuid")).toString();
+    const QString nodeId = apiConfig.value(QStringLiteral("node_id")).toString();
+    if (connectionUuid.isEmpty() || nodeId.isEmpty()) {
+        qWarning() << "[SHARE] server has no connection_uuid/node_id, cannot be shared, serverIndex:" << serverIndex;
+        emit errorOccurred(ErrorCode::ApiConfigEmptyError);
+        return;
+    }
+
+    QJsonObject authData = apiConfig.value(configKey::authData).toObject();
+    if (authData.isEmpty()) {
+        authData = serverConfig.value(configKey::authData).toObject();
+    }
+    // Ensure we always send api_key for the new AGW endpoints.
+    if (!authData.contains(apiDefs::key::apiKey) && authData.contains(apiDefs::key::id)) {
+        authData[apiDefs::key::apiKey] = authData.value(apiDefs::key::id);
+    }
+    if (!authData.contains(apiDefs::key::apiKey)) {
+        qWarning() << "[SHARE] server has no api_key, cannot be shared, serverIndex:" << serverIndex;
+        emit errorOccurred(ErrorCode::ApiConfigEmptyError);
+        return;
+    }
+
+    GatewayRequestData gatewayRequestData { QSysInfo::productType(),
+                                            QString(APP_VERSION),
+                                            m_settings->getAppLanguage().name().split("_").first(),
+                                            m_settings->getInstallationUuid(true),
+                                            apiConfig.value(configKey::userCountryCode).toString(),
+                                            apiConfig.value(configKey::serverCountryCode).toString(),
+                                            apiConfig.value(configKey::serviceType).toString(),
+                                            apiConfig.value(configKey::serviceProtocol).toString(),
+                                            authData };
+
+    QJsonObject apiPayload = gatewayRequestData.toJsonObject();
+    apiPayload[QStringLiteral("connection_uuid")] = connectionUuid;
+    apiPayload[QStringLiteral("node_id")] = nodeId;
+    apiPayload[QStringLiteral("label")] = label;
+
+    bool isTestPurchase = apiConfig.value(apiDefs::key::isTestPurchase).toBool(false);
+    QByteArray responseBody;
+    ErrorCode errorCode = executeRequest(QString("%1v1/share"), apiPayload, responseBody, isTestPurchase);
+    if (errorCode != ErrorCode::NoError) {
+        emit errorOccurred(errorCode);
+        return;
+    }
+
+    const QJsonObject responseObject = QJsonDocument::fromJson(responseBody).object();
+    emit connectionShareCreated(responseObject.value(QStringLiteral("share_url")).toString(),
+                                responseObject.value(QStringLiteral("share_token")).toString());
+}
+
+void ApiConfigsController::listShares()
+{
+    const QString subscriptionId = resolveSubscriptionId();
+    if (subscriptionId.isEmpty()) {
+        qWarning() << "[SHARE] no subscription id, cannot list shares";
+        emit errorOccurred(ErrorCode::ApiConfigEmptyError);
+        return;
+    }
+
+    QJsonObject authData;
+    authData[apiDefs::key::apiKey] = subscriptionId;
+    authData[apiDefs::key::id] = subscriptionId;
+
+    GatewayRequestData gatewayRequestData { QSysInfo::productType(),
+                                            QString(APP_VERSION),
+                                            m_settings->getAppLanguage().name().split("_").first(),
+                                            m_settings->getInstallationUuid(true),
+                                            "",
+                                            "",
+                                            "",
+                                            "",
+                                            authData };
+
+    QByteArray responseBody;
+    ErrorCode errorCode = executeRequest(QString("%1v1/shares"), gatewayRequestData.toJsonObject(), responseBody);
+    if (errorCode != ErrorCode::NoError) {
+        emit errorOccurred(errorCode);
+        return;
+    }
+
+    emit sharesListed(QJsonDocument::fromJson(responseBody).object().value(QStringLiteral("shares")).toArray());
+}
+
+void ApiConfigsController::revokeShare(const QString &shareToken)
+{
+    const QString subscriptionId = resolveSubscriptionId();
+    if (subscriptionId.isEmpty()) {
+        qWarning() << "[SHARE] no subscription id, cannot revoke a share";
+        emit errorOccurred(ErrorCode::ApiConfigEmptyError);
+        return;
+    }
+
+    QJsonObject authData;
+    authData[apiDefs::key::apiKey] = subscriptionId;
+    authData[apiDefs::key::id] = subscriptionId;
+
+    GatewayRequestData gatewayRequestData { QSysInfo::productType(),
+                                            QString(APP_VERSION),
+                                            m_settings->getAppLanguage().name().split("_").first(),
+                                            m_settings->getInstallationUuid(true),
+                                            "",
+                                            "",
+                                            "",
+                                            "",
+                                            authData };
+
+    QJsonObject apiPayload = gatewayRequestData.toJsonObject();
+    apiPayload[QStringLiteral("share_token")] = shareToken;
+
+    QByteArray responseBody;
+    ErrorCode errorCode = executeRequest(QString("%1v1/share/revoke"), apiPayload, responseBody);
+    // per spec, 404 (share_not_found / already revoked) is treated as success
+    if (errorCode != ErrorCode::NoError && errorCode != ErrorCode::ApiNotFoundError) {
+        emit errorOccurred(errorCode);
+        return;
+    }
+
+    emit shareRevoked(shareToken);
+}
+
 void ApiConfigsController::refreshSubscriptionConfigs()
 {
     // Throttle: at most once per 6 hours — this runs on every app start.
@@ -1369,8 +1697,10 @@ void ApiConfigsController::refreshSubscriptionConfigs()
     const int serversCount = m_serversModel->getServersCount();
     for (int i = 0; i < serversCount; ++i) {
         const auto apiConfig = m_serversModel->getServerConfig(i).value(configKey::apiConfig).toObject();
-        // only gateway-issued configs can be refreshed; manual/self-hosted ones are skipped
-        if (!apiConfig.value("connection_uuid").toString().isEmpty()) {
+        // only gateway-issued configs can be refreshed; manual/self-hosted ones are skipped.
+        // Shared connections carry no connection_uuid — they refresh through the same
+        // gateway path using their share_token auth_data.
+        if (!apiConfig.value("connection_uuid").toString().isEmpty() || apiConfig.value("shared").toBool()) {
             m_pendingSubscriptionRefresh.append(i);
         }
     }
@@ -1528,7 +1858,10 @@ bool ApiConfigsController::isConfigValid()
         m_serversModel->removeApiConfig(serverIndex);
         return updateServiceFromTelegram(serverIndex);
     } else if (configSource == apiDefs::ConfigSource::AmneziaGateway
-               && !m_serversModel->data(serverIndex, ServersModel::Roles::HasInstalledContainers).toBool()) {
+               && !m_serversModel->serverHasUsableConfig(serverIndex)) {
+        // HasInstalledContainers is not a reliable signal here: the gateway import
+        // creates the container entry even when the protocol config itself was never
+        // fetched (or a poisoned empty one was saved) — check for actual config content
         qDebug() << "[IS CONFIG VALID] updating gateway config";
         return updateServiceFromGateway(serverIndex, "", "");
     } else if (configSource && m_serversModel->isApiKeyExpired(serverIndex)) {

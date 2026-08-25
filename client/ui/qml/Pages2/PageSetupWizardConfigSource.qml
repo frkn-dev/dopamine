@@ -224,12 +224,15 @@ PageType {
                         // If extractConfigFromData returned false, it might be an async
                         // subscription fetch in progress — show busy indicator.
                         // The indicator will be hidden by signal handlers above.
+                        // frkn://sub/ and frkn://conn/ manage the busy indicator in their
+                        // coreController handlers and finish via ApiConfigsController signals.
                         var isFrkn = inputText.startsWith("frkn://")
                         var isFrknSubscription = inputText.startsWith("frkn://sub/")
+                        var isFrknShare = inputText.startsWith("frkn://conn/")
                         var isUuid = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(inputText)
                         var isHttp = inputText.startsWith("http://") || inputText.startsWith("https://")
                         var isPlainId = !inputText.includes(" ") && !inputText.includes("://")
-                        if ((isFrkn && !isFrknSubscription) || isHttp || (isPlainId && !isUuid)) {
+                        if ((isFrkn && !isFrknSubscription && !isFrknShare) || isHttp || (isPlainId && !isUuid)) {
                             PageController.showBusyIndicator(true)
                         }
                     }

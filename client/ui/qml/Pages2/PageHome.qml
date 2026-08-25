@@ -220,7 +220,7 @@ PageType {
                 RowLayout {
                     objectName: "rowLayout"
 
-                    Layout.topMargin: drawer.isCollapsedStateActive ? 26 : 14
+                    Layout.topMargin: 14
                     Layout.leftMargin: 24
                     Layout.rightMargin: 24
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
@@ -268,7 +268,9 @@ PageType {
                         maximumLineCount: 2
                         elide: Qt.ElideRight
 
-                        text: ServersModel.defaultServerName
+                        text: SettingsController.autoServerSelection && !ConnectionController.isConnected
+                              ? qsTr("Auto-select")
+                              : ServersModel.defaultServerName
                         horizontalAlignment: Qt.AlignHCenter
 
                         Behavior on opacity {
@@ -332,8 +334,8 @@ PageType {
                         buttonTextLabel.font.pixelSize: 13
                         buttonTextLabel.font.weight: 400
 
-                        // on the collapsed home card keep the row (card geometry) but show no text/icons
-                        text: drawer.isCollapsedStateActive ? "" : ServersModel.defaultServerDescriptionExpanded
+                        // collapsed card: small gray protocol plaque under the server name
+                        text: drawer.isCollapsedStateActive ? ServersModel.defaultServerProtocolName : ServersModel.defaultServerDescriptionExpanded
                         leftImageSource: drawer.isCollapsedStateActive ? "" : ServersModel.defaultServerImagePathCollapsed
                         leftImageColor: ""
                         changeLeftImageSize: false

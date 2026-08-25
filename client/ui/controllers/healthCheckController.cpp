@@ -23,6 +23,38 @@ extern "C" int WgProbeRTT(const char *host, int port, const char *clientPrivKeyB
 // "delayMs:error" (empty error on success), caller frees
 extern "C" char *LibXrayPing(const char *datDir, const char *configPath, int timeoutSec, const char *url,
                              const char *proxy);
+#elif defined(Q_OS_ANDROID)
+#include <QJniEnvironment>
+#include <QJniObject>
+
+#include "core/wgHandshakeProbe.h"
+#include "platforms/android/android_utils.h"
+
+// same Go API as LibXrayPing on Apple platforms, via the Java binding packaged
+// in the APK (client/android/xray/libXray/libxray.aar); returns "delayMs:error"
+static QString libXrayPingAndroid(const QString &configPath, int timeoutSec, const QString &url, const QString &proxy)
+{
+    // the gomobile runtime needs an app context before any Go call (Xray.kt does
+    // the same in the vpn service process; the health probe runs in the app process)
+    static bool seqInitialized = false;
+    if (!seqInitialized) {
+        QJniObject::callStaticMethod<void>("go/Seq", "setContext", "(Landroid/content/Context;)V",
+                                           AndroidUtils::getActivity().object());
+        seqInitialized = true;
+    }
+    const QJniObject reply = QJniObject::callStaticObjectMethod(
+            "org/amnezia/vpn/protocol/xray/libXray/LibXray", "ping",
+            "(Ljava/lang/String;Ljava/lang/String;JLjava/lang/String;Ljava/lang/String;)Ljava/lang/String;",
+            QJniObject::fromString(QString()).object<jstring>(), QJniObject::fromString(configPath).object<jstring>(),
+            static_cast<jlong>(timeoutSec), QJniObject::fromString(url).object<jstring>(),
+            QJniObject::fromString(proxy).object<jstring>());
+    QJniEnvironment env;
+    if (env.checkAndClearExceptions()) {
+        qWarning() << "[HEALTH] h2 probe: LibXray.ping failed (JNI exception)";
+        return QString();
+    }
+    return reply.toString();
+}
 #endif
 
 HealthCheckController::HealthCheckController(const QSharedPointer<ServersModel> &serversModel, QObject *parent)
@@ -140,8 +172,9 @@ void HealthCheckController::startProbe(bool force)
         m_queue.append(target);
     }
 
-#if defined(Q_OS_IOS) || defined(Q_OS_MACOS)
-    // collect awg/wireguard targets: blocking handshake probe via libwg-go on worker threads
+#if defined(Q_OS_IOS) || defined(Q_OS_MACOS) || defined(Q_OS_ANDROID)
+    // collect awg/wireguard targets: blocking handshake probe on worker threads
+    // (libwg-go on Apple platforms, core/wgHandshakeProbe on Android)
     for (int i = 0; i < count; ++i) {
         const QString protocol = m_serversModel->data(i, ServersModel::Roles::ServiceProtocolRole).toString();
         if (protocol != QStringLiteral("awg") && protocol != QStringLiteral("wireguard")) {
@@ -186,9 +219,10 @@ void HealthCheckController::startProbe(bool force)
         }
 
         // AWG junk params (plain WG has none -> "{}"): last_config keys are
-        // the short wg-quick names already (Jc, Jmin, ..., H1..H4)
+        // the short wg-quick names already (Jc, Jmin, ..., H1..H4, I1..I5)
         QJsonObject junk;
-        for (const char *key : { "Jc", "Jmin", "Jmax", "S1", "S2", "S3", "S4", "H1", "H2", "H3", "H4" }) {
+        for (const char *key : { "Jc", "Jmin", "Jmax", "S1", "S2", "S3", "S4", "H1", "H2", "H3", "H4",
+                                 "I1", "I2", "I3", "I4", "I5" }) {
             const QString value = lastConfig.value(QString::fromLatin1(key)).toString();
             if (!value.isEmpty()) {
                 junk.insert(QString::fromLatin1(key), value);
@@ -199,7 +233,7 @@ void HealthCheckController::startProbe(bool force)
         // carry them only there / last_config fields may be null)
         if (junk.isEmpty()) {
             static const QSet<QString> junkKeys = { "Jc", "Jmin", "Jmax", "S1", "S2", "S3", "S4",
-                                                    "H1", "H2", "H3", "H4" };
+                                                    "H1", "H2", "H3", "H4", "I1", "I2", "I3", "I4", "I5" };
             const QString ini = containerObject.value(containerName).toObject().value(QStringLiteral("config")).toString();
             for (const QString &line : ini.split(QLatin1Char('\n'))) {
                 const auto parts = line.split(QLatin1Char('='), Qt::SkipEmptyParts);
@@ -296,6 +330,23 @@ void HealthCheckController::startProbe(bool force)
     startNext();
     startNextWg();
     startNextH2();
+
+    // covers the "no targets at all" case — waiters must not hang
+    m_probeActive = true;
+    maybeFinishProbe();
+}
+
+void HealthCheckController::maybeFinishProbe()
+{
+    if (!m_probeActive) {
+        return;
+    }
+    if (!m_queue.isEmpty() || !m_socketTargets.isEmpty() || !m_wgQueue.isEmpty() || !m_wgWatchers.isEmpty()
+        || !m_h2Queue.isEmpty() || !m_h2Watchers.isEmpty()) {
+        return;
+    }
+    m_probeActive = false;
+    emit probingFinished();
 }
 
 void HealthCheckController::stopProbe()
@@ -329,6 +380,12 @@ void HealthCheckController::stopProbe()
     m_h2Watchers.clear();
     m_h2Queue.clear();
     m_seenH2Endpoints.clear();
+
+    // wake up anyone waiting on this run (e.g. auto server selection)
+    if (m_probeActive) {
+        m_probeActive = false;
+        emit probingFinished();
+    }
 }
 
 void HealthCheckController::startNext()
@@ -428,11 +485,12 @@ void HealthCheckController::finishSocket(QTcpSocket *socket, int latencyMs)
     }
 
     startNext();
+    maybeFinishProbe();
 }
 
 void HealthCheckController::startNextWg()
 {
-#if defined(Q_OS_IOS) || defined(Q_OS_MACOS)
+#if defined(Q_OS_IOS) || defined(Q_OS_MACOS) || defined(Q_OS_ANDROID)
     // few parallel WG probes: racing handshakes with the same key get dropped
     while (m_wgWatchers.size() < kWgMaxParallel && !m_wgQueue.isEmpty()) {
         const WgTarget target = m_wgQueue.takeFirst();
@@ -445,6 +503,11 @@ void HealthCheckController::startNextWg()
         });
 
         watcher->setFuture(QtConcurrent::run([target]() -> int {
+#if defined(Q_OS_ANDROID)
+            const QJsonObject junk = QJsonDocument::fromJson(target.junkParamsJson.toUtf8()).object();
+            return wgProbeHandshakeRTT(target.host, target.port, target.clientPrivKey, target.serverPubKey,
+                                       target.psk, junk, kWgTimeoutMs);
+#else
             const QByteArray host = target.host.toUtf8();
             const QByteArray privKey = target.clientPrivKey.toUtf8();
             const QByteArray pubKey = target.serverPubKey.toUtf8();
@@ -452,6 +515,7 @@ void HealthCheckController::startNextWg()
             const QByteArray junk = target.junkParamsJson.toUtf8();
             return WgProbeRTT(host.constData(), static_cast<int>(target.port), privKey.constData(), pubKey.constData(),
                               psk.constData(), junk.constData(), kWgTimeoutMs);
+#endif
         }));
     }
 #endif
@@ -478,11 +542,12 @@ void HealthCheckController::finishWatcher(QFutureWatcher<int> *watcher)
     }
 
     startNextWg();
+    maybeFinishProbe();
 }
 
 void HealthCheckController::startNextH2()
 {
-#if defined(Q_OS_IOS) || defined(Q_OS_MACOS)
+#if defined(Q_OS_IOS) || defined(Q_OS_MACOS) || defined(Q_OS_ANDROID)
     // strictly one at a time: each ping spins up a full xray instance and
     // libxray keeps global state
     if (!m_h2Watchers.isEmpty() || m_h2Queue.isEmpty()) {
@@ -518,6 +583,11 @@ void HealthCheckController::startNextH2()
         file.flush();
 
         const QByteArray proxy = QStringLiteral("socks5://127.0.0.1:%1").arg(localPort).toUtf8();
+#if defined(Q_OS_ANDROID)
+        const QString result = libXrayPingAndroid(file.fileName(), kH2TimeoutSec,
+                                                  QStringLiteral("https://www.google.com/generate_204"),
+                                                  QString::fromUtf8(proxy));
+#else
         char *reply = LibXrayPing(nullptr, file.fileName().toUtf8().constData(), kH2TimeoutSec,
                                   "https://www.google.com/generate_204", proxy.constData());
         if (!reply) {
@@ -525,6 +595,10 @@ void HealthCheckController::startNextH2()
         }
         const QString result = QString::fromUtf8(reply);
         free(reply);
+#endif
+        if (result.isEmpty()) {
+            return -1;
+        }
 
         // libxray answers "delayMs:error"; delays >= 10000 are its failure markers
         const int delay = result.section(QLatin1Char(':'), 0, 0).toInt();
@@ -552,4 +626,5 @@ void HealthCheckController::finishH2Watcher(QFutureWatcher<int> *watcher)
     }
 
     startNextH2();
+    maybeFinishProbe();
 }

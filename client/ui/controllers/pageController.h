@@ -153,7 +153,7 @@ signals:
     void escapePressed();
     void closeTopDrawer();
 
-    // forwarded from the platform shake-gesture hook (iOS only for now)
+    // forwarded from the platform shake-gesture hook (iOS, Android)
     void shakeDetected();
 
 private:

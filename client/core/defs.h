@@ -124,6 +124,9 @@ namespace amnezia
         ApiSubscriptionExpiredError = 1112,
         ApiPurchaseError = 1113,
 
+        // connection errors
+        ServerConnectionTimeoutError = 1300,
+
         // QFile errors
         OpenError = 1200,
         ReadError = 1201,

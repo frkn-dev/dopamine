@@ -6,6 +6,7 @@ struct WGConfig: Decodable {
   let junkPacketCount, junkPacketMinSize, junkPacketMaxSize: String?
   let initPacketJunkSize, responsePacketJunkSize, cookieReplyPacketJunkSize, transportPacketJunkSize: String?
   let specialJunk1, specialJunk2, specialJunk3, specialJunk4, specialJunk5: String?
+  let randomTrailers, disableCookies: String?
   let dns1: String
   let dns2: String
   let mtu: String
@@ -28,6 +29,7 @@ struct WGConfig: Decodable {
     case junkPacketCount = "Jc", junkPacketMinSize = "Jmin", junkPacketMaxSize = "Jmax"
     case initPacketJunkSize = "S1", responsePacketJunkSize = "S2", cookieReplyPacketJunkSize = "S3", transportPacketJunkSize = "S4"
     case specialJunk1 = "I1", specialJunk2 = "I2", specialJunk3 = "I3", specialJunk4 = "I4", specialJunk5 = "I5"
+    case randomTrailers = "RandomTrailers", disableCookies = "DisableCookies"
     case dns1
     case dns2
     case mtu
@@ -65,6 +67,8 @@ struct WGConfig: Decodable {
     specialJunk3 = try c.decodeIfPresent(String.self, forKey: .specialJunk3)
     specialJunk4 = try c.decodeIfPresent(String.self, forKey: .specialJunk4)
     specialJunk5 = try c.decodeIfPresent(String.self, forKey: .specialJunk5)
+    randomTrailers = try c.decodeIfPresent(String.self, forKey: .randomTrailers)
+    disableCookies = try c.decodeIfPresent(String.self, forKey: .disableCookies)
     dns1 = try c.decode(String.self, forKey: .dns1)
     dns2 = try c.decode(String.self, forKey: .dns2)
     mtu = try c.decode(String.self, forKey: .mtu)
@@ -145,6 +149,13 @@ struct WGConfig: Decodable {
     }
     if let i5 = trimmed(specialJunk5) {
       settingsLines.append("I5 = \(i5)")
+    }
+
+    if let randomTrailers = trimmed(randomTrailers) {
+      settingsLines.append("RandomTrailers = \(randomTrailers)")
+    }
+    if let disableCookies = trimmed(disableCookies) {
+      settingsLines.append("DisableCookies = \(disableCookies)")
     }
 
     return settingsLines.joined(separator: "\n")

@@ -39,6 +39,7 @@ public:
     Q_PROPERTY(int imeHeight READ getImeHeight NOTIFY imeHeightChanged)
     Q_PROPERTY(QString serversProtocolFilter READ getServersProtocolFilter WRITE setServersProtocolFilter NOTIFY serversProtocolFilterChanged)
     Q_PROPERTY(QString serversEnvFilter READ getServersEnvFilter WRITE setServersEnvFilter NOTIFY serversEnvFilterChanged)
+    Q_PROPERTY(bool autoServerSelection READ isAutoServerSelection WRITE setAutoServerSelection NOTIFY autoServerSelectionChanged)
 
 public slots:
     void toggleAmneziaDns(bool enable);
@@ -55,6 +56,9 @@ public slots:
 
     bool isServerPingTextVisible();
     void setServerPingTextVisible(bool visible);
+
+    bool isAutoServerSelection();
+    void setAutoServerSelection(bool enabled);
 
     void openLogsFolder();
     void openServiceLogsFolder();
@@ -162,6 +166,7 @@ signals:
 
     void serversProtocolFilterChanged();
     void serversEnvFilterChanged();
+    void autoServerSelectionChanged();
 
 private:
     QSharedPointer<ServersModel> m_serversModel;

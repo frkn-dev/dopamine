@@ -132,8 +132,7 @@ QVariant ServersModel::data(const QModelIndex &index, int role) const
         return name;
     }
     case ServerDescriptionRole: {
-        auto description = getServerDescription(server, index.row());
-        return configVersion ? description : description + server.value(config_key::hostName).toString();
+        return getServerDescription(server, index.row());
     }
     case HostNameRole: return server.value(config_key::hostName).toString();
     case CredentialsRole: return QVariant::fromValue(serverCredentials(index.row()));
@@ -187,6 +186,15 @@ QVariant ServersModel::data(const QModelIndex &index, int role) const
         if (protocol.isEmpty()) {
             protocol = server.value(QStringLiteral("displayInfo")).toObject().value(QStringLiteral("protocol")).toString();
         }
+        if (protocol.isEmpty()) {
+            // legacy self-hosted servers carry no api metadata — derive the tag
+            // from the default container so the protocol filter doesn't hide them
+            const auto container = ContainerProps::containerFromString(server.value(config_key::defaultContainer).toString());
+            protocol = ContainerProps::containerTypeToProtocolString(container);
+            if (protocol == QStringLiteral("none")) {
+                protocol.clear();
+            }
+        }
         return protocol.toLower();
     }
     case ConnectionEnvRole: {
@@ -201,6 +209,27 @@ QVariant ServersModel::data(const QModelIndex &index, int role) const
             countryCode = server.value(QStringLiteral("displayInfo")).toObject().value(QStringLiteral("countryCode")).toString();
         }
         return countryCode.toUpper();
+    }
+    case CountryNameRole: {
+        // human-readable country without the protocol suffix — the server list
+        // shows it under the name while the protocol lives in the filter dropdown
+        auto countryName = apiConfig.value(configKey::serverCountryName).toString();
+        if (countryName.isEmpty()) {
+            countryName = server.value(QStringLiteral("displayInfo")).toObject().value(QStringLiteral("countryName")).toString();
+        }
+        return countryName;
+    }
+    case NodeIpsRole: {
+        // all entry addresses of a multi-IP node (empty for single-address nodes)
+        QStringList ips;
+        const QJsonArray nodeIps = server.value(QStringLiteral("node_ips")).toArray();
+        for (const QJsonValue &v : nodeIps) {
+            const QString ip = v.toString();
+            if (!ip.isEmpty()) {
+                ips.append(ip);
+            }
+        }
+        return ips;
     }
     case HealthLatencyRole: {
         // >=0 latency ms, -1 offline, -2 unknown (not probed yet); keyed by row
@@ -264,6 +293,34 @@ const int ServersModel::getDefaultServerIndex()
 const QString ServersModel::getDefaultServerName()
 {
     return qvariant_cast<QString>(data(m_defaultServerIndex, NameRole));
+}
+
+// short human-readable protocol label for the home card plaque (small gray
+// text under the server name): honors raw backend variant tags (awg-mobile)
+// and falls back to the container name for self-hosted configs
+const QString ServersModel::getDefaultServerProtocolName()
+{
+    const QJsonObject serverConfig = m_servers.at(m_defaultServerIndex).toObject();
+    const auto configVersion = serverConfig.value(config_key::configVersion).toInt();
+
+    if (configVersion) {
+        QString protocol = serverConfig.value(configKey::apiConfig).toObject().value(configKey::serviceProtocol).toString();
+        if (protocol.isEmpty()) {
+            protocol = serverConfig.value(QStringLiteral("displayInfo")).toObject().value(QStringLiteral("protocol")).toString();
+        }
+        const QString display = serviceProtocolDisplayName(protocol);
+        if (display != protocol) {
+            return display;
+        }
+        static const QHash<QString, QString> names = { { QStringLiteral("awg"), QStringLiteral("AmneziaWG") },
+                                                       { QStringLiteral("vless"), QStringLiteral("VLESS") },
+                                                       { QStringLiteral("hysteria2"), QStringLiteral("Hysteria2") },
+                                                       { QStringLiteral("wireguard"), QStringLiteral("WireGuard") } };
+        return names.value(protocol.toLower(), protocol.toUpper());
+    }
+
+    const auto container = ContainerProps::containerFromString(serverConfig.value(config_key::defaultContainer).toString());
+    return ContainerProps::containerHumanNames().value(container);
 }
 
 QString ServersModel::getServerDescription(const QJsonObject &server, const int index) const
@@ -338,6 +395,30 @@ const QString ServersModel::getDefaultServerDescriptionExpanded()
     }
 
     return description += server.value(config_key::hostName).toString();
+}
+
+const QString ServersModel::getDefaultServerHostName()
+{
+    if (m_defaultServerIndex < 0 || m_defaultServerIndex >= m_servers.count()) {
+        return QString();
+    }
+    return m_servers.at(m_defaultServerIndex).toObject().value(config_key::hostName).toString();
+}
+
+const QStringList ServersModel::getDefaultServerNodeIps()
+{
+    if (m_defaultServerIndex < 0 || m_defaultServerIndex >= m_servers.count()) {
+        return QStringList();
+    }
+    QStringList ips;
+    const QJsonArray nodeIps = m_servers.at(m_defaultServerIndex).toObject().value(QStringLiteral("node_ips")).toArray();
+    for (const QJsonValue &v : nodeIps) {
+        const QString ip = v.toString();
+        if (!ip.isEmpty()) {
+            ips.append(ip);
+        }
+    }
+    return ips;
 }
 
 const int ServersModel::getServersCount()
@@ -532,6 +613,8 @@ QHash<int, QByteArray> ServersModel::roleNames() const
     roles[ServiceProtocolFilterRole] = "serviceProtocolFilter";
     roles[ConnectionEnvRole] = "connectionEnv";
     roles[CountryCodeRole] = "countryCode";
+    roles[CountryNameRole] = "countryName";
+    roles[NodeIpsRole] = "nodeIps";
     roles[HealthLatencyRole] = "healthLatency";
 
     return roles;
@@ -885,6 +968,35 @@ bool ServersModel::serverHasInstalledContainers(const int serverIndex) const
     return false;
 }
 
+bool ServersModel::serverHasUsableConfig(const int serverIndex) const
+{
+    const QJsonObject server = m_servers.at(serverIndex).toObject();
+    // the "container" field holds the container name ("amnezia-awg") — not the
+    // protocol alias ("awg") that containerTypeToString returns
+    const QString defaultContainerName = ContainerProps::containerToString(
+            ContainerProps::containerFromString(server.value(config_key::defaultContainer).toString()));
+    const auto containers = server.value(config_key::containers).toArray();
+    for (const QJsonValue &containerValue : containers) {
+        const QJsonObject containerObject = containerValue.toObject();
+        if (containerObject.value(config_key::container).toString() != defaultContainerName) {
+            continue;
+        }
+        // the entry exists — but does it hold an actual protocol config? Mirror the
+        // extraction order of VpnConfigurationController::createVpnConfiguration:
+        // a nested protocol object first, then the flat container fields (CDN form)
+        for (auto it = containerObject.begin(); it != containerObject.end(); ++it) {
+            const QJsonObject protocolObject = it.value().toObject();
+            if (!protocolObject.value(config_key::last_config).toString().isEmpty()
+                || !protocolObject.value(config_key::config).toString().isEmpty()) {
+                return true;
+            }
+        }
+        return !containerObject.value(config_key::last_config).toString().isEmpty()
+                || !containerObject.value(config_key::config).toString().isEmpty();
+    }
+    return false;
+}
+
 QVariant ServersModel::getDefaultServerData(const QString roleString)
 {
     auto roles = roleNames();
@@ -1106,6 +1218,23 @@ QStringList ServersModel::availableProtocols() const
 QStringList ServersModel::availableEnvs() const
 {
     return m_availableEnvs;
+}
+
+QStringList ServersModel::availableProtocolsForEnv(const QString &env) const
+{
+    QSet<QString> protocols;
+    for (int i = 0; i < m_servers.size(); ++i) {
+        if (!env.isEmpty() && data(index(i), ConnectionEnvRole).toString() != env) {
+            continue;
+        }
+        const QString protocol = data(index(i), ServiceProtocolFilterRole).toString();
+        if (!protocol.isEmpty()) {
+            protocols.insert(protocol);
+        }
+    }
+    QStringList sorted = protocols.values();
+    sorted.sort();
+    return sorted;
 }
 
 void ServersModel::setHealthResult(int serverIndex, int latencyMs)

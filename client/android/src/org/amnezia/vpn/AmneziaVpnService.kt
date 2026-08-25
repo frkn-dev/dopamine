@@ -3,6 +3,7 @@ package org.amnezia.vpn
 import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND_SERVICE
+import android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_PERCEPTIBLE
 import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -39,6 +40,7 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.amnezia.vpn.protocol.BadConfigException
 import org.amnezia.vpn.protocol.ProtocolState.CONNECTED
@@ -100,6 +102,11 @@ open class AmneziaVpnService : VpnService() {
     private var connectionJob: Job? = null
     private var disconnectionJob: Job? = null
     private var trafficStatsUpdateJob: Job? = null
+    // newest config requested while a previous tunnel was still up — applied as
+    // soon as the teardown reaches DISCONNECTED (server switch / auto-select
+    // advance used to be silently dropped while CONNECTING)
+    @Volatile
+    private var pendingVpnConfig: String? = null
     // private var statisticsSendingJob: Job? = null
     private lateinit var networkState: NetworkState
     private lateinit var trafficStats: TrafficStats
@@ -492,7 +499,14 @@ open class AmneziaVpnService : VpnService() {
 
     @MainThread
     private fun connectToVpn(vpnConfig: String) {
-        if (isConnected || protocolState.value == CONNECTING) return
+        if (isConnected || protocolState.value == CONNECTING) {
+            // a new config while connecting/connected means "switch server":
+            // restart with the newest config instead of silently dropping it
+            Log.d(TAG, "Restart VPN connection with new config")
+            pendingVpnConfig = vpnConfig
+            disconnect()
+            return
+        }
 
         Log.d(TAG, "Start VPN connection")
 
@@ -552,6 +566,14 @@ open class AmneziaVpnService : VpnService() {
             } catch (e: TimeoutCancellationException) {
                 Log.w(TAG, "Disconnect timeout")
                 stopService()
+            }
+
+            // a server switch requested during the teardown — start the newest config
+            pendingVpnConfig?.let { config ->
+                pendingVpnConfig = null
+                withContext(Dispatchers.Main) {
+                    connectToVpn(config)
+                }
             }
         }
     }
@@ -623,9 +645,15 @@ open class AmneziaVpnService : VpnService() {
         }
 
     companion object {
-        fun isRunning(context: Context, processName: String): Boolean =
-            context.getSystemService<ActivityManager>()!!.runningAppProcesses.any {
-                it.processName == processName && it.importance <= IMPORTANCE_FOREGROUND_SERVICE
+        fun isRunning(context: Context, processName: String): Boolean {
+            // VpnProto.processName keeps the upstream org.amnezia.vpn prefix, while the
+            // real process is "<our package>:<suffix>" — compare the package-relative part
+            val expected = context.packageName + ":" + processName.substringAfter(':')
+            return context.getSystemService<ActivityManager>()!!.runningAppProcesses.any {
+                // importance threshold: a foreground-service process may surface as
+                // PERCEPTIBLE on some OEM builds; cached corpses (400+) stay excluded
+                it.processName == expected && it.importance <= IMPORTANCE_PERCEPTIBLE
             }
+        }
     }
 }

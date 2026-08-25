@@ -286,6 +286,15 @@ bool IosController::connectVpn(amnezia::Proto proto, const QJsonObject& configur
     m_rawConfig = configuration;
     m_serverAddress = configuration.value(config_key::hostName).toString().toNSString();
 
+    // A new connect invalidates any handshake state from a previous tunnel —
+    // otherwise switching between WG-based servers would skip handshake
+    // verification (and its failure handling) on the new server entirely.
+    m_handshakeAwaiting = false;
+    m_handshakeConfirmed = false;
+    m_handshakeRetries = 0;
+    m_handshakeTimer.invalidate();
+    m_statusRequestInFlight = false;
+
     QString tunnelName;
     if (configuration.value(config_key::description).toString().isEmpty()) {
         tunnelName = QString("%1 %2")
@@ -342,6 +351,20 @@ bool IosController::connectVpn(amnezia::Proto proto, const QJsonObject& configur
                 m_currentTunnel = [[NETunnelProviderManager alloc] init];
                 m_currentTunnel.localizedDescription = [NSString stringWithUTF8String:tunnelName.toStdString().c_str()];
                 qDebug() << "IosController::connectVpn : Creating new tunnel" << m_currentTunnel.localizedDescription;
+            }
+
+            // Switching servers while connected: explicitly stop any other active
+            // tunnel. Relying on the system to supersede the old session proved
+            // unreliable — the previous tunnel could stay up and keep the traffic
+            // while the UI already reported the new server as connected.
+            for (NETunnelProviderManager *manager in managers) {
+                if (manager != m_currentTunnel
+                    && manager.connection.status != NEVPNStatusDisconnected
+                    && manager.connection.status != NEVPNStatusDisconnecting
+                    && manager.connection.status != NEVPNStatusInvalid) {
+                    qDebug() << "IosController::connectVpn : Stopping previously active tunnel:" << manager.localizedDescription;
+                    [manager.connection stopVPNTunnel];
+                }
             }
 
         }
@@ -1056,6 +1079,9 @@ bool IosController::setupAwg()
     wgConfig.insert(config_key::specialJunk3, config[config_key::specialJunk3]);
     wgConfig.insert(config_key::specialJunk4, config[config_key::specialJunk4]);
     wgConfig.insert(config_key::specialJunk5, config[config_key::specialJunk5]);
+
+    wgConfig.insert(config_key::randomTrailers, config[config_key::randomTrailers]);
+    wgConfig.insert(config_key::disableCookies, config[config_key::disableCookies]);
 
     QJsonDocument wgConfigDoc(wgConfig);
     QString wgConfigDocStr(wgConfigDoc.toJson(QJsonDocument::Compact));

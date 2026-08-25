@@ -15,6 +15,57 @@ import "../Config"
 PageType {
     id: root
 
+    // on iOS the camera preview is a native CALayer floating above the whole
+    // window — it must be stopped explicitly, page navigation alone doesn't
+    // hide it (a page pushed on top would stay covered by the live camera)
+    property bool cameraRunning: false
+
+    function startCamera() {
+        if (root.cameraRunning) {
+            return
+        }
+        root.cameraRunning = true
+        console.log("[QR] camera start")
+        qrCodeReader.setCameraSize(Qt.rect(qrCodeRectange.x,
+                                           qrCodeRectange.y,
+                                           qrCodeRectange.width,
+                                           qrCodeRectange.height))
+        qrCodeReader.startReading()
+    }
+
+    function stopCamera() {
+        // not gated by the flag on purpose: a missed start must never leave
+        // the native layer hanging — repeated stops are harmless
+        root.cameraRunning = false
+        console.log("[QR] camera stop")
+        qrCodeReader.stopReading()
+    }
+
+    Component.onCompleted: root.startCamera()
+    Component.onDestruction: root.stopCamera()
+
+    // if a terminal scan did NOT navigate away (fetch failed, malformed link) —
+    // resume the camera so the user can retry
+    Timer {
+        id: resumeCameraTimer
+        interval: 1200
+        onTriggered: {
+            if (root.StackView.status === StackView.Active) {
+                root.startCamera()
+            }
+        }
+    }
+
+    // pause the camera while another page covers this one (e.g. the protocol
+    // selection pushed after a frkn://sub scan), restart when we're back
+    StackView.onStatusChanged: {
+        if (StackView.status === StackView.Activating) {
+            root.startCamera()
+        } else if (StackView.status === StackView.Deactivating) {
+            root.stopCamera()
+        }
+    }
+
     BackButtonType {
         id: backButton
         anchors.left: parent.left
@@ -88,19 +139,23 @@ PageType {
            id: qrCodeReader
 
            onCodeReaded: function(code) {
-               ImportController.parseQrCodeChunk(code)
-               progressBar.value = ImportController.getQrCodeScanProgressBarValue()
-               header.progressString = ImportController.getQrCodeScanProgressString()
+               console.log("[QR] code read:", code.length > 40 ? code.substring(0, 40) + "..." : code)
+               // any URI is a terminal single-shot code — freeze the camera
+               // BEFORE parseQrCodeChunk, it may block on a network fetch
+               if (code.indexOf("://") >= 0) {
+                   root.stopCamera()
+               }
+               var done = ImportController.parseQrCodeChunk(code)
+               if (done) {
+                   // terminal content (frkn:// link, URL, complete chunk set) —
+                   // freeze the camera, the flow navigates away on its own
+                   root.stopCamera()
+                   resumeCameraTimer.restart()
+               } else {
+                   progressBar.value = ImportController.getQrCodeScanProgressBarValue()
+                   header.progressString = ImportController.getQrCodeScanProgressString()
+               }
            }
-
-           Component.onCompleted: {
-               qrCodeReader.setCameraSize(Qt.rect(qrCodeRectange.x,
-                                                  qrCodeRectange.y,
-                                                  qrCodeRectange.width,
-                                                  qrCodeRectange.height))
-               qrCodeReader.startReading()
-           }
-           Component.onDestruction: qrCodeReader.stopReading()
         }
     }
 }

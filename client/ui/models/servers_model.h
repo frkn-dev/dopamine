@@ -60,6 +60,8 @@ public:
         ServiceProtocolFilterRole,
         ConnectionEnvRole,
         CountryCodeRole,
+        CountryNameRole,
+        NodeIpsRole,
         HealthLatencyRole
     };
 
@@ -78,6 +80,7 @@ public:
 
     Q_PROPERTY(int defaultIndex READ getDefaultServerIndex WRITE setDefaultServerIndex NOTIFY defaultServerIndexChanged)
     Q_PROPERTY(QString defaultServerName READ getDefaultServerName NOTIFY defaultServerNameChanged)
+    Q_PROPERTY(QString defaultServerProtocolName READ getDefaultServerProtocolName NOTIFY defaultServerIndexChanged)
     Q_PROPERTY(QString defaultServerDefaultContainerName READ getDefaultServerDefaultContainerName NOTIFY defaultServerDefaultContainerChanged)
     Q_PROPERTY(QString defaultServerDescriptionCollapsed READ getDefaultServerDescriptionCollapsed NOTIFY defaultServerDefaultContainerChanged)
     Q_PROPERTY(QString defaultServerImagePathCollapsed READ getDefaultServerImagePathCollapsed NOTIFY defaultServerDefaultContainerChanged)
@@ -85,6 +88,8 @@ public:
     Q_PROPERTY(bool isDefaultServerDefaultContainerHasSplitTunneling READ isDefaultServerDefaultContainerHasSplitTunneling NOTIFY
                        defaultServerDefaultContainerChanged)
     Q_PROPERTY(bool isDefaultServerFromApi READ isDefaultServerFromApi NOTIFY defaultServerIndexChanged)
+    Q_PROPERTY(QString defaultServerHostName READ getDefaultServerHostName NOTIFY defaultServerIndexChanged)
+    Q_PROPERTY(QStringList defaultServerNodeIps READ getDefaultServerNodeIps NOTIFY defaultServerIndexChanged)
 
     Q_PROPERTY(bool hasServersFromGatewayApi READ hasServersFromGatewayApi NOTIFY hasServersFromGatewayApiChanged)
     Q_PROPERTY(QStringList availableProtocols READ availableProtocols NOTIFY availableProtocolsChanged)
@@ -103,12 +108,18 @@ public slots:
     void setDefaultServerIndex(const int index);
     const int getDefaultServerIndex();
     const QString getDefaultServerName();
+    const QString getDefaultServerProtocolName();
     const QString getDefaultServerDescriptionCollapsed();
     const QString getDefaultServerImagePathCollapsed();
     const QString getDefaultServerDescriptionExpanded();
     const QString getDefaultServerDefaultContainerName();
     bool isDefaultServerCurrentlyProcessed();
     bool isDefaultServerFromApi();
+    const QString getDefaultServerHostName();
+    const QStringList getDefaultServerNodeIps();
+    // protocols present on servers of the given env ("" = all envs) — the server
+    // list filter never offers protocols the selected env doesn't have
+    QStringList availableProtocolsForEnv(const QString &env) const;
 
     bool isProcessedServerHasWriteAccess();
     bool isDefaultServerHasWriteAccess();
@@ -160,6 +171,11 @@ public slots:
     bool isServerFromApiAlreadyExists(const QString &connectionUuid);
     bool isServerFromApiAlreadyExists(const QString &name, const QString &description) const;
     bool hasServerWithVpnKey(const QString &vpnKey) const;
+
+    // true only when the default container entry holds an actual protocol config;
+    // HasInstalledContainers alone is not enough — gateway imports create the
+    // container entry even when the config itself was never fetched
+    bool serverHasUsableConfig(const int serverIndex) const;
 
     QVariant getDefaultServerData(const QString roleString);
 

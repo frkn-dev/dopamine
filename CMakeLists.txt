@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25.0 FATAL_ERROR)
 
 set(PROJECT Dopamine)
-set(DOPAMINE_VERSION 4.8.14.34)
+set(DOPAMINE_VERSION 4.8.14.41)
 
 project(${PROJECT} VERSION ${DOPAMINE_VERSION}
         DESCRIPTION "Dopamine by FRKN"
@@ -12,7 +12,7 @@ string(TIMESTAMP CURRENT_DATE "%Y-%m-%d")
 set(RELEASE_DATE "${CURRENT_DATE}")
 
 set(APP_MAJOR_VERSION ${CMAKE_PROJECT_VERSION_MAJOR}.${CMAKE_PROJECT_VERSION_MINOR}.${CMAKE_PROJECT_VERSION_PATCH})
-set(APP_ANDROID_VERSION_CODE 2117)
+set(APP_ANDROID_VERSION_CODE 2118)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     set(MZ_PLATFORM_NAME "linux")
@@ -37,7 +37,8 @@ if(APPLE)
         set(CMAKE_OSX_ARCHITECTURES "arm64")
     elseif(MACOS_NE)
         set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
-    else()
+    elseif(NOT CMAKE_OSX_ARCHITECTURES)
+        # honor an explicit -DCMAKE_OSX_ARCHITECTURES=... (e.g. arm64 local builds)
         set(CMAKE_OSX_ARCHITECTURES "x86_64")
     endif()
 endif()

@@ -144,6 +144,18 @@ bool WireguardUtilsLinux::addInterface(const InterfaceConfig& config) {
         out << key.toLower() << "=" << config.m_specialJunk.value(key) << "\n";
     }
 
+    // AWG 3.1 booleans: backend sends "on"/"off", UAPI wants 1/0
+    auto uapiBool = [](const QString& value) {
+        const QString s = value.trimmed().toLower();
+        return (s == "on" || s == "1" || s == "true" || s == "yes") ? "1" : "0";
+    };
+    if (!config.m_randomTrailers.isEmpty()) {
+        out << "random_trailers=" << uapiBool(config.m_randomTrailers) << "\n";
+    }
+    if (!config.m_disableCookies.isEmpty()) {
+        out << "disable_cookies=" << uapiBool(config.m_disableCookies) << "\n";
+    }
+
     int err = uapiErrno(uapiCommand(message));
     if (err != 0) {
         logger.error() << "Interface configuration failed:" << strerror(err);

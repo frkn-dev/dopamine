@@ -157,3 +157,6 @@ fetch_frkn_config.py
 Screenshot*.png
 .flCC1CF733
 
+frkn-android-cert.zip
+*.jks
+*.keystore

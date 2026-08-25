@@ -14,8 +14,10 @@
 
 // Server health probe (see frkn-docs/server-healthcheck-research.md):
 // TCP connect + RTT for TCP-based servers (VLESS). WG/AWG servers are
-// probed with a real handshake via WgProbeRTT (libwg-go) on worker threads.
-// Hysteria2 stays n/a until its handshake probe lands.
+// probed with a real handshake on worker threads — via WgProbeRTT (libwg-go)
+// on Apple platforms, via core/wgHandshakeProbe (OpenSSL Noise_IK) on Android.
+// Hysteria2 gets a full-path probe via libxray (LibXrayPing on Apple,
+// JNI LibXray.ping on Android).
 class HealthCheckController : public QObject
 {
     Q_OBJECT
@@ -24,6 +26,14 @@ public:
 
     Q_INVOKABLE void startProbe(bool force = false);
     Q_INVOKABLE void stopProbe();
+
+    // true while a probe run has unfinished targets; probingFinished fires once
+    // when the last target of the run resolves (also on an external stopProbe)
+    bool isProbing() const { return m_probeActive; }
+    qint64 lastProbeMsecs() const { return m_lastRunMsecs; }
+
+signals:
+    void probingFinished();
 
 private:
     struct Target
@@ -72,6 +82,9 @@ private:
     void startNextH2();
     void finishH2Watcher(QFutureWatcher<int> *watcher);
 
+    // emits probingFinished once every queue and in-flight probe of the run is done
+    void maybeFinishProbe();
+
     QSharedPointer<ServersModel> m_serversModel;
 
     QList<Target> m_queue;
@@ -89,6 +102,7 @@ private:
     QHash<QString, int> m_seenH2Endpoints; // endpoint -> position in m_h2Queue
 
     qint64 m_lastRunMsecs = 0;
+    bool m_probeActive = false;
 
     static constexpr int kMaxParallel = 8;
     static constexpr int kWgMaxParallel = 3;

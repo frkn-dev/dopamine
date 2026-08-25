@@ -80,9 +80,9 @@ PageType {
 
                         if (ServersModel.isServerFromApi(index)) {
                             return servicesNameString + serverDescription
-                        } else {
-                            return servicesNameString + hostName
                         }
+                        // entry addresses stay in the server details card / diagnostics only
+                        return servicesNameString.replace(/ · $/, "")
                     }
                     rightImageSource: "qrc:/images/controls/chevron-right.svg"
 

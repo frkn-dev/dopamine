@@ -18,9 +18,7 @@ PageType {
     id: root
 
     property list<QtObject> labelsModel: [
-        statusObject,
-        endDateObject,
-        deviceCountObject
+        statusObject
     ]
 
     QtObject {
@@ -32,25 +30,49 @@ PageType {
         readonly property bool isRichText: true
     }
 
-    QtObject {
-        id: endDateObject
-
-        readonly property string title: qsTr("Valid Until")
-        readonly property string contentKey: "endDate"
-        readonly property string objectImageSource: "qrc:/images/controls/history.svg"
-        readonly property bool isRichText: false
-    }
-
-    QtObject {
-        id: deviceCountObject
-
-        readonly property string title: qsTr("Active Connections")
-        readonly property string contentKey: "connectedDevices"
-        readonly property string objectImageSource: "qrc:/images/controls/monitor.svg"
-        readonly property bool isRichText: false
-    }
-
     property var processedServer
+
+    Component.onCompleted: {
+        // the card opens with cached data for instant display, but the local copy
+        // has no subscription_end_date — refresh from the server so the status
+        // row shows "Active · until <date>" (pattern copied from the devices page)
+        PageController.showBusyIndicator(true)
+        ApiSettingsController.getAccountInfo(true)
+        PageController.showBusyIndicator(false)
+    }
+
+    function techInfoText() {
+        var lines = []
+        lines.push(qsTr("Version") + ": " + SettingsController.getAppVersion())
+        lines.push(qsTr("Server") + ": " + root.processedServer.name)
+        var countryName = ServersModel.getProcessedServerData("countryName")
+        var countryCode = ServersModel.getProcessedServerData("countryCode")
+        if (countryName !== "" || countryCode !== "") {
+            lines.push(qsTr("Country") + ": " + (countryName !== "" && countryCode !== ""
+                       ? countryName + " (" + countryCode + ")" : countryName + countryCode))
+        }
+        var protocol = ("" + ServersModel.getProcessedServerData("serviceProtocol")).toUpperCase()
+        if (protocol !== "") {
+            lines.push(qsTr("Protocol") + ": " + protocol)
+        }
+        var hostName = ServersModel.getProcessedServerData("hostName")
+        if (hostName !== "") {
+            lines.push(qsTr("Primary endpoint") + ": " + hostName)
+        }
+        var nodeIps = ServersModel.getProcessedServerData("nodeIps")
+        if (nodeIps.length > 1) {
+            lines.push(qsTr("Available addresses") + ": " + nodeIps.join(", "))
+        }
+        if (ServersModel.processedIndex === ServersModel.defaultIndex
+                && ConnectionController.isConnected && ConnectionController.currentEndpoint !== "") {
+            lines.push(qsTr("Endpoint in use") + ": " + ConnectionController.currentEndpoint)
+        }
+        var tunnelIp = ApiConfigsController.getCurrentServerClientIp()
+        if (tunnelIp !== "") {
+            lines.push(qsTr("Tunnel IP") + ": " + tunnelIp)
+        }
+        return lines.join("\n")
+    }
 
     Connections {
         target: ServersModel
@@ -204,9 +226,90 @@ PageType {
                 visible: rightText !== ""
             }
 
+            ListItemTitleType {
+                Layout.fillWidth: true
+                Layout.topMargin: 8
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+
+                text: qsTr("Technical information")
+            }
+
+            LabelWithImageType {
+                Layout.fillWidth: true
+                Layout.margins: 16
+
+                imageSource: "qrc:/images/controls/map-pin.svg"
+                leftText: qsTr("Country")
+                rightText: {
+                    var countryName = ServersModel.getProcessedServerData("countryName")
+                    var countryCode = ServersModel.getProcessedServerData("countryCode")
+                    if (countryName !== "" && countryCode !== "") {
+                        return countryName + " (" + countryCode + ")"
+                    }
+                    return countryName !== "" ? countryName : countryCode
+                }
+                visible: rightText !== ""
+            }
+
+            LabelWithImageType {
+                Layout.fillWidth: true
+                Layout.margins: 16
+
+                imageSource: "qrc:/images/controls/settings.svg"
+                leftText: qsTr("Protocol")
+                rightText: ("" + ServersModel.getProcessedServerData("serviceProtocol")).toUpperCase()
+                visible: rightText !== ""
+            }
+
+            LabelWithImageType {
+                Layout.fillWidth: true
+                Layout.margins: 16
+
+                imageSource: "qrc:/images/controls/server.svg"
+                leftText: qsTr("Primary endpoint")
+                rightText: ServersModel.getProcessedServerData("hostName")
+                visible: rightText !== ""
+            }
+
+            LabelWithImageType {
+                Layout.fillWidth: true
+                Layout.margins: 16
+
+                imageSource: "qrc:/images/controls/server.svg"
+                leftText: qsTr("Available addresses")
+                rightText: ServersModel.getProcessedServerData("nodeIps").join(", ")
+                visible: ServersModel.getProcessedServerData("nodeIps").length > 1
+            }
+
+            LabelWithImageType {
+                Layout.fillWidth: true
+                Layout.margins: 16
+
+                imageSource: "qrc:/images/controls/info.svg"
+                leftText: qsTr("Endpoint in use")
+                rightText: ConnectionController.currentEndpoint
+                visible: ServersModel.processedIndex === ServersModel.defaultIndex
+                         && ConnectionController.isConnected && rightText !== ""
+            }
+
             LabelWithButtonType {
                 Layout.fillWidth: true
-                Layout.topMargin: warning.visible ? 16 : 32
+
+                text: qsTr("Copy technical information")
+                rightImageSource: "qrc:/images/controls/copy.svg"
+
+                clickedFunction: function() {
+                    GC.copyToClipBoard(root.techInfoText())
+                    PageController.showNotificationMessage(qsTr("Copied"))
+                }
+            }
+
+            DividerType {}
+
+            LabelWithButtonType {
+                Layout.fillWidth: true
+                Layout.topMargin: 32
 
                 text: qsTr("Configuration Files")
 

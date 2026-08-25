@@ -53,12 +53,12 @@
     <name>ApiAccountInfoModel</name>
     <message>
         <location filename="../ui/models/api/apiAccountInfoModel.cpp" line="31"/>
-        <location filename="../ui/models/api/apiAccountInfoModel.cpp" line="43"/>
+        <location filename="../ui/models/api/apiAccountInfoModel.cpp" line="48"/>
         <source>Active</source>
         <translation>Активна</translation>
     </message>
     <message>
-        <location filename="../ui/models/api/apiAccountInfoModel.cpp" line="41"/>
+        <location filename="../ui/models/api/apiAccountInfoModel.cpp" line="46"/>
         <source>Active · until %1</source>
         <translation>Активна · до %1</translation>
     </message>
@@ -68,7 +68,7 @@
         <translation>&lt;p&gt;&lt;a style=&quot;color: #EB5757;&quot;&gt;Неактивна&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/models/api/apiAccountInfoModel.cpp" line="56"/>
+        <location filename="../ui/models/api/apiAccountInfoModel.cpp" line="61"/>
         <source>%1 out of %2</source>
         <translation>%1 з %2</translation>
     </message>
@@ -76,26 +76,33 @@
 <context>
     <name>ApiConfigsController</name>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="912"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1149"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1174"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1002"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1239"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1264"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1461"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1558"/>
         <source>%1 installed successfully.</source>
         <translation>%1 успішно встановлено.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1038"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1128"/>
         <source>Subscription restored successfully.</source>
         <translation>Підписку успішно відновлено.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1344"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1434"/>
         <source>API config reloaded</source>
         <translation>Конфігурацію API перезавантажено</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1348"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1438"/>
         <source>Successfully changed the country of connection to %1</source>
         <translation>Країну підключення змінено на %1</translation>
+    </message>
+    <message>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1536"/>
+        <source>Shared connection</source>
+        <translation>Спільне підключення</translation>
     </message>
 </context>
 <context>
@@ -169,27 +176,28 @@
  Будь-ласка, встановіть VPN контейнер</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="81"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="371"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="775"/>
         <source>Connecting...</source>
         <translation>Підключення...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="86"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="780"/>
         <source>Connected</source>
         <translation>Підключено</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="110"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="809"/>
         <source>Preparing...</source>
         <translation>Підготовка...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="132"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="833"/>
         <source>Settings updated successfully, reconnnection...</source>
         <translation>Налаштування оновлено, підключення...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="135"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="836"/>
         <source>Settings updated successfully</source>
         <translation>Налаштування оновлено.</translation>
     </message>
@@ -198,22 +206,31 @@
         <translation type="obsolete">Вибраний протокол не підтримується на цьому пристрої</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="95"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="790"/>
         <source>Reconnecting...</source>
         <translation>Перепідключення...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.h" line="70"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="100"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="115"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="121"/>
+        <location filename="../ui/controllers/connectionController.h" line="165"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="194"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="638"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="681"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="749"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="795"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="814"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="821"/>
         <source>Connect</source>
         <translation>Підключитись</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="105"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="804"/>
         <source>Disconnecting...</source>
         <translation>Відключаємось...</translation>
+    </message>
+    <message>
+        <location filename="../ui/controllers/connectionController.cpp" line="516"/>
+        <source>Searching for the best server...</source>
+        <translation>Пошук найкращого сервера...</translation>
     </message>
 </context>
 <context>
@@ -337,32 +354,33 @@ Can&apos;t be disabled for current server</source>
 <context>
     <name>ImportController</name>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="790"/>
+        <location filename="../ui/controllers/importController.cpp" line="819"/>
         <source>Scanned %1 of %2.</source>
         <translation>Відскановано %1 з %2.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="825"/>
+        <location filename="../ui/controllers/importController.cpp" line="854"/>
         <source>This configuration contains an OpenVPN setup. OpenVPN configurations can include malicious scripts, so only add it if you fully trust the provider of this config. </source>
         <translation>Ця конфігурація містить налаштування OpenVPN. Конфігурації OpenVPN можуть містити шкідливі скрипти, тому додавайте її, лише якщо повністю довіряєте постачальнику цієї конфігурації. </translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="829"/>
+        <location filename="../ui/controllers/importController.cpp" line="858"/>
         <source>&lt;br&gt;In the imported configuration, potentially dangerous lines were found:</source>
         <translation>&lt;br&gt;В імпортованій конфігурації виявлено потенційно небезпечні рядки:</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="944"/>
+        <location filename="../ui/controllers/importController.cpp" line="973"/>
         <source>No valid configurations found at the provided URL</source>
         <translation>За вказаним URL не знайдено дійсних конфігурацій</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="976"/>
+        <location filename="../ui/controllers/importController.cpp" line="1024"/>
+        <location filename="../ui/controllers/importController.cpp" line="1047"/>
         <source>Failed to fetch configurations: %1</source>
         <translation>Не вдалося отримати конфігурації: %1</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="982"/>
+        <location filename="../ui/controllers/importController.cpp" line="1053"/>
         <source>Empty response from server</source>
         <translation>Порожня відповідь від сервера</translation>
     </message>
@@ -552,9 +570,14 @@ Already installed containers were found on the server. All installed containers 
         <translation>Роздільне тунелювання вимкнено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="401"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="403"/>
         <source>VPN protocol</source>
         <translation>VPN протокол</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="272"/>
+        <source>Auto-select</source>
+        <translation>Автовибір</translation>
     </message>
     <message>
         <source>Servers</source>
@@ -1916,24 +1939,23 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageSettingsApiServerInfo</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="358"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="304"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="461"/>
         <source>Copied</source>
         <translation>Скопійовано</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="29"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="27"/>
         <source>Subscription Status</source>
         <translation>Статус підписки</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="38"/>
         <source>Valid Until</source>
-        <translation>Дійсна до</translation>
+        <translation type="vanished">Дійсна до</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="47"/>
         <source>Active Connections</source>
-        <translation>Активні підключення</translation>
+        <translation type="vanished">Активні підключення</translation>
     </message>
     <message>
         <source>Use VLESS protocol</source>
@@ -1944,22 +1966,23 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Неможливо змінити протокол під час активного підключення</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="164"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="186"/>
         <source>Configurations have been updated for some countries. Download and install the updated configuration files</source>
         <translation>Для деяких країн конфігурації оновлено. Завантажте та встановіть оновлені файли конфігурації</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="182"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="204"/>
         <source>DNS</source>
         <translation>DNS</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="192"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="214"/>
         <source>MTU</source>
         <translation>MTU</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="202"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="72"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="224"/>
         <source>Tunnel IP</source>
         <translation>IP-адреса тунелю</translation>
     </message>
@@ -1968,17 +1991,17 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Ключ підписки</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="211"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="314"/>
         <source>Configuration Files</source>
         <translation>Файли конфігурації</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="213"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="316"/>
         <source>WireGuard configuration file (INI) for routers and other clients</source>
         <translation>Конфігураційний файл WireGuard (INI) для роутерів та інших клієнтів</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="220"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="323"/>
         <source>Configuration file (INI)</source>
         <translation>Конфігураційний файл (INI)</translation>
     </message>
@@ -1987,32 +2010,32 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Керування файлами конфігурації</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="234"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="337"/>
         <source>Active Devices</source>
         <translation>Активні пристрої</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="236"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="339"/>
         <source>Manage currently connected devices</source>
         <translation>Керування підключеними пристроями</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="253"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="356"/>
         <source>Support</source>
         <translation>Підтримка</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="269"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="372"/>
         <source>How to connect on another device</source>
         <translation>Як підключитися на іншому пристрої</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="285"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="388"/>
         <source>Show raw config</source>
         <translation>Показати вихідну конфігурацію</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="290"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="393"/>
         <source>Raw JSON</source>
         <translation>Вихідний JSON</translation>
     </message>
@@ -2033,114 +2056,170 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Параметри тунелю</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="354"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="457"/>
         <source>Copy</source>
         <translation>Скопіювати</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="375"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="478"/>
         <source>Close</source>
         <translation>Закрити</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="398"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="501"/>
         <source>Reload API config</source>
         <translation>Перезавантажити конфігурацію API</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="401"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="504"/>
         <source>Reload API config?</source>
         <translation>Перезавантажити конфігурацію API?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="402"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="440"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="477"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="505"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="543"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="580"/>
         <source>Continue</source>
         <translation>Продовжити</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="403"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="441"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="478"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="506"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="544"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="581"/>
         <source>Cancel</source>
         <translation>Відмінити</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="407"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="510"/>
         <source>Cannot reload API config during active connection</source>
         <translation>Неможливо перезавантажити конфігурацію API під час активного підключення</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="435"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="538"/>
         <source>Unlink this device</source>
         <translation>Відв&apos;язати цей пристрій</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="438"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="541"/>
         <source>Are you sure you want to unlink this device?</source>
         <translation>Ви впевнені, що хочете відв&apos;язати цей пристрій?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="439"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="542"/>
         <source>This will unlink the device from your subscription. You can reconnect it anytime by pressing&#xa0;&quot;Reload API config&quot; in subscription settings on device.</source>
         <translation>Це відв&apos;яже пристрій від вашої підписки. Ви можете підключити його знову будь-коли, натиснувши «Перезавантажити конфігурацію API» в налаштуваннях підписки на пристрої.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="445"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="548"/>
         <source>Cannot unlink device during active connection</source>
         <translation>Неможливо відв&apos;язати пристрій під час активного підключення</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="473"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="576"/>
         <source>Remove from application</source>
         <translation>Видалити з застосунку</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="476"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="579"/>
         <source>Remove from application?</source>
         <translation>Видалити з застосунку?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="482"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="585"/>
         <source>Cannot remove server during active connection</source>
         <translation>Неможливо видалити сервер під час активного підключення</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="235"/>
+        <source>Technical information</source>
+        <translation>Технічна інформація</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="51"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="243"/>
+        <source>Country</source>
+        <translation>Країна</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="56"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="260"/>
+        <source>Protocol</source>
+        <translation>Протокол</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="60"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="270"/>
+        <source>Primary endpoint</source>
+        <translation>Основна адреса</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="64"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="280"/>
+        <source>Available addresses</source>
+        <translation>Доступні адреси</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="68"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="290"/>
+        <source>Endpoint in use</source>
+        <translation>Адреса, що використовується</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="299"/>
+        <source>Copy technical information</source>
+        <translation>Скопіювати технічну інформацію</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="46"/>
+        <source>Version</source>
+        <translation>Версія</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="47"/>
+        <source>Server</source>
+        <translation>Сервер</translation>
     </message>
 </context>
 <context>
     <name>PageSettingsApiSubscriptionKey</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="85"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="86"/>
         <source>Copy key</source>
         <translation>Копіювати ключ</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="90"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="91"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="108"/>
         <source>Copied</source>
         <translation>Скопійовано</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="106"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="103"/>
+        <source>Copy short code: %1</source>
+        <translation>Копіювати короткий код: %1</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="124"/>
         <source>Save key as a file</source>
         <translation>Зберегти ключ як файл</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="113"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="131"/>
         <source>Save Dopamine config</source>
         <translation>Зберегти config FRKN VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="114"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="132"/>
         <source>Config files (*.vpn)</source>
         <translation>Файли конфігурації (*.vpn)</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="139"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="157"/>
         <source>Show key text</source>
         <translation>Показати текст ключа</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="180"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="198"/>
         <source>To read the QR code in the Dopamine app, tap + in the main menu → &apos;QR code&apos;</source>
         <translation>Щоб зчитати QR-код у застосунку Dopamine, натисніть + у головному меню → &apos;QR-код&apos;</translation>
     </message>
@@ -2803,12 +2882,12 @@ Already installed containers were found on the server. All installed containers 
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="83"/>
         <source>Show server ping values</source>
-        <translation type="unfinished"></translation>
+        <translation>Показувати пінг серверів</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="84"/>
         <source>By default the server list shows only a colored status dot. Enable to see the exact latency in milliseconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>За замовчуванням у списку серверів показується лише кольоровий індикатор. Увімкніть, щоб бачити точну затримку в мілісекундах.</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="219"/>
@@ -3454,7 +3533,7 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageSetupWizardConfigSource</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="353"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="356"/>
         <source>File with connection settings</source>
         <translation>Файл з налаштуваннями підключення</translation>
     </message>
@@ -3529,22 +3608,22 @@ Already installed containers were found on the server. All installed containers 
         <translation>Продовжити</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="247"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="250"/>
         <source>Other connection options</source>
         <translation>Інші варіанти підключення</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="297"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="300"/>
         <source>FRKN website</source>
         <translation>Сайт FRKN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="318"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="321"/>
         <source>VPN by FRKN</source>
         <translation>VPN от FRKN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="319"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="322"/>
         <source>Connect to classic paid and free VPN services from FRKN</source>
         <translation>Підключіться до класичних платних і безкоштовних VPN-сервісів від FRKN</translation>
     </message>
@@ -3557,56 +3636,56 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Налаштуйте Dopamine VPN на власному сервері</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="335"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="338"/>
         <source>Restore from backup</source>
         <translation>Відновити із бекапа</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="336"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="354"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="373"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="388"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="402"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="339"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="357"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="376"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="391"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="405"/>
         <source></source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="340"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="343"/>
         <source>Open backup file</source>
         <translation>Відкрити бекап файл</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="341"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="344"/>
         <source>Backup files (*.backup)</source>
         <translation>Файли резервної копії (*.backup)</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="360"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="363"/>
         <source>Open config file</source>
         <translation>Відкрити файл з конфігурацією</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="372"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="375"/>
         <source>QR code</source>
         <translation>QR-код</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="387"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="390"/>
         <source>Restore purchases</source>
         <translation>Відновити покупки</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="401"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="404"/>
         <source>I have nothing</source>
         <translation>У мене нічого нема</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="437"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="440"/>
         <source>Subscription loaded</source>
         <translation>Підписку завантажено</translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="446"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="449"/>
         <source>Found %n configuration(s). Add them all?</source>
         <translation>
             <numerusform>Знайдено %n конфігурацію. Додати її?</numerusform>
@@ -3615,12 +3694,12 @@ Already installed containers were found on the server. All installed containers 
         </translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="456"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="459"/>
         <source>Delete previous configurations</source>
         <translation>Видалити попередні конфігурації</translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="467"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="470"/>
         <source>Add %n server(s)</source>
         <translation>
             <numerusform>Додати %n сервер</numerusform>
@@ -3629,7 +3708,7 @@ Already installed containers were found on the server. All installed containers 
         </translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="487"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="490"/>
         <source>Cancel</source>
         <translation>Відмінити</translation>
     </message>
@@ -3828,7 +3907,7 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageSetupWizardQrReader</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardQrReader.qml" line="38"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardQrReader.qml" line="89"/>
         <source>Point the camera at the QR code and hold for a couple of seconds. </source>
         <translation>Наведіть камеру на QR-код і утримуйте її протягом декількох секунд.</translation>
     </message>
@@ -3898,12 +3977,12 @@ Already installed containers were found on the server. All installed containers 
         <translation>Виберіть, які конфігурації імпортувати</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardSubscriptionProtocols.qml" line="156"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardSubscriptionProtocols.qml" line="158"/>
         <source>Import selected</source>
         <translation>Імпортувати вибрані</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardSubscriptionProtocols.qml" line="173"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardSubscriptionProtocols.qml" line="175"/>
         <source>Imported %1 configurations</source>
         <translation>Імпортовано конфігурацій: %1</translation>
     </message>
@@ -4551,6 +4630,11 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>QObject</name>
     <message>
+        <location filename="../core/errorstrings.cpp" line="85"/>
+        <source>The server did not respond in time. It may be unreachable from your network — try another server or protocol.</source>
+        <translation>Сервер не відповів вчасно. Можливо, він недоступний з вашої мережі — спробуйте інший сервер або протокол.</translation>
+    </message>
+    <message>
         <location filename="../core/errorstrings.cpp" line="11"/>
         <source>No error</source>
         <translation>No error</translation>
@@ -4652,7 +4736,7 @@ Already installed containers were found on the server. All installed containers 
         <translation>Ця конфігурація вже була додана в застосунок</translation>
     </message>
     <message>
-        <location filename="../core/errorstrings.cpp" line="97"/>
+        <location filename="../core/errorstrings.cpp" line="100"/>
         <source>ErrorCode: %1. </source>
         <translation>Код помилки: %1. </translation>
     </message>
@@ -4838,37 +4922,37 @@ Already installed containers were found on the server. All installed containers 
         <translation>Неможливо обробити покупку</translation>
     </message>
     <message>
-        <location filename="../core/errorstrings.cpp" line="85"/>
+        <location filename="../core/errorstrings.cpp" line="88"/>
         <source>QFile error: The file could not be opened</source>
         <translation>Помилка QFile: Не вдалося відкрити файл</translation>
     </message>
     <message>
-        <location filename="../core/errorstrings.cpp" line="86"/>
+        <location filename="../core/errorstrings.cpp" line="89"/>
         <source>QFile error: An error occurred when reading from the file</source>
         <translation>Помилка QFile: Сталася помилка під час читання файлу</translation>
     </message>
     <message>
-        <location filename="../core/errorstrings.cpp" line="87"/>
+        <location filename="../core/errorstrings.cpp" line="90"/>
         <source>QFile error: The file could not be accessed</source>
         <translation>Помилка QFile: Не вдалося отримати доступ до файлу</translation>
     </message>
     <message>
-        <location filename="../core/errorstrings.cpp" line="88"/>
+        <location filename="../core/errorstrings.cpp" line="91"/>
         <source>QFile error: An unspecified error occurred</source>
         <translation>Помилка QFile: Сталася невідома помилка</translation>
     </message>
     <message>
-        <location filename="../core/errorstrings.cpp" line="89"/>
+        <location filename="../core/errorstrings.cpp" line="92"/>
         <source>QFile error: A fatal error occurred</source>
         <translation>Помилка QFile: Сталася критична помилка</translation>
     </message>
     <message>
-        <location filename="../core/errorstrings.cpp" line="90"/>
+        <location filename="../core/errorstrings.cpp" line="93"/>
         <source>QFile error: The operation was aborted</source>
         <translation>Помилка QFile: Операцію перервано</translation>
     </message>
     <message>
-        <location filename="../core/errorstrings.cpp" line="94"/>
+        <location filename="../core/errorstrings.cpp" line="97"/>
         <source>Internal error</source>
         <translation>Internal error</translation>
     </message>
@@ -5458,29 +5542,39 @@ This means that AmneziaWG keeps the fast performance of the original while addin
     <name>ServersListView</name>
     <message>
         <location filename="../ui/qml/Components/ServersListView.qml" line="60"/>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="102"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="109"/>
         <source>All</source>
         <translation>Всі</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="105"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="112"/>
         <source>White Elephants</source>
         <translation>Білі Слони</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="108"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="115"/>
         <source>Regular</source>
         <translation>Основний</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="111"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="118"/>
         <source>Reverse</source>
         <translation>Зворотний</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="354"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="403"/>
         <source>offline</source>
-        <translation type="unfinished"></translation>
+        <translation>офлайн</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="225"/>
+        <source>Auto-select</source>
+        <translation>Автовибір</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="226"/>
+        <source>Fastest available server</source>
+        <translation>Найшвидший доступний сервер</translation>
     </message>
     <message>
         <source>Protocol</source>
@@ -5508,17 +5602,17 @@ This means that AmneziaWG keeps the fast performance of the original while addin
 <context>
     <name>SettingsController</name>
     <message>
-        <location filename="../ui/controllers/settingsController.cpp" line="216"/>
+        <location filename="../ui/controllers/settingsController.cpp" line="227"/>
         <source>Can&apos;t open file: %1</source>
         <translation>Неможливо відкрити файл: %1</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/settingsController.cpp" line="302"/>
+        <location filename="../ui/controllers/settingsController.cpp" line="313"/>
         <source>All settings have been reset to default values</source>
         <translation>Всі налаштування були скинуті до значення &quot;По замовчуванню&quot;</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/settingsController.cpp" line="279"/>
+        <location filename="../ui/controllers/settingsController.cpp" line="290"/>
         <source>Backup file is corrupted</source>
         <translation>Backup файл пошкодженно</translation>
     </message>

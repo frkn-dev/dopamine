@@ -49,6 +49,7 @@ PageType {
     Component.onCompleted: {
         PageController.showBusyIndicator(true)
         ApiConfigsController.prepareVpnKeyExport()
+        ApiConfigsController.fetchShortCode()
         PageController.showBusyIndicator(false)
     }
 
@@ -87,6 +88,23 @@ PageType {
 
                 clickedFunc: function() {
                     ApiConfigsController.copyVpnKeyToClipboard()
+                    PageController.showNotificationMessage(qsTr("Copied"))
+                }
+            }
+
+            BasicButtonType {
+                Layout.fillWidth: true
+                Layout.topMargin: 4
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+
+                visible: ApiConfigsController.shortCode !== ""
+
+                text: qsTr("Copy short code: %1").arg(ApiConfigsController.shortCode)
+                leftImageSource: "qrc:/images/controls/copy.svg"
+
+                clickedFunc: function() {
+                    ApiConfigsController.copyShortCodeToClipboard()
                     PageController.showNotificationMessage(qsTr("Copied"))
                 }
             }

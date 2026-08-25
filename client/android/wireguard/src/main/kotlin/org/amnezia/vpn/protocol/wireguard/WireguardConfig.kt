@@ -31,6 +31,8 @@ open class WireguardConfig protected constructor(
     var i3: String?,
     var i4: String?,
     var i5: String?,
+    val randomTrailers: Boolean?,
+    val disableCookies: Boolean?,
 ) : ProtocolConfig(protocolConfigBuilder) {
 
     protected constructor(builder: Builder) : this(
@@ -57,6 +59,8 @@ open class WireguardConfig protected constructor(
         builder.i3,
         builder.i4,
         builder.i5,
+        builder.randomTrailers,
+        builder.disableCookies,
     )
 
     fun toWgUserspaceString(): String = with(StringBuilder()) {
@@ -86,6 +90,8 @@ open class WireguardConfig protected constructor(
             i3?.let { appendLine("i3=$it") }
             i4?.let { appendLine("i4=$it") }
             i5?.let { appendLine("i5=$it") }
+            randomTrailers?.let { appendLine("random_trailers=${if (it) 1 else 0}") }
+            disableCookies?.let { appendLine("disable_cookies=${if (it) 1 else 0}") }
         }
     }
 
@@ -149,6 +155,8 @@ open class WireguardConfig protected constructor(
         internal var i3: String? = null
         internal var i4: String? = null
         internal var i5: String? = null
+        internal var randomTrailers: Boolean? = null
+        internal var disableCookies: Boolean? = null
 
         fun setEndpoint(endpoint: InetEndpoint) = apply { this.endpoint = endpoint }
 
@@ -178,6 +186,8 @@ open class WireguardConfig protected constructor(
         fun setI3(i3: String) = apply { this.i3 = i3 }
         fun setI4(i4: String) = apply { this.i4 = i4 }
         fun setI5(i5: String) = apply { this.i5 = i5 }
+        fun setRandomTrailers(randomTrailers: Boolean) = apply { this.randomTrailers = randomTrailers }
+        fun setDisableCookies(disableCookies: Boolean) = apply { this.disableCookies = disableCookies }
 
         override fun build(): WireguardConfig = configBuild().run { WireguardConfig(this@Builder) }
     }

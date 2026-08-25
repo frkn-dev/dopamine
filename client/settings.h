@@ -196,6 +196,17 @@ public:
         m_settings.setValue("Conf/lastSubscriptionRefresh", timestamp);
     }
 
+    // "Auto-select" entry in the server list: on connect the best server is
+    // picked by protocol priority + health probe latency (see ConnectionController)
+    bool isAutoServerSelection() const
+    {
+        return m_settings.value("Conf/autoServerSelection", false).toBool();
+    }
+    void setAutoServerSelection(bool enabled)
+    {
+        m_settings.setValue("Conf/autoServerSelection", enabled);
+    }
+
     // server list shows only a colored dot by default; this brings back the ping text
     bool isServerPingTextVisible() const
     {

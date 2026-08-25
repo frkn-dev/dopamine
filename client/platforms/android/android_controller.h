@@ -75,6 +75,7 @@ signals:
     void authenticationResult(bool result);
     void imeInsetsChanged(int heightDp);
     void systemBarsInsetsChanged(int navBarHeightDp, int statusBarHeightDp);
+    void shakeDetected();
 
 private:
     bool isWaitingStatus = true;
@@ -105,6 +106,7 @@ private:
     static bool decodeQrCode(JNIEnv *env, jobject thiz, jstring data);
     static void onImeInsetsChanged(JNIEnv *env, jobject thiz, jint heightDp);
     static void onSystemBarsInsetsChanged(JNIEnv *env, jobject thiz, jint navBarHeightDp, jint statusBarHeightDp);
+    static void onShakeDetected(JNIEnv *env, jobject thiz);
 
     template <typename Ret, typename ...Args>
     static auto callActivityMethod(const char *methodName, const char *signature, Args &&...args);

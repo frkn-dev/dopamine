@@ -29,6 +29,7 @@ set(HEADERS ${HEADERS}
     ${CLIENT_ROOT_DIR}/utils/qmlUtils.h
     ${CLIENT_ROOT_DIR}/core/api/apiUtils.h
     ${CLIENT_ROOT_DIR}/core/osSignalHandler.h
+    ${CLIENT_ROOT_DIR}/core/wgHandshakeProbe.h
 )
 
 # Mozilla headres
@@ -80,6 +81,7 @@ set(SOURCES ${SOURCES}
     ${CLIENT_ROOT_DIR}/utils/qmlUtils.cpp
     ${CLIENT_ROOT_DIR}/core/api/apiUtils.cpp
     ${CLIENT_ROOT_DIR}/core/osSignalHandler.cpp
+    ${CLIENT_ROOT_DIR}/core/wgHandshakeProbe.cpp
 )
 
 # Mozilla sources

@@ -13,6 +13,10 @@ import android.content.Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.net.Uri
 import android.net.VpnService
 import android.os.Build
@@ -45,6 +49,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import java.io.IOException
 import kotlin.LazyThreadSafetyMode.NONE
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.sqrt
 import kotlin.text.RegexOption.IGNORE_CASE
 import AppListProvider
 import kotlinx.coroutines.CompletableDeferred
@@ -86,6 +91,10 @@ class AmneziaActivity : QtActivity() {
     private var isWaitingStatus = true
     private var isServiceConnected = false
     private var isInBoundState = false
+    // set when we unbind on the way to the background while a VPN session may be
+    // alive — isRunning() (process importance) is unreliable for telling, so on
+    // the way back we rebind unconditionally and ask the service for its state
+    private var rebindServiceOnStart = false
     private var notificationStateReceiver: BroadcastReceiver? = null
     private lateinit var vpnServiceMessenger: IpcMessenger
     private var pfd: ParcelFileDescriptor? = null
@@ -97,6 +106,28 @@ class AmneziaActivity : QtActivity() {
     private var hasWindowFocus = false
     private val resumeHandler = Handler(Looper.getMainLooper())
     private var pendingOpenFileUri: String? = null
+
+    // Shake detection (pterodactyl easter egg): accelerometer spike above 2.7g,
+    // throttled to once per 2s — mirrors the iOS CoreMotion implementation
+    private var lastShakeTimestampMs = 0L
+    private val shakeSensorListener = object : SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent) {
+            val x = event.values[0]
+            val y = event.values[1]
+            val z = event.values[2]
+            val magnitude = sqrt(x * x + y * y + z * z)
+            val now = SystemClock.elapsedRealtime()
+            if (magnitude > 26.5f && now - lastShakeTimestampMs > 2000) {
+                lastShakeTimestampMs = now
+                mainScope.launch {
+                    qtInitialized.await()
+                    QtAndroidController.onShakeDetected()
+                }
+            }
+        }
+
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+    }
     private var openFileDeliveryScheduled = false
 
     private val vpnServiceEventHandler: Handler by lazy(NONE) {
@@ -205,6 +236,13 @@ class AmneziaActivity : QtActivity() {
         registerBroadcastReceivers()
         intent?.let(::processIntent)
         runBlocking { vpnProto = proto.await() }
+
+        // pterodactyl easter egg trigger
+        getSystemService(SensorManager::class.java)?.let { sensorManager ->
+            sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)?.let { accelerometer ->
+                sensorManager.registerListener(shakeSensorListener, accelerometer, SensorManager.SENSOR_DELAY_GAME)
+            }
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -268,8 +306,22 @@ class AmneziaActivity : QtActivity() {
         Log.d(TAG, "Start Amnezia activity")
         mainScope.launch {
             qtInitialized.await()
-            vpnProto?.let { proto ->
-                if (AmneziaVpnService.isRunning(applicationContext, proto.processName)) {
+            if (rebindServiceOnStart) {
+                // we were bound when backgrounded — the VPN session may still be
+                // alive; rebind and let REQUEST_STATUS restore the real state
+                rebindServiceOnStart = false
+                doBindService()
+            } else {
+                // vpnProto is in-memory only: after a cold process start it is null
+                // even if a VPN service outlived us. Probe all known service
+                // processes and bind to whichever is still running (a plain
+                // bindService would start a stopped service via BIND_AUTO_CREATE).
+                val proto = vpnProto ?: VpnProto.entries
+                    .distinctBy { it.serviceClass }
+                    .firstOrNull { AmneziaVpnService.isRunning(applicationContext, it.processName) }
+                    ?.also { vpnProto = it }
+                if (proto != null &&
+                    AmneziaVpnService.isRunning(applicationContext, proto.processName)) {
                     doBindService()
                 }
             }
@@ -283,6 +335,7 @@ class AmneziaActivity : QtActivity() {
         resumeHandler.removeCallbacksAndMessages(null)
         openFileDeliveryScheduled = false
         Log.d(TAG, "Stop Amnezia activity")
+        rebindServiceOnStart = isInBoundState
         doUnbindService()
         mainScope.launch {
             qtInitialized.await()

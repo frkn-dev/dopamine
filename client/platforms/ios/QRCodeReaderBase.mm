@@ -29,6 +29,10 @@
 - (BOOL)startReading {
     NSError *error;
 
+    // never stack sessions: a repeated start must not orphan the previous
+    // preview layer on the window (stopReading only tracks the last one)
+    [self stopReading];
+
     AVCaptureDevice *captureDevice = [AVCaptureDevice defaultDeviceWithMediaType: AVMediaTypeVideo];
     AVCaptureDeviceInput *deviceInput = [AVCaptureDeviceInput deviceInputWithDevice: captureDevice error: &error];
 
@@ -49,12 +53,13 @@
     [capturedMetadataOutput setMetadataObjectTypes: [NSArray arrayWithObject:AVMetadataObjectTypeQRCode]];
 
     _videoPreviewPlayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession: _captureSession];
-    
-    CGFloat statusBarHeight = [UIApplication sharedApplication].statusBarFrame.size.height;
 
+    // QML coordinates already include the safe area (the page layout offsets
+    // content below the notch) — adding the status bar height again shifted
+    // the preview down and misaligned it with the scanner page
     QRect cameraRect = _qrCodeReader->cameraSize();
     CGRect cameraCGRect = CGRectMake(cameraRect.x(),
-                                     cameraRect.y() + statusBarHeight,
+                                     cameraRect.y(),
                                      cameraRect.width(),
                                      cameraRect.height());
 
@@ -74,6 +79,7 @@
     _captureSession = nil;
 
     [_videoPreviewPlayer removeFromSuperlayer];
+    _videoPreviewPlayer = nil;
 }
 
 - (void)captureOutput:(AVCaptureOutput *)output didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects fromConnection:(AVCaptureConnection *)connection {

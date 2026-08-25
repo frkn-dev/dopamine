@@ -36,7 +36,12 @@ QVariant ApiAccountInfoModel::data(const QModelIndex &index, int role) const
             return tr("<p><a style=\"color: #EB5757;\">Inactive</a>");
         }
 
-        const QDateTime endDate = QDateTime::fromString(m_accountInfoData.subscriptionEndDate, Qt::ISODateWithMs).toLocalTime();
+        QDateTime endDate = QDateTime::fromString(m_accountInfoData.subscriptionEndDate, Qt::ISODateWithMs).toLocalTime();
+        if (!endDate.isValid()) {
+            // backend may omit fractional seconds — EndDateRole parses the same
+            // value with plain Qt::ISODate and succeeds
+            endDate = QDateTime::fromString(m_accountInfoData.subscriptionEndDate, Qt::ISODate).toLocalTime();
+        }
         if (endDate.isValid()) {
             return tr("Active · until %1").arg(endDate.toString("d MMM yyyy"));
         }

@@ -190,6 +190,7 @@ void CoreController::initControllers()
 
     m_apiConfigsController.reset(new ApiConfigsController(m_serversModel, m_apiServicesModel, m_settings));
     m_engine->rootContext()->setContextProperty("ApiConfigsController", m_apiConfigsController.get());
+    m_connectionController->setApiConfigsController(m_apiConfigsController.get());
 
     connect(m_importController.get(), &ImportController::frknSubscriptionLinkDetected, this,
             [this](const QString &subscriptionId) {
@@ -204,6 +205,14 @@ void CoreController::initControllers()
                 }
             });
 
+    connect(m_importController.get(), &ImportController::frknShareLinkDetected, this,
+            [this](const QString &shareToken) {
+                qDebug() << "[CORE] frkn share link detected";
+                m_pageController->showBusyIndicator(true);
+                m_apiConfigsController->importSharedConnection(shareToken);
+                m_pageController->showBusyIndicator(false);
+            });
+
     m_apiNewsController.reset(new ApiNewsController(m_newsModel, m_settings, m_serversModel, this));
     m_engine->rootContext()->setContextProperty("ApiNewsController", m_apiNewsController.get());
 
@@ -212,6 +221,7 @@ void CoreController::initControllers()
 
     m_healthCheckController.reset(new HealthCheckController(m_serversModel, this));
     m_engine->rootContext()->setContextProperty("HealthCheckController", m_healthCheckController.get());
+    m_connectionController->setHealthCheckController(m_healthCheckController.get());
 
     // probes are only meaningful with the VPN off — once a tunnel comes up, in-flight
     // probes die (their traffic routes into the tunnel) and stale "offline" badges
@@ -245,6 +255,8 @@ void CoreController::initAndroidController()
         if (m_vpnConnection)
             m_vpnConnection->restoreConnection();
     });
+
+    connect(AndroidController::instance(), &AndroidController::shakeDetected, m_pageController.get(), &PageController::shakeDetected);
     if (!AndroidController::instance()->initialize()) {
         qFatal("Android controller initialization failed");
     }
@@ -331,15 +343,15 @@ void CoreController::updateTranslator(const QLocale &locale)
     }
 
     QStringList availableTranslations;
-    QDirIterator it(":/translations", QStringList("amneziavpn_*.qm"), QDir::Files);
+    QDirIterator it(":/translations", QStringList("dopamine_*.qm"), QDir::Files);
     while (it.hasNext()) {
         availableTranslations << it.next();
     }
 
     // This code allow to load translation for the language only, without country code
     const QString lang = locale.name().split("_").first();
-    const QString translationFilePrefix = QString(":/translations/amneziavpn_") + lang;
-    QString strFileName = QString(":/translations/amneziavpn_%1.qm").arg(locale.name());
+    const QString translationFilePrefix = QString(":/translations/dopamine_") + lang;
+    QString strFileName = QString(":/translations/dopamine_%1.qm").arg(locale.name());
     for (const QString &translation : availableTranslations) {
         if (translation.contains(translationFilePrefix)) {
             strFileName = translation;
@@ -440,6 +452,13 @@ void CoreController::initPrepareConfigHandler()
 {
     connect(m_connectionController.get(), &ConnectionController::prepareConfig, this, [this]() {
         emit m_vpnConnection->connectionStateChanged(Vpn::ConnectionState::Preparing);
+
+        // auto-select picks the server itself — validating the UI-selected default
+        // server here would block auto mode whenever that server was never connected
+        if (m_settings->isAutoServerSelection()) {
+            m_connectionController->openConnection();
+            return;
+        }
 
         if (!m_apiConfigsController->isConfigValid()) {
             emit m_vpnConnection->connectionStateChanged(Vpn::ConnectionState::Disconnected);
