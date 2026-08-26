@@ -368,6 +368,10 @@ bool ConnectionController::retryWithNextIp()
     m_ipTrafficTimer->stop();
     connectToServerIndexWithIp(m_ipPoolRow, m_ipPool.at(m_ipPoolPos));
     if (m_autoPhase == AutoPhase::Connecting) {
+        // Connected cleared m_autoAdvancing — re-arm it, otherwise the old
+        // tunnel's teardown Disconnected is misread as this attempt failing
+        // and the candidate gets skipped mid-retry
+        m_autoAdvancing = true;
         m_autoAttemptTimer->start(kAutoAttemptTimeoutMs);
     }
     m_connectionStateText = tr("Connecting...");
@@ -742,6 +746,36 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
                 return;
             }
             m_autoPhase = AutoPhase::None; // out of candidates: report the error below
+        } else if (state == Vpn::ConnectionState::Reconnecting) {
+            // The Android service recycles the tunnel by itself on network events
+            // (NetworkState callback -> "Reconnect VPN"), and the WG status job
+            // waits for a handshake with no timeout — when the network blocks it,
+            // the tunnel wedges in RECONNECTING forever and no more events come.
+            // Treat it as a failed attempt instead of spinning the UI forever.
+            qDebug() << "[AUTO] candidate wedged in reconnecting, moving on";
+            m_autoAttemptTimer->stop();
+            m_autoAwaitingTraffic = false;
+            if (retryWithNextIp()) {
+                m_state = state;
+                return;
+            }
+            m_autoCandidatePos++;
+            if (m_autoCandidatePos < m_autoCandidates.size()) {
+                m_state = state;
+                connectCurrentAutoCandidate();
+                return;
+            }
+            // the wedged tunnel is still up — tear it down on the way out
+            m_autoPhase = AutoPhase::None;
+            m_autoAdvancing = false;
+            m_autoCandidates.clear();
+            m_isConnectionInProgress = false;
+            m_connectionStateText = tr("Connect");
+            m_currentEndpoint.clear();
+            emit disconnectFromVpn();
+            emit connectionErrorOccurred(m_vpnConnection->lastError());
+            emit connectionStateChanged();
+            return;
         } else if (state == Vpn::ConnectionState::Disconnected && !m_autoAdvancing) {
             // iOS tears a broken tunnel down as Connecting -> Disconnecting -> Disconnected
             // (PacketTunnelProviderError) without ever reporting Vpn::Error — treat it as a
@@ -771,10 +805,43 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
     } else if (m_ipPoolRow >= 0) {
         // manual connect to a multi-IP server
         if (state == Vpn::ConnectionState::Connected) {
+#if defined(Q_OS_IOS) || defined(MACOS_NE) || defined(Q_OS_ANDROID)
+            // WG/AWG "Connected" here is handshake-gated (see the Connected case
+            // below) — the entry address already proved itself, so waiting for
+            // idle-tunnel bytes on top would false-negative the same way
+            const DockerContainer container = qvariant_cast<DockerContainer>(
+                    m_serversModel->data(m_ipPoolRow, ServersModel::Roles::DefaultContainerRole));
+            if (container == DockerContainer::Awg || container == DockerContainer::Awg2
+                || container == DockerContainer::WireGuard) {
+                qDebug() << "[IPPOOL] handshake-confirmed connect on row" << m_ipPoolRow;
+                resetIpPool(); // success — the next connect starts from a fresh random pool
+                // fall through to the common Connected handling in the switch below
+            } else {
+#endif
             // a blocked entry address can still bring the tunnel up — require real bytes
             m_ipAwaitingTraffic = true;
             m_ipTrafficBaseline = ~0ULL;
             m_ipTrafficTimer->start(kIpTrafficTimeoutMs);
+#if defined(Q_OS_IOS) || defined(MACOS_NE) || defined(Q_OS_ANDROID)
+            }
+#endif
+        } else if (state == Vpn::ConnectionState::Reconnecting) {
+            // same wedge as in auto selection: the Android service's self-reconnect
+            // can park in RECONNECTING forever — cycle the entry address or fail loudly
+            m_ipAwaitingTraffic = false;
+            m_ipTrafficTimer->stop();
+            if (retryWithNextIp()) {
+                m_state = state;
+                return;
+            }
+            resetIpPool();
+            m_manualConnectTimer->stop();
+            m_isConnectionInProgress = false;
+            m_connectionStateText = tr("Connect");
+            emit disconnectFromVpn();
+            emit connectionErrorOccurred(ErrorCode::ServerConnectionTimeoutError);
+            emit connectionStateChanged();
+            return;
         } else if (state == Vpn::ConnectionState::Error || state == Vpn::ConnectionState::Unknown
                    || (state == Vpn::ConnectionState::Disconnected && !m_connectionSwitching)) {
             if (retryWithNextIp()) {
@@ -795,14 +862,16 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
         m_isConnected = true;
         m_connectionStateText = tr("Connected");
         m_manualConnectTimer->stop(); // the traffic watchdogs take it from here
-#if defined(Q_OS_IOS) || defined(MACOS_NE)
+#if defined(Q_OS_IOS) || defined(MACOS_NE) || defined(Q_OS_ANDROID)
         if (m_autoPhase == AutoPhase::Connecting && m_autoAwaitingTraffic
             && m_autoCandidatePos < m_autoCandidates.size()) {
-            // On Apple NE a WG/AWG "Connected" is emitted only AFTER a verified
-            // handshake (IosController gates it) — that alone proves the path is
-            // bidirectional. Waiting for user bytes on top false-negatives an
-            // idle-but-healthy tunnel and burned the whole traffic window per
-            // candidate.
+            // On Apple NE and on Android a WG/AWG "Connected" is emitted only
+            // AFTER a verified handshake (IosController gates it; on Android
+            // Wireguard.kt's status job flips to CONNECTED only when
+            // lastHandshake > 0) — that alone proves the path is bidirectional.
+            // Waiting for user bytes on top false-negatives an idle-but-healthy
+            // tunnel (keepalive is 25s, the traffic window is 8s) and burned the
+            // whole window per candidate.
             const int row = m_autoCandidates.at(m_autoCandidatePos).row;
             const DockerContainer container = qvariant_cast<DockerContainer>(
                     m_serversModel->data(row, ServersModel::Roles::DefaultContainerRole));
@@ -822,6 +891,12 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
     case Vpn::ConnectionState::Reconnecting: {
         m_isConnectionInProgress = true;
         m_connectionStateText = tr("Reconnecting...");
+        // a wedged self-reconnect emits no further events — keep a watchdog
+        // running so a manual connect fails loudly instead of spinning forever
+        // (auto selection handles Reconnecting in the auto branch above)
+        if (m_autoPhase == AutoPhase::None && m_ipPoolRow < 0 && !m_manualConnectTimer->isActive()) {
+            m_manualConnectTimer->start(kManualConnectTimeoutMs);
+        }
         break;
     }
     case Vpn::ConnectionState::Disconnected: {

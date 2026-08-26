@@ -227,7 +227,9 @@ bool WireguardUtilsMacos::updatePeer(const InterfaceConfig& config) {
   QTextStream out(&message);
   out << "set=1\n";
   out << "public_key=" << QString(publicKey.toHex()) << "\n";
-  if (!config.m_serverPskKey.isNull()) {
+  // empty psk (FRKN configs ship "psk_key": "") must be omitted entirely —
+  // an empty hex string makes wireguard-go reject the whole peer with -22
+  if (!pskKey.isEmpty()) {
     out << "preshared_key=" << QString(pskKey.toHex()) << "\n";
   }
   if (!config.m_serverIpv4AddrIn.isNull()) {

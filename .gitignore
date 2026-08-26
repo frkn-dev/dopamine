@@ -160,3 +160,9 @@ Screenshot*.png
 frkn-android-cert.zip
 *.jks
 *.keystore
+
+# signing / notarization secrets — never commit
+AuthKey_*.p8
+*.certSigningRequest
+devid_*_private.key
+*.cer

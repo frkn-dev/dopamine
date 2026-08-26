@@ -176,28 +176,28 @@
  Пожалуйста, установите протокол</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="373"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="780"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="377"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="858"/>
         <source>Connecting...</source>
         <translation>Подключение...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="785"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="863"/>
         <source>Connected</source>
         <translation>Подключено</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="814"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="918"/>
         <source>Preparing...</source>
         <translation>Подготовка...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="838"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="942"/>
         <source>Settings updated successfully, reconnnection...</source>
         <translation>Настройки успешно обновлены, переподключение...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="841"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="945"/>
         <source>Settings updated successfully</source>
         <translation>Настройки успешно обновлены</translation>
     </message>
@@ -210,29 +210,31 @@
         <translation type="vanished">не удалось создать конфигурацию</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="795"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="893"/>
         <source>Reconnecting...</source>
         <translation>Переподключение...</translation>
     </message>
     <message>
         <location filename="../ui/controllers/connectionController.h" line="165"/>
         <location filename="../ui/controllers/connectionController.cpp" line="194"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="643"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="686"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="754"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="800"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="819"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="826"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="651"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="694"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="773"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="799"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="840"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="904"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="923"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="930"/>
         <source>Connect</source>
         <translation>Подключиться</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="809"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="913"/>
         <source>Disconnecting...</source>
         <translation>Отключение...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="518"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="525"/>
         <source>Searching for the best server...</source>
         <translation>Поиск лучшего сервера...</translation>
     </message>

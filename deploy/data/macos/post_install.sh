@@ -44,7 +44,9 @@ run_cmd osascript -e 'tell application "'"${APP_NAME}"'" to quit' || true
 
 PLIST_SOURCE="$APP_PATH/Contents/Resources/$PLIST_NAME"
 if [ -f "$PLIST_SOURCE" ]; then
-  run_cmd mv -f "$PLIST_SOURCE" "$LAUNCH_DAEMONS_PLIST_NAME"
+  # copy, not move: removing a file from a signed bundle breaks its seal and
+  # Gatekeeper then reports the app as "damaged"
+  run_cmd cp -f "$PLIST_SOURCE" "$LAUNCH_DAEMONS_PLIST_NAME"
 else
   log "ERROR: service plist not found at $PLIST_SOURCE"
 fi
