@@ -1,6 +1,7 @@
 #include "ios_controller.h"
 
 #include <QDebug>
+#include <QDateTime>
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -319,6 +320,9 @@ bool IosController::connectVpn(amnezia::Proto proto, const QJsonObject& configur
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
     __block bool ok = true;
     __block bool isNewTunnelCreated = false;
+    // Set to false when the "wait for old tunnels to stop" continuation takes
+    // over signaling the semaphore from a background queue (see below).
+    __block bool signalInFinally = true;
 
     [NETunnelProviderManager loadAllFromPreferencesWithCompletionHandler:^(NSArray<NETunnelProviderManager *> * _Nullable managers, NSError * _Nullable error) {
         @try {
@@ -373,27 +377,36 @@ bool IosController::connectVpn(amnezia::Proto proto, const QJsonObject& configur
             // provider is still alive, both end up with their own utun and the
             // old one may win the routes (UI says new server, traffic exits the
             // old one). Wait until every manager we stopped is fully Disconnected.
+            //
+            // IMPORTANT: this completion handler runs on the MAIN queue, so the
+            // wait must not block here (it froze the whole UI for the full 5s —
+            // and since the status notification is also delivered on the main
+            // thread, the wait could never finish early anyway). Poll from a
+            // background queue instead and signal the outer semaphore from there.
             if (stoppedManagers.count > 0) {
-                __block dispatch_semaphore_t stopSem = dispatch_semaphore_create(0);
-                __block id stopObserver = [[NSNotificationCenter defaultCenter]
-                        addObserverForName:NEVPNStatusDidChangeNotification
-                                    object:nil
-                                     queue:nil
-                                usingBlock:^(NSNotification *note) {
-                    for (NETunnelProviderManager *manager in stoppedManagers) {
-                        if (manager.connection.status != NEVPNStatusDisconnected
-                            && manager.connection.status != NEVPNStatusInvalid) {
-                            return;
+                signalInFinally = false;
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    const qint64 deadline = QDateTime::currentMSecsSinceEpoch() + 5000;
+                    BOOL allStopped = NO;
+                    while (QDateTime::currentMSecsSinceEpoch() < deadline) {
+                        allStopped = YES;
+                        for (NETunnelProviderManager *manager in stoppedManagers) {
+                            if (manager.connection.status != NEVPNStatusDisconnected
+                                && manager.connection.status != NEVPNStatusInvalid) {
+                                allStopped = NO;
+                                break;
+                            }
                         }
+                        if (allStopped) {
+                            break;
+                        }
+                        [NSThread sleepForTimeInterval:0.1];
                     }
-                    dispatch_semaphore_signal(stopSem);
-                }];
-
-                long waitResult = dispatch_semaphore_wait(stopSem, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
-                [[NSNotificationCenter defaultCenter] removeObserver:stopObserver];
-                if (waitResult != 0) {
-                    qWarning() << "IosController::connectVpn : timed out waiting for the previous tunnel to stop";
-                }
+                    if (!allStopped) {
+                        qWarning() << "IosController::connectVpn : timed out waiting for the previous tunnel to stop";
+                    }
+                    dispatch_semaphore_signal(semaphore);
+                });
             }
 
         }
@@ -403,7 +416,9 @@ bool IosController::connectVpn(amnezia::Proto proto, const QJsonObject& configur
             m_currentTunnel = nullptr;
         }
         @finally {
-            dispatch_semaphore_signal(semaphore);
+            if (signalInFinally) {
+                dispatch_semaphore_signal(semaphore);
+            }
         }
     }];
 
@@ -536,7 +551,17 @@ void IosController::vpnStatusDidChange(void *pNotification)
 {
     NETunnelProviderSession *session = (NETunnelProviderSession *)pNotification;
 
-    if (session /* && session == TunnelManager.session */ ) {
+    // Ignore status events from sessions of OTHER managers. When switching
+    // servers (or advancing auto-selection) we stop the previous tunnel, and its
+    // teardown Disconnecting/Disconnected used to leak into the state machine
+    // mid-connect — read as "the new attempt failed", it made auto-selection
+    // instantly skip every candidate. Only the tunnel we are currently
+    // configuring gets to drive the state.
+    if (!session || !m_currentTunnel || session != m_currentTunnel.connection) {
+        return;
+    }
+
+    {
         qDebug() << "IosController::vpnStatusDidChange" << iosStatusToState(session.status) << session;
 
         if (session.status == NEVPNStatusDisconnected) {
@@ -1176,15 +1201,24 @@ void IosController::startTunnel()
     // UI reports the new one). So a server switch on a connected tunnel must
     // stop it first and start again once Disconnected arrives.
     // NOTE: stopVPNTunnel, not stopTunnel — the latter is a no-op on a session.
-    if (m_currentTunnel.connection.status != NEVPNStatusDisconnected) {
+    // NEVPNStatusInvalid means the manager was just created and never saved —
+    // its session cannot be "active", go straight to save+start (otherwise
+    // stopVPNTunnel is a no-op and no Disconnected notification ever arrives).
+    if (m_currentTunnel.connection.status != NEVPNStatusDisconnected
+        && m_currentTunnel.connection.status != NEVPNStatusInvalid) {
         qDebug() << "IosController::startTunnel: tunnel is active, restarting with the new config";
 
+        __block BOOL restartStarted = NO;
         __block id observer = [[NSNotificationCenter defaultCenter]
                 addObserverForName:NEVPNStatusDidChangeNotification
                             object:m_currentTunnel.connection
                              queue:nil
                         usingBlock:^(NSNotification *note) {
+            if (restartStarted) {
+                return;
+            }
             if (m_currentTunnel.connection.status == NEVPNStatusDisconnected) {
+                restartStarted = YES;
                 [[NSNotificationCenter defaultCenter] removeObserver:observer];
                 dispatch_async(dispatch_get_main_queue(), ^{
                     saveAndStartTunnel();
@@ -1195,11 +1229,18 @@ void IosController::startTunnel()
         // If Disconnected never comes, do NOT force-start (that would create a
         // second provider instance) — surface an error instead.
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] removeObserver:observer];
-            if (m_currentTunnel.connection.status != NEVPNStatusDisconnected) {
-                qWarning() << "IosController::startTunnel: old tunnel did not stop in time, aborting restart";
-                emit connectionStateChanged(Vpn::ConnectionState::Error);
+            if (restartStarted) {
+                return;
             }
+            restartStarted = YES;
+            [[NSNotificationCenter defaultCenter] removeObserver:observer];
+            if (m_currentTunnel.connection.status == NEVPNStatusDisconnected
+                || m_currentTunnel.connection.status == NEVPNStatusInvalid) {
+                saveAndStartTunnel();
+                return;
+            }
+            qWarning() << "IosController::startTunnel: old tunnel did not stop in time, aborting restart";
+            emit connectionStateChanged(Vpn::ConnectionState::Error);
         });
 
         [m_currentTunnel.connection stopVPNTunnel];

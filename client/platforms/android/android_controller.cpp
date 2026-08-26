@@ -36,8 +36,13 @@ AndroidController::AndroidController() : QObject()
         this, &AndroidController::serviceDisconnected, this,
         [this]() {
             qDebug() << "Android event: service disconnected";
+            // Just an unbind on the way to the background in the common case —
+            // the tunnel may well stay alive in the service process. Do NOT
+            // flip the UI state to Disconnected here: on return, onStart rebinds
+            // and REQUEST_STATUS restores the real state. Flipping it created a
+            // stale "Disconnected" window in which a tap on the connect button
+            // landed as a toggle and killed the live tunnel.
             isWaitingStatus = true;
-            emit connectionStateChanged(Vpn::ConnectionState::Disconnected);
         },
         Qt::QueuedConnection);
 

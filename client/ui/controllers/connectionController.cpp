@@ -384,16 +384,19 @@ int ConnectionController::tierForRow(int row) const
         return 0; // AmneziaWgMobile first
     }
     const QString protocol = m_serversModel->data(row, ServersModel::Roles::ServiceProtocolRole).toString();
-    if (protocol == QStringLiteral("awg") || protocol == QStringLiteral("wireguard")) {
+    if (protocol == QStringLiteral("awg")) {
         return 1;
     }
     if (protocol == QStringLiteral("hysteria2")) {
         return 2;
     }
     if (protocol == QStringLiteral("vless")) {
-        return isVlessCdnRow(row) ? 4 : 3; // CDN-fronted vless is the last resort
+        return isVlessCdnRow(row) ? 4 : 3; // CDN-fronted vless is the last resort before plain WG
     }
-    return 5;
+    if (protocol == QStringLiteral("wireguard")) {
+        return 5; // plain WireGuard — dead last per the auto-selection spec
+    }
+    return 6;
 }
 
 bool ConnectionController::isVlessCdnRow(int row) const
@@ -624,6 +627,7 @@ void ConnectionController::finalizeAutoSuccess()
         m_serversModel->setDefaultServerIndex(m_autoCandidates.at(m_autoCandidatePos).row);
     }
     m_autoPhase = AutoPhase::None;
+    m_autoAdvancing = false;
     m_autoCandidates.clear();
     resetIpPool();
     // isConnectionInProgress just flipped to false — QML must know, otherwise
@@ -697,19 +701,25 @@ ErrorCode ConnectionController::getLastConnectionError()
 
 void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
 {
-    if (state == Vpn::ConnectionState::Connecting || state == Vpn::ConnectionState::Preparing
-        || state == Vpn::ConnectionState::Connected) {
+    if (state == Vpn::ConnectionState::Connected) {
+        // attempt resolved — a teardown after this point is a real failure
         m_autoAdvancing = false;
+        m_connectionSwitching = false;
+    } else if (state == Vpn::ConnectionState::Connecting || state == Vpn::ConnectionState::Preparing) {
+        // do NOT clear m_autoAdvancing here: the previous tunnel's teardown
+        // Disconnected is still in flight (we stop it inside connectVpn) and must
+        // not be read as "this auto attempt failed" — that race made auto
+        // selection skip every candidate instantly when a tunnel was already up
         m_connectionSwitching = false;
     }
 
     if (m_autoPhase == AutoPhase::Connecting) {
         if (state == Vpn::ConnectionState::Connected) {
             m_autoAttemptTimer->stop();
-            // "Connected" alone proves nothing: a broken entry can still bring a
-            // WG-style tunnel up, and a successful junk probe does not guarantee
-            // traffic flows (seen in the wild: rtt 22ms, handshake ok, zero bytes).
-            // Require real bytes for EVERY candidate before declaring success.
+            // "Connected" alone proves nothing for xray/hysteria: a broken entry
+            // can still bring a tunnel up, so require real bytes before declaring
+            // success. WG/AWG on Apple NE skip this — their Connected is already
+            // handshake-gated (see the Connected case below).
             if (m_autoCandidatePos < m_autoCandidates.size()) {
                 m_autoAwaitingTraffic = true;
                 m_autoTrafficBaseline = ~0ULL;
@@ -749,6 +759,7 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
                 return;
             }
             m_autoPhase = AutoPhase::None;
+            m_autoAdvancing = false;
             m_autoCandidates.clear();
             m_isConnectionInProgress = false;
             m_connectionStateText = tr("Connect");
@@ -784,6 +795,24 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
         m_isConnected = true;
         m_connectionStateText = tr("Connected");
         m_manualConnectTimer->stop(); // the traffic watchdogs take it from here
+#if defined(Q_OS_IOS) || defined(MACOS_NE)
+        if (m_autoPhase == AutoPhase::Connecting && m_autoAwaitingTraffic
+            && m_autoCandidatePos < m_autoCandidates.size()) {
+            // On Apple NE a WG/AWG "Connected" is emitted only AFTER a verified
+            // handshake (IosController gates it) — that alone proves the path is
+            // bidirectional. Waiting for user bytes on top false-negatives an
+            // idle-but-healthy tunnel and burned the whole traffic window per
+            // candidate.
+            const int row = m_autoCandidates.at(m_autoCandidatePos).row;
+            const DockerContainer container = qvariant_cast<DockerContainer>(
+                    m_serversModel->data(row, ServersModel::Roles::DefaultContainerRole));
+            if (container == DockerContainer::Awg || container == DockerContainer::Awg2
+                || container == DockerContainer::WireGuard) {
+                qDebug() << "[AUTO] handshake-confirmed connect on row" << row << "- accepting without waiting for traffic";
+                finalizeAutoSuccess();
+            }
+        }
+#endif
         break;
     }
     case Vpn::ConnectionState::Connecting: {
