@@ -1,6 +1,6 @@
 [![Deploy workflow](https://github.com/frkn-dev/client/actions/workflows/deploy.yml/badge.svg?branch=dev)](https://github.com/frkn-dev/client/actions/workflows/deploy.yml)
 
-# FRKN — Free VPN for Free people
+# FRKN Dopamine - VPN Client based on AmneziaVPN
 
 <div style="display: flex; align-items: center;">
     <img src="client/images/tray/active.png" height="96">
@@ -17,7 +17,7 @@
 ## Links
 
 - 🌐 [https://frkn.org](https://frkn.org) - project website
-- 📢 [https://t.me/FRKN_org](https://t.me/FRKN_org) - telegram channel
+- 📢 [https://t.me/frkn_org](https://t.me/FRKN_org) - telegram channel
 - 🛠️ [https://t.me/frkn_support](https://t.me/frkn_support) - telegram support
 - 💻 [https://t.me/frkn_dev](https://t.me/frkn_dev) - telegram dev chat
 - 🛍️ [https://shop.frkn.org/](https://shop.frkn.org/catalogue/frkn) - FRKN merch
