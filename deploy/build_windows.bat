@@ -70,7 +70,11 @@ cd %PROJECT_DIR%
 call cmake . -B %WORK_DIR%  "-DCMAKE_BUILD_TYPE:STRING=Release" "-DCMAKE_PREFIX_PATH:PATH=%QT_BIN_DIR%"
 
 cd %WORK_DIR%
-cmake --build . --config release -- /p:UseMultiToolTask=true /m
+if /i "%CMAKE_GENERATOR%"=="Ninja" (
+    cmake --build . --config release
+) else (
+    cmake --build . --config release -- /p:UseMultiToolTask=true /m
+)
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 echo "Deploying..."
