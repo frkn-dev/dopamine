@@ -80,8 +80,17 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 echo "Deploying..."
 
 mkdir "%OUT_APP_DIR%"
-copy "%WORK_DIR%\service\server\release\%SERVICE_FILENAME%" "%OUT_APP_DIR%"
-rem copy "%WORK_DIR%\client\%APP_FILENAME%" "%OUT_APP_DIR%"
+
+REM Locate built binaries: VS multi-config puts them under Release\, Ninja (single-config) does not
+set CLIENT_BIN=%WORK_DIR%\client\Dopamine.exe
+if exist "%WORK_DIR%\client\Release\Dopamine.exe" set CLIENT_BIN=%WORK_DIR%\client\Release\Dopamine.exe
+set SERVICE_BIN=%WORK_DIR%\service\server\dopamine-service.exe
+if exist "%WORK_DIR%\service\server\Release\dopamine-service.exe" set SERVICE_BIN=%WORK_DIR%\service\server\Release\dopamine-service.exe
+
+copy /Y "%CLIENT_BIN%" "%OUT_APP_DIR%\%APP_FILENAME%"
+if %errorlevel% neq 0 exit /b %errorlevel%
+copy /Y "%SERVICE_BIN%" "%OUT_APP_DIR%\%SERVICE_FILENAME%"
+if %errorlevel% neq 0 exit /b %errorlevel%
 
 copy /Y "%PROJECT_DIR%\client\images\app.ico" "%OUT_APP_DIR%\FRKN.ico" >nul
 
