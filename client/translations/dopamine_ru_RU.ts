@@ -176,28 +176,28 @@
  Пожалуйста, установите протокол</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="406"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="887"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="432"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="913"/>
         <source>Connecting...</source>
         <translation>Подключение...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="892"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="918"/>
         <source>Connected</source>
         <translation>Подключено</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="953"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="979"/>
         <source>Preparing...</source>
         <translation>Подготовка...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="977"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1003"/>
         <source>Settings updated successfully, reconnnection...</source>
         <translation>Настройки успешно обновлены, переподключение...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="980"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1006"/>
         <source>Settings updated successfully</source>
         <translation>Настройки успешно обновлены</translation>
     </message>
@@ -210,31 +210,31 @@
         <translation type="vanished">не удалось создать конфигурацию</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="922"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="948"/>
         <source>Reconnecting...</source>
         <translation>Переподключение...</translation>
     </message>
     <message>
         <location filename="../ui/controllers/connectionController.h" line="177"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="194"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="680"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="723"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="802"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="218"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="706"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="749"/>
         <location filename="../ui/controllers/connectionController.cpp" line="828"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="869"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="933"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="958"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="965"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="854"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="895"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="959"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="984"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="991"/>
         <source>Connect</source>
         <translation>Подключиться</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="948"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="974"/>
         <source>Disconnecting...</source>
         <translation>Отключение...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="554"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="580"/>
         <source>Searching for the best server...</source>
         <translation>Поиск лучшего сервера...</translation>
     </message>
@@ -5890,7 +5890,7 @@ This means that AmneziaWG keeps the fast performance of the original while addin
 <context>
     <name>VpnConnection</name>
     <message>
-        <location filename="../vpnconnection.cpp" line="490"/>
+        <location filename="../vpnconnection.cpp" line="517"/>
         <source>Mbps</source>
         <translation>Мбит/с</translation>
     </message>

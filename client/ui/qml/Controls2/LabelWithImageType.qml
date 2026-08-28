@@ -18,12 +18,16 @@ RowLayout {
     visible: !isRightTextUndefined
 
     Image {
+        id: iconImage
+
         Layout.preferredHeight: 18
         Layout.preferredWidth: 18
         source: root.imageSource
     }
 
     ListItemTitleType {
+        id: titleItem
+
         Layout.fillWidth: true
         Layout.rightMargin: 10
         Layout.alignment: Qt.AlignRight
@@ -35,6 +39,13 @@ RowLayout {
         visible: root.rightText !== ""
 
         Layout.alignment: Qt.AlignLeft
+        // cap the value's width: an unconstrained long value claims its full
+        // unwrapped implicit width, collapses the title to 0 and overflows the
+        // row past the screen edge (short values end up painted off-screen too)
+        Layout.maximumWidth: Math.max(root.width - iconImage.width - titleItem.implicitWidth - root.spacing * 2, 0)
+
+        horizontalAlignment: Text.AlignRight
+        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
 
         text: root.isRightTextUndefined ? "" : root.rightText
         textFormat: root.rightTextFormat

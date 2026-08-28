@@ -371,6 +371,20 @@ extension PacketTunnelProvider {
         }
     }
 
+    /// Status poll from the app: same contract as the WireGuard handler — the
+    /// multi-IP failover and the speed meter in the UI live off these counters.
+    /// Without them the app saw 0 bytes forever and kept cycling entry addresses.
+    func handleXrayStatusMessage(completionHandler: ((Data?) -> Void)? = nil) {
+        dumpHevLog()
+        guard let completionHandler else { return }
+        let tunnelStats = Socks5Tunnel.stats()
+        let response: [String: Any] = [
+            "rx_bytes": String(tunnelStats.rxBytes),
+            "tx_bytes": String(tunnelStats.txBytes)
+        ]
+        completionHandler(try? JSONSerialization.data(withJSONObject: response, options: []))
+    }
+
     private func setupAndRunTun2socks(configData: Data,
                                       address: String,
                                       port: Int,

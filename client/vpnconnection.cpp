@@ -401,19 +401,46 @@ void VpnConnection::appendSplitTunnelingConfig()
             }
 
             // The network extension routes by IP: resolve preset domains (manual
-            // sites are already stored resolved).
+            // sites are already stored resolved). Never block on a synchronous
+            // QHostInfo::fromName here: on a dead network getaddrinfo parks the
+            // VpnConnection thread for tens of seconds, the connect spinner runs
+            // forever and the app aborts on quit ("QThread destroyed while still
+            // running"). Resolve all domains in parallel with a hard deadline —
+            // domains that don't answer in time are simply skipped.
             QJsonArray presetIps;
-            for (const auto &domainValue : presetDomains) {
-                const QString domain = domainValue.toString();
-                if (NetworkUtilities::checkIpSubnetFormat(domain)) {
-                    presetIps.append(domain);
-                    continue;
+            {
+                QStringList domainsToResolve;
+                for (const auto &domainValue : presetDomains) {
+                    const QString domain = domainValue.toString();
+                    if (NetworkUtilities::checkIpSubnetFormat(domain)) {
+                        presetIps.append(domain);
+                    } else {
+                        domainsToResolve.append(domain);
+                    }
                 }
-                const QHostInfo hostInfo = QHostInfo::fromName(domain);
-                for (const auto &addr : hostInfo.addresses()) {
-                    if (addr.protocol() == QAbstractSocket::IPv4Protocol) {
-                        presetIps.append(addr.toString());
-                        break;
+                if (!domainsToResolve.isEmpty()) {
+                    QVector<QHostInfo> resolvedInfos(domainsToResolve.size());
+                    QEventLoop loop;
+                    int remaining = domainsToResolve.size();
+                    constexpr int kPresetResolveTimeoutMs = 2500;
+                    QTimer::singleShot(kPresetResolveTimeoutMs, &loop, &QEventLoop::quit);
+                    for (int i = 0; i < domainsToResolve.size(); ++i) {
+                        QHostInfo::lookupHost(domainsToResolve.at(i), &loop,
+                                [&resolvedInfos, &remaining, &loop, i](const QHostInfo &info) {
+                                    resolvedInfos[i] = info;
+                                    if (--remaining == 0) {
+                                        loop.quit();
+                                    }
+                                });
+                    }
+                    loop.exec();
+                    for (const QHostInfo &hostInfo : resolvedInfos) {
+                        for (const auto &addr : hostInfo.addresses()) {
+                            if (addr.protocol() == QAbstractSocket::IPv4Protocol) {
+                                presetIps.append(addr.toString());
+                                break;
+                            }
+                        }
                     }
                 }
             }

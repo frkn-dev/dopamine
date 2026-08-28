@@ -27,7 +27,25 @@ private const val LIBXRAY_TAG = "libXray"
 class Xray : Protocol() {
 
     private var isRunning: Boolean = false
-    override val statistics: Statistics = Statistics.EMPTY_STATISTICS
+
+    // libXray exposes no byte counters, so read the VpnService tun interface
+    // stats instead — Android allows only one active VPN, "tun0" is ours while
+    // connected (same interface name the notification TrafficStats helper uses)
+    override val statistics: Statistics
+        get() {
+            if (!isRunning) return Statistics.EMPTY_STATISTICS
+            val rx = android.net.TrafficStats.getRxBytes("tun0")
+            val tx = android.net.TrafficStats.getTxBytes("tun0")
+            if (rx == android.net.TrafficStats.UNSUPPORTED.toLong() ||
+                tx == android.net.TrafficStats.UNSUPPORTED.toLong()
+            ) {
+                return Statistics.EMPTY_STATISTICS
+            }
+            return Statistics.build {
+                setRxBytes(rx)
+                setTxBytes(tx)
+            }
+        }
 
     override fun internalInit() {
         Seq.setContext(context)

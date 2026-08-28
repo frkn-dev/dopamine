@@ -296,24 +296,13 @@ bool IosController::connectVpn(amnezia::Proto proto, const QJsonObject& configur
     m_handshakeTimer.invalidate();
     m_statusRequestInFlight = false;
 
-    QString tunnelName;
-    if (configuration.value(config_key::description).toString().isEmpty()) {
-        tunnelName = QString("%1 %2")
-          .arg(configuration.value(config_key::hostName).toString())
-          .arg(ProtocolProps::protoToString(proto));
-    }
-    else {
-        tunnelName = QString("%1 (%2) %3")
-          .arg(configuration.value(config_key::description).toString())
-          .arg(configuration.value(config_key::hostName).toString())
-          .arg(ProtocolProps::protoToString(proto));
-    }
+    // One system VPN profile for the whole app: other clients show a single
+    // entry in Settings → VPN, while we used to spawn a profile per
+    // server/protocol/address. The manager is reconfigured on every connect —
+    // the NE extension handles all protocols through the same bundle id.
+    NSString *tunnelName = @"Dopamine";
 
-    if (configuration.contains(config_key::serverIndex)) {
-        tunnelName += QString(" #%1").arg(configuration.value(config_key::serverIndex).toInt());
-    }
-
-    qDebug() << "IosController::connectVpn" << tunnelName;
+    qDebug() << "IosController::connectVpn" << QString::fromNSString(tunnelName);
 
     m_currentTunnel = nullptr;
 
@@ -336,16 +325,10 @@ bool IosController::connectVpn(amnezia::Proto proto, const QJsonObject& configur
             NSInteger managerCount = managers.count;
             qDebug() << "IosController::connectVpn : We have received managers:" << (long)managerCount;
 
-
             for (NETunnelProviderManager *manager in managers) {
-                if ([manager.localizedDescription isEqualToString:tunnelName.toNSString()]) {
+                if ([manager.localizedDescription isEqualToString:tunnelName]) {
                     m_currentTunnel = manager;
-                    qDebug() << "IosController::connectVpn : Using existing tunnel:" << manager.localizedDescription;
-                    if (manager.connection.status == NEVPNStatusConnected) {
-                        emit connectionStateChanged(Vpn::ConnectionState::Connected);
-                        return;
-                    }
-
+                    qDebug() << "IosController::connectVpn : Using the shared tunnel:" << manager.localizedDescription;
                     break;
                 }
             }
@@ -353,8 +336,8 @@ bool IosController::connectVpn(amnezia::Proto proto, const QJsonObject& configur
             if (!m_currentTunnel) {
                 isNewTunnelCreated = true;
                 m_currentTunnel = [[NETunnelProviderManager alloc] init];
-                m_currentTunnel.localizedDescription = [NSString stringWithUTF8String:tunnelName.toStdString().c_str()];
-                qDebug() << "IosController::connectVpn : Creating new tunnel" << m_currentTunnel.localizedDescription;
+                m_currentTunnel.localizedDescription = tunnelName;
+                qDebug() << "IosController::connectVpn : Creating the shared tunnel" << m_currentTunnel.localizedDescription;
             }
 
             // Switching servers while connected: explicitly stop any other active
@@ -370,6 +353,15 @@ bool IosController::connectVpn(amnezia::Proto proto, const QJsonObject& configur
                     qDebug() << "IosController::connectVpn : Stopping previously active tunnel:" << manager.localizedDescription;
                     [manager.connection stopVPNTunnel];
                     [stoppedManagers addObject:manager];
+                }
+            }
+
+            // Legacy per-server profiles from older versions: stop them above,
+            // drop them here so Settings → VPN shows just the single "Dopamine"
+            for (NETunnelProviderManager *manager in managers) {
+                if (manager != m_currentTunnel && isOurManager(manager)) {
+                    qDebug() << "IosController::connectVpn : Removing legacy tunnel profile:" << manager.localizedDescription;
+                    [manager removeFromPreferencesWithCompletionHandler:nil];
                 }
             }
 

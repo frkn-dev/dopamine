@@ -244,7 +244,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         case .openvpn:
             handleOpenVPNStatusMessage(messageData, completionHandler: completionHandler)
         case .xray:
-            dumpHevLog();
+            handleXrayStatusMessage(completionHandler: completionHandler)
         }
     }
   

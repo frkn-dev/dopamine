@@ -71,4 +71,16 @@ public enum Socks5Tunnel {
     public static func quit() {
         hev_socks5_tunnel_quit()
     }
+
+    /// Cumulative TUN traffic since tunnel start (zeroed on tunnel restart).
+    /// hev "rx" = written into the tun fd = download (server → device);
+    /// hev "tx" = read from the tun fd = upload (device → server).
+    public static func stats() -> (rxBytes: UInt64, txBytes: UInt64) {
+        var txPackets: size_t = 0
+        var txBytes: size_t = 0
+        var rxPackets: size_t = 0
+        var rxBytes: size_t = 0
+        hev_socks5_tunnel_stats(&txPackets, &txBytes, &rxPackets, &rxBytes)
+        return (UInt64(rxBytes), UInt64(txBytes))
+    }
 }

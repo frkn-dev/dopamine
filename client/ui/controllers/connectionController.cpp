@@ -59,16 +59,40 @@ void patchAddressInJsonObject(QJsonObject &obj, const QString &ip)
     for (int i = 0; i < outbounds.size(); ++i) {
         QJsonObject outbound = outbounds.at(i).toObject();
         QJsonObject settingsObj = outbound.value(QStringLiteral("settings")).toObject();
+        bool touched = false;
         QJsonArray vnext = settingsObj.value(QStringLiteral("vnext")).toArray();
         for (int j = 0; j < vnext.size(); ++j) {
             QJsonObject v = vnext.at(j).toObject();
             if (v.contains(QStringLiteral("address"))) {
                 v[QStringLiteral("address")] = ip;
+                touched = true;
             }
             vnext.replace(j, v);
         }
         if (!vnext.isEmpty()) {
             settingsObj[QStringLiteral("vnext")] = vnext;
+        }
+        // hysteria2, legacy schema (what the backend stores): dial address lives in
+        // settings.servers[].address. serverName/SNI must stay the original domain —
+        // TLS verifies against it, not the dial address, so any node IP works
+        QJsonArray servers = settingsObj.value(QStringLiteral("servers")).toArray();
+        for (int j = 0; j < servers.size(); ++j) {
+            QJsonObject s = servers.at(j).toObject();
+            if (s.contains(QStringLiteral("address"))) {
+                s[QStringLiteral("address")] = ip;
+                touched = true;
+            }
+            servers.replace(j, s);
+        }
+        if (!servers.isEmpty()) {
+            settingsObj[QStringLiteral("servers")] = servers;
+        }
+        // hysteria2, translated schema (protocol "hysteria"): host only, port stays
+        if (settingsObj.contains(QStringLiteral("address"))) {
+            settingsObj[QStringLiteral("address")] = ip;
+            touched = true;
+        }
+        if (touched) {
             outbound[QStringLiteral("settings")] = settingsObj;
             outbounds.replace(i, outbound);
         }
@@ -297,7 +321,9 @@ void ConnectionController::connectToServerIndex(int serverIndex)
     }
     ips.removeDuplicates();
 
-    if (ips.size() > 1) {
+    // CDN-fronted VLESS (xhttp over plain TLS): the dial address is the CDN front,
+    // not the node — swapping in node IPs would break the connect, so no pool
+    if (ips.size() > 1 && !isVlessCdnRow(serverIndex)) {
         m_ipPool = ips;
         for (int i = m_ipPool.size() - 1; i > 0; --i) {
             m_ipPool.swapItemsAt(i, QRandomGenerator::global()->bounded(i + 1));
