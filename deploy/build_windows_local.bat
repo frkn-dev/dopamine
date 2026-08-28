@@ -16,6 +16,12 @@ if not exist %VSWHERE% (
 set VS2022_DIR=
 for /f "usebackq delims=" %%i in (`%VSWHERE% -version "[17.0,18.0)" -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath -latest`) do set VS2022_DIR=%%i
 if "%VS2022_DIR%"=="" (
+    REM vswhere sometimes misses Build Tools - fall back to the default path
+    if exist "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat" (
+        set VS2022_DIR=C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools
+    )
+)
+if "%VS2022_DIR%"=="" (
     echo VS 2022 with C++ toolset not found
     exit /b 1
 )
