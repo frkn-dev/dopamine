@@ -29,9 +29,9 @@ set PROJECT_DIR=%cd%
 set SCRIPT_DIR=%PROJECT_DIR:"=%\deploy
 
 set WORK_DIR=%SCRIPT_DIR:"=%\build_%BUILD_ARCH:"=%
-set APP_NAME=FRKN
+set APP_NAME=Dopamine
 set APP_FILENAME=%APP_NAME:"=%.exe
-set SERVICE_FILENAME=%APP_NAME:"=%-service.exe
+set SERVICE_FILENAME=dopamine-service.exe
 set APP_DOMAIN=org.frkn.package
 set OUT_APP_DIR=%WORK_DIR:"=%\client\release
 set PREBILT_DEPLOY_DATA_DIR=%PROJECT_DIR:"=%\client\3rd-prebuilt\deploy-prebuilt\windows\x%BUILD_ARCH:"=%
@@ -92,7 +92,7 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 copy /Y "%SERVICE_BIN%" "%OUT_APP_DIR%\%SERVICE_FILENAME%"
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-copy /Y "%PROJECT_DIR%\client\images\app.ico" "%OUT_APP_DIR%\FRKN.ico" >nul
+copy /Y "%PROJECT_DIR%\client\images\app.ico" "%OUT_APP_DIR%\Dopamine.ico" >nul
 
 echo "Signing exe"
 cd %OUT_APP_DIR%

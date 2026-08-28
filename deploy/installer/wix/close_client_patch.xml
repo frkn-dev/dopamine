@@ -3,9 +3,9 @@
     <CPackWiXFragment Id="#PRODUCT">
         <!-- Требует расширение WixToolset.Util.wixext и xmlns util -->
         <util:CloseApplication
-                Id="CloseFRKNClient"
-                Target="FRKN.exe"
-                Description="Closing FRKN client"
+                Id="CloseDopamineClient"
+                Target="Dopamine.exe"
+                Description="Closing Dopamine client"
                 TerminateProcess="1"
                 RebootPrompt="no" />
     </CPackWiXFragment>

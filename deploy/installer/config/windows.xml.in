@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Installer>
-    <Name>FRKN</Name>
+    <Name>Dopamine</Name>
     <Version>@CMAKE_PROJECT_VERSION@</Version>
-    <Title>FRKN</Title>
+    <Title>Dopamine</Title>
     <Publisher>FRKN.ORG</Publisher>
-    <StartMenuDir>FRKN</StartMenuDir>
-    <TargetDir>@RootDir@/Program Files/FRKN</TargetDir>
+    <StartMenuDir>Dopamine</StartMenuDir>
+    <TargetDir>@RootDir@/Program Files/Dopamine</TargetDir>
     <WizardDefaultWidth>600</WizardDefaultWidth>
     <WizardDefaultHeight>380</WizardDefaultHeight>
     <WizardStyle>Modern</WizardStyle>

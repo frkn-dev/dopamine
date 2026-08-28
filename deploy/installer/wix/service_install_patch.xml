@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CPackWiXPatch>
-    <CPackWiXFragment Id="CM_CP_FRKN_service.exe">
+    <CPackWiXFragment Id="CM_CP_dopamine_service.exe">
         <ServiceInstall
-                Id="FRKNServiceInstall"
-                Name="FRKN-service"
-                DisplayName="FRKN Service"
-                Description="Service for FRKN"
+                Id="DopamineServiceInstall"
+                Name="dopamine-service"
+                DisplayName="Dopamine Service"
+                Description="Service for Dopamine"
                 Start="auto"
                 Type="ownProcess"
                 ErrorControl="normal"
@@ -14,8 +14,8 @@
             <ServiceDependency Id="nsi" />
         </ServiceInstall>
         <ServiceControl
-                Id="FRKNServiceControl"
-                Name="FRKN-service"
+                Id="DopamineServiceControl"
+                Name="dopamine-service"
                 Start="install"
                 Stop="both"
                 Remove="uninstall"
