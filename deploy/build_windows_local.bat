@@ -5,7 +5,7 @@ REM         winbuild clean   (wipe build dir first)
 REM Qt location can be overridden by setting QT_ROOT_DIR before calling.
 
 setlocal
-cd /d %~dp0
+cd /d %~dp0..
 
 if "%QT_ROOT_DIR%"=="" set QT_ROOT_DIR=C:\Users\Happy\Desktop\Qt
 
