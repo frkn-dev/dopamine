@@ -15,16 +15,20 @@ set(OPENSSL_LIBRARIES_DIR "${OPENSSL_ROOT_DIR}/lib")
 
 if(WIN32)
     set(OPENSSL_INCLUDE_DIR "${OPENSSL_ROOT_DIR}/windows/include")
+    set(ZLIB_ROOT_DIR "${CLIENT_ROOT_DIR}/3rd-prebuilt/3rd-prebuilt/zlib/")
+    set(ZLIB_INCLUDE_DIR "${ZLIB_ROOT_DIR}/windows/include")
     if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "8")
         set(LIBSSH_LIB_PATH "${LIBSSH_ROOT_DIR}/windows/x86_64/ssh.lib")
         set(LIBSSH_INCLUDE_DIR "${LIBSSH_ROOT_DIR}/windows/x86_64")
         set(OPENSSL_LIB_SSL_PATH "${OPENSSL_ROOT_DIR}/windows/win64/libssl.lib")
         set(OPENSSL_LIB_CRYPTO_PATH "${OPENSSL_ROOT_DIR}/windows/win64/libcrypto.lib")
+        set(ZLIB_LIB_PATH "${ZLIB_ROOT_DIR}/windows/win64/zlibstatic.lib")
     else()
         set(LIBSSH_LIB_PATH "${LIBSSH_ROOT_DIR}/windows/x86/ssh.lib")
         set(LIBSSH_INCLUDE_DIR "${LIBSSH_ROOT_DIR}/windows/x86")
         set(OPENSSL_LIB_SSL_PATH "${OPENSSL_ROOT_DIR}/windows/win32/libssl.lib")
         set(OPENSSL_LIB_CRYPTO_PATH "${OPENSSL_ROOT_DIR}/windows/win32/libcrypto.lib")
+        set(ZLIB_LIB_PATH "${ZLIB_ROOT_DIR}/windows/win32/zlibstatic.lib")
     endif()
 elseif(APPLE AND NOT IOS)
     if(MACOS_NE OR NOT "${CMAKE_OSX_ARCHITECTURES}" STREQUAL "x86_64")
@@ -108,6 +112,7 @@ set(LIBS ${LIBS} qt6keychain)
 
 include_directories(
     ${OPENSSL_INCLUDE_DIR}
+    ${ZLIB_INCLUDE_DIR}
     ${LIBSSH_INCLUDE_DIR}/include
     ${LIBSSH_ROOT_DIR}/include
     ${CLIENT_ROOT_DIR}/3rd/libssh/include
