@@ -2,38 +2,20 @@
 REM Local Windows build helper: sets env and runs deploy\build_windows.bat
 REM Usage:  build_windows_local         (incremental)
 REM         build_windows_local clean   (wipe build dir first)
-REM Qt location can be overridden by setting QT_ROOT_DIR before calling.
+REM Qt location can be overridden: set QT_ROOT_DIR=... before calling.
+REM VS2022 location can be overridden: set VS2022_DIR=... before calling.
 
 setlocal
 cd /d %~dp0..
 
-REM Load MSVC environment from VS 2022 (any edition, incl. Build Tools)
-set VSWHERE="%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
-if not exist %VSWHERE% (
-    echo vswhere.exe not found - is Visual Studio 2022 installed?
-    exit /b 1
-)
-set VS2022_DIR=
-for /f "usebackq delims=" %%i in (`%VSWHERE% -version "[17.0,18.0)" -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath -latest`) do set VS2022_DIR=%%i
-if "%VS2022_DIR%"=="" (
-    REM vswhere sometimes misses Build Tools - fall back to the default path
-    if exist "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat" (
-        set VS2022_DIR=C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools
-    )
-)
-if "%VS2022_DIR%"=="" (
-    echo VS 2022 with C++ toolset not found
-    exit /b 1
-)
+if "%VS2022_DIR%"=="" set VS2022_DIR=C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools
+if not exist "%VS2022_DIR%\VC\Auxiliary\Build\vcvars64.bat" goto novs
 echo Using MSVC from %VS2022_DIR%
 call "%VS2022_DIR%\VC\Auxiliary\Build\vcvars64.bat"
-if %errorlevel% neq 0 exit /b %errorlevel%
+if errorlevel 1 exit /b 1
 
 where ninja >nul 2>nul
-if %errorlevel% neq 0 (
-    echo ninja not found in PATH - install it: winget install Ninja-build.Ninja
-    exit /b 1
-)
+if errorlevel 1 goto noninja
 
 if "%QT_ROOT_DIR%"=="" set QT_ROOT_DIR=C:\Users\Happy\Desktop\Qt
 
@@ -46,10 +28,16 @@ set WIX_BIN_DIR=%USERPROFILE%\.dotnet\tools
 echo QT_BIN_DIR=%QT_BIN_DIR%
 echo QIF_BIN_DIR=%QIF_BIN_DIR%
 
-if /i "%1"=="clean" (
-    echo Wiping deploy\build_64 ...
-    rmdir /Q /S deploy\build_64
-)
+if /i "%1"=="clean" rmdir /Q /S deploy\build_64
 
 call deploy\build_windows.bat
-endlocal
+exit /b %errorlevel%
+
+:novs
+echo VS 2022 Build Tools not found at %VS2022_DIR%
+echo Set VS2022_DIR to your VS2022 installation and retry.
+exit /b 1
+
+:noninja
+echo ninja not found in PATH - install it: winget install Ninja-build.Ninja
+exit /b 1
