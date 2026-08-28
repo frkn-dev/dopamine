@@ -1286,6 +1286,10 @@ bool ApiConfigsController::updateServiceFromGateway(const int serverIndex, const
     if (authData.isEmpty()) {
         authData = serverConfig.value(configKey::authData).toObject();
     }
+    // Shares authenticate by share_token and get backend-issued keys — the client
+    // must not generate a keypair nor send public_key (that would register a junk
+    // peer on the node on every refresh)
+    const bool isShared = authData.contains(QStringLiteral("share_token"));
     // Ensure we always send api_key for the new AGW endpoints.
     if (!authData.contains(apiDefs::key::apiKey) && authData.contains(apiDefs::key::id)) {
         authData[apiDefs::key::apiKey] = authData.value(apiDefs::key::id);
@@ -1301,13 +1305,17 @@ bool ApiConfigsController::updateServiceFromGateway(const int serverIndex, const
                                             apiConfig.value(configKey::serviceProtocol).toString(),
                                             authData };
 
-    ProtocolData protocolData = generateProtocolData(gatewayRequestData.serviceProtocol);
+    ProtocolData protocolData;
+    if (!isShared) {
+        protocolData = generateProtocolData(gatewayRequestData.serviceProtocol);
+    }
 
     // Re-use the previously generated WireGuard key pair on every reconnect so that
     // the server peer entry (which is keyed by the public key) stays the same.
     // Otherwise each connection gets a brand new key, the server creates a new peer
     // for the same client IP and the handshake is dropped or races with the old one.
-    if (isConnectEvent && canonicalServiceProtocol(gatewayRequestData.serviceProtocol) == configKey::awg) {
+    // (n/a for shares: their keys are issued by the backend, nothing to reuse)
+    if (!isShared && isConnectEvent && canonicalServiceProtocol(gatewayRequestData.serviceProtocol) == configKey::awg) {
         const auto containers = serverConfig.value(config_key::containers).toArray();
         const QString containerName = ContainerProps::containerTypeToString(DockerContainer::Awg);
         for (const QJsonValue &containerValue : containers) {
@@ -1360,7 +1368,9 @@ bool ApiConfigsController::updateServiceFromGateway(const int serverIndex, const
     if (!nodeId.isEmpty() && newCountryCode.isEmpty()) {
         apiPayload.insert(QStringLiteral("node_id"), nodeId);
     }
-    appendProtocolDataToApiPayload(gatewayRequestData.serviceProtocol, protocolData, apiPayload);
+    if (!isShared) {
+        appendProtocolDataToApiPayload(gatewayRequestData.serviceProtocol, protocolData, apiPayload);
+    }
 
     if (isConnectEvent) {
         apiPayload.insert(configKey::isConnectEvent, true);
@@ -1476,12 +1486,12 @@ bool ApiConfigsController::importSharedConnection(const QString &shareToken)
                                             "",
                                             authData };
 
-    // The protocol is unknown until the first fetch, so always generate WireGuard keys
-    // and send public_key — the backend ignores it for non-WG protocols.
-    ProtocolData protocolData = generateProtocolData(configKey::awg);
+    // Shares use backend-issued keys: the /v1/config response carries a ready-made
+    // WG keypair (real client_priv_key), and a client-sent public_key would just
+    // register a junk peer on the node. So we generate and send nothing here.
+    ProtocolData protocolData;
 
     QJsonObject apiPayload = gatewayRequestData.toJsonObject();
-    appendProtocolDataToApiPayload(configKey::awg, protocolData, apiPayload);
 
     QByteArray responseBody;
     ErrorCode errorCode = executeRequest(QString("%1v1/config"), apiPayload, responseBody);

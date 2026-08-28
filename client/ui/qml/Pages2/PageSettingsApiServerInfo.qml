@@ -33,6 +33,14 @@ PageType {
     property var processedServer
 
     Component.onCompleted: {
+        // shared connections (frkn://conn) have no subscription account behind
+        // them — asking the API for account info errors out, so skip both the
+        // refresh and the status row for them
+        var apiConfig = ServersModel.getProcessedServerData("apiConfig")
+        if (apiConfig && apiConfig.shared === true) {
+            labelsModel = []
+            return
+        }
         // the card opens with cached data for instant display, but the local copy
         // has no subscription_end_date — refresh from the server so the status
         // row shows "Active · until <date>" (pattern copied from the devices page)
@@ -291,6 +299,17 @@ PageType {
                 rightText: ConnectionController.currentEndpoint
                 visible: ServersModel.processedIndex === ServersModel.defaultIndex
                          && ConnectionController.isConnected && rightText !== ""
+            }
+
+            LabelWithImageType {
+                Layout.fillWidth: true
+                Layout.margins: 16
+
+                imageSource: "qrc:/images/controls/gauge.svg"
+                leftText: qsTr("Speed")
+                rightText: "↓ " + ConnectionController.downloadSpeed + "   ↑ " + ConnectionController.uploadSpeed
+                visible: ServersModel.processedIndex === ServersModel.defaultIndex
+                         && ConnectionController.isConnected && ConnectionController.downloadSpeed !== ""
             }
 
             LabelWithButtonType {

@@ -79,8 +79,8 @@
         <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1002"/>
         <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1239"/>
         <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1264"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1461"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1558"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1471"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1568"/>
         <source>%1 installed successfully.</source>
         <translation>%1 installed successfully.</translation>
     </message>
@@ -90,17 +90,17 @@
         <translation>Subscription restored successfully.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1434"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1444"/>
         <source>API config reloaded</source>
         <translation>API config reloaded</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1438"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1448"/>
         <source>Successfully changed the country of connection to %1</source>
         <translation>Successfully changed the country of connection to %1</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1536"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1546"/>
         <source>Shared connection</source>
         <translation>Shared connection</translation>
     </message>
@@ -170,57 +170,57 @@
 <context>
     <name>ConnectionController</name>
     <message>
-        <location filename="../ui/controllers/connectionController.h" line="165"/>
+        <location filename="../ui/controllers/connectionController.h" line="177"/>
         <location filename="../ui/controllers/connectionController.cpp" line="194"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="651"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="694"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="773"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="799"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="840"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="904"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="923"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="930"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="680"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="723"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="802"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="828"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="869"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="933"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="958"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="965"/>
         <source>Connect</source>
         <translation>Connect</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="377"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="858"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="406"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="887"/>
         <source>Connecting...</source>
         <translation>Connecting...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="863"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="892"/>
         <source>Connected</source>
         <translation>Connected</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="893"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="922"/>
         <source>Reconnecting...</source>
         <translation>Reconnecting...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="913"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="948"/>
         <source>Disconnecting...</source>
         <translation>Disconnecting...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="525"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="554"/>
         <source>Searching for the best server...</source>
         <translation>Searching for the best server...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="918"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="953"/>
         <source>Preparing...</source>
         <translation>Preparing...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="942"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="977"/>
         <source>Settings updated successfully, reconnnection...</source>
         <translation>Settings updated successfully, reconnnection...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="945"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="980"/>
         <source>Settings updated successfully</source>
         <translation>Settings updated successfully</translation>
     </message>
@@ -1899,23 +1899,23 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Cannot change protocol during active connection</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="186"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="194"/>
         <source>Configurations have been updated for some countries. Download and install the updated configuration files</source>
         <translation>Configurations have been updated for some countries. Download and install the updated configuration files</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="204"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="212"/>
         <source>DNS</source>
         <translation>DNS</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="214"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="222"/>
         <source>MTU</source>
         <translation>MTU</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="72"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="224"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="80"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="232"/>
         <source>Tunnel IP</source>
         <translation>Tunnel IP</translation>
     </message>
@@ -1924,17 +1924,17 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Subscription Key</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="314"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="333"/>
         <source>Configuration Files</source>
         <translation>Configuration Files</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="316"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="335"/>
         <source>WireGuard configuration file (INI) for routers and other clients</source>
         <translation>WireGuard configuration file (INI) for routers and other clients</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="323"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="342"/>
         <source>Configuration file (INI)</source>
         <translation>Configuration file (INI)</translation>
     </message>
@@ -1943,32 +1943,32 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Manage configuration files</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="337"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="356"/>
         <source>Active Devices</source>
         <translation>Active Devices</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="339"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="358"/>
         <source>Manage currently connected devices</source>
         <translation>Manage currently connected devices</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="356"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="375"/>
         <source>Support</source>
         <translation>Support</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="372"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="391"/>
         <source>How to connect on another device</source>
         <translation>How to connect on another device</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="388"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="407"/>
         <source>Show raw config</source>
         <translation>Show raw config</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="393"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="412"/>
         <source>Raw JSON</source>
         <translation>Raw JSON</translation>
     </message>
@@ -1989,132 +1989,137 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Tunnel params</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="457"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="476"/>
         <source>Copy</source>
         <translation>Copy</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="304"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="461"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="323"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="480"/>
         <source>Copied</source>
         <translation>Copied</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="478"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="497"/>
         <source>Close</source>
         <translation>Close</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="501"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="520"/>
         <source>Reload API config</source>
         <translation>Reload API config</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="504"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="523"/>
         <source>Reload API config?</source>
         <translation>Reload API config?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="505"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="543"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="580"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="524"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="562"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="599"/>
         <source>Continue</source>
         <translation>Continue</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="506"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="544"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="581"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="525"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="563"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="600"/>
         <source>Cancel</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="510"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="529"/>
         <source>Cannot reload API config during active connection</source>
         <translation>Cannot reload API config during active connection</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="538"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="557"/>
         <source>Unlink this device</source>
         <translation>Unlink this device</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="541"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="560"/>
         <source>Are you sure you want to unlink this device?</source>
         <translation>Are you sure you want to unlink this device?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="542"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="561"/>
         <source>This will unlink the device from your subscription. You can reconnect it anytime by pressing&#xa0;&quot;Reload API config&quot; in subscription settings on device.</source>
         <translation>This will unlink the device from your subscription. You can reconnect it anytime by pressing&#xa0;&quot;Reload API config&quot; in subscription settings on device.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="548"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="567"/>
         <source>Cannot unlink device during active connection</source>
         <translation>Cannot unlink device during active connection</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="576"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="595"/>
         <source>Remove from application</source>
         <translation>Remove from application</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="579"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="598"/>
         <source>Remove from application?</source>
         <translation>Remove from application?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="585"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="604"/>
         <source>Cannot remove server during active connection</source>
         <translation>Cannot remove server during active connection</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="235"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="243"/>
         <source>Technical information</source>
         <translation>Technical information</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="51"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="243"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="59"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="251"/>
         <source>Country</source>
         <translation>Country</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="56"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="260"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="64"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="268"/>
         <source>Protocol</source>
         <translation>Protocol</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="60"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="270"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="68"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="278"/>
         <source>Primary endpoint</source>
         <translation>Primary endpoint</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="64"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="280"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="72"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="288"/>
         <source>Available addresses</source>
         <translation>Available addresses</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="68"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="290"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="76"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="298"/>
         <source>Endpoint in use</source>
         <translation>Endpoint in use</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="299"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="309"/>
+        <source>Speed</source>
+        <translation>Speed</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="318"/>
         <source>Copy technical information</source>
         <translation>Copy technical information</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="46"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="54"/>
         <source>Version</source>
         <translation>Version</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="47"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="55"/>
         <source>Server</source>
         <translation>Server</translation>
     </message>
@@ -5571,32 +5576,32 @@ For more detailed information, you can
 <context>
     <name>SystemTrayNotificationHandler</name>
     <message>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="28"/>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="62"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="34"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="76"/>
         <source>Show</source>
         <translation>Show</translation>
     </message>
     <message>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="32"/>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="63"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="38"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="77"/>
         <source>Connect</source>
         <translation>Connect</translation>
     </message>
     <message>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="33"/>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="64"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="39"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="78"/>
         <source>Disconnect</source>
         <translation>Disconnect</translation>
     </message>
     <message>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="37"/>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="65"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="43"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="79"/>
         <source>Visit Website</source>
         <translation>Visit Website</translation>
     </message>
     <message>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="43"/>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="66"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="49"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="80"/>
         <source>Quit</source>
         <translation>Quit</translation>
     </message>

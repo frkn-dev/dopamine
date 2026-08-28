@@ -66,19 +66,26 @@ cp "$DEPLOY_DATA_DIR/$PLIST_NAME" "$BUNDLE_DIR/Contents/Resources/$PLIST_NAME"
 # re-seal after adding the plist
 if [ "$SIGN_APP" = 1 ]; then
   # hardened runtime + timestamp are required by notarization.
-  # Sign inside-out instead of codesign --deep: --deep cannot reliably re-sign
-  # an already-signed bundle ("A timestamp was expected but was not found" on
-  # subcomponents) and tries to sign plain resource files
-  find "$BUNDLE_DIR/Contents" -type f -name "*.dylib" \
-    -exec codesign --force --options runtime --timestamp --sign "$DEVID_APP" {} \;
-  for helper in wireguard-go tun2socks openvpn ss-local ss-tunnel ck-client dopamine-service; do
-    if [ -f "$BUNDLE_DIR/Contents/MacOS/$helper" ]; then
-      codesign --force --options runtime --timestamp --sign "$DEVID_APP" "$BUNDLE_DIR/Contents/MacOS/$helper"
-    fi
-  done
-  find "$BUNDLE_DIR/Contents/Frameworks" -maxdepth 1 -name "*.framework" \
-    -exec codesign --force --options runtime --timestamp --sign "$DEVID_APP" {} \;
-  codesign --force --options runtime --timestamp --sign "$DEVID_APP" "$BUNDLE_DIR"
+  # Fresh bundles (ad-hoc from the linker) seal fine with --deep — it also signs
+  # the non-Mach-O helpers we keep in Contents/MacOS (html/sh/dat), which a plain
+  # bundle-level sign rejects. But --deep cannot reliably RE-sign an already
+  # Developer-ID-signed bundle ("A timestamp was expected but was not found" on
+  # subcomponents), so incremental repackaging goes inside-out instead.
+  if codesign -dv "$BUNDLE_DIR" 2>&1 | grep -qF "$DEVID_APP"; then
+    echo "Bundle already Developer-ID signed — re-signing inside-out"
+    find "$BUNDLE_DIR/Contents" -type f -name "*.dylib" \
+      -exec codesign --force --options runtime --timestamp --sign "$DEVID_APP" {} \;
+    for helper in wireguard-go tun2socks openvpn ss-local ss-tunnel ck-client dopamine-service; do
+      if [ -f "$BUNDLE_DIR/Contents/MacOS/$helper" ]; then
+        codesign --force --options runtime --timestamp --sign "$DEVID_APP" "$BUNDLE_DIR/Contents/MacOS/$helper"
+      fi
+    done
+    find "$BUNDLE_DIR/Contents/Frameworks" -maxdepth 1 -name "*.framework" \
+      -exec codesign --force --options runtime --timestamp --sign "$DEVID_APP" {} \;
+    codesign --force --options runtime --timestamp --sign "$DEVID_APP" "$BUNDLE_DIR"
+  else
+    codesign --deep --force --options runtime --timestamp --sign "$DEVID_APP" "$BUNDLE_DIR"
+  fi
 else
   codesign --deep --force --sign - "$BUNDLE_DIR"
 fi

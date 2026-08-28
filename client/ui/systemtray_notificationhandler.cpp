@@ -25,6 +25,12 @@ SystemTrayNotificationHandler::SystemTrayNotificationHandler(QObject* parent) :
     m_systemTrayIcon.show();
     connect(&m_systemTrayIcon, &QSystemTrayIcon::activated, this, &SystemTrayNotificationHandler::onTrayActivated);
 
+    // informational item: which server we are connected to (visible only when connected)
+    m_statusLabel = m_menu.addAction(QString());
+    m_statusLabel->setEnabled(false);
+    m_statusLabel->setVisible(false);
+    m_menu.addSeparator();
+
     m_trayActionShow =  m_menu.addAction(QIcon(":/images/tray/application.png"), tr("Show") + " " + APPLICATION_NAME, this, [this](){
         emit raiseRequested();
     });
@@ -55,6 +61,14 @@ void SystemTrayNotificationHandler::setConnectionState(Vpn::ConnectionState stat
 {
     setTrayState(state);
     NotificationHandler::setConnectionState(state);
+}
+
+void SystemTrayNotificationHandler::setServerName(const QString &serverName)
+{
+    m_serverName = serverName;
+    if (m_statusLabel && m_statusLabel->isVisible()) {
+        m_statusLabel->setText(m_serverName);
+    }
 }
 
 void SystemTrayNotificationHandler::onTranslationsUpdated()
@@ -98,6 +112,7 @@ void SystemTrayNotificationHandler::setTrayState(Vpn::ConnectionState state)
         setTrayIcon(QString(resourcesPath).arg(DisconnectedTrayIconName));
         m_trayActionConnect->setEnabled(true);
         m_trayActionDisconnect->setEnabled(false);
+        m_statusLabel->setVisible(false);
         break;
     case Vpn::ConnectionState::Preparing:
         setTrayIcon(QString(resourcesPath).arg(DisconnectedTrayIconName));
@@ -113,6 +128,10 @@ void SystemTrayNotificationHandler::setTrayState(Vpn::ConnectionState state)
         setTrayIcon(QString(resourcesPath).arg(ConnectedTrayIconName));
         m_trayActionConnect->setEnabled(false);
         m_trayActionDisconnect->setEnabled(true);
+        if (!m_serverName.isEmpty()) {
+            m_statusLabel->setText(m_serverName);
+            m_statusLabel->setVisible(true);
+        }
         break;
     case Vpn::ConnectionState::Disconnecting:
         setTrayIcon(QString(resourcesPath).arg(DisconnectedTrayIconName));

@@ -23,6 +23,7 @@ public:
 
 public slots:
     void updateWebsiteUrl(const QString &newWebsiteUrl);
+    void setServerName(const QString &serverName);
 
 protected:
     virtual void notify(Message type, const QString& title,
@@ -45,8 +46,10 @@ private:
     QAction* m_trayActionDisconnect = nullptr;
     QAction* m_trayActionVisitWebSite = nullptr;
     QAction* m_trayActionQuit = nullptr;
-    QAction* m_statusLabel = nullptr;    
+    QAction* m_statusLabel = nullptr;
     QAction* m_separator = nullptr;
+
+    QString m_serverName;
 
     const QString ConnectedTrayIconName = "active.png";
     const QString DisconnectedTrayIconName = "default.png";

@@ -4,6 +4,7 @@
 #include <QList>
 #include <QStringList>
 #include <QTimer>
+#include <QElapsedTimer>
 
 #include "protocols/vpnprotocol.h"
 #include "ui/models/clientManagementModel.h"
@@ -23,6 +24,8 @@ public:
     Q_PROPERTY(bool isConnectionInProgress READ isConnectionInProgress NOTIFY connectionStateChanged)
     Q_PROPERTY(QString connectionStateText READ connectionStateText NOTIFY connectionStateChanged)
     Q_PROPERTY(QString currentEndpoint READ currentEndpoint NOTIFY connectionStateChanged)
+    Q_PROPERTY(QString downloadSpeed READ downloadSpeed NOTIFY speedChanged)
+    Q_PROPERTY(QString uploadSpeed READ uploadSpeed NOTIFY speedChanged)
 
     explicit ConnectionController(const QSharedPointer<ServersModel> &serversModel, const QSharedPointer<ContainersModel> &containersModel,
                                   const QSharedPointer<ClientManagementModel> &clientManagementModel,
@@ -41,6 +44,8 @@ public:
     bool isConnectionInProgress() const;
     QString connectionStateText() const;
     QString currentEndpoint() const { return m_currentEndpoint; }
+    QString downloadSpeed() const { return m_downloadSpeed; }
+    QString uploadSpeed() const { return m_uploadSpeed; }
 
 public slots:
     void toggleConnection();
@@ -66,6 +71,7 @@ signals:
     void connectButtonClicked();
     void preparingConfig();
     void prepareConfig();
+    void speedChanged();
 
 private:
     Vpn::ConnectionState getCurrentConnectionState();
@@ -88,6 +94,12 @@ private:
     bool m_connectionSwitching = false; // teardown states between (re)connects are not failures
     QTimer *m_ipTrafficTimer = nullptr;
     bool m_ipAwaitingTraffic = false; // connected to a multi-IP server, waiting for bytes
+
+    // live speed meter (server card): computed from bytesChanged deltas
+    QString m_downloadSpeed;
+    QString m_uploadSpeed;
+    QElapsedTimer m_speedTimer;
+    static QString formatSpeed(qint64 bytesPerSec);
     quint64 m_ipTrafficBaseline = 0;
     static constexpr int kIpTrafficTimeoutMs = 8000;
     // ---

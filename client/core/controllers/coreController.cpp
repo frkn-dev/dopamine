@@ -333,6 +333,15 @@ void CoreController::initNotificationHandler()
 
     auto* trayHandler = qobject_cast<SystemTrayNotificationHandler*>(m_notificationHandler.get());
     connect(this, &CoreController::websiteUrlChanged, trayHandler, &SystemTrayNotificationHandler::updateWebsiteUrl);
+
+    // keep the tray menu's info item in sync with the currently selected server
+    auto pushServerName = [this, trayHandler]() {
+        trayHandler->setServerName(
+                m_serversModel->data(m_serversModel->getDefaultServerIndex(), ServersModel::Roles::NameRole).toString());
+    };
+    connect(m_connectionController.get(), &ConnectionController::connectionStateChanged, trayHandler, pushServerName);
+    connect(m_serversModel.get(), &ServersModel::defaultServerIndexChanged, trayHandler, pushServerName);
+    pushServerName();
 #endif
 }
 

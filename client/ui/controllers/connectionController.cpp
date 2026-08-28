@@ -199,7 +199,25 @@ ConnectionController::ConnectionController(const QSharedPointer<ServersModel> &s
 
     // traffic proof: bytes must move. Used by auto selection for probe-unconfirmed
     // candidates and by the multi-IP failover for every multi-IP connect
-    connect(m_vpnConnection.get(), &VpnConnection::bytesChanged, this, [this](quint64 receivedBytes, quint64) {
+    connect(m_vpnConnection.get(), &VpnConnection::bytesChanged, this, [this](quint64 receivedBytes, quint64 sentBytes) {
+        // live speed meter for the server card: bytesChanged carries per-interval
+        // deltas on all platforms, so speed = delta / elapsed
+        if (m_isConnected) {
+            const qint64 elapsedMs = m_speedTimer.isValid() ? m_speedTimer.restart() : 0;
+            if (!m_speedTimer.isValid()) {
+                m_speedTimer.start();
+            }
+            if (elapsedMs > 0) {
+                const QString down = formatSpeed(static_cast<qint64>(receivedBytes) * 1000 / elapsedMs);
+                const QString up = formatSpeed(static_cast<qint64>(sentBytes) * 1000 / elapsedMs);
+                if (down != m_downloadSpeed || up != m_uploadSpeed) {
+                    m_downloadSpeed = down;
+                    m_uploadSpeed = up;
+                    emit speedChanged();
+                }
+            }
+        }
+
         if (m_autoPhase == AutoPhase::Connecting && m_autoAwaitingTraffic) {
             if (m_autoTrafficBaseline == ~0ULL) {
                 m_autoTrafficBaseline = receivedBytes; // first sample = baseline
@@ -224,6 +242,17 @@ ConnectionController::ConnectionController(const QSharedPointer<ServersModel> &s
     });
 
     m_state = Vpn::ConnectionState::Disconnected;
+}
+
+QString ConnectionController::formatSpeed(qint64 bytesPerSec)
+{
+    if (bytesPerSec < 1024) {
+        return QStringLiteral("%1 B/s").arg(bytesPerSec);
+    }
+    if (bytesPerSec < 1024 * 1024) {
+        return QStringLiteral("%1 KB/s").arg(bytesPerSec / 1024.0, 0, 'f', 1);
+    }
+    return QStringLiteral("%1 MB/s").arg(bytesPerSec / 1024.0 / 1024.0, 0, 'f', 1);
 }
 
 void ConnectionController::setHealthCheckController(HealthCheckController *healthCheckController)
@@ -903,6 +932,12 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
         m_isConnectionInProgress = false;
         m_connectionStateText = tr("Connect");
         m_currentEndpoint.clear();
+        if (!m_downloadSpeed.isEmpty() || !m_uploadSpeed.isEmpty()) {
+            m_downloadSpeed.clear();
+            m_uploadSpeed.clear();
+            m_speedTimer.invalidate();
+            emit speedChanged();
+        }
         if (!m_connectionSwitching) {
             m_manualConnectTimer->stop();
         }
