@@ -156,6 +156,31 @@ bool WireguardUtilsLinux::addInterface(const InterfaceConfig& config) {
         out << "disable_cookies=" << uapiBool(config.m_disableCookies) << "\n";
     }
 
+    // AWG 3.0 device-level keys: values are passed verbatim (ints or "lo-hi"
+    // ranges); header_protection_key arrives base64-encoded, UAPI wants hex
+    if (!config.m_headerProtectionKey.isEmpty()) {
+        out << "header_protection_key="
+            << QString(QByteArray::fromBase64(config.m_headerProtectionKey.toUtf8()).toHex()) << "\n";
+    }
+    if (!config.m_contentPaddingAddition.isEmpty()) {
+        out << "content_padding_addition=" << config.m_contentPaddingAddition << "\n";
+    }
+    if (!config.m_rekeyAfterTime.isEmpty()) {
+        out << "rekey_after_time=" << config.m_rekeyAfterTime << "\n";
+    }
+    if (!config.m_rekeyTimeout.isEmpty()) {
+        out << "rekey_timeout=" << config.m_rekeyTimeout << "\n";
+    }
+    if (!config.m_rejectAfterTime.isEmpty()) {
+        out << "reject_after_time=" << config.m_rejectAfterTime << "\n";
+    }
+    if (!config.m_keepaliveTimeout.isEmpty()) {
+        out << "keepalive_timeout=" << config.m_keepaliveTimeout << "\n";
+    }
+    if (!config.m_maxHandshakeAttempts.isEmpty()) {
+        out << "max_handshake_attempts=" << config.m_maxHandshakeAttempts << "\n";
+    }
+
     int err = uapiErrno(uapiCommand(message));
     if (err != 0) {
         logger.error() << "Interface configuration failed:" << strerror(err);

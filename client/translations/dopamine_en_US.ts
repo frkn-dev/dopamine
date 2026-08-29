@@ -76,31 +76,31 @@
 <context>
     <name>ApiConfigsController</name>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1002"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1239"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1264"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1471"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1568"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1012"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1249"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1274"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1481"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1578"/>
         <source>%1 installed successfully.</source>
         <translation>%1 installed successfully.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1128"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1138"/>
         <source>Subscription restored successfully.</source>
         <translation>Subscription restored successfully.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1444"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1454"/>
         <source>API config reloaded</source>
         <translation>API config reloaded</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1448"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1458"/>
         <source>Successfully changed the country of connection to %1</source>
         <translation>Successfully changed the country of connection to %1</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1546"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1556"/>
         <source>Shared connection</source>
         <translation>Shared connection</translation>
     </message>
@@ -339,33 +339,33 @@ Can&apos;t be disabled for current server</translation>
 <context>
     <name>ImportController</name>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="819"/>
+        <location filename="../ui/controllers/importController.cpp" line="834"/>
         <source>Scanned %1 of %2.</source>
         <translation>Scanned %1 of %2.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="854"/>
+        <location filename="../ui/controllers/importController.cpp" line="869"/>
         <source>This configuration contains an OpenVPN setup. OpenVPN configurations can include malicious scripts, so only add it if you fully trust the provider of this config. </source>
         <translation>This configuration contains an OpenVPN setup. OpenVPN configurations can include malicious scripts, so only add it if you fully trust the provider of this config. </translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="858"/>
+        <location filename="../ui/controllers/importController.cpp" line="873"/>
         <source>&lt;br&gt;In the imported configuration, potentially dangerous lines were found:</source>
         <translation>&lt;br&gt;In the imported configuration, potentially dangerous lines were found:</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="973"/>
+        <location filename="../ui/controllers/importController.cpp" line="988"/>
         <source>No valid configurations found at the provided URL</source>
         <translation>No valid configurations found at the provided URL</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="1024"/>
-        <location filename="../ui/controllers/importController.cpp" line="1047"/>
+        <location filename="../ui/controllers/importController.cpp" line="1039"/>
+        <location filename="../ui/controllers/importController.cpp" line="1062"/>
         <source>Failed to fetch configurations: %1</source>
         <translation>Failed to fetch configurations: %1</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="1053"/>
+        <location filename="../ui/controllers/importController.cpp" line="1068"/>
         <source>Empty response from server</source>
         <translation>Empty response from server</translation>
     </message>

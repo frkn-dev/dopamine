@@ -998,6 +998,13 @@ bool IosController::setupAwg()
     fillFromIni(config_key::specialJunk3, "I3");
     fillFromIni(config_key::specialJunk4, "I4");
     fillFromIni(config_key::specialJunk5, "I5");
+    fillFromIni(config_key::headerProtectionKey, "HeaderProtectionKey");
+    fillFromIni(config_key::contentPaddingAddition, "ContentPaddingAddition");
+    fillFromIni(config_key::rekeyAfterTime, "RekeyAfterTime");
+    fillFromIni(config_key::rekeyTimeout, "RekeyTimeout");
+    fillFromIni(config_key::rejectAfterTime, "RejectAfterTime");
+    fillFromIni(config_key::keepaliveTimeout, "KeepaliveTimeout");
+    fillFromIni(config_key::maxHandshakeAttempts, "MaxHandshakeAttempts");
 
     {
         QString awgHost = config[config_key::hostName].toString();
@@ -1128,6 +1135,14 @@ bool IosController::setupAwg()
 
     wgConfig.insert(config_key::randomTrailers, config[config_key::randomTrailers]);
     wgConfig.insert(config_key::disableCookies, config[config_key::disableCookies]);
+
+    wgConfig.insert(config_key::headerProtectionKey, config[config_key::headerProtectionKey]);
+    wgConfig.insert(config_key::contentPaddingAddition, config[config_key::contentPaddingAddition]);
+    wgConfig.insert(config_key::rekeyAfterTime, config[config_key::rekeyAfterTime]);
+    wgConfig.insert(config_key::rekeyTimeout, config[config_key::rekeyTimeout]);
+    wgConfig.insert(config_key::rejectAfterTime, config[config_key::rejectAfterTime]);
+    wgConfig.insert(config_key::keepaliveTimeout, config[config_key::keepaliveTimeout]);
+    wgConfig.insert(config_key::maxHandshakeAttempts, config[config_key::maxHandshakeAttempts]);
 
     QJsonDocument wgConfigDoc(wgConfig);
     QString wgConfigDocStr(wgConfigDoc.toJson(QJsonDocument::Compact));

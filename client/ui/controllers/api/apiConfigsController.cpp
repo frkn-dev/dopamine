@@ -361,6 +361,16 @@ namespace
                     lines << QString("I3 = %1").arg(clientProtocolConfig.value(config_key::specialJunk3).toString());
                     lines << QString("I4 = %1").arg(clientProtocolConfig.value(config_key::specialJunk4).toString());
                     lines << QString("I5 = %1").arg(clientProtocolConfig.value(config_key::specialJunk5).toString());
+                    // AWG 3.0 device-level keys: emit only when present
+                    for (const auto &key : { config_key::headerProtectionKey, config_key::contentPaddingAddition,
+                                             config_key::rekeyAfterTime, config_key::rekeyTimeout,
+                                             config_key::rejectAfterTime, config_key::keepaliveTimeout,
+                                             config_key::maxHandshakeAttempts }) {
+                        const QString value = clientProtocolConfig.value(key).toString();
+                        if (!value.isEmpty()) {
+                            lines << QString("%1 = %2").arg(key, value);
+                        }
+                    }
                     lines << "";
                     lines << "[Peer]";
                     lines << QString("PublicKey = %1").arg(clientProtocolConfig.value(config_key::server_pub_key).toString());
@@ -1988,6 +1998,16 @@ QString ApiConfigsController::getCurrentServerConfigIni()
         lines << QString("I3 = %1").arg(lastConfig.value(config_key::specialJunk3).toString());
         lines << QString("I4 = %1").arg(lastConfig.value(config_key::specialJunk4).toString());
         lines << QString("I5 = %1").arg(lastConfig.value(config_key::specialJunk5).toString());
+        // AWG 3.0 device-level keys: emit only when present
+        for (const auto &key : { config_key::headerProtectionKey, config_key::contentPaddingAddition,
+                                 config_key::rekeyAfterTime, config_key::rekeyTimeout,
+                                 config_key::rejectAfterTime, config_key::keepaliveTimeout,
+                                 config_key::maxHandshakeAttempts }) {
+            const QString value = lastConfig.value(key).toString();
+            if (!value.isEmpty()) {
+                lines << QString("%1 = %2").arg(key, value);
+            }
+        }
     }
 
     lines << "";
@@ -2062,6 +2082,13 @@ QString ApiConfigsController::getCurrentServerTunnelParams()
         awgParams["H2"] = lastConfig.value(config_key::responsePacketMagicHeader);
         awgParams["H3"] = lastConfig.value(config_key::underloadPacketMagicHeader);
         awgParams["H4"] = lastConfig.value(config_key::transportPacketMagicHeader);
+        awgParams["HeaderProtectionKey"] = lastConfig.value(config_key::headerProtectionKey);
+        awgParams["ContentPaddingAddition"] = lastConfig.value(config_key::contentPaddingAddition);
+        awgParams["RekeyAfterTime"] = lastConfig.value(config_key::rekeyAfterTime);
+        awgParams["RekeyTimeout"] = lastConfig.value(config_key::rekeyTimeout);
+        awgParams["RejectAfterTime"] = lastConfig.value(config_key::rejectAfterTime);
+        awgParams["KeepaliveTimeout"] = lastConfig.value(config_key::keepaliveTimeout);
+        awgParams["MaxHandshakeAttempts"] = lastConfig.value(config_key::maxHandshakeAttempts);
         result["awgParams"] = awgParams;
 
         if (containerType == DockerContainer::Awg || containerType == DockerContainer::Awg2) {

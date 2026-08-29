@@ -76,31 +76,31 @@
 <context>
     <name>ApiConfigsController</name>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1002"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1239"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1264"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1471"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1568"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1012"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1249"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1274"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1481"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1578"/>
         <source>%1 installed successfully.</source>
         <translation>%1 установлено успешно.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1128"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1138"/>
         <source>Subscription restored successfully.</source>
         <translation>Подписка успешно восстановлена.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1444"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1454"/>
         <source>API config reloaded</source>
         <translation>Конфигурация API перезагружена</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1448"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1458"/>
         <source>Successfully changed the country of connection to %1</source>
         <translation>Страна подключения изменена на %1</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1546"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1556"/>
         <source>Shared connection</source>
         <translation>Общее подключение</translation>
     </message>
@@ -366,33 +366,33 @@ Can&apos;t be disabled for current server</source>
 <context>
     <name>ImportController</name>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="819"/>
+        <location filename="../ui/controllers/importController.cpp" line="834"/>
         <source>Scanned %1 of %2.</source>
         <translation>Отсканировано %1 из %2.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="854"/>
+        <location filename="../ui/controllers/importController.cpp" line="869"/>
         <source>This configuration contains an OpenVPN setup. OpenVPN configurations can include malicious scripts, so only add it if you fully trust the provider of this config. </source>
         <translation>Эта конфигурация содержит настройки OpenVPN. Конфигурации OpenVPN могут содержать вредоносные скрипты, поэтому добавляйте её только если вы полностью доверяете источнику. </translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="858"/>
+        <location filename="../ui/controllers/importController.cpp" line="873"/>
         <source>&lt;br&gt;In the imported configuration, potentially dangerous lines were found:</source>
         <translation>&lt;br&gt;В импортированной конфигурации обнаружены потенциально опасные строки:</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="973"/>
+        <location filename="../ui/controllers/importController.cpp" line="988"/>
         <source>No valid configurations found at the provided URL</source>
         <translation>По указанному URL не найдено допустимых конфигураций</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="1024"/>
-        <location filename="../ui/controllers/importController.cpp" line="1047"/>
+        <location filename="../ui/controllers/importController.cpp" line="1039"/>
+        <location filename="../ui/controllers/importController.cpp" line="1062"/>
         <source>Failed to fetch configurations: %1</source>
         <translation>Не удалось загрузить конфигурации: %1</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="1053"/>
+        <location filename="../ui/controllers/importController.cpp" line="1068"/>
         <source>Empty response from server</source>
         <translation>Пустой ответ от сервера</translation>
     </message>

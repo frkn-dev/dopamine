@@ -33,6 +33,13 @@ open class WireguardConfig protected constructor(
     var i5: String?,
     val randomTrailers: Boolean?,
     val disableCookies: Boolean?,
+    val headerProtectionKey: String?,
+    val contentPaddingAddition: String?,
+    val rekeyAfterTime: String?,
+    val rekeyTimeout: String?,
+    val rejectAfterTime: String?,
+    val keepaliveTimeout: String?,
+    val maxHandshakeAttempts: String?,
 ) : ProtocolConfig(protocolConfigBuilder) {
 
     protected constructor(builder: Builder) : this(
@@ -61,6 +68,13 @@ open class WireguardConfig protected constructor(
         builder.i5,
         builder.randomTrailers,
         builder.disableCookies,
+        builder.headerProtectionKey,
+        builder.contentPaddingAddition,
+        builder.rekeyAfterTime,
+        builder.rekeyTimeout,
+        builder.rejectAfterTime,
+        builder.keepaliveTimeout,
+        builder.maxHandshakeAttempts,
     )
 
     fun toWgUserspaceString(): String = with(StringBuilder()) {
@@ -92,6 +106,13 @@ open class WireguardConfig protected constructor(
             i5?.let { appendLine("i5=$it") }
             randomTrailers?.let { appendLine("random_trailers=${if (it) 1 else 0}") }
             disableCookies?.let { appendLine("disable_cookies=${if (it) 1 else 0}") }
+            headerProtectionKey?.let { appendLine("header_protection_key=${it.base64ToHex()}") }
+            contentPaddingAddition?.let { appendLine("content_padding_addition=$it") }
+            rekeyAfterTime?.let { appendLine("rekey_after_time=$it") }
+            rekeyTimeout?.let { appendLine("rekey_timeout=$it") }
+            rejectAfterTime?.let { appendLine("reject_after_time=$it") }
+            keepaliveTimeout?.let { appendLine("keepalive_timeout=$it") }
+            maxHandshakeAttempts?.let { appendLine("max_handshake_attempts=$it") }
         }
     }
 
@@ -157,6 +178,13 @@ open class WireguardConfig protected constructor(
         internal var i5: String? = null
         internal var randomTrailers: Boolean? = null
         internal var disableCookies: Boolean? = null
+        internal var headerProtectionKey: String? = null
+        internal var contentPaddingAddition: String? = null
+        internal var rekeyAfterTime: String? = null
+        internal var rekeyTimeout: String? = null
+        internal var rejectAfterTime: String? = null
+        internal var keepaliveTimeout: String? = null
+        internal var maxHandshakeAttempts: String? = null
 
         fun setEndpoint(endpoint: InetEndpoint) = apply { this.endpoint = endpoint }
 
@@ -188,6 +216,13 @@ open class WireguardConfig protected constructor(
         fun setI5(i5: String) = apply { this.i5 = i5 }
         fun setRandomTrailers(randomTrailers: Boolean) = apply { this.randomTrailers = randomTrailers }
         fun setDisableCookies(disableCookies: Boolean) = apply { this.disableCookies = disableCookies }
+        fun setHeaderProtectionKey(headerProtectionKey: String) = apply { this.headerProtectionKey = headerProtectionKey }
+        fun setContentPaddingAddition(contentPaddingAddition: String) = apply { this.contentPaddingAddition = contentPaddingAddition }
+        fun setRekeyAfterTime(rekeyAfterTime: String) = apply { this.rekeyAfterTime = rekeyAfterTime }
+        fun setRekeyTimeout(rekeyTimeout: String) = apply { this.rekeyTimeout = rekeyTimeout }
+        fun setRejectAfterTime(rejectAfterTime: String) = apply { this.rejectAfterTime = rejectAfterTime }
+        fun setKeepaliveTimeout(keepaliveTimeout: String) = apply { this.keepaliveTimeout = keepaliveTimeout }
+        fun setMaxHandshakeAttempts(maxHandshakeAttempts: String) = apply { this.maxHandshakeAttempts = maxHandshakeAttempts }
 
         override fun build(): WireguardConfig = configBuild().run { WireguardConfig(this@Builder) }
     }

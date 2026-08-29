@@ -7,6 +7,9 @@ struct WGConfig: Decodable {
   let initPacketJunkSize, responsePacketJunkSize, cookieReplyPacketJunkSize, transportPacketJunkSize: String?
   let specialJunk1, specialJunk2, specialJunk3, specialJunk4, specialJunk5: String?
   let randomTrailers, disableCookies: String?
+  let headerProtectionKey: String?
+  let contentPaddingAddition, rekeyAfterTime, rekeyTimeout: String?
+  let rejectAfterTime, keepaliveTimeout, maxHandshakeAttempts: String?
   let dns1: String
   let dns2: String
   let mtu: String
@@ -30,6 +33,9 @@ struct WGConfig: Decodable {
     case initPacketJunkSize = "S1", responsePacketJunkSize = "S2", cookieReplyPacketJunkSize = "S3", transportPacketJunkSize = "S4"
     case specialJunk1 = "I1", specialJunk2 = "I2", specialJunk3 = "I3", specialJunk4 = "I4", specialJunk5 = "I5"
     case randomTrailers = "RandomTrailers", disableCookies = "DisableCookies"
+    case headerProtectionKey = "HeaderProtectionKey"
+    case contentPaddingAddition = "ContentPaddingAddition", rekeyAfterTime = "RekeyAfterTime", rekeyTimeout = "RekeyTimeout"
+    case rejectAfterTime = "RejectAfterTime", keepaliveTimeout = "KeepaliveTimeout", maxHandshakeAttempts = "MaxHandshakeAttempts"
     case dns1
     case dns2
     case mtu
@@ -69,6 +75,13 @@ struct WGConfig: Decodable {
     specialJunk5 = try c.decodeIfPresent(String.self, forKey: .specialJunk5)
     randomTrailers = try c.decodeIfPresent(String.self, forKey: .randomTrailers)
     disableCookies = try c.decodeIfPresent(String.self, forKey: .disableCookies)
+    headerProtectionKey = try c.decodeIfPresent(String.self, forKey: .headerProtectionKey)
+    contentPaddingAddition = try c.decodeIfPresent(String.self, forKey: .contentPaddingAddition)
+    rekeyAfterTime = try c.decodeIfPresent(String.self, forKey: .rekeyAfterTime)
+    rekeyTimeout = try c.decodeIfPresent(String.self, forKey: .rekeyTimeout)
+    rejectAfterTime = try c.decodeIfPresent(String.self, forKey: .rejectAfterTime)
+    keepaliveTimeout = try c.decodeIfPresent(String.self, forKey: .keepaliveTimeout)
+    maxHandshakeAttempts = try c.decodeIfPresent(String.self, forKey: .maxHandshakeAttempts)
     dns1 = try c.decode(String.self, forKey: .dns1)
     dns2 = try c.decode(String.self, forKey: .dns2)
     mtu = try c.decode(String.self, forKey: .mtu)
@@ -156,6 +169,27 @@ struct WGConfig: Decodable {
     }
     if let disableCookies = trimmed(disableCookies) {
       settingsLines.append("DisableCookies = \(disableCookies)")
+    }
+    if let headerProtectionKey = trimmed(headerProtectionKey) {
+      settingsLines.append("HeaderProtectionKey = \(headerProtectionKey)")
+    }
+    if let contentPaddingAddition = trimmed(contentPaddingAddition) {
+      settingsLines.append("ContentPaddingAddition = \(contentPaddingAddition)")
+    }
+    if let rekeyAfterTime = trimmed(rekeyAfterTime) {
+      settingsLines.append("RekeyAfterTime = \(rekeyAfterTime)")
+    }
+    if let rekeyTimeout = trimmed(rekeyTimeout) {
+      settingsLines.append("RekeyTimeout = \(rekeyTimeout)")
+    }
+    if let rejectAfterTime = trimmed(rejectAfterTime) {
+      settingsLines.append("RejectAfterTime = \(rejectAfterTime)")
+    }
+    if let keepaliveTimeout = trimmed(keepaliveTimeout) {
+      settingsLines.append("KeepaliveTimeout = \(keepaliveTimeout)")
+    }
+    if let maxHandshakeAttempts = trimmed(maxHandshakeAttempts) {
+      settingsLines.append("MaxHandshakeAttempts = \(maxHandshakeAttempts)")
     }
 
     return settingsLines.joined(separator: "\n")

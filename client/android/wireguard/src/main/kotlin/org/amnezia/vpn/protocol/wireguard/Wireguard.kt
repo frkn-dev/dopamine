@@ -136,6 +136,13 @@ open class Wireguard : Protocol() {
         configData.optStringOrNull("I5")?.let { setI5(it) }
         configData.optStringOrNull("RandomTrailers")?.let { setRandomTrailers(it.isAwgOnValue()) }
         configData.optStringOrNull("DisableCookies")?.let { setDisableCookies(it.isAwgOnValue()) }
+        configData.optStringOrNull("HeaderProtectionKey")?.let { setHeaderProtectionKey(it) }
+        configData.optStringOrNull("ContentPaddingAddition")?.let { setContentPaddingAddition(it) }
+        configData.optStringOrNull("RekeyAfterTime")?.let { setRekeyAfterTime(it) }
+        configData.optStringOrNull("RekeyTimeout")?.let { setRekeyTimeout(it) }
+        configData.optStringOrNull("RejectAfterTime")?.let { setRejectAfterTime(it) }
+        configData.optStringOrNull("KeepaliveTimeout")?.let { setKeepaliveTimeout(it) }
+        configData.optStringOrNull("MaxHandshakeAttempts")?.let { setMaxHandshakeAttempts(it) }
     }
 
     // AWG 3.1 boolean params come from the backend as "on"/"off" strings

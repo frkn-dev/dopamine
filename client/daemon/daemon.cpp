@@ -447,6 +447,27 @@ bool Daemon::parseConfig(const QJsonObject& obj, InterfaceConfig& config) {
   if (!obj.value("DisableCookies").isNull()) {
     config.m_disableCookies = obj.value("DisableCookies").toString();
   }
+  if (!obj.value("HeaderProtectionKey").isNull()) {
+    config.m_headerProtectionKey = obj.value("HeaderProtectionKey").toString();
+  }
+  if (!obj.value("ContentPaddingAddition").isNull()) {
+    config.m_contentPaddingAddition = obj.value("ContentPaddingAddition").toString();
+  }
+  if (!obj.value("RekeyAfterTime").isNull()) {
+    config.m_rekeyAfterTime = obj.value("RekeyAfterTime").toString();
+  }
+  if (!obj.value("RekeyTimeout").isNull()) {
+    config.m_rekeyTimeout = obj.value("RekeyTimeout").toString();
+  }
+  if (!obj.value("RejectAfterTime").isNull()) {
+    config.m_rejectAfterTime = obj.value("RejectAfterTime").toString();
+  }
+  if (!obj.value("KeepaliveTimeout").isNull()) {
+    config.m_keepaliveTimeout = obj.value("KeepaliveTimeout").toString();
+  }
+  if (!obj.value("MaxHandshakeAttempts").isNull()) {
+    config.m_maxHandshakeAttempts = obj.value("MaxHandshakeAttempts").toString();
+  }
 
   return true;
 }

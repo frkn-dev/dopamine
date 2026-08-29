@@ -150,6 +150,13 @@ QJsonObject VpnConfigurationsController::createVpnConfiguration(const QPair<QStr
             { "specialJunk5", config_key::specialJunk5 },
             { "randomTrailers", config_key::randomTrailers },
             { "disableCookies", config_key::disableCookies },
+            { "headerProtectionKey", config_key::headerProtectionKey },
+            { "contentPaddingAddition", config_key::contentPaddingAddition },
+            { "rekeyAfterTime", config_key::rekeyAfterTime },
+            { "rekeyTimeout", config_key::rekeyTimeout },
+            { "rejectAfterTime", config_key::rejectAfterTime },
+            { "keepaliveTimeout", config_key::keepaliveTimeout },
+            { "maxHandshakeAttempts", config_key::maxHandshakeAttempts },
         };
         for (const auto &[longName, shortName] : awgJunkKeyMap) {
             if (vpnConfigData.contains(longName) && !vpnConfigData.contains(shortName)) {
@@ -211,9 +218,14 @@ QJsonObject VpnConfigurationsController::createVpnConfiguration(const QPair<QStr
                         vpnConfigData.value(QStringLiteral("persistent_keepalive"));
             }
 
-            // AWG 3.1: backend may send RandomTrailers/DisableCookies only inside the
-            // INI string — recover them into the JSON the platform layers consume.
-            for (const auto &key : { config_key::randomTrailers, config_key::disableCookies }) {
+            // AWG 3.1: backend may send RandomTrailers/DisableCookies and the
+            // AWG 3.0 device-level keys only inside the INI string — recover
+            // them into the JSON the platform layers consume.
+            for (const auto &key : { config_key::randomTrailers, config_key::disableCookies,
+                                     config_key::headerProtectionKey, config_key::contentPaddingAddition,
+                                     config_key::rekeyAfterTime, config_key::rekeyTimeout,
+                                     config_key::rejectAfterTime, config_key::keepaliveTimeout,
+                                     config_key::maxHandshakeAttempts }) {
                 if (!vpnConfigData.value(key).toString().isEmpty()) {
                     continue;
                 }

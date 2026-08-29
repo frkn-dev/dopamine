@@ -109,6 +109,13 @@ namespace amnezia
         constexpr char specialJunk5[] = "I5";
         constexpr char randomTrailers[] = "RandomTrailers";
         constexpr char disableCookies[] = "DisableCookies";
+        constexpr char headerProtectionKey[] = "HeaderProtectionKey";
+        constexpr char contentPaddingAddition[] = "ContentPaddingAddition";
+        constexpr char rekeyAfterTime[] = "RekeyAfterTime";
+        constexpr char rekeyTimeout[] = "RekeyTimeout";
+        constexpr char rejectAfterTime[] = "RejectAfterTime";
+        constexpr char keepaliveTimeout[] = "KeepaliveTimeout";
+        constexpr char maxHandshakeAttempts[] = "MaxHandshakeAttempts";
 
         constexpr char protocolVersion[] = "protocol_version";
 

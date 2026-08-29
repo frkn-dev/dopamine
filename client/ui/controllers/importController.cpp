@@ -570,6 +570,21 @@ QJsonObject ImportController::extractWireGuardConfig(const QString &data)
                                              config_key::specialJunk4,    config_key::specialJunk5
     };
 
+    // AWG 3.0 device-level keys: optional, values may be ints or "lo-hi" ranges
+    const QStringList optionalDeviceFields = { config_key::headerProtectionKey,
+                                               config_key::contentPaddingAddition,
+                                               config_key::rekeyAfterTime,
+                                               config_key::rekeyTimeout,
+                                               config_key::rejectAfterTime,
+                                               config_key::keepaliveTimeout,
+                                               config_key::maxHandshakeAttempts
+    };
+    for (const QString &field : optionalDeviceFields) {
+        if (!configMap.value(field).isEmpty()) {
+            lastConfig[field] = configMap.value(field);
+        }
+    }
+
     bool hasAllRequiredFields = std::all_of(requiredJunkFields.begin(), requiredJunkFields.end(),
                                             [&configMap](const QString &field) { return !configMap.value(field).isEmpty(); });
     if (hasAllRequiredFields) {

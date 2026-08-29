@@ -59,6 +59,13 @@ class InterfaceConfig {
   QMap<QString, QString> m_specialJunk;
   QString m_randomTrailers;
   QString m_disableCookies;
+  QString m_headerProtectionKey;
+  QString m_contentPaddingAddition;
+  QString m_rekeyAfterTime;
+  QString m_rekeyTimeout;
+  QString m_rejectAfterTime;
+  QString m_keepaliveTimeout;
+  QString m_maxHandshakeAttempts;
 
   QJsonObject toJson() const;
   QString toWgConf(

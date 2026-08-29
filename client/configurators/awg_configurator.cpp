@@ -60,6 +60,16 @@ QString AwgConfigurator::createConfig(const ServerCredentials &credentials, Dock
         jsonConfig[config_key::disableCookies] = configMap.value(config_key::disableCookies);
     }
 
+    // AWG 3.0 optional device-level keys (values may be ints or "lo-hi" ranges)
+    for (const auto &key : { config_key::headerProtectionKey, config_key::contentPaddingAddition,
+                             config_key::rekeyAfterTime, config_key::rekeyTimeout,
+                             config_key::rejectAfterTime, config_key::keepaliveTimeout,
+                             config_key::maxHandshakeAttempts }) {
+        if (configMap.contains(key)) {
+            jsonConfig[key] = configMap.value(key);
+        }
+    }
+
     jsonConfig[config_key::mtu] =
             containerConfig.value(ProtocolProps::protoToString(Proto::Awg)).toObject().value(config_key::mtu).toString(protocols::awg::defaultMtu);
 

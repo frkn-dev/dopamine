@@ -262,6 +262,13 @@ void LocalSocketController::activate(const QJsonObject &rawConfig) {
     json.insert(amnezia::config_key::specialJunk5, wgConfig.value(amnezia::config_key::specialJunk5));
     json.insert(amnezia::config_key::randomTrailers, wgConfig.value(amnezia::config_key::randomTrailers));
     json.insert(amnezia::config_key::disableCookies, wgConfig.value(amnezia::config_key::disableCookies));
+    json.insert(amnezia::config_key::headerProtectionKey, wgConfig.value(amnezia::config_key::headerProtectionKey));
+    json.insert(amnezia::config_key::contentPaddingAddition, wgConfig.value(amnezia::config_key::contentPaddingAddition));
+    json.insert(amnezia::config_key::rekeyAfterTime, wgConfig.value(amnezia::config_key::rekeyAfterTime));
+    json.insert(amnezia::config_key::rekeyTimeout, wgConfig.value(amnezia::config_key::rekeyTimeout));
+    json.insert(amnezia::config_key::rejectAfterTime, wgConfig.value(amnezia::config_key::rejectAfterTime));
+    json.insert(amnezia::config_key::keepaliveTimeout, wgConfig.value(amnezia::config_key::keepaliveTimeout));
+    json.insert(amnezia::config_key::maxHandshakeAttempts, wgConfig.value(amnezia::config_key::maxHandshakeAttempts));
   } else if (!wgConfig.value(amnezia::config_key::junkPacketCount).isUndefined()
              && !wgConfig.value(amnezia::config_key::junkPacketMinSize).isUndefined()
              && !wgConfig.value(amnezia::config_key::junkPacketMaxSize).isUndefined()
@@ -291,6 +298,13 @@ void LocalSocketController::activate(const QJsonObject &rawConfig) {
     json.insert(amnezia::config_key::specialJunk5, wgConfig.value(amnezia::config_key::specialJunk5));
     json.insert(amnezia::config_key::randomTrailers, wgConfig.value(amnezia::config_key::randomTrailers));
     json.insert(amnezia::config_key::disableCookies, wgConfig.value(amnezia::config_key::disableCookies));
+    json.insert(amnezia::config_key::headerProtectionKey, wgConfig.value(amnezia::config_key::headerProtectionKey));
+    json.insert(amnezia::config_key::contentPaddingAddition, wgConfig.value(amnezia::config_key::contentPaddingAddition));
+    json.insert(amnezia::config_key::rekeyAfterTime, wgConfig.value(amnezia::config_key::rekeyAfterTime));
+    json.insert(amnezia::config_key::rekeyTimeout, wgConfig.value(amnezia::config_key::rekeyTimeout));
+    json.insert(amnezia::config_key::rejectAfterTime, wgConfig.value(amnezia::config_key::rejectAfterTime));
+    json.insert(amnezia::config_key::keepaliveTimeout, wgConfig.value(amnezia::config_key::keepaliveTimeout));
+    json.insert(amnezia::config_key::maxHandshakeAttempts, wgConfig.value(amnezia::config_key::maxHandshakeAttempts));
   }
 
   write(json);
