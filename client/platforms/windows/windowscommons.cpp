@@ -86,7 +86,7 @@ void WindowsCommons::ensureTunnelLogDir() {
     return;
   }
   QDir dir(programFilesPath);
-  dir.mkpath(QStringLiteral(WIREGUARD_DIR) + "/" + DATA_DIR);
+  dir.mkpath(QString::fromLatin1(WIREGUARD_DIR) + "/" + DATA_DIR);
 }
 
 // static
