@@ -106,11 +106,11 @@ PageType {
                 clickedFunc: function() {
                     var fileName = ""
                     if (GC.isMobile()) {
-                        fileName = "FRKN.backup"
+                        fileName = "Dopamine.backup"
                     } else {
                         fileName = SystemController.getFileName(qsTr("Save backup file"),
                                                                 qsTr("Backup files (*.backup)"),
-                                                                StandardPaths.standardLocations(StandardPaths.DocumentsLocation) + "/FRKN",
+                                                                StandardPaths.standardLocations(StandardPaths.DocumentsLocation) + "/Dopamine",
                                                                 true,
                                                                 ".backup")
                     }

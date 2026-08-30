@@ -13,6 +13,9 @@ class WindowsCommons final {
  public:
   static QString tunnelConfigFile();
   static QString tunnelLogFile();
+  // Creates the tunnel.dll ring-log directory (Program Files\Dopamine\Data)
+  // upfront so the log watcher has a stable path before the dll first runs.
+  static void ensureTunnelLogDir();
 
   // Returns whether we need to fallback to software rendering.
   static bool requireSoftwareRendering();

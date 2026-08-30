@@ -11,13 +11,16 @@
 
 #include "leakdetector.h"
 #include "logger.h"
+#include "platforms/windows/daemon/wireguardutilswindows.h"
 #include "platforms/windows/windowscommons.h"
 #include "platforms/windows/windowsutils.h"
 #include "windowsdaemon.h"
 
-#define TUNNEL_NAMED_PIPE \
-  "\\\\."                 \
-  "\\pipe\\ProtectedPrefix\\Administrators\\AmneziaWG\\AmneziaVPN"
+// The tunnel.dll UAPI pipe suffix is the Wintun interface name
+// (ipc.UAPIListen(name) in amneziawg-go).
+#define TUNNEL_NAMED_PIPE_PREFIX \
+  "\\\\."                        \
+  "\\pipe\\ProtectedPrefix\\Administrators\\AmneziaWG\\"
 
 constexpr uint32_t WINDOWS_TUNNEL_MONITOR_TIMEOUT_MSEC = 2000;
 
@@ -111,6 +114,7 @@ void WindowsTunnelService::timeout() {
 bool WindowsTunnelService::start(const QString& configData) {
   logger.debug() << "Starting the tunnel service";
 
+  WindowsCommons::ensureTunnelLogDir();
   m_logworker = new WindowsTunnelLogger(WindowsCommons::tunnelLogFile());
   m_logworker->moveToThread(&m_logthread);
   connect(&m_logthread, &QThread::finished, m_logworker, &QObject::deleteLater);
@@ -237,7 +241,9 @@ static bool stopAndDeleteTunnelService(SC_HANDLE service) {
 
 QString WindowsTunnelService::uapiCommand(const QString& command) {
   // Create a pipe to the tunnel service.
-  LPTSTR tunnelName = (LPTSTR)TEXT(TUNNEL_NAMED_PIPE);
+  QString pipePath = QStringLiteral(TUNNEL_NAMED_PIPE_PREFIX) +
+                     WireguardUtilsWindows::s_interfaceName();
+  LPTSTR tunnelName = (LPTSTR)pipePath.utf16();
   HANDLE pipe = CreateFile(tunnelName, GENERIC_READ | GENERIC_WRITE, 0, nullptr,
                            OPEN_EXISTING, 0, nullptr);
   if (pipe == INVALID_HANDLE_VALUE) {

@@ -22,7 +22,7 @@
 
 QFile Logger::m_file;
 QTextStream Logger::m_textStream;
-QString Logger::m_logFileName = QString("%1.log").arg(APPLICATION_NAME);
+QString Logger::m_logFileName = QStringLiteral("Dopamine.log");
 QString Logger::m_serviceLogFileName = QString("%1.log").arg(SERVICE_NAME);
 
 void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)

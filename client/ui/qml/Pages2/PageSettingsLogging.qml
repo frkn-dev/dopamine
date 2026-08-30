@@ -224,11 +224,11 @@ PageType {
         readonly property var exportLogsHandler: function() {
             var fileName = ""
             if (GC.isMobile()) {
-                fileName = "FRKN.log"
+                fileName = "Dopamine.log"
             } else {
                 fileName = SystemController.getFileName(qsTr("Save"),
                                                         qsTr("Logs files (*.log)"),
-                                                        StandardPaths.standardLocations(StandardPaths.DocumentsLocation) + "/FRKN",
+                                                        StandardPaths.standardLocations(StandardPaths.DocumentsLocation) + "/Dopamine",
                                                         true,
                                                         ".log")
             }
@@ -254,7 +254,7 @@ PageType {
             var fileName = ""
             fileName = SystemController.getFileName(qsTr("Save"),
                                                     qsTr("Logs files (*.log)"),
-                                                    StandardPaths.standardLocations(StandardPaths.DocumentsLocation) + "/FRKN-service",
+                                                    StandardPaths.standardLocations(StandardPaths.DocumentsLocation) + "/dopamine-service",
                                                     true,
                                                     ".log")
             if (fileName !== "") {

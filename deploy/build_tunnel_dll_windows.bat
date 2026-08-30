@@ -15,6 +15,13 @@ echo Cloning amneziawg-windows ...
 git clone --depth 1 https://github.com/amnezia-vpn/amneziawg-windows "%WORK%"
 if errorlevel 1 goto fail
 
+REM Move the ring log (log.bin) from Program Files\AmneziaWG to Program Files\Dopamine
+echo Patching ring log directory AmneziaWG -^> Dopamine ...
+powershell -NoProfile -Command "(Get-Content '%WORK%\conf\path_windows.go' -Raw) -replace 'AmneziaWG', 'Dopamine' | Set-Content '%WORK%\conf\path_windows.go' -NoNewline"
+if errorlevel 1 goto fail
+findstr /C:"Dopamine" "%WORK%\conf\path_windows.go" >NUL
+if errorlevel 1 goto fail
+
 cd /d "%WORK%"
 echo Building (downloads Go + llvm-mingw on first run, takes a while) ...
 call build.cmd

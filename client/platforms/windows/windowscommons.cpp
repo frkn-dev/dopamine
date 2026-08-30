@@ -21,7 +21,11 @@
 #include "platforms/windows/windowsutils.h"
 
 constexpr const char* VPN_NAME = "Dopamine";
-constexpr const char* WIREGUARD_DIR = "AmneziaWG";
+// The tunnel.dll ring-log directory. Fresh dll builds (patched in
+// deploy/build_tunnel_dll_windows.bat) write to Program Files\Dopamine,
+// older dll builds wrote to Program Files\AmneziaWG — check both.
+constexpr const char* WIREGUARD_DIR = "Dopamine";
+constexpr const char* WIREGUARD_DIR_LEGACY = "AmneziaWG";
 constexpr const char* DATA_DIR = "Data";
 
 namespace {
@@ -70,8 +74,19 @@ QString WindowsCommons::tunnelConfigFile() {
 
 // static
 QString WindowsCommons::tunnelLogFile() {
-  static QString tunnelLogFilePath = getTunnelLogFilePath();
-  return tunnelLogFilePath;
+  // Don't cache: the Data directory is created by tunnel.dll on its first
+  // run, which may happen after the first call to this function.
+  return getTunnelLogFilePath();
+}
+
+// static
+void WindowsCommons::ensureTunnelLogDir() {
+  auto programFilesPath = getProgramFilesPath();
+  if (programFilesPath.isEmpty()) {
+    return;
+  }
+  QDir dir(programFilesPath);
+  dir.mkpath(QStringLiteral(WIREGUARD_DIR) + "/" + DATA_DIR);
 }
 
 // static
@@ -88,20 +103,23 @@ QString WindowsCommons::getProgramFilesPath() {
 
 // static
 QString WindowsCommons::getTunnelLogFilePath() {
-  // Return WireGuard's log file path, "\Program Files\WireGuard\Data\log.bin",
+  // Return the tunnel.dll ring log path,
+  // "\Program Files\<Dopamine|AmneziaWG>\Data\log.bin",
   // if the directory path exists
   auto programFilesPath = getProgramFilesPath();
   if (!programFilesPath.isEmpty()) {
     QDir programFilesDir(programFilesPath);
 
     if (programFilesDir.exists()) {
-      QDir wireGuardDir(programFilesDir.filePath(WIREGUARD_DIR));
+      for (const char* dir : {WIREGUARD_DIR, WIREGUARD_DIR_LEGACY}) {
+        QDir wireGuardDir(programFilesDir.filePath(dir));
 
-      if (wireGuardDir.exists()) {
-        QDir wireGuardDataDir(wireGuardDir.filePath(DATA_DIR));
+        if (wireGuardDir.exists()) {
+          QDir wireGuardDataDir(wireGuardDir.filePath(DATA_DIR));
 
-        if (wireGuardDataDir.exists()) {
-          return wireGuardDataDir.filePath("log.bin");
+          if (wireGuardDataDir.exists()) {
+            return wireGuardDataDir.filePath("log.bin");
+          }
         }
       }
     }

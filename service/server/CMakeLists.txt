@@ -357,6 +357,11 @@ include_directories(
 
 
 add_executable(${PROJECT} ${SOURCES} ${HEADERS} ${RESOURCES})
+if(WIN32)
+    # WINDOWS subsystem: the service/tunnel process must never pop a console window.
+    set_target_properties(${PROJECT} PROPERTIES WIN32_EXECUTABLE ON)
+    target_link_options(${PROJECT} PRIVATE "/ENTRY:mainCRTStartup")
+endif()
 target_link_libraries(${PROJECT} PRIVATE Qt6::Core Qt6::Widgets Qt6::Network Qt6::RemoteObjects Qt6::Core5Compat Qt6::DBus Qt6::Concurrent ${LIBS})
 target_compile_definitions(${PROJECT} PRIVATE "MZ_$<UPPER_CASE:${MZ_PLATFORM_NAME}>")
 
