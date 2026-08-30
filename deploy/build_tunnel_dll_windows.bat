@@ -7,6 +7,15 @@ REM Requires: git, curl, tar (all present on Windows 10+).
 setlocal
 cd /d %~dp0..
 
+REM Make sure bsdtar (System32) wins over GNU tar from Git for Windows:
+REM GNU tar cannot read zip archives and breaks the upstream build.cmd.
+set "PATH=C:\Windows\System32;%PATH%"
+where tar
+tar --version | findstr /i "bsdtar libarchive" >NUL
+if errorlevel 1 (
+  echo WARNING: tar does not look like bsdtar, zip extraction may fail
+)
+
 set WORK=%TEMP%\amneziawg-windows
 echo Using work dir %WORK%
 if exist "%WORK%" rmdir /Q /S "%WORK%"
