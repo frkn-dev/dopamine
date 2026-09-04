@@ -26,6 +26,7 @@ public:
     Q_PROPERTY(bool isServerPingTextVisible READ isServerPingTextVisible WRITE setServerPingTextVisible NOTIFY serverPingTextVisibleChanged)
     Q_PROPERTY(bool isNotificationPermissionGranted READ isNotificationPermissionGranted NOTIFY onNotificationStateChanged)
     Q_PROPERTY(bool isKillSwitchEnabled READ isKillSwitchEnabled WRITE toggleKillSwitch NOTIFY killSwitchEnabledChanged)
+    Q_PROPERTY(bool isRouteLanThroughVpn READ isRouteLanThroughVpn WRITE toggleRouteLanThroughVpn NOTIFY routeLanThroughVpnChanged)
     Q_PROPERTY(bool strictKillSwitchEnabled READ isStrictKillSwitchEnabled WRITE toggleStrictKillSwitch NOTIFY strictKillSwitchEnabledChanged)
 
     Q_PROPERTY(bool isDevModeEnabled READ isDevModeEnabled NOTIFY devModeEnabled)
@@ -94,6 +95,9 @@ public slots:
     bool isKillSwitchEnabled();
     void toggleKillSwitch(bool enable);
 
+    bool isRouteLanThroughVpn();
+    void toggleRouteLanThroughVpn(bool enable);
+
     bool isStrictKillSwitchEnabled();
     void toggleStrictKillSwitch(bool enable);
 
@@ -137,6 +141,7 @@ signals:
     void loggingStateChanged();
     void serverPingTextVisibleChanged();
     void killSwitchEnabledChanged();
+    void routeLanThroughVpnChanged();
     void strictKillSwitchEnabledChanged(bool enabled);
 
     void restoreBackupFinished();

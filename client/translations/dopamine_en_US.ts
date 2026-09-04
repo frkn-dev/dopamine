@@ -2546,24 +2546,34 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Allows you to select which sites you want to access through the VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="95"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="114"/>
         <source>App-based split tunneling</source>
         <translation>App-based split tunneling</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="96"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="115"/>
         <source>Allows you to use the VPN only for certain Apps</source>
         <translation>Allows you to use the VPN only for certain Apps</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="114"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="133"/>
         <source>KillSwitch</source>
         <translation>KillSwitch</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="115"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="134"/>
         <source>Blocks network connections without VPN</source>
         <translation>Blocks network connections without VPN</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="90"/>
+        <source>Route local network through VPN</source>
+        <translation>Route local network through VPN</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="91"/>
+        <source>When off, devices in your local network (SSH, printers, shared folders) stay reachable while the VPN is on. Applies on the next connection.</source>
+        <translation>When off, devices in your local network (SSH, printers, shared folders) stay reachable while the VPN is on. Applies on the next connection.</translation>
     </message>
 </context>
 <context>
@@ -5599,7 +5609,7 @@ For more detailed information, you can
 <context>
     <name>VpnConnection</name>
     <message>
-        <location filename="../vpnconnection.cpp" line="517"/>
+        <location filename="../vpnconnection.cpp" line="518"/>
         <source>Mbps</source>
         <translation>Mbps</translation>
     </message>

@@ -242,6 +242,7 @@ void LocalSocketController::activate(const QJsonObject &rawConfig) {
   json.insert("allowedDnsServers", allowedDns);
 
   json.insert(amnezia::config_key::killSwitchOption, rawConfig.value(amnezia::config_key::killSwitchOption));
+  json.insert(amnezia::config_key::routeLanThroughVpn, rawConfig.value(amnezia::config_key::routeLanThroughVpn));
 
   if (protocolName == amnezia::config_key::awg) {
     json.insert(amnezia::config_key::junkPacketCount, wgConfig.value(amnezia::config_key::junkPacketCount));

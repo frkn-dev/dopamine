@@ -306,6 +306,10 @@ public:
     bool isKillSwitchEnabled() const;
     void setKillSwitchEnabled(bool enabled);
 
+    // false (default): LAN is routed around the tunnel; true: LAN goes through the VPN
+    bool isRouteLanThroughVpn() const;
+    void setRouteLanThroughVpn(bool enabled);
+
     bool isStrictKillSwitchEnabled() const;
     void setStrictKillSwitchEnabled(bool enabled);
 

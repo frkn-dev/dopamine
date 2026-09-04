@@ -446,6 +446,16 @@ bool Settings::isKillSwitchEnabled() const
     return m_settings.value("Conf/killSwitchEnabled", true).toBool();
 }
 
+bool Settings::isRouteLanThroughVpn() const
+{
+    return m_settings.value("Conf/routeLanThroughVpn", false).toBool();
+}
+
+void Settings::setRouteLanThroughVpn(bool enabled)
+{
+    m_settings.setValue("Conf/routeLanThroughVpn", enabled);
+}
+
 void Settings::setKillSwitchEnabled(bool enabled)
 {
     m_settings.setValue("Conf/killSwitchEnabled", enabled);

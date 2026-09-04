@@ -2597,17 +2597,17 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Дозволяє використовувати бажані адреси DNS серверів</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="96"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="115"/>
         <source>Allows you to use the VPN only for certain Apps</source>
         <translation>Дозволяє використовувати VPN тільки для вибраних застосунків</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="114"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="133"/>
         <source>KillSwitch</source>
         <translation>KillSwitch</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="115"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="134"/>
         <source>Blocks network connections without VPN</source>
         <translation>Блокує мережеві з&apos;єднання без VPN</translation>
     </message>
@@ -2628,9 +2628,19 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Дозволяє доступ до одних сайтів через VPN, а для інших в обхід VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="95"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="114"/>
         <source>App-based split tunneling</source>
         <translation>Роздільне VPN-тунелювання застосунків</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="90"/>
+        <source>Route local network through VPN</source>
+        <translation>Пускати локальну мережу через VPN</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="91"/>
+        <source>When off, devices in your local network (SSH, printers, shared folders) stay reachable while the VPN is on. Applies on the next connection.</source>
+        <translation>Якщо вимкнено, пристрої в локальній мережі (SSH, принтери, спільні папки) лишаються доступними з увімкненим VPN. Застосовується при наступному підключенні.</translation>
     </message>
 </context>
 <context>
@@ -5729,7 +5739,7 @@ This means that AmneziaWG keeps the fast performance of the original while addin
 <context>
     <name>VpnConnection</name>
     <message>
-        <location filename="../vpnconnection.cpp" line="517"/>
+        <location filename="../vpnconnection.cpp" line="518"/>
         <source>Mbps</source>
         <translation>Mbps</translation>
     </message>

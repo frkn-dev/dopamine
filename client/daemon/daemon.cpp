@@ -143,7 +143,7 @@ bool Daemon::activate(const InterfaceConfig& config) {
                                               IPAddress("172.16.0.0/12"),
                                               IPAddress("192.168.0.0/16"),
                                               IPAddress("169.254.0.0/16")};
-  if (!wgutils()->excludeLocalNetworks(kLanRanges)) {
+  if (!config.m_routeLanThroughVpn && !wgutils()->excludeLocalNetworks(kLanRanges)) {
     logger.warning() << "Failed to exclude local networks";
   }
 
@@ -400,6 +400,7 @@ bool Daemon::parseConfig(const QJsonObject& obj, InterfaceConfig& config) {
   }
 
   config.m_killSwitchEnabled = QVariant(obj.value("killSwitchOption").toString()).toBool();
+  config.m_routeLanThroughVpn = QVariant(obj.value("routeLanThroughVpn").toString()).toBool();
 
   if (!obj.value("Jc").isNull()) {
     config.m_junkPacketCount = obj.value("Jc").toString();

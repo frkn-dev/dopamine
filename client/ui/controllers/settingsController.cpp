@@ -398,6 +398,17 @@ bool SettingsController::isKillSwitchEnabled()
     return m_settings->isKillSwitchEnabled();
 }
 
+bool SettingsController::isRouteLanThroughVpn()
+{
+    return m_settings->isRouteLanThroughVpn();
+}
+
+void SettingsController::toggleRouteLanThroughVpn(bool enable)
+{
+    m_settings->setRouteLanThroughVpn(enable);
+    emit routeLanThroughVpnChanged();
+}
+
 void SettingsController::toggleKillSwitch(bool enable)
 {
     m_settings->setKillSwitchEnabled(enable);

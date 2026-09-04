@@ -79,6 +79,25 @@ PageType {
                 visible: false
             }
 
+            SwitcherType {
+                id: routeLanSwitch
+
+                visible: !GC.isMobile()
+
+                Layout.fillWidth: true
+                Layout.margins: 16
+
+                text: qsTr("Route local network through VPN")
+                descriptionText: qsTr("When off, devices in your local network (SSH, printers, shared folders) stay reachable while the VPN is on. Applies on the next connection.")
+
+                checked: SettingsController.isRouteLanThroughVpn
+                onToggled: function() {
+                    if (checked !== SettingsController.isRouteLanThroughVpn) {
+                        SettingsController.toggleRouteLanThroughVpn(checked)
+                    }
+                }
+            }
+
         }
 
         footer: ColumnLayout { // TODO(CyAn84): move to delegate,add DelegateChooser when have migrated to 6.9

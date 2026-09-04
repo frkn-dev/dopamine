@@ -145,6 +145,8 @@ namespace amnezia
 
         constexpr char killSwitchOption[] = "killSwitchOption";
 
+        constexpr char routeLanThroughVpn[] = "routeLanThroughVpn";
+
         constexpr char crc[] = "crc";
 
         constexpr char clientId[] = "clientId";
