@@ -20,5 +20,12 @@
                 Stop="both"
                 Remove="uninstall"
                 Wait="yes" />
+        <!-- legacy rebrand cleanup: stop and remove the old FRKN-service if present -->
+        <ServiceControl
+                Id="LegacyFrknServiceControl"
+                Name="FRKN-service"
+                Stop="install"
+                Remove="install"
+                Wait="yes" />
     </CPackWiXFragment>
 </CPackWiXPatch>
