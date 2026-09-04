@@ -107,7 +107,7 @@ PageType {
     QtObject {
         id: servers
 
-        property string title: qsTr("Servers")
+        property string title: qsTr("Connections")
         readonly property string leftImagePath: "qrc:/images/controls/server.svg"
         property bool isVisible: true
         readonly property var clickedHandler: function() {

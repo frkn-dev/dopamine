@@ -36,7 +36,7 @@ PageType {
             Layout.fillWidth: true
             Layout.leftMargin: 16
 
-            headerText: qsTr("Servers")
+            headerText: qsTr("Connections")
         }
 
         ImageButtonType {
