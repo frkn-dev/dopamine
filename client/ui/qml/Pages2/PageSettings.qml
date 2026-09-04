@@ -14,21 +14,6 @@ import "../Config"
 PageType {
     id: root
 
-    Connections {
-        target: ApiNewsController
-        function onFetchNewsFinished() {
-            PageController.showBusyIndicator(false)
-        }
-        
-        function onErrorOccurred(errorCode, showError) {
-            if (showError) {
-                PageController.showErrorMessage(errorCode)
-                PageController.closePage()
-                PageController.showBusyIndicator(false)
-            }
-        }
-    }
-
     ListViewType {
         id: listView
 
@@ -37,15 +22,25 @@ PageType {
         header: ColumnLayout {
             width: listView.width
 
-            BaseHeaderType {
-                id: header
+            RowLayout {
                 Layout.fillWidth: true
-                Layout.topMargin: 24 + SettingsController.safeAreaTopMargin
-                Layout.bottomMargin: 16
-                Layout.rightMargin: 16
-                Layout.leftMargin: 16
+                Layout.topMargin: 20 + SettingsController.safeAreaTopMargin
 
-                headerText: qsTr("Settings")
+                spacing: 0
+
+                BackButtonType {
+                    id: backButton
+                }
+
+                BaseHeaderType {
+                    id: header
+                    Layout.fillWidth: true
+                    Layout.bottomMargin: 16
+                    Layout.rightMargin: 16
+                    Layout.leftMargin: 16
+
+                    headerText: qsTr("Settings")
+                }
             }
         }
 
@@ -105,8 +100,6 @@ PageType {
         servers,
         connection,
         application,
-        news,
-        backup,
         about,
         devConsole
     ]
@@ -145,40 +138,13 @@ PageType {
     }
 
     QtObject {
-        id: news
-
-        property string title: qsTr("News & Notifications")
-        readonly property string leftImagePath: NewsModel.hasUnread && SettingsController.isNewsNotificationsEnabled() ? "qrc:/images/controls/news-unread.svg" : "qrc:/images/controls/news.svg"
-        property bool isVisible: ServersModel.hasServersFromGatewayApi
-        readonly property var clickedHandler: function() {
-            if (!ServersModel.hasServersFromGatewayApi) {
-                return;
-            }
-            PageController.showBusyIndicator(true)
-            ApiNewsController.fetchNews(true)
-            PageController.goToPage(PageEnum.PageSettingsNewsNotifications)
-        }
-    }
-
-    QtObject {
-        id: backup
-
-        property string title: qsTr("Backup")
-        readonly property string leftImagePath: "qrc:/images/controls/save.svg"
-        property bool isVisible: true
-        readonly property var clickedHandler: function() {
-            PageController.goToPage(PageEnum.PageSettingsBackup)
-        }
-    }
-
-    QtObject {
         id: about
 
-        property string title: qsTr("About Dopamine")
+        property string title: qsTr("About FRKN")
         readonly property string leftImagePath: "qrc:/images/controls/app.svg"
         property bool isVisible: true
         readonly property var clickedHandler: function() {
-            PageController.goToPage(PageEnum.PageSettingsAbout)
+            Qt.openUrlExternally("https://frkn.org")
         }
     }
 

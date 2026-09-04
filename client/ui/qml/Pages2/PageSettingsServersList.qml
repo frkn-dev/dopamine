@@ -18,14 +18,15 @@ import "../Components"
 PageType {
     id: root
 
-    ColumnLayout {
+    RowLayout {
         id: header
 
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
-
         anchors.topMargin: 20 + SettingsController.safeAreaTopMargin
+
+        spacing: 0
 
         BackButtonType {
             id: backButton
@@ -34,78 +35,54 @@ PageType {
         BaseHeaderType {
             Layout.fillWidth: true
             Layout.leftMargin: 16
-            Layout.rightMargin: 16
 
             headerText: qsTr("Servers")
         }
+
+        ImageButtonType {
+            id: reloadFromApiButton
+
+            Layout.rightMargin: 4
+
+            visible: ServersModel.hasServersFromGatewayApi
+
+            image: "qrc:/images/controls/refresh-cw.svg"
+            imageColor: AmneziaStyle.color.paleGray
+
+            implicitWidth: 48
+            implicitHeight: 48
+
+            onClicked: {
+                PageController.showBusyIndicator(true)
+                let result = ApiConfigsController.reloadSubscriptionConfigs()
+                PageController.showBusyIndicator(false)
+            }
+        }
+
+        ImageButtonType {
+            id: addServerButton
+
+            Layout.rightMargin: 12
+
+            image: "qrc:/images/controls/plus.svg"
+            imageColor: AmneziaStyle.color.paleGray
+
+            implicitWidth: 48
+            implicitHeight: 48
+
+            onClicked: PageController.goToPage(PageEnum.PageSetupWizardConfigSource)
+        }
     }
 
-    ListViewType {
+    ServersListView {
         id: servers
+
         objectName: "servers"
 
-        width: parent.width
         anchors.top: header.bottom
         anchors.topMargin: 16
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-
-
-        model: ServersModel
-
-        delegate: Item {
-            implicitWidth: servers.width
-            implicitHeight: delegateContent.implicitHeight
-
-            ColumnLayout {
-                id: delegateContent
-
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.right: parent.right
-
-                LabelWithButtonType {
-                    id: server
-                    Layout.fillWidth: true
-
-                    text: name
-
-                    descriptionText: {
-                        var servicesNameString = ""
-                        var servicesName = ServersModel.getAllInstalledServicesName(index)
-                        for (var i = 0; i < servicesName.length; i++) {
-                            servicesNameString += servicesName[i] + " · "
-                        }
-
-                        if (ServersModel.isServerFromApi(index)) {
-                            return servicesNameString + serverDescription
-                        }
-                        // entry addresses stay in the server details card / diagnostics only
-                        return servicesNameString.replace(/ · $/, "")
-                    }
-                    rightImageSource: "qrc:/images/controls/chevron-right.svg"
-
-                    clickedFunction: function() {
-                        ServersModel.processedIndex = index
-
-                        if (ServersModel.getProcessedServerData("isServerFromGatewayApi")) {
-                            PageController.showBusyIndicator(true)
-                            let result = ApiSettingsController.getAccountInfo(false)
-                            PageController.showBusyIndicator(false)
-                            if (!result) {
-                                return
-                            }
-
-                            PageController.goToPage(PageEnum.PageSettingsApiServerInfo)
-                        } else {
-                            PageController.goToPage(PageEnum.PageSettingsServerInfo)
-                        }
-                    }
-                }
-
-                DividerType {}
-            }
-        }
     }
 }

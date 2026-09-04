@@ -24,11 +24,9 @@ ListViewType {
     property bool protocolFilterTouched: false
     property string envFilter: ""
 
-    anchors.top: serversMenuHeader.bottom
-    anchors.right: parent.right
-    anchors.left: parent.left
-    anchors.bottom: parent.bottom
-    anchors.topMargin: 16
+    ButtonGroup {
+        id: serversRadioButtonGroup
+    }
 
     Component.onCompleted: {
         const saved = SettingsController.serversProtocolFilter
@@ -66,10 +64,10 @@ ListViewType {
             return "Hysteria2"
         }
         if (proto === "awg") {
-            return "AWG"
+            return "AmneziaWG"
         }
         if (proto === "awg-mobile" || proto === "amneziawgmobile") {
-            return "AWG Mobile"
+            return "AmneziaWG Mobile"
         }
         if (proto === "wireguard") {
             return "WireGuard"
@@ -438,8 +436,6 @@ ListViewType {
                         } else {
                             PageController.goToPage(PageEnum.PageSettingsServerInfo)
                         }
-
-                        drawer.closeTriggered()
                     }
                 }
             }

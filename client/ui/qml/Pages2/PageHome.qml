@@ -20,14 +20,31 @@ import "../Components"
 PageType {
     id: root
 
+    ImageButtonType {
+        id: settingsButton
+        objectName: "settingsButton"
+
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.topMargin: 12 + SettingsController.safeAreaTopMargin
+        anchors.rightMargin: 12
+
+        z: 10
+
+        implicitWidth: 48
+        implicitHeight: 48
+
+        image: "qrc:/images/controls/settings.svg"
+        imageColor: AmneziaStyle.color.paleGray
+
+        onClicked: PageController.goToPage(PageEnum.PageSettings)
+    }
+
     Connections {
         target: Qt.application
 
         function onStateChanged() {
             if (Qt.application.state !== Qt.ApplicationActive) {
-                if (drawer.isOpened) {
-                    drawer.closeTriggered()
-                }
                 if (homeSplitTunnelingDrawer.isOpened) {
                     homeSplitTunnelingDrawer.closeTriggered()
                 }
@@ -35,25 +52,10 @@ PageType {
         }
     }
 
-    Connections {
-        objectName: "pageControllerConnections"
-
-        target: PageController
-
-        function onRestorePageHomeState(isContainerInstalled) {
-            drawer.openTriggered()
-            if (isContainerInstalled) {
-                containersDropDown.rootButtonClickedFunction()
-            }
-        }
-    }
-
-
     Item {
         objectName: "homeColumnItem"
 
         anchors.fill: parent
-        anchors.bottomMargin: drawer.collapsedHeight
 
         ColumnLayout {
             objectName: "homeColumnLayout"
@@ -180,291 +182,101 @@ PageType {
                 Layout.rightMargin: 16
                 Layout.topMargin: 22
             }
-        }
-    }
 
-    DrawerType2 {
-        id: drawer
-        objectName: "drawerProtocol"
+            Rectangle {
+                id: serverCard
+                objectName: "serverCard"
 
-        anchors.fill: parent
+                Layout.fillWidth: true
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+                Layout.topMargin: 16
 
-        collapsedStateContent: Item {
-            objectName: "ProtocolDrawerCollapsedContent"
+                implicitHeight: 64
+                radius: 16
 
-            implicitHeight: Qt.platform.os !== "ios" ? root.height * 0.9 : screen.height * 0.77
-            Component.onCompleted: {
-                drawer.expandedHeight = implicitHeight
-            }
-
-            ColumnLayout {
-                id: collapsed
-                objectName: "collapsedColumnLayout"
-
-                anchors.left: parent.left
-                anchors.right: parent.right
-                spacing: 0
-
-                Component.onCompleted: {
-                    drawer.collapsedHeight = collapsed.implicitHeight
-                }
-
-                DividerType {
-                    Layout.topMargin: 10
-                    Layout.fillWidth: false
-                    Layout.preferredWidth: 20
-                    Layout.preferredHeight: 2
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                }
+                color: serverCardMouse.containsPress ? AmneziaStyle.color.sheerWhite
+                                                     : AmneziaStyle.color.translucentWhite
 
                 RowLayout {
-                    objectName: "rowLayout"
+                    anchors.fill: parent
+                    anchors.leftMargin: 16
+                    anchors.rightMargin: 12
 
-                    Layout.topMargin: 14
-                    Layout.leftMargin: 24
-                    Layout.rightMargin: 24
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 0
 
-                    spacing: 0
+                        ListItemTitleType {
+                            Layout.fillWidth: true
 
-                    Connections {
-                        objectName: "drawerConnections"
+                            maximumLineCount: 1
+                            elide: Text.ElideRight
+                            wrapMode: Text.NoWrap
 
-                        target: drawer
-                        function onCursorEntered() {
-                            if (drawer.isCollapsedStateActive) {
-                                collapsedButtonChevron.backgroundColor = collapsedButtonChevron.hoveredColor
-                                collapsedButtonHeader.opacity = 0.8
-                            } else {
-                                collapsedButtonHeader.opacity = 1
-                            }
+                            text: SettingsController.autoServerSelection && !ConnectionController.isConnected
+                                  ? qsTr("Auto-select")
+                                  : ServersModel.defaultServerName
                         }
 
-                        function onCursorExited() {
-                            if (drawer.isCollapsedStateActive) {
-                                collapsedButtonChevron.backgroundColor = collapsedButtonChevron.defaultColor
-                                collapsedButtonHeader.opacity = 1
-                            } else {
-                                collapsedButtonHeader.opacity = 1
-                            }
-                        }
+                        CaptionTextType {
+                            Layout.fillWidth: true
 
-                        function onPressed(pressed, entered) {
-                            if (drawer.isCollapsedStateActive) {
-                                collapsedButtonChevron.backgroundColor = pressed ? collapsedButtonChevron.pressedColor : entered ? collapsedButtonChevron.hoveredColor : collapsedButtonChevron.defaultColor
-                                collapsedButtonHeader.opacity = 0.7
-                            } else {
-                                collapsedButtonHeader.opacity = 1
-                            }
+                            visible: text !== ""
+                            color: AmneziaStyle.color.mutedGray
+                            maximumLineCount: 1
+                            elide: Text.ElideRight
+                            wrapMode: Text.NoWrap
+
+                            text: ServersModel.defaultServerProtocolName
                         }
                     }
 
-                    Header1TextType {
-                        id: collapsedButtonHeader
-                        objectName: "collapsedButtonHeader"
-
-                        Layout.maximumWidth: drawer.width - 48 - 18 - 12
-
-                        maximumLineCount: 2
-                        elide: Qt.ElideRight
-
-                        text: SettingsController.autoServerSelection && !ConnectionController.isConnected
-                              ? qsTr("Auto-select")
-                              : ServersModel.defaultServerName
-                        horizontalAlignment: Qt.AlignHCenter
-
-                        Behavior on opacity {
-                            PropertyAnimation { duration: 200 }
-                        }
-                    }
-
-                    ImageButtonType {
-                        id: collapsedButtonChevron
-                        objectName: "collapsedButtonChevron"
-
-                        Layout.leftMargin: 8
-
-                        visible: drawer.isCollapsedStateActive()
-
-                        hoverEnabled: false
-                        image: "qrc:/images/controls/chevron-down.svg"
-                        imageColor: AmneziaStyle.color.paleGray
-
-                        icon.width: 18
-                        icon.height: 18
-                        backgroundRadius: 16
-                        horizontalPadding: 4
-                        topPadding: 4
-                        bottomPadding: 3
-
-                        Keys.onEnterPressed: this.clicked()
-                        Keys.onReturnPressed: this.clicked()
-
-                        onClicked: {
-                            if (drawer.isCollapsedStateActive()) {
-                                drawer.openTriggered()
-                            }
-                        }
-                    }
                 }
 
-                RowLayout {
-                    objectName: "rowLayoutLabel"
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    Layout.topMargin: 8
-                    Layout.bottomMargin: drawer.isCollapsedStateActive ? 44 : ServersModel.isDefaultServerFromApi ? 61 : 16
-                    spacing: 0
+                MouseArea {
+                    id: serverCardMouse
 
-                    BasicButtonType {
-                        enabled: (ServersModel.defaultServerImagePathCollapsed !== "") && drawer.isCollapsedStateActive
-                        hoverEnabled: enabled
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
 
-                        implicitHeight: 36
+                    onClicked: PageController.goToPage(PageEnum.PageSettingsServersList)
+                }
 
-                        leftPadding: 16
-                        rightPadding: 16
+                ImageButtonType {
+                    id: serverCardInfoButton
+                    objectName: "serverCardInfoButton"
 
-                        defaultColor: AmneziaStyle.color.transparent
-                        hoveredColor: AmneziaStyle.color.translucentWhite
-                        pressedColor: AmneziaStyle.color.sheerWhite
-                        disabledColor: AmneziaStyle.color.transparent
-                        textColor: AmneziaStyle.color.mutedGray
+                    anchors.right: parent.right
+                    anchors.rightMargin: 8
+                    anchors.verticalCenter: parent.verticalCenter
 
-                        buttonTextLabel.lineHeight: 16
-                        buttonTextLabel.font.pixelSize: 13
-                        buttonTextLabel.font.weight: 400
+                    implicitWidth: 48
+                    implicitHeight: 48
 
-                        // collapsed card: small gray protocol plaque under the server name
-                        text: drawer.isCollapsedStateActive ? ServersModel.defaultServerProtocolName : ServersModel.defaultServerDescriptionExpanded
-                        leftImageSource: drawer.isCollapsedStateActive ? "" : ServersModel.defaultServerImagePathCollapsed
-                        leftImageColor: ""
-                        changeLeftImageSize: false
+                    image: "qrc:/images/controls/info.svg"
+                    imageColor: AmneziaStyle.color.mutedGray
 
-                        rightImageSource: drawer.isCollapsedStateActive ? "" : (hoverEnabled ? "qrc:/images/controls/chevron-down.svg" : "")
+                    onClicked: {
+                        ServersModel.processedIndex = ServersModel.defaultIndex
 
-                        Keys.onEnterPressed: this.clicked()
-                        Keys.onReturnPressed: this.clicked()
-
-                        onClicked: {
-                            ServersModel.processedIndex = ServersModel.defaultIndex
-
-                            if (ServersModel.getProcessedServerData("isServerFromGatewayApi")) {
-                                if (ServersModel.getProcessedServerData("isCountrySelectionAvailable")) {
-                                    PageController.goToPage(PageEnum.PageSettingsApiAvailableCountries)
-                                } else {
-                                    PageController.showBusyIndicator(true)
-                                    let result = ApiSettingsController.getAccountInfo(false)
-                                    PageController.showBusyIndicator(false)
-                                    if (!result) {
-                                        return
-                                    }
-
-                                    PageController.goToPage(PageEnum.PageSettingsApiServerInfo)
-                                }
+                        if (ServersModel.getProcessedServerData("isServerFromGatewayApi")) {
+                            if (ServersModel.getProcessedServerData("isCountrySelectionAvailable")) {
+                                PageController.goToPage(PageEnum.PageSettingsApiAvailableCountries)
                             } else {
-                                PageController.goToPage(PageEnum.PageSettingsServerInfo)
-                            }
-                        }
-                    }
-                }
-            }
-
-            ColumnLayout {
-                id: serversMenuHeader
-                objectName: "serversMenuHeader"
-
-                anchors.top: collapsed.bottom
-                anchors.right: parent.right
-                anchors.left: parent.left
-
-                RowLayout {
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    spacing: 8
-
-                    visible: !ServersModel.isDefaultServerFromApi
-
-                    DropDownType {
-                        id: containersDropDown
-                        objectName: "containersDropDown"
-
-                        rootButtonImageColor: AmneziaStyle.color.midnightBlack
-                        rootButtonBackgroundColor: AmneziaStyle.color.paleGray
-                        rootButtonBackgroundHoveredColor: AmneziaStyle.color.mistyGray
-                        rootButtonBackgroundPressedColor: AmneziaStyle.color.cloudyGray
-                        rootButtonHoveredBorderColor: AmneziaStyle.color.transparent
-                        rootButtonDefaultBorderColor: AmneziaStyle.color.transparent
-                        rootButtonTextTopMargin: 8
-                        rootButtonTextBottomMargin: 8
-
-                        enabled: drawer.isOpened
-
-                        text: ServersModel.defaultServerDefaultContainerName
-                        textColor: AmneziaStyle.color.midnightBlack
-                        headerText: qsTr("VPN protocol")
-                        headerBackButtonImage: "qrc:/images/controls/arrow-left.svg"
-
-                        rootButtonClickedFunction: function() {
-                            containersDropDown.openTriggered()
-                        }
-
-                        drawerParent: root
-
-                        listView: HomeContainersListView {
-                            id: containersListView
-                            objectName: "containersListView"
-
-                            rootWidth: root.width
-
-                            Connections {
-                                objectName: "rowLayoutConnections"
-
-                                target: ServersModel
-
-                                function onDefaultServerIndexChanged() {
-                                    updateContainersModelFilters()
+                                PageController.showBusyIndicator(true)
+                                let result = ApiSettingsController.getAccountInfo(false)
+                                PageController.showBusyIndicator(false)
+                                if (!result) {
+                                    return
                                 }
+
+                                PageController.goToPage(PageEnum.PageSettingsApiServerInfo)
                             }
-
-                            function updateContainersModelFilters() {
-                                if (ServersModel.isDefaultServerHasWriteAccess()) {
-                                    proxyDefaultServerContainersModel.filters = ContainersModelFilters.getWriteAccessProtocolsListFilters()
-                                } else {
-                                    proxyDefaultServerContainersModel.filters = ContainersModelFilters.getReadAccessProtocolsListFilters()
-                                }
-                            }
-
-                            model: SortFilterProxyModel {
-                                id: proxyDefaultServerContainersModel
-                                sourceModel: DefaultServerContainersModel
-
-                                sorters: [
-                                    RoleSorter { roleName: "isInstalled"; sortOrder: Qt.DescendingOrder }
-                                ]
-                            }
-
-                            Component.onCompleted: updateContainersModelFilters()
+                        } else {
+                            PageController.goToPage(PageEnum.PageSettingsServerInfo)
                         }
-                    }
-                }
-            }
-
-            ButtonGroup {
-                id: serversRadioButtonGroup
-                objectName: "serversRadioButtonGroup"
-            }
-
-            ServersListView {
-                id: serversMenuContent
-                objectName: "serversMenuContent"
-
-                isFocusable: false
-
-                Connections {
-                    target: drawer
-
-                    // this item shouldn't be focused when drawer is closed
-                    function onIsOpenedChanged() {
-                        serversMenuContent.isFocusable = drawer.isOpened
                     }
                 }
             }
