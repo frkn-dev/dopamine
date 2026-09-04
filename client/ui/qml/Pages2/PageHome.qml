@@ -128,6 +128,107 @@ PageType {
                 Layout.alignment: Qt.AlignCenter
             }
 
+            Rectangle {
+                id: serverCard
+                objectName: "serverCard"
+
+                Layout.fillWidth: true
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+                Layout.bottomMargin: 8
+
+                implicitHeight: 88
+                radius: 20
+
+                color: serverCardMouse.containsPress ? AmneziaStyle.color.sheerWhite
+                                                     : AmneziaStyle.color.translucentWhite
+
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: 20
+                    anchors.rightMargin: 12
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 2
+
+                        ListItemTitleType {
+                            Layout.fillWidth: true
+
+                            maximumLineCount: 1
+                            elide: Text.ElideRight
+                            wrapMode: Text.NoWrap
+                            font.pixelSize: 22
+                            font.weight: 600
+
+                            text: SettingsController.autoServerSelection && !ConnectionController.isConnected
+                                  ? qsTr("Auto-select")
+                                  : ServersModel.defaultServerName
+                        }
+
+                        CaptionTextType {
+                            Layout.fillWidth: true
+
+                            visible: text !== ""
+                            color: AmneziaStyle.color.mutedGray
+                            font.pixelSize: 14
+                            maximumLineCount: 1
+                            elide: Text.ElideRight
+                            wrapMode: Text.NoWrap
+
+                            text: ServersModel.defaultServerProtocolName
+                        }
+                    }
+
+                }
+
+                MouseArea {
+                    id: serverCardMouse
+
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+
+                    onClicked: PageController.goToPage(PageEnum.PageSettingsServersList)
+                }
+
+                ImageButtonType {
+                    id: serverCardInfoButton
+                    objectName: "serverCardInfoButton"
+
+                    anchors.right: parent.right
+                    anchors.rightMargin: 10
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    implicitWidth: 56
+                    implicitHeight: 56
+
+                    image: "qrc:/images/controls/info.svg"
+                    imageColor: AmneziaStyle.color.mutedGray
+
+                    onClicked: {
+                        ServersModel.processedIndex = ServersModel.defaultIndex
+
+                        if (ServersModel.getProcessedServerData("isServerFromGatewayApi")) {
+                            if (ServersModel.getProcessedServerData("isCountrySelectionAvailable")) {
+                                PageController.goToPage(PageEnum.PageSettingsApiAvailableCountries)
+                            } else {
+                                PageController.showBusyIndicator(true)
+                                let result = ApiSettingsController.getAccountInfo(false)
+                                PageController.showBusyIndicator(false)
+                                if (!result) {
+                                    return
+                                }
+
+                                PageController.goToPage(PageEnum.PageSettingsApiServerInfo)
+                            }
+                        } else {
+                            PageController.goToPage(PageEnum.PageSettingsServerInfo)
+                        }
+                    }
+                }
+            }
+
             BasicButtonType {
                 id: splitTunnelingButton
                 objectName: "splitTunnelingButton"
@@ -183,103 +284,6 @@ PageType {
                 Layout.topMargin: 22
             }
 
-            Rectangle {
-                id: serverCard
-                objectName: "serverCard"
-
-                Layout.fillWidth: true
-                Layout.leftMargin: 16
-                Layout.rightMargin: 16
-                Layout.topMargin: 16
-
-                implicitHeight: 64
-                radius: 16
-
-                color: serverCardMouse.containsPress ? AmneziaStyle.color.sheerWhite
-                                                     : AmneziaStyle.color.translucentWhite
-
-                RowLayout {
-                    anchors.fill: parent
-                    anchors.leftMargin: 16
-                    anchors.rightMargin: 12
-
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        spacing: 0
-
-                        ListItemTitleType {
-                            Layout.fillWidth: true
-
-                            maximumLineCount: 1
-                            elide: Text.ElideRight
-                            wrapMode: Text.NoWrap
-
-                            text: SettingsController.autoServerSelection && !ConnectionController.isConnected
-                                  ? qsTr("Auto-select")
-                                  : ServersModel.defaultServerName
-                        }
-
-                        CaptionTextType {
-                            Layout.fillWidth: true
-
-                            visible: text !== ""
-                            color: AmneziaStyle.color.mutedGray
-                            maximumLineCount: 1
-                            elide: Text.ElideRight
-                            wrapMode: Text.NoWrap
-
-                            text: ServersModel.defaultServerProtocolName
-                        }
-                    }
-
-                }
-
-                MouseArea {
-                    id: serverCardMouse
-
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-
-                    onClicked: PageController.goToPage(PageEnum.PageSettingsServersList)
-                }
-
-                ImageButtonType {
-                    id: serverCardInfoButton
-                    objectName: "serverCardInfoButton"
-
-                    anchors.right: parent.right
-                    anchors.rightMargin: 8
-                    anchors.verticalCenter: parent.verticalCenter
-
-                    implicitWidth: 48
-                    implicitHeight: 48
-
-                    image: "qrc:/images/controls/info.svg"
-                    imageColor: AmneziaStyle.color.mutedGray
-
-                    onClicked: {
-                        ServersModel.processedIndex = ServersModel.defaultIndex
-
-                        if (ServersModel.getProcessedServerData("isServerFromGatewayApi")) {
-                            if (ServersModel.getProcessedServerData("isCountrySelectionAvailable")) {
-                                PageController.goToPage(PageEnum.PageSettingsApiAvailableCountries)
-                            } else {
-                                PageController.showBusyIndicator(true)
-                                let result = ApiSettingsController.getAccountInfo(false)
-                                PageController.showBusyIndicator(false)
-                                if (!result) {
-                                    return
-                                }
-
-                                PageController.goToPage(PageEnum.PageSettingsApiServerInfo)
-                            }
-                        } else {
-                            PageController.goToPage(PageEnum.PageSettingsServerInfo)
-                        }
-                    }
-                }
-            }
         }
     }
 
