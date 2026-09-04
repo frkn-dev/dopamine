@@ -20,7 +20,7 @@ BaseHeaderType {
         implicitHeight: 40
         Layout.alignment: Qt.AlignRight
         image: root.actionButtonImage
-        imageColor: AmneziaStyle.color.paleGray
+        imageColor: DopamineStyle.color.paleGray
         visible: image ? true : false
 
         onClicked: {

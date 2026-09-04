@@ -113,7 +113,7 @@ PageType {
                 Layout.leftMargin: 16
                 Layout.bottomMargin: 8
                 text: ApiConfigsController.subscriptionId === "" ? qsTr("No subscription selected") : qsTr("Subscription: %1").arg(ApiConfigsController.subscriptionId)
-                color: AmneziaStyle.color.mutedGray
+                color: DopamineStyle.color.mutedGray
             }
         }
 

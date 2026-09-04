@@ -192,15 +192,15 @@ ErrorCode Ikev2Protocol::start()
         auto certInstallProcess = IpcClient::CreatePrivilegedProcess();
 
         if (!certInstallProcess) {
-            setLastError(ErrorCode::AmneziaServiceConnectionFailed);
-            return ErrorCode::AmneziaServiceConnectionFailed;
+            setLastError(ErrorCode::DopamineServiceConnectionFailed);
+            return ErrorCode::DopamineServiceConnectionFailed;
         }
 
         certInstallProcess->waitForSource();
         if (!certInstallProcess->isInitialized()) {
             qWarning() << "IpcProcess replica is not connected!";
-            setLastError(ErrorCode::AmneziaServiceConnectionFailed);
-            return ErrorCode::AmneziaServiceConnectionFailed;
+            setLastError(ErrorCode::DopamineServiceConnectionFailed);
+            return ErrorCode::DopamineServiceConnectionFailed;
         }
         certInstallProcess->setProgram(PermittedProcess::CertUtil);
 

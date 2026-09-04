@@ -294,7 +294,7 @@ void ConnectionController::openConnection()
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS) && !defined(MACOS_NE)
     if (!Utils::processIsRunning(Utils::executable(SERVICE_NAME, false), true))
     {
-        emit connectionErrorOccurred(ErrorCode::AmneziaServiceNotRunning);
+        emit connectionErrorOccurred(ErrorCode::DopamineServiceNotRunning);
         return;
     }
 #endif

@@ -49,13 +49,13 @@ Window  {
     maximumWidth: 600
     maximumHeight: 800
 
-    color: AmneziaStyle.color.midnightBlack
+    color: DopamineStyle.color.midnightBlack
 
     Component.onCompleted: {
         if (SettingsController.frknDarkMode()) {
-            AmneziaStyle.color = AmneziaStyle.darkColorPalette
+            DopamineStyle.color = DopamineStyle.darkColorPalette
         } else {
-            AmneziaStyle.color = AmneziaStyle.regularColorPalette
+            DopamineStyle.color = DopamineStyle.regularColorPalette
         }
     }
 
@@ -254,11 +254,11 @@ Window  {
 
                     Layout.fillWidth: true
 
-                    defaultColor: AmneziaStyle.color.transparent
-                    hoveredColor: AmneziaStyle.color.translucentWhite
-                    pressedColor: AmneziaStyle.color.sheerWhite
-                    disabledColor: AmneziaStyle.color.mutedGray
-                    textColor: AmneziaStyle.color.paleGray
+                    defaultColor: DopamineStyle.color.transparent
+                    hoveredColor: DopamineStyle.color.translucentWhite
+                    pressedColor: DopamineStyle.color.sheerWhite
+                    disabledColor: DopamineStyle.color.mutedGray
+                    textColor: DopamineStyle.color.paleGray
                     borderWidth: 1
 
                     text: qsTr("Save")

@@ -115,7 +115,7 @@ PageType {
                             }
                             return label
                         }
-                        color: AmneziaStyle.color.paleGray
+                        color: DopamineStyle.color.paleGray
                         font.pixelSize: 16
                         font.weight: 400
                         font.family: "PT Root UI VF"
@@ -129,7 +129,7 @@ PageType {
                         // no entry address here — technical details live in diagnostics
                         text: model.countryName !== "" ? model.countryName : model.countryCode
                         visible: text !== ""
-                        color: AmneziaStyle.color.mutedGray
+                        color: DopamineStyle.color.mutedGray
                         font.pixelSize: 13
                         font.weight: 400
                         font.family: "PT Root UI VF"

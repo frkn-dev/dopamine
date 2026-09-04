@@ -589,12 +589,12 @@ Already installed containers were found on the server. All installed containers 
         <translation>Dev-шлюз включён</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="155"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="256"/>
         <source>Split tunneling enabled</source>
         <translation>Раздельное туннелирование включено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="155"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="256"/>
         <source>Split tunneling disabled</source>
         <translation>Раздельное туннелирование выключено</translation>
     </message>
@@ -603,7 +603,7 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">VPN-протокол</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="218"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="165"/>
         <source>Auto-select</source>
         <translation>Автовыбор</translation>
     </message>

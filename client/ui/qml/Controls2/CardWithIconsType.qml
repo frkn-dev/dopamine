@@ -13,13 +13,13 @@ Button {
     property string bodyText
     property string footerText
 
-    property string hoveredColor: AmneziaStyle.color.slateGray
-    property string defaultColor: AmneziaStyle.color.onyxBlack
+    property string hoveredColor: DopamineStyle.color.slateGray
+    property string defaultColor: DopamineStyle.color.onyxBlack
 
-    property string textColor: AmneziaStyle.color.midnightBlack
+    property string textColor: DopamineStyle.color.midnightBlack
 
     property string rightImageSource
-    property string rightImageColor: AmneziaStyle.color.paleGray
+    property string rightImageColor: DopamineStyle.color.paleGray
 
     property string leftImageSource
 
@@ -84,7 +84,7 @@ Button {
                     text: root.bodyText
                     visible: text !== ""
 
-                    color: AmneziaStyle.color.mutedGray
+                    color: DopamineStyle.color.mutedGray
                     textFormat: Text.RichText
 
                     Layout.fillWidth: true
@@ -99,7 +99,7 @@ Button {
                     text: root.footerText
                     visible: text !== ""
 
-                    color: AmneziaStyle.color.mutedGray
+                    color: DopamineStyle.color.mutedGray
 
                     Layout.fillWidth: true
                     Layout.rightMargin: 16

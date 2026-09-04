@@ -191,7 +191,7 @@ PageType {
                 visible: ServersModel.isProcessedServerHasWriteAccess()
 
                 text: qsTr("Remove ")
-                textColor: AmneziaStyle.color.vibrantRed
+                textColor: DopamineStyle.color.vibrantRed
 
                 clickedFunction: function() {
                     var headerText = qsTr("Remove %1 from server?").arg(ContainersModel.getProcessedContainerName())

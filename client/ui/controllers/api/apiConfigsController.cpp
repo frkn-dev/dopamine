@@ -1,6 +1,6 @@
 #include "apiConfigsController.h"
 
-#include "amnezia_application.h"
+#include "dopamine_application.h"
 #include "configurators/wireguard_configurator.h"
 #include "containers/containers_defs.h"
 #include "core/api/apiDefs.h"

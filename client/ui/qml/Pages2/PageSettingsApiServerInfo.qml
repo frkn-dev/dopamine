@@ -189,7 +189,7 @@ PageType {
                 Layout.leftMargin: 16
                 Layout.fillWidth: true
 
-                backGroundColor: AmneziaStyle.color.translucentRichBrown
+                backGroundColor: DopamineStyle.color.translucentRichBrown
 
                 textString: qsTr("Configurations have been updated for some countries. Download and install the updated configuration files")
 
@@ -429,7 +429,7 @@ PageType {
 
                 background: Rectangle {
                     anchors.fill: parent
-                    color: AmneziaStyle.color.charcoalGray
+                    color: DopamineStyle.color.charcoalGray
                     radius: 4
                 }
 
@@ -465,12 +465,12 @@ PageType {
 
                             implicitHeight: 32
 
-                            defaultColor: AmneziaStyle.color.richBrown
-                            hoveredColor: AmneziaStyle.color.lightBrown
-                            pressedColor: AmneziaStyle.color.lightBrown
-                            disabledColor: AmneziaStyle.color.charcoalGray
+                            defaultColor: DopamineStyle.color.richBrown
+                            hoveredColor: DopamineStyle.color.lightBrown
+                            pressedColor: DopamineStyle.color.lightBrown
+                            disabledColor: DopamineStyle.color.charcoalGray
 
-                            textColor: AmneziaStyle.color.paleGray
+                            textColor: DopamineStyle.color.paleGray
                             borderWidth: 0
 
                             text: qsTr("Copy")
@@ -486,12 +486,12 @@ PageType {
 
                             implicitHeight: 32
 
-                            defaultColor: AmneziaStyle.color.mutedGray
-                            hoveredColor: AmneziaStyle.color.lightGray
-                            pressedColor: AmneziaStyle.color.lightGray
-                            disabledColor: AmneziaStyle.color.charcoalGray
+                            defaultColor: DopamineStyle.color.mutedGray
+                            hoveredColor: DopamineStyle.color.lightGray
+                            pressedColor: DopamineStyle.color.lightGray
+                            disabledColor: DopamineStyle.color.charcoalGray
 
-                            textColor: AmneziaStyle.color.midnightBlack
+                            textColor: DopamineStyle.color.midnightBlack
                             borderWidth: 0
 
                             text: qsTr("Close")
@@ -513,9 +513,9 @@ PageType {
                 implicitHeight: 32
 
                 defaultColor: "transparent"
-                hoveredColor: AmneziaStyle.color.translucentWhite
-                pressedColor: AmneziaStyle.color.sheerWhite
-                textColor: AmneziaStyle.color.vibrantRed
+                hoveredColor: DopamineStyle.color.translucentWhite
+                pressedColor: DopamineStyle.color.sheerWhite
+                textColor: DopamineStyle.color.vibrantRed
 
                 text: qsTr("Reload API config")
 
@@ -550,9 +550,9 @@ PageType {
                 visible: footer.isVisibleForAmneziaFree
 
                 defaultColor: "transparent"
-                hoveredColor: AmneziaStyle.color.translucentWhite
-                pressedColor: AmneziaStyle.color.sheerWhite
-                textColor: AmneziaStyle.color.vibrantRed
+                hoveredColor: DopamineStyle.color.translucentWhite
+                pressedColor: DopamineStyle.color.sheerWhite
+                textColor: DopamineStyle.color.vibrantRed
 
                 text: qsTr("Unlink this device")
 
@@ -588,9 +588,9 @@ PageType {
                 implicitHeight: 32
 
                 defaultColor: "transparent"
-                hoveredColor: AmneziaStyle.color.translucentWhite
-                pressedColor: AmneziaStyle.color.sheerWhite
-                textColor: AmneziaStyle.color.vibrantRed
+                hoveredColor: DopamineStyle.color.translucentWhite
+                pressedColor: DopamineStyle.color.sheerWhite
+                textColor: DopamineStyle.color.vibrantRed
 
                 text: qsTr("Remove from application")
 

@@ -109,7 +109,7 @@ PageType {
         property bool isVisible: root.isServerWithWriteAccess
         readonly property string title: qsTr("Check the server for previously installed Dopamine services")
         readonly property string description: qsTr("Add them to the application if they were not displayed")
-        readonly property var tColor: AmneziaStyle.color.paleGray
+        readonly property var tColor: DopamineStyle.color.paleGray
         readonly property var clickedHandler: function() {
             PageController.showBusyIndicator(true)
             InstallController.scanServerForInstalledContainers()
@@ -123,7 +123,7 @@ PageType {
         property bool isVisible: root.isServerWithWriteAccess
         readonly property string title: qsTr("Reboot server")
         readonly property string description: ""
-        readonly property var tColor: AmneziaStyle.color.vibrantRed
+        readonly property var tColor: DopamineStyle.color.vibrantRed
         readonly property var clickedHandler: function() {
             var headerText = qsTr("Do you want to reboot the server?")
             var descriptionText = qsTr("The reboot process may take approximately 30 seconds. Are you sure you wish to proceed?")
@@ -153,7 +153,7 @@ PageType {
         property bool isVisible: true
         readonly property string title: qsTr("Remove server from application")
         readonly property string description: ""
-        readonly property var tColor: AmneziaStyle.color.vibrantRed
+        readonly property var tColor: DopamineStyle.color.vibrantRed
         readonly property var clickedHandler: function() {
             var headerText = qsTr("Do you want to remove the server from application?")
             var descriptionText = qsTr("All installed Dopamine services will still remain on the server.")
@@ -183,7 +183,7 @@ PageType {
         property bool isVisible: root.isServerWithWriteAccess
         readonly property string title: qsTr("Clear server from Dopamine software")
         readonly property string description: ""
-        readonly property var tColor: AmneziaStyle.color.vibrantRed
+        readonly property var tColor: DopamineStyle.color.vibrantRed
         readonly property var clickedHandler: function() {
             var headerText = qsTr("Do you want to clear server from Dopamine software?")
             var descriptionText = qsTr("All users whom you shared a connection with will no longer be able to connect to it.")
@@ -212,7 +212,7 @@ PageType {
         property bool isVisible: ServersModel.getProcessedServerData("isServerFromTelegramApi")
         readonly property string title: qsTr("Reset API config")
         readonly property string description: ""
-        readonly property var tColor: AmneziaStyle.color.vibrantRed
+        readonly property var tColor: DopamineStyle.color.vibrantRed
         readonly property var clickedHandler: function() {
             var headerText = qsTr("Do you want to reset API config?")
             var descriptionText = ""

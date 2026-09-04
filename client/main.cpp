@@ -1,7 +1,7 @@
 #include <QDebug>
 #include <QTimer>
 
-#include "amnezia_application.h"
+#include "dopamine_application.h"
 #include "core/osSignalHandler.h"
 #include "migrations.h"
 #include "version.h"
@@ -20,7 +20,7 @@
 bool isAnotherInstanceRunning(const QString &dataToForward)
 {
     QLocalSocket socket;
-    socket.connectToServer("FRKNVPNInstance");
+    socket.connectToServer("DopamineVPNInstance");
     if (socket.waitForConnected(500)) {
         qWarning() << "Client is already running";
         if (!dataToForward.isEmpty()) {
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     qputenv("ANDROID_OPENSSL_SUFFIX", "_3");
 #endif
 
-    AmneziaApplication app(argc, argv);
+    DopamineApplication app(argc, argv);
     OsSignalHandler::setup();
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS) && !defined(MACOS_NE)

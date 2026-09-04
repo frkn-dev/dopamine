@@ -10,30 +10,30 @@ Switch {
     id: root
 
     property alias descriptionText: description.text
-    property string descriptionTextColor: AmneziaStyle.color.mutedGray
-    property string descriptionTextDisabledColor: AmneziaStyle.color.charcoalGray
+    property string descriptionTextColor: DopamineStyle.color.mutedGray
+    property string descriptionTextDisabledColor: DopamineStyle.color.charcoalGray
 
-    property string textColor: AmneziaStyle.color.paleGray
-    property string textDisabledColor: AmneziaStyle.color.mutedGray
+    property string textColor: DopamineStyle.color.paleGray
+    property string textDisabledColor: DopamineStyle.color.mutedGray
 
-    property string checkedIndicatorColor: AmneziaStyle.color.richBrown
-    property string defaultIndicatorColor: AmneziaStyle.color.transparent
-    property string checkedDisabledIndicatorColor: AmneziaStyle.color.deepBrown
+    property string checkedIndicatorColor: DopamineStyle.color.richBrown
+    property string defaultIndicatorColor: DopamineStyle.color.transparent
+    property string checkedDisabledIndicatorColor: DopamineStyle.color.deepBrown
 
-    property string borderFocusedColor: AmneziaStyle.color.paleGray
+    property string borderFocusedColor: DopamineStyle.color.paleGray
     property int borderFocusedWidth: 1
 
-    property string checkedIndicatorBorderColor: AmneziaStyle.color.richBrown
-    property string defaultIndicatorBorderColor: AmneziaStyle.color.charcoalGray
-    property string checkedDisabledIndicatorBorderColor: AmneziaStyle.color.deepBrown
+    property string checkedIndicatorBorderColor: DopamineStyle.color.richBrown
+    property string defaultIndicatorBorderColor: DopamineStyle.color.charcoalGray
+    property string checkedDisabledIndicatorBorderColor: DopamineStyle.color.deepBrown
 
-    property string checkedInnerCircleColor: AmneziaStyle.color.midnightBlack
-    property string defaultInnerCircleColor: AmneziaStyle.color.paleGray
-    property string checkedDisabledInnerCircleColor: AmneziaStyle.color.mutedBrown
-    property string defaultDisabledInnerCircleColor: AmneziaStyle.color.charcoalGray
+    property string checkedInnerCircleColor: DopamineStyle.color.midnightBlack
+    property string defaultInnerCircleColor: DopamineStyle.color.paleGray
+    property string checkedDisabledInnerCircleColor: DopamineStyle.color.mutedBrown
+    property string defaultDisabledInnerCircleColor: DopamineStyle.color.charcoalGray
 
-    property string hoveredIndicatorBackgroundColor: AmneziaStyle.color.translucentWhite
-    property string defaultIndicatorBackgroundColor: AmneziaStyle.color.transparent
+    property string hoveredIndicatorBackgroundColor: DopamineStyle.color.translucentWhite
+    property string defaultIndicatorBackgroundColor: DopamineStyle.color.transparent
 
     property bool isFocusable: true
 

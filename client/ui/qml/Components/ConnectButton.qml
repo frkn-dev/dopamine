@@ -11,9 +11,9 @@ import Style 1.0
 Button {
     id: root
 
-    property string defaultButtonColor: AmneziaStyle.color.slateGray
-    property string progressButtonColor: AmneziaStyle.color.deepBrown
-    property string connectedButtonColor: AmneziaStyle.color.goldenApricot
+    property string defaultButtonColor: DopamineStyle.color.slateGray
+    property string progressButtonColor: DopamineStyle.color.deepBrown
+    property string connectedButtonColor: DopamineStyle.color.goldenApricot
     property string connectedTextColor: "#00AEEF"
     property bool buttonActiveFocus: activeFocus && (Qt.platform.os !== "android" || SettingsController.isOnTv())
 
@@ -81,13 +81,13 @@ Button {
                 verticalOffset: 0
                 radius: 10
                 samples: 25
-                color: root.buttonActiveFocus ? AmneziaStyle.color.slateGray : AmneziaStyle.color.goldenApricot
+                color: root.buttonActiveFocus ? DopamineStyle.color.slateGray : DopamineStyle.color.goldenApricot
                 source: backgroundCircle
             }
 
             ShapePath {
-                fillColor: AmneziaStyle.color.transparent
-                strokeColor: AmneziaStyle.color.slateGray
+                fillColor: DopamineStyle.color.transparent
+                strokeColor: DopamineStyle.color.slateGray
                 strokeWidth: root.buttonActiveFocus ? 1 : 0
                 capStyle: ShapePath.RoundCap
 
@@ -102,10 +102,10 @@ Button {
             }
 
             ShapePath {
-                fillColor: AmneziaStyle.color.transparent
+                fillColor: DopamineStyle.color.transparent
                 strokeColor: {
                     if (ConnectionController.isConnectionInProgress) {
-                        return AmneziaStyle.color.darkCharcoal
+                        return DopamineStyle.color.darkCharcoal
                     } else if (ConnectionController.isConnected) {
                         return connectedButtonColor
                     } else {
@@ -145,8 +145,8 @@ Button {
             visible: ConnectionController.isConnectionInProgress
 
             ShapePath {
-                fillColor: AmneziaStyle.color.transparent
-                strokeColor: AmneziaStyle.color.richBrown
+                fillColor: DopamineStyle.color.transparent
+                strokeColor: DopamineStyle.color.richBrown
                 strokeWidth: 3
                 capStyle: ShapePath.RoundCap
 
@@ -196,7 +196,7 @@ Button {
         font.weight: 700
         font.pixelSize: 20
 
-        color: ConnectionController.isConnected ? connectedTextColor : AmneziaStyle.color.paleGray
+        color: ConnectionController.isConnected ? connectedTextColor : DopamineStyle.color.paleGray
         text: root.text
 
         horizontalAlignment: Text.AlignHCenter

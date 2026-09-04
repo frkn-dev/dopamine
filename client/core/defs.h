@@ -43,7 +43,7 @@ namespace amnezia
         UnknownError = 100,
         InternalError = 101,
         NotImplementedError = 102,
-        AmneziaServiceNotRunning = 103,
+        DopamineServiceNotRunning = 103,
         NotSupportedOnThisPlatform = 104,
 
         // Server errors
@@ -82,7 +82,7 @@ namespace amnezia
         OpenVpnExecutableMissing = 600,
         ShadowSocksExecutableMissing = 601,
         CloakExecutableMissing = 602,
-        AmneziaServiceConnectionFailed = 603,
+        DopamineServiceConnectionFailed = 603,
         ExecutableMissing = 604,
         XrayExecutableMissing = 605,
         Tun2SockExecutableMissing = 606,

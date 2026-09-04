@@ -18,8 +18,8 @@ Rectangle {
     implicitHeight: buttonContent.implicitHeight
     radius: 16
 
-    color: AmneziaStyle.color.onyxBlack
-    border.color: popup.opened ? AmneziaStyle.color.goldenApricot : AmneziaStyle.color.slateGray
+    color: DopamineStyle.color.onyxBlack
+    border.color: popup.opened ? DopamineStyle.color.goldenApricot : DopamineStyle.color.slateGray
     border.width: 1
 
     Behavior on border.color {
@@ -43,7 +43,7 @@ Rectangle {
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
 
-            color: AmneziaStyle.color.paleGray
+            color: DopamineStyle.color.paleGray
             elide: Text.ElideRight
 
             text: {
@@ -68,7 +68,7 @@ Rectangle {
 
             hoverEnabled: false
             image: "qrc:/images/controls/chevron-down.svg"
-            imageColor: AmneziaStyle.color.goldenApricot
+            imageColor: DopamineStyle.color.goldenApricot
 
             rotation: popup.opened ? 180 : 0
 
@@ -105,8 +105,8 @@ Rectangle {
 
         background: Rectangle {
             radius: 16
-            color: AmneziaStyle.color.onyxBlack
-            border.color: AmneziaStyle.color.charcoalGray
+            color: DopamineStyle.color.onyxBlack
+            border.color: DopamineStyle.color.charcoalGray
             border.width: 1
         }
 
@@ -122,7 +122,7 @@ Rectangle {
                 height: 44
                 radius: 12
 
-                color: delegateMouseArea.containsMouse ? AmneziaStyle.color.lightGray : AmneziaStyle.color.transparent
+                color: delegateMouseArea.containsMouse ? DopamineStyle.color.lightGray : DopamineStyle.color.transparent
 
                 ButtonTextType {
                     anchors.left: parent.left
@@ -135,7 +135,7 @@ Rectangle {
                     elide: Text.ElideRight
 
                     text: name
-                    color: value === root.currentValue ? AmneziaStyle.color.goldenApricot : AmneziaStyle.color.paleGray
+                    color: value === root.currentValue ? DopamineStyle.color.goldenApricot : DopamineStyle.color.paleGray
                 }
 
                 MouseArea {

@@ -80,10 +80,10 @@ PageType {
                 }
 
                 descriptionOnTop: true
-                textColor: AmneziaStyle.color.goldenApricot
+                textColor: DopamineStyle.color.goldenApricot
 
                 rightImageSource: "qrc:/images/controls/copy.svg"
-                rightImageColor: AmneziaStyle.color.paleGray
+                rightImageColor: DopamineStyle.color.paleGray
 
                 clickedFunction: function() {
                     GC.copyToClipBoard(descriptionText)

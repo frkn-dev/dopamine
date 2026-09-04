@@ -47,7 +47,7 @@ PageType {
             visible: ServersModel.hasServersFromGatewayApi
 
             image: "qrc:/images/controls/refresh-cw.svg"
-            imageColor: AmneziaStyle.color.paleGray
+            imageColor: DopamineStyle.color.paleGray
 
             implicitWidth: 48
             implicitHeight: 48
@@ -65,7 +65,7 @@ PageType {
             Layout.rightMargin: 12
 
             image: "qrc:/images/controls/plus.svg"
-            imageColor: AmneziaStyle.color.paleGray
+            imageColor: DopamineStyle.color.paleGray
 
             implicitWidth: 48
             implicitHeight: 48

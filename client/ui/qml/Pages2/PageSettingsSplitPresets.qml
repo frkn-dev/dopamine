@@ -53,7 +53,7 @@ PageType {
             Layout.rightMargin: 16
 
             visible: ConnectionController.isConnected
-            color: AmneziaStyle.color.mutedGray
+            color: DopamineStyle.color.mutedGray
             text: qsTr("VPN is connected — changes will apply on the next connection")
         }
 
@@ -63,7 +63,7 @@ PageType {
             Layout.leftMargin: 16
             Layout.rightMargin: 16
 
-            color: AmneziaStyle.color.mutedGray
+            color: DopamineStyle.color.mutedGray
             text: SitesModel.routeMode === 2
                   ? qsTr("Current direction: everything goes through VPN, selected services bypass it")
                   : qsTr("Current direction: only selected sites and services go through VPN")
@@ -112,7 +112,7 @@ PageType {
         visible: SplitPresetsModel.count === 0
 
         horizontalAlignment: Text.AlignHCenter
-        color: AmneziaStyle.color.mutedGray
+        color: DopamineStyle.color.mutedGray
         text: qsTr("No services available yet. They will appear after the subscription sync.")
     }
 }

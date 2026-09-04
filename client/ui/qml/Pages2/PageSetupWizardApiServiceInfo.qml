@@ -245,7 +245,7 @@ PageType {
 
                 horizontalAlignment: Text.AlignHCenter
                 textFormat: Text.PlainText
-                color: AmneziaStyle.color.mutedGray
+                color: DopamineStyle.color.mutedGray
                 font.pixelSize: 12
 
                 text: qsTr("Charged to your Apple ID at confirmation. Renews automatically unless auto-renew is turned off at least 24 hours before period end. Manage in Apple ID settings.")
@@ -287,7 +287,7 @@ PageType {
 
                 horizontalAlignment: Text.AlignHCenter
                 textFormat: Text.RichText
-                color: AmneziaStyle.color.mutedGray
+                color: DopamineStyle.color.mutedGray
                 font.pixelSize: 12
 
                 text: {

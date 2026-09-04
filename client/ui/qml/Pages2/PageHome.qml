@@ -35,7 +35,7 @@ PageType {
         implicitHeight: 48
 
         image: "qrc:/images/controls/settings.svg"
-        imageColor: AmneziaStyle.color.paleGray
+        imageColor: DopamineStyle.color.paleGray
 
         onClicked: PageController.goToPage(PageEnum.PageSettings)
     }
@@ -74,11 +74,11 @@ PageType {
 
                 implicitHeight: 36
 
-                defaultColor: AmneziaStyle.color.transparent
-                hoveredColor: AmneziaStyle.color.translucentWhite
-                pressedColor: AmneziaStyle.color.sheerWhite
-                disabledColor: AmneziaStyle.color.mutedGray
-                textColor: AmneziaStyle.color.mutedGray
+                defaultColor: DopamineStyle.color.transparent
+                hoveredColor: DopamineStyle.color.translucentWhite
+                pressedColor: DopamineStyle.color.sheerWhite
+                disabledColor: DopamineStyle.color.mutedGray
+                textColor: DopamineStyle.color.mutedGray
                 borderWidth: 0
 
                 visible: isLoggingEnabled ? true : false
@@ -102,11 +102,11 @@ PageType {
 
                 implicitHeight: 36
 
-                defaultColor: AmneziaStyle.color.transparent
-                hoveredColor: AmneziaStyle.color.translucentWhite
-                pressedColor: AmneziaStyle.color.sheerWhite
-                disabledColor: AmneziaStyle.color.mutedGray
-                textColor: AmneziaStyle.color.mutedGray
+                defaultColor: DopamineStyle.color.transparent
+                hoveredColor: DopamineStyle.color.translucentWhite
+                pressedColor: DopamineStyle.color.sheerWhite
+                disabledColor: DopamineStyle.color.mutedGray
+                textColor: DopamineStyle.color.mutedGray
                 borderWidth: 0
 
                 visible: SettingsController.isDevModeEnabled && isDevGatewayEnabled
@@ -140,8 +140,8 @@ PageType {
                 implicitHeight: 88
                 radius: 20
 
-                color: serverCardMouse.containsPress ? AmneziaStyle.color.sheerWhite
-                                                     : AmneziaStyle.color.translucentWhite
+                color: serverCardMouse.containsPress ? DopamineStyle.color.sheerWhite
+                                                     : DopamineStyle.color.translucentWhite
 
                 RowLayout {
                     anchors.fill: parent
@@ -170,7 +170,7 @@ PageType {
                             Layout.fillWidth: true
 
                             visible: text !== ""
-                            color: AmneziaStyle.color.mutedGray
+                            color: DopamineStyle.color.mutedGray
                             font.pixelSize: 14
                             maximumLineCount: 1
                             elide: Text.ElideRight
@@ -204,7 +204,7 @@ PageType {
                     implicitHeight: 56
 
                     image: "qrc:/images/controls/info.svg"
-                    imageColor: AmneziaStyle.color.mutedGray
+                    imageColor: DopamineStyle.color.mutedGray
 
                     onClicked: {
                         ServersModel.processedIndex = ServersModel.defaultIndex
@@ -239,11 +239,11 @@ PageType {
 
                 implicitHeight: 36
 
-                defaultColor: AmneziaStyle.color.transparent
-                hoveredColor: AmneziaStyle.color.translucentWhite
-                pressedColor: AmneziaStyle.color.sheerWhite
-                disabledColor: AmneziaStyle.color.mutedGray
-                textColor: AmneziaStyle.color.mutedGray
+                defaultColor: DopamineStyle.color.transparent
+                hoveredColor: DopamineStyle.color.translucentWhite
+                pressedColor: DopamineStyle.color.sheerWhite
+                disabledColor: DopamineStyle.color.mutedGray
+                textColor: DopamineStyle.color.mutedGray
                 borderWidth: 0
 
                 buttonTextLabel.lineHeight: 20

@@ -11,7 +11,7 @@ QString errorString(ErrorCode code) {
     case(ErrorCode::NoError): errorMessage = QObject::tr("No error"); break;
     case(ErrorCode::UnknownError): errorMessage = QObject::tr("Unknown error"); break;
     case(ErrorCode::NotImplementedError): errorMessage = QObject::tr("Function not implemented"); break;
-    case(ErrorCode::AmneziaServiceNotRunning): errorMessage = QObject::tr("Background service is not running"); break;
+    case(ErrorCode::DopamineServiceNotRunning): errorMessage = QObject::tr("Background service is not running"); break;
     case(ErrorCode::NotSupportedOnThisPlatform): errorMessage = QObject::tr("The selected protocol is not supported on the current platform"); break;
 
     // Server errors
@@ -50,7 +50,7 @@ QString errorString(ErrorCode code) {
     case (ErrorCode::OpenVpnExecutableMissing): errorMessage = QObject::tr("OpenVPN executable missing"); break;
     case (ErrorCode::ShadowSocksExecutableMissing): errorMessage = QObject::tr("Shadowsocks (ss-local) executable missing"); break;
     case (ErrorCode::CloakExecutableMissing): errorMessage = QObject::tr("Cloak (ck-client) executable missing"); break;
-    case (ErrorCode::AmneziaServiceConnectionFailed): errorMessage = QObject::tr("Dopamine helper service error"); break;
+    case (ErrorCode::DopamineServiceConnectionFailed): errorMessage = QObject::tr("Dopamine helper service error"); break;
     case (ErrorCode::OpenSslFailed): errorMessage = QObject::tr("OpenSSL failed"); break;
 
     // VPN errors

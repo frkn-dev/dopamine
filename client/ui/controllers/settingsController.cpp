@@ -6,7 +6,7 @@
 #include "logger.h"
 #include "systemController.h"
 #include "ui/qautostart.h"
-#include "amnezia_application.h"
+#include "dopamine_application.h"
 #include "version.h"
 #ifdef Q_OS_ANDROID
     #include "platforms/android/android_controller.h"

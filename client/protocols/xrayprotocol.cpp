@@ -61,7 +61,7 @@ ErrorCode XrayProtocol::start()
         }
         return startTun2Socks();
     }, [] () {
-        return ErrorCode::AmneziaServiceConnectionFailed;
+        return ErrorCode::DopamineServiceConnectionFailed;
     });
 }
 
@@ -118,7 +118,7 @@ ErrorCode XrayProtocol::startTun2Socks()
 {
     m_tun2socksProcess = IpcClient::CreatePrivilegedProcess();
     if (!m_tun2socksProcess->waitForSource()) {
-        return ErrorCode::AmneziaServiceConnectionFailed;
+        return ErrorCode::DopamineServiceConnectionFailed;
     }
 
     m_tun2socksProcess->setProgram(PermittedProcess::Tun2Socks);
@@ -241,6 +241,6 @@ ErrorCode XrayProtocol::setupRouting() {
         return ErrorCode::NoError;
     },
     [] () {
-        return ErrorCode::AmneziaServiceConnectionFailed;
+        return ErrorCode::DopamineServiceConnectionFailed;
     });
 }

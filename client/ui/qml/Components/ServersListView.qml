@@ -202,7 +202,7 @@ ListViewType {
                     implicitHeight: 48
 
                     image: "qrc:/images/controls/gauge.svg"
-                    imageColor: AmneziaStyle.color.paleGray
+                    imageColor: DopamineStyle.color.paleGray
 
                     // probing with the VPN on measures the tunnel, not the servers —
                     // keep the button visible but disabled so it doesn't "disappear"
@@ -401,7 +401,7 @@ ListViewType {
                         text: healthLatency >= 0 ? healthLatency + " ms" : qsTr("offline")
                         color: healthLatency >= 0
                                ? (healthLatency < 120 ? "#34C759" : (healthLatency < 300 ? "#FF9F0A" : "#FF453A"))
-                               : AmneziaStyle.color.vibrantRed
+                               : DopamineStyle.color.vibrantRed
                     }
                 }
 
@@ -410,7 +410,7 @@ ListViewType {
                     objectName: "serverInfoButton"
 
                     image: "qrc:/images/controls/settings.svg"
-                    imageColor: AmneziaStyle.color.paleGray
+                    imageColor: DopamineStyle.color.paleGray
 
                     implicitWidth: 56
                     implicitHeight: 56

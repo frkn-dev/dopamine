@@ -20,7 +20,7 @@ PageType {
     id: root
 
     enum ConfigType {
-        AmneziaConnection,
+        DopamineConnection,
         OpenVpn,
         WireGuard,
         Awg,
@@ -45,7 +45,7 @@ PageType {
             var configFileName
 
             switch (type) {
-            case PageShare.ConfigType.AmneziaConnection: {
+            case PageShare.ConfigType.DopamineConnection: {
                 ExportController.generateConnectionConfig(clientNameTextField.textField.text);
                 configCaption = qsTr("Save Dopamine config")
                 configExtension = ".vpn"
@@ -118,7 +118,7 @@ PageType {
     QtObject {
         id: amneziaConnectionFormat
         readonly property string name: qsTr("For the Dopamine app")
-        readonly property int type: PageShare.ConfigType.AmneziaConnection
+        readonly property int type: PageShare.ConfigType.DopamineConnection
     }
     QtObject {
         id: openVpnConnectionFormat
@@ -239,7 +239,7 @@ PageType {
                 implicitWidth: accessTypeSelectorContent.implicitWidth
                 implicitHeight: accessTypeSelectorContent.implicitHeight
 
-                color: AmneziaStyle.color.onyxBlack
+                color: DopamineStyle.color.onyxBlack
                 radius: 16
 
                 RowLayout {
@@ -291,7 +291,7 @@ PageType {
                 visible: accessTypeSelector.currentIndex === 0
 
                 text: qsTr("Share VPN access without the ability to manage the server")
-                color: AmneziaStyle.color.mutedGray
+                color: DopamineStyle.color.mutedGray
             }
 
             TextFieldWithHeaderType {
@@ -606,7 +606,7 @@ PageType {
                 ImageButtonType {
                     id: closeSearchButton
                     image: "qrc:/images/controls/close.svg"
-                    imageColor: AmneziaStyle.color.paleGray
+                    imageColor: DopamineStyle.color.paleGray
 
                     function clickedFunc() {
                         searchTextField.textField.text = ""
@@ -706,7 +706,7 @@ PageType {
                                 }
 
                                 ParagraphTextType {
-                                    color: AmneziaStyle.color.mutedGray
+                                    color: DopamineStyle.color.mutedGray
                                     visible: creationDate
                                     Layout.maximumWidth: parent.width
 
@@ -718,7 +718,7 @@ PageType {
                                 }
 
                                 ParagraphTextType {
-                                    color: AmneziaStyle.color.mutedGray
+                                    color: DopamineStyle.color.mutedGray
                                     visible: latestHandshake
                                     Layout.maximumWidth: parent.width
 
@@ -730,7 +730,7 @@ PageType {
                                 }
 
                                 ParagraphTextType {
-                                    color: AmneziaStyle.color.mutedGray
+                                    color: DopamineStyle.color.mutedGray
                                     visible: dataReceived
                                     Layout.maximumWidth: parent.width
 
@@ -742,7 +742,7 @@ PageType {
                                 }
 
                                 ParagraphTextType {
-                                    color: AmneziaStyle.color.mutedGray
+                                    color: DopamineStyle.color.mutedGray
                                     visible: dataSent
                                     Layout.maximumWidth: parent.width
 
@@ -754,7 +754,7 @@ PageType {
                                 }
 
                                 ParagraphTextType {
-                                    color: AmneziaStyle.color.mutedGray
+                                    color: DopamineStyle.color.mutedGray
                                     visible: allowedIps
                                     Layout.maximumWidth: parent.width
 
@@ -768,11 +768,11 @@ PageType {
                                     Layout.fillWidth: true
                                     Layout.topMargin: 24
 
-                                    defaultColor: AmneziaStyle.color.transparent
-                                    hoveredColor: AmneziaStyle.color.translucentWhite
-                                    pressedColor: AmneziaStyle.color.sheerWhite
-                                    disabledColor: AmneziaStyle.color.mutedGray
-                                    textColor: AmneziaStyle.color.paleGray
+                                    defaultColor: DopamineStyle.color.transparent
+                                    hoveredColor: DopamineStyle.color.translucentWhite
+                                    pressedColor: DopamineStyle.color.sheerWhite
+                                    disabledColor: DopamineStyle.color.mutedGray
+                                    textColor: DopamineStyle.color.paleGray
                                     borderWidth: 1
 
                                     text: qsTr("Rename")
@@ -840,11 +840,11 @@ PageType {
                                     Layout.fillWidth: true
                                     Layout.topMargin: 8
 
-                                    defaultColor: AmneziaStyle.color.transparent
-                                    hoveredColor: AmneziaStyle.color.translucentWhite
-                                    pressedColor: AmneziaStyle.color.sheerWhite
-                                    disabledColor: AmneziaStyle.color.mutedGray
-                                    textColor: AmneziaStyle.color.paleGray
+                                    defaultColor: DopamineStyle.color.transparent
+                                    hoveredColor: DopamineStyle.color.translucentWhite
+                                    pressedColor: DopamineStyle.color.sheerWhite
+                                    disabledColor: DopamineStyle.color.mutedGray
+                                    textColor: DopamineStyle.color.paleGray
                                     borderWidth: 1
 
                                     text: qsTr("Revoke")

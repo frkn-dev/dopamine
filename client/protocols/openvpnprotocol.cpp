@@ -85,7 +85,7 @@ ErrorCode OpenVpnProtocol::prepare()
 
         return ErrorCode::NoError;
     }, [] () {
-        return ErrorCode::AmneziaServiceConnectionFailed;
+        return ErrorCode::DopamineServiceConnectionFailed;
     });
 }
 
@@ -184,7 +184,7 @@ ErrorCode OpenVpnProtocol::start()
         QString ip = NetworkUtilities::getIPAddress(m_configData.value(amnezia::config_key::hostName).toString());
         QRemoteObjectPendingReply<bool> reply = iface->addKillSwitchAllowedRange(QStringList(ip));
         if (!reply.waitForFinished(1000) || !reply.returnValue()) {
-            return ErrorCode::AmneziaServiceConnectionFailed;
+            return ErrorCode::DopamineServiceConnectionFailed;
         }
         return ErrorCode::NoError;
     });
@@ -228,8 +228,8 @@ ErrorCode OpenVpnProtocol::start()
     m_openVpnProcess = IpcClient::CreatePrivilegedProcess();
 
     if (!m_openVpnProcess) {
-        setLastError(ErrorCode::AmneziaServiceConnectionFailed);
-        return ErrorCode::AmneziaServiceConnectionFailed;
+        setLastError(ErrorCode::DopamineServiceConnectionFailed);
+        return ErrorCode::DopamineServiceConnectionFailed;
     }
 
     m_openVpnProcess->setProgram(PermittedProcess::OpenVPN);

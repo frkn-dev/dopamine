@@ -165,7 +165,7 @@ PageType {
                 Layout.leftMargin: 16
                 Layout.rightMargin: 16
 
-                color: AmneziaStyle.color.mutedGray
+                color: DopamineStyle.color.mutedGray
 
                 text: description
             }

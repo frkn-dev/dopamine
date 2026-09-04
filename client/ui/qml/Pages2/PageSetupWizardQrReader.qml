@@ -132,7 +132,7 @@ PageType {
         anchors.rightMargin: 16
         anchors.bottomMargin: 34
 
-        color: AmneziaStyle.color.transparent
+        color: DopamineStyle.color.transparent
         //radius: 16
 
         QRCodeReader {

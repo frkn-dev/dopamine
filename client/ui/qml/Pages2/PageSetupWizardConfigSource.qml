@@ -161,7 +161,7 @@ PageType {
                             descriptionOnTop: true
 
                             rightImageSource: "qrc:/images/controls/copy.svg"
-                            rightImageColor: AmneziaStyle.color.paleGray
+                            rightImageColor: DopamineStyle.color.paleGray
 
                             visible: SettingsController.getInstallationUuid() !== ""
                             clickedFunction: function() {
@@ -246,7 +246,7 @@ PageType {
                 Layout.leftMargin: 16
                 Layout.bottomMargin: 24
 
-                color: AmneziaStyle.color.charcoalGray
+                color: DopamineStyle.color.charcoalGray
                 text: qsTr("Other connection options")
             }
         }
@@ -291,11 +291,11 @@ PageType {
 
                 visible: Qt.platform.os !== "ios" && !IsMacOsNeBuild
 
-                defaultColor: AmneziaStyle.color.transparent
-                hoveredColor: AmneziaStyle.color.translucentWhite
-                pressedColor: AmneziaStyle.color.sheerWhite
-                disabledColor: AmneziaStyle.color.mutedGray
-                textColor: AmneziaStyle.color.goldenApricot
+                defaultColor: DopamineStyle.color.transparent
+                hoveredColor: DopamineStyle.color.translucentWhite
+                pressedColor: DopamineStyle.color.sheerWhite
+                disabledColor: DopamineStyle.color.mutedGray
+                textColor: DopamineStyle.color.goldenApricot
 
                 text: qsTr("FRKN website")
 
@@ -482,10 +482,10 @@ PageType {
                 Layout.leftMargin: 16
                 Layout.bottomMargin: 16
 
-                defaultColor: AmneziaStyle.color.transparent
-                hoveredColor: AmneziaStyle.color.translucentWhite
-                pressedColor: AmneziaStyle.color.sheerWhite
-                textColor: AmneziaStyle.color.paleGray
+                defaultColor: DopamineStyle.color.transparent
+                hoveredColor: DopamineStyle.color.translucentWhite
+                pressedColor: DopamineStyle.color.sheerWhite
+                textColor: DopamineStyle.color.paleGray
 
                 text: qsTr("Cancel")
 

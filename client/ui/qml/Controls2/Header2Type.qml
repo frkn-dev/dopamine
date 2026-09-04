@@ -39,7 +39,7 @@ Item {
                 implicitHeight: 40
 
                 image: root.actionButtonImage
-                imageColor: AmneziaStyle.color.paleGray
+                imageColor: DopamineStyle.color.paleGray
 
                 visible: image ? true : false
 
@@ -59,7 +59,7 @@ Item {
 
             text: root.descriptionText
 
-            color: AmneziaStyle.color.mutedGray
+            color: DopamineStyle.color.mutedGray
 
             visible: root.descriptionText !== ""
         }

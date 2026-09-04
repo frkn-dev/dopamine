@@ -12,7 +12,7 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 
-#include "amnezia_application.h"
+#include "dopamine_application.h"
 #include "core/api/apiDefs.h"
 #include "core/api/apiUtils.h"
 #include "core/errorstrings.h"

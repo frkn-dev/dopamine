@@ -11,26 +11,26 @@ CheckBox {
     id: root
 
     property string descriptionText
-    property string descriptionTextColor: AmneziaStyle.color.mutedGray
-    property string descriptionTextDisabledColor: AmneziaStyle.color.charcoalGray
+    property string descriptionTextColor: DopamineStyle.color.mutedGray
+    property string descriptionTextDisabledColor: DopamineStyle.color.charcoalGray
 
-    property string textColor: AmneziaStyle.color.paleGray
-    property string textDisabledColor: AmneziaStyle.color.mutedGray
+    property string textColor: DopamineStyle.color.paleGray
+    property string textDisabledColor: DopamineStyle.color.mutedGray
 
-    property string hoveredColor: AmneziaStyle.color.barelyTranslucentWhite
-    property string defaultColor: AmneziaStyle.color.transparent
-    property string pressedColor: AmneziaStyle.color.barelyTranslucentWhite
+    property string hoveredColor: DopamineStyle.color.barelyTranslucentWhite
+    property string defaultColor: DopamineStyle.color.transparent
+    property string pressedColor: DopamineStyle.color.barelyTranslucentWhite
 
-    property string defaultBorderColor: AmneziaStyle.color.paleGray
-    property string checkedBorderColor: AmneziaStyle.color.goldenApricot
-    property string checkedBorderDisabledColor: AmneziaStyle.color.deepBrown
+    property string defaultBorderColor: DopamineStyle.color.paleGray
+    property string checkedBorderColor: DopamineStyle.color.goldenApricot
+    property string checkedBorderDisabledColor: DopamineStyle.color.deepBrown
 
-    property string borderFocusedColor: AmneziaStyle.color.paleGray
+    property string borderFocusedColor: DopamineStyle.color.paleGray
 
-    property string checkedImageColor: AmneziaStyle.color.goldenApricot
-    property string pressedImageColor: AmneziaStyle.color.burntOrange
-    property string defaultImageColor: AmneziaStyle.color.transparent
-    property string checkedDisabledImageColor: AmneziaStyle.color.mutedBrown
+    property string checkedImageColor: DopamineStyle.color.goldenApricot
+    property string pressedImageColor: DopamineStyle.color.burntOrange
+    property string defaultImageColor: DopamineStyle.color.transparent
+    property string checkedDisabledImageColor: DopamineStyle.color.mutedBrown
 
     property string imageSource: "qrc:/images/controls/check.svg"
 
@@ -64,8 +64,8 @@ CheckBox {
     focusPolicy: Qt.NoFocus
 
     background: Rectangle {
-        color: AmneziaStyle.color.transparent
-        border.color: root.focus ? borderFocusedColor : AmneziaStyle.color.transparent
+        color: DopamineStyle.color.transparent
+        border.color: root.focus ? borderFocusedColor : DopamineStyle.color.transparent
         border.width: 1
         radius: 16
     }
@@ -96,7 +96,7 @@ CheckBox {
             anchors.centerIn: parent
             width: 24
             height: 24
-            color: AmneziaStyle.color.transparent
+            color: DopamineStyle.color.transparent
             border.color: root.checked ?
                               (root.enabled ?
                                    checkedBorderColor :
