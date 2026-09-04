@@ -562,7 +562,7 @@ Already installed containers were found on the server. All installed containers 
         <translation>Dev-шлюз увімкнено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="257"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="267"/>
         <source>Split tunneling</source>
         <translation>Роздільне тунелювання</translation>
     </message>
@@ -1531,8 +1531,8 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettings.qml" line="110"/>
-        <source>Servers</source>
-        <translation>Сервери</translation>
+        <source>Connections</source>
+        <translation>Підключення</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettings.qml" line="121"/>
@@ -2589,27 +2589,25 @@ Already installed containers were found on the server. All installed containers 
         <translation>Якщо DopamineDNS встановлено на сервері</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="87"/>
         <source>DNS servers</source>
-        <translation>DNS сервер</translation>
+        <translation type="vanished">DNS сервер</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="88"/>
         <source>When DopamineDNS is not used or installed</source>
-        <translation>Дозволяє використовувати бажані адреси DNS серверів</translation>
+        <translation type="vanished">Дозволяє використовувати бажані адреси DNS серверів</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="110"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="96"/>
         <source>Allows you to use the VPN only for certain Apps</source>
         <translation>Дозволяє використовувати VPN тільки для вибраних застосунків</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="128"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="114"/>
         <source>KillSwitch</source>
         <translation>KillSwitch</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="129"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="115"/>
         <source>Blocks network connections without VPN</source>
         <translation>Блокує мережеві з&apos;єднання без VPN</translation>
     </message>
@@ -2630,7 +2628,7 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Дозволяє доступ до одних сайтів через VPN, а для інших в обхід VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="109"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="95"/>
         <source>App-based split tunneling</source>
         <translation>Роздільне VPN-тунелювання застосунків</translation>
     </message>
@@ -3194,8 +3192,8 @@ Already installed containers were found on the server. All installed containers 
     <name>PageSettingsServersList</name>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServersList.qml" line="39"/>
-        <source>Servers</source>
-        <translation>Сервери</translation>
+        <source>Connections</source>
+        <translation>Підключення</translation>
     </message>
 </context>
 <context>
@@ -3528,12 +3526,12 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageSetupWizardConfigSource</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="356"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="368"/>
         <source>File with connection settings</source>
         <translation>Файл з налаштуваннями підключення</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="77"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="88"/>
         <source>Connection</source>
         <translation>Підключення</translation>
     </message>
@@ -3543,82 +3541,82 @@ Already installed containers were found on the server. All installed containers 
         <translation>Усі конфігурації вже додано</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="104"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="115"/>
         <source>Settings</source>
         <translation>Налаштування</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="114"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="125"/>
         <source>Enable logs</source>
         <translation>Увімкнути логи</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="128"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="139"/>
         <source>Export client logs</source>
         <translation>Експортувати логи клієнта</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="138"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="149"/>
         <source>Save</source>
         <translation>Зберегти</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="139"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="150"/>
         <source>Logs files (*.log)</source>
         <translation>Logs files (*.log)</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="148"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="159"/>
         <source>Logs file saved</source>
         <translation>Файл з логами збережено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="158"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="169"/>
         <source>Support tag</source>
         <translation>Тег підтримки</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="169"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="180"/>
         <source>Copied</source>
         <translation>Скопійовано</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="188"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="200"/>
         <source>Insert the key, add a configuration file or scan the QR-code</source>
         <translation>Вставте ключ, додайте файл конфігурації або відскануйте QR-код</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="198"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="210"/>
         <source>Insert key</source>
         <translation>Вставити ключ</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="199"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="211"/>
         <source>Insert</source>
         <translation>Вставити</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="217"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="229"/>
         <source>Continue</source>
         <translation>Продовжити</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="250"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="262"/>
         <source>Other connection options</source>
         <translation>Інші варіанти підключення</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="300"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="312"/>
         <source>FRKN website</source>
         <translation>Сайт FRKN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="321"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="333"/>
         <source>VPN by FRKN</source>
         <translation>VPN от FRKN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="322"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="334"/>
         <source>Connect to classic paid and free VPN services from FRKN</source>
         <translation>Підключіться до класичних платних і безкоштовних VPN-сервісів від FRKN</translation>
     </message>
@@ -3631,56 +3629,56 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Налаштуйте Dopamine VPN на власному сервері</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="338"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="350"/>
         <source>Restore from backup</source>
         <translation>Відновити із бекапа</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="339"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="357"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="376"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="391"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="405"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="351"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="369"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="388"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="403"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="417"/>
         <source></source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="343"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="355"/>
         <source>Open backup file</source>
         <translation>Відкрити бекап файл</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="344"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="356"/>
         <source>Backup files (*.backup)</source>
         <translation>Файли резервної копії (*.backup)</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="363"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="375"/>
         <source>Open config file</source>
         <translation>Відкрити файл з конфігурацією</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="375"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="387"/>
         <source>QR code</source>
         <translation>QR-код</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="390"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="402"/>
         <source>Restore purchases</source>
         <translation>Відновити покупки</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="404"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="416"/>
         <source>I have nothing</source>
         <translation>У мене нічого нема</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="440"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="452"/>
         <source>Subscription loaded</source>
         <translation>Підписку завантажено</translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="449"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="461"/>
         <source>Found %n configuration(s). Add them all?</source>
         <translation>
             <numerusform>Знайдено %n конфігурацію. Додати її?</numerusform>
@@ -3689,12 +3687,12 @@ Already installed containers were found on the server. All installed containers 
         </translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="459"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="471"/>
         <source>Delete previous configurations</source>
         <translation>Видалити попередні конфігурації</translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="470"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="482"/>
         <source>Add %n server(s)</source>
         <translation>
             <numerusform>Додати %n сервер</numerusform>
@@ -3703,7 +3701,7 @@ Already installed containers were found on the server. All installed containers 
         </translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="490"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="502"/>
         <source>Cancel</source>
         <translation>Відмінити</translation>
     </message>
@@ -4056,13 +4054,13 @@ Already installed containers were found on the server. All installed containers 
         <translation>WireGuard нативний формат</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="255"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="265"/>
         <source>Connection</source>
         <translation>З&apos;єднання</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="323"/>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="324"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="333"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="334"/>
         <source>Server</source>
         <translation>Сервер</translation>
     </message>
@@ -4142,58 +4140,58 @@ Already installed containers were found on the server. All installed containers 
         <translation>Рідний формат XRay</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="178"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="187"/>
         <source>Share VPN Access</source>
         <translation>Поділитись VPN з&apos;єднанням</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="212"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="221"/>
         <source>Share full access to the server and VPN</source>
         <translation>Поділитись повним доступом до серверу</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="213"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="222"/>
         <source>Use for your own devices, or share with those you trust to manage the server.</source>
         <translation>Використовуйте для власних пристроїв або передайте керування сервером тим, кому довіряєте.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="270"/>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="572"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="280"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="582"/>
         <source>Users</source>
         <translation>Користувачі</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="304"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="314"/>
         <source>User name</source>
         <translation>Ім&apos;я користувача</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="588"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="598"/>
         <source>Search</source>
         <translation>Пошук</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="717"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="727"/>
         <source>Creation date: %1</source>
         <translation>Дата створення: %1</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="729"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="739"/>
         <source>Latest handshake: %1</source>
         <translation>Останнє рукостискання: %1</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="741"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="751"/>
         <source>Data received: %1</source>
         <translation>Отримано даних: %1</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="753"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="763"/>
         <source>Data sent: %1</source>
         <translation>Надіслано даних: %1</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="763"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="773"/>
         <source>Allowed IPs: %1</source>
         <translation>Дозволені IP: %1</translation>
     </message>
@@ -4202,65 +4200,65 @@ Already installed containers were found on the server. All installed containers 
         <translation type="obsolete">Дата створення:</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="778"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="788"/>
         <source>Rename</source>
         <translation>Перейменувати</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="803"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="813"/>
         <source>Client name</source>
         <translation>Ім&apos;я клієнта</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="814"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="824"/>
         <source>Save</source>
         <translation>Зберегти</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="850"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="860"/>
         <source>Revoke</source>
         <translation>Відкликати</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="853"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="863"/>
         <source>Revoke the config for a user - %1?</source>
         <translation>Відкликати доступ для користувача - %1?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="854"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="864"/>
         <source>The user will no longer be able to connect to your server.</source>
         <translation>Користувач більше не зможе підключатись до вашого сервера</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="855"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="865"/>
         <source>Continue</source>
         <translation>Продовжити</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="856"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="866"/>
         <source>Cancel</source>
         <translation>Відмінити</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="293"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="303"/>
         <source>Share VPN access without the ability to manage the server</source>
         <translation>Поділитись доступом до VPN, без можливості керування сервером</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="386"/>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="387"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="396"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="397"/>
         <source>Protocol</source>
         <translation>Протокол</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="492"/>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="493"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="502"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="503"/>
         <source>Connection format</source>
         <translation>Формат підключення</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="220"/>
-        <location filename="../ui/qml/Pages2/PageShare.qml" line="554"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="229"/>
+        <location filename="../ui/qml/Pages2/PageShare.qml" line="564"/>
         <source>Share</source>
         <translation>Поділитись</translation>
     </message>
@@ -5553,17 +5551,17 @@ This means that AmneziaWG keeps the fast performance of the original while addin
         <translation>Зворотний</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="401"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="397"/>
         <source>offline</source>
         <translation>офлайн</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="223"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="219"/>
         <source>Auto-select</source>
         <translation>Автовибір</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="224"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="220"/>
         <source>Fastest available server</source>
         <translation>Найшвидший доступний сервер</translation>
     </message>
