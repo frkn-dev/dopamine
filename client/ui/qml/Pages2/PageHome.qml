@@ -137,7 +137,7 @@ PageType {
                 Layout.rightMargin: 16
                 Layout.bottomMargin: 8
 
-                implicitHeight: 88
+                implicitHeight: 96
                 radius: 20
 
                 color: serverCardMouse.containsPress ? DopamineStyle.color.sheerWhite
@@ -158,7 +158,7 @@ PageType {
                             maximumLineCount: 1
                             elide: Text.ElideRight
                             wrapMode: Text.NoWrap
-                            font.pixelSize: 22
+                            font.pixelSize: 24
                             font.weight: 600
 
                             text: SettingsController.autoServerSelection && !ConnectionController.isConnected
@@ -177,6 +177,16 @@ PageType {
                             wrapMode: Text.NoWrap
 
                             text: ServersModel.defaultServerProtocolName
+                        }
+
+                        CaptionTextType {
+                            Layout.fillWidth: true
+
+                            visible: ConnectionController.isConnected
+                            color: DopamineStyle.color.mutedGray
+                            font.pixelSize: 13
+
+                            text: "↓ " + ConnectionController.downloadSpeed + "   ↑ " + ConnectionController.uploadSpeed
                         }
                     }
 
@@ -234,7 +244,7 @@ PageType {
                 objectName: "splitTunnelingButton"
 
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
-                Layout.bottomMargin: 48
+                Layout.bottomMargin: 80
                 leftPadding: 16
                 rightPadding: 16
 
@@ -254,7 +264,7 @@ PageType {
                 property bool isSplitTunnelingEnabled: SitesModel.isTunnelingEnabled || AppSplitTunnelingModel.isTunnelingEnabled ||
                                                        ServersModel.isDefaultServerDefaultContainerHasSplitTunneling
 
-                text: isSplitTunnelingEnabled ? qsTr("Split tunneling enabled") : qsTr("Split tunneling disabled")
+                text: qsTr("Split tunneling")
 
                 leftImageSource: isSplitTunnelingEnabled ? "qrc:/images/controls/split-tunneling.svg" : ""
                 leftImageColor: ""

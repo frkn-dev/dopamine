@@ -170,10 +170,19 @@ PageType {
 
             spacing: 0
 
-            HeaderTypeWithButton {
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.topMargin: 20 + SettingsController.safeAreaTopMargin
+
+                spacing: 0
+
+                BackButtonType {
+                    id: backButton
+                }
+
+                HeaderTypeWithButton {
                 id: header
                 Layout.fillWidth: true
-                Layout.topMargin: 24 + SettingsController.safeAreaTopMargin
 
                 headerText: qsTr("Share VPN Access")
 
@@ -226,6 +235,7 @@ PageType {
                             }
                         }
                     }
+                }
                 }
             }
 

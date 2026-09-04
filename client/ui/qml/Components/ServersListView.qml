@@ -204,10 +204,6 @@ ListViewType {
                     image: "qrc:/images/controls/gauge.svg"
                     imageColor: DopamineStyle.color.paleGray
 
-                    // probing with the VPN on measures the tunnel, not the servers —
-                    // keep the button visible but disabled so it doesn't "disappear"
-                    enabled: !ConnectionController.isConnected
-
                     onClicked: HealthCheckController.startProbe(true)
                 }
             }

@@ -546,14 +546,9 @@ Already installed containers were found on the server. All installed containers 
         <translation>Dev gateway enabled</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="256"/>
-        <source>Split tunneling enabled</source>
-        <translation>Split tunneling enabled</translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="256"/>
-        <source>Split tunneling disabled</source>
-        <translation>Split tunneling disabled</translation>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="257"/>
+        <source>Split tunneling</source>
+        <translation>Split tunneling</translation>
     </message>
     <message>
         <source>VPN protocol</source>

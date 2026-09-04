@@ -64,13 +64,24 @@ PageType {
         header: ColumnLayout {
             width: listView.width
 
-            HeaderTypeWithButton {
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.topMargin: 20 + SettingsController.safeAreaTopMargin
+
+                spacing: 0
+
+                BackButtonType {
+                    id: backButton
+
+                    visible: !PageController.isStartPageVisible()
+                }
+
+                HeaderTypeWithButton {
                 id: moreButton
 
                 property bool isVisible: SettingsController.getInstallationUuid() !== "" || PageController.isStartPageVisible()
 
                 Layout.fillWidth: true
-                Layout.topMargin: 24 + SettingsController.safeAreaTopMargin
                 Layout.rightMargin: 16
                 Layout.leftMargin: 16
 
@@ -173,6 +184,7 @@ PageType {
                             }
                         }
                     }
+                }
                 }
             }
 

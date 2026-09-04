@@ -589,14 +589,9 @@ Already installed containers were found on the server. All installed containers 
         <translation>Dev-шлюз включён</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="256"/>
-        <source>Split tunneling enabled</source>
-        <translation>Раздельное туннелирование включено</translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="256"/>
-        <source>Split tunneling disabled</source>
-        <translation>Раздельное туннелирование выключено</translation>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="257"/>
+        <source>Split tunneling</source>
+        <translation>Раздельное туннелирование</translation>
     </message>
     <message>
         <source>VPN protocol</source>

@@ -79,20 +79,6 @@ PageType {
                 visible: false
             }
 
-            LabelWithButtonType {
-                id: dnsServersButton
-
-                Layout.fillWidth: true
-
-                text: qsTr("DNS servers")
-                descriptionText: qsTr("When DopamineDNS is not used or installed")
-                rightImageSource: "qrc:/images/controls/chevron-right.svg"
-
-                clickedFunction: function() {
-                    PageController.goToPage(PageEnum.PageSettingsDns)
-                }
-            }
-
         }
 
         footer: ColumnLayout { // TODO(CyAn84): move to delegate,add DelegateChooser when have migrated to 6.9
