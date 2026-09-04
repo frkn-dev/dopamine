@@ -16,6 +16,7 @@ WireguardProtocol::WireguardProtocol(const QJsonObject &configuration, QObject *
     connect(m_impl.get(), &ControllerImpl::connected, this,
             [this](const QString &pubkey, const QDateTime &connectionTimestamp) {
                 setConnectionState(Vpn::ConnectionState::Connected);
+                m_statsTimer.start();
             });
     connect(m_impl.get(), &ControllerImpl::statusUpdated, this,
             [this](const QString& serverIpv4Gateway,
@@ -35,10 +36,20 @@ WireguardProtocol::WireguardProtocol(const QJsonObject &configuration, QObject *
                     (!m_vpnLocalAddress.isEmpty() && m_vpnLocalAddress != previousLocal)) {
                     emit tunnelAddressesUpdated(m_vpnGateway, m_vpnLocalAddress);
                 }
+
+                emit bytesChanged(rxBytes, txBytes);
             });
 
     connect(m_impl.get(), &ControllerImpl::disconnected, this,
-            [this]() { setConnectionState(Vpn::ConnectionState::Disconnected); });
+            [this]() {
+                setConnectionState(Vpn::ConnectionState::Disconnected);
+                m_statsTimer.stop();
+            });
+
+    // desktop daemon reports cumulative rx/tx only on a status request —
+    // poll it once a second so the live speed meter works
+    m_statsTimer.setInterval(1000);
+    connect(&m_statsTimer, &QTimer::timeout, this, [this]() { m_impl->checkStatus(); });
     m_impl->initialize(nullptr, nullptr);
 }
 

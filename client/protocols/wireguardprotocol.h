@@ -26,6 +26,7 @@ public:
     ErrorCode stopMzImpl();
 
 private:
+    QTimer m_statsTimer;
 
     QScopedPointer<ControllerImpl> m_impl;
 };
