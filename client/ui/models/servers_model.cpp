@@ -312,7 +312,7 @@ const QString ServersModel::getDefaultServerProtocolName()
         if (display != protocol) {
             return display;
         }
-        static const QHash<QString, QString> names = { { QStringLiteral("awg"), QStringLiteral("AmneziaWG") },
+        static const QHash<QString, QString> names = { { QStringLiteral("awg"), QStringLiteral("AWG") },
                                                        { QStringLiteral("vless"), QStringLiteral("VLESS") },
                                                        { QStringLiteral("hysteria2"), QStringLiteral("Hysteria2") },
                                                        { QStringLiteral("wireguard"), QStringLiteral("WireGuard") } };
@@ -348,11 +348,11 @@ QString ServersModel::getServerDescription(const QJsonObject &server, const int 
         return server.value(config_key::description).toString();
     } else if (data(index, HasWriteAccessRole).toBool()) {
         if (m_isAmneziaDnsEnabled && isAmneziaDnsContainerInstalled(index)) {
-            description += "Amnezia DNS | ";
+            description += "Dopamine DNS | ";
         }
     } else {
         if (data(index, HasAmneziaDns).toBool()) {
-            description += "Amnezia DNS | ";
+            description += "Dopamine DNS | ";
         }
     }
     return description;
@@ -378,7 +378,7 @@ const QString ServersModel::getDefaultServerDescriptionCollapsed()
 
         auto isThirdPartyConfig = serverProtocolConfig.value(config_key::isThirdPartyConfig).toBool();
         if (container == DockerContainer::Awg && !isThirdPartyConfig) {
-            containerName = "AmneziaWG Legacy";
+            containerName = "AWG Legacy";
         }
     }
 
@@ -729,7 +729,7 @@ const QString ServersModel::getDefaultServerDefaultContainerName()
 
         auto isThirdPartyConfig = serverProtocolConfig.value(config_key::isThirdPartyConfig).toBool();
         if (defaultContainer == DockerContainer::Awg && !isThirdPartyConfig) {
-            containerName = "AmneziaWG Legacy";
+            containerName = "AWG Legacy";
         }
     }
 

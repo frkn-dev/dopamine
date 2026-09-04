@@ -25,13 +25,13 @@ QVariant ContainersModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case NameRole: {
         if (container == DockerContainer::Awg && !isThirdPartyConfig) {
-            return "AmneziaWG Legacy";
+            return "AWG Legacy";
         }
         return ContainerProps::containerHumanNames().value(container);
     }
     case DescriptionRole: {
         if (container == DockerContainer::Awg && !isThirdPartyConfig) {
-            return QObject::tr("AmneziaWG Legacy is a outdated version of AmneziaWG protocol. To upgrade, install AmneziaWG and recreate users.");
+            return QObject::tr("AWG Legacy is a outdated version of AWG protocol. To upgrade, install AWG and recreate users.");
         }
 
         return ContainerProps::containerDescriptions().value(container);

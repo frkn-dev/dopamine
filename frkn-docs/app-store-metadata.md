@@ -40,7 +40,7 @@ Connect in one tap — no registration required. Start with a free trial or ente
 
 WHY DOPAMINE
 
-• Modern anti-censorship protocols: AmneziaWG, WireGuard, OpenVPN with Cloak, XRay with REALITY — designed to work even where VPNs are blocked
+• Modern anti-censorship protocols: AWG, WireGuard, OpenVPN with Cloak, XRay with REALITY — designed to work even where VPNs are blocked
 • Free and premium servers around the world
 • Split tunneling — choose which apps and sites use the VPN
 • KillSwitch — your traffic never leaks if the connection drops
@@ -65,7 +65,7 @@ Dopamine — бесплатный VPN с открытым исходным ко�
 
 ПОЧЕМУ DOPAMINE
 
-• Современные протоколы против блокировок: AmneziaWG, WireGuard, OpenVPN с Cloak, XRay с REALITY — работают даже там, где VPN блокируют
+• Современные протоколы против блокировок: AWG, WireGuard, OpenVPN с Cloak, XRay с REALITY — работают даже там, где VPN блокируют
 • Бесплатные и премиум-серверы по всему миру
 • Раздельное туннелирование — выбирайте, какие приложения и сайты идут через VPN
 • KillSwitch — трафик не утечёт, даже если соединение оборвётся
@@ -88,9 +88,9 @@ Dopamine — бесплатный VPN с открытым исходным ко�
 
 **EN:**
 ```
-vpn,wireguard,openvpn,proxy,amnezia,privacy,secure,proxy server,free vpn,vpn client
+vpn,wireguard,openvpn,proxy,privacy,secure,proxy server,free vpn,vpn client
 ```
-(99 chars)
+(75 chars)
 
 **RU:**
 ```

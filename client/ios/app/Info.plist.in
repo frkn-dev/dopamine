@@ -109,7 +109,7 @@
 			<key>UTTypeIconFiles</key>
 			<array/>
 			<key>UTTypeIdentifier</key>
-			<string>org.frkn.dopamine.amnezia-config</string>
+			<string>org.frkn.dopamine.awg-config</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
@@ -202,7 +202,7 @@
                         <string>Alternate</string>
                         <key>LSItemContentTypes</key>
                         <array>
-                                <string>org.frkn.dopamine.amnezia-config</string>
+                                <string>org.frkn.dopamine.awg-config</string>
                                 <string>org.frkn.dopamine.wireguard-config</string>
                                 <string>org.frkn.dopamine.openvpn-config</string>
                                 <string>org.frkn.dopamine.backup-config</string>

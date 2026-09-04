@@ -66,10 +66,10 @@ ListViewType {
             return "Hysteria2"
         }
         if (proto === "awg") {
-            return "AmneziaWG"
+            return "AWG"
         }
         if (proto === "awg-mobile" || proto === "amneziawgmobile") {
-            return "AmneziaWgMobile"
+            return "AWG Mobile"
         }
         if (proto === "wireguard") {
             return "WireGuard"

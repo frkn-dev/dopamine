@@ -621,8 +621,8 @@ Already installed containers were found on the server. All installed containers 
     <name>PageProtocolAwgClientSettings</name>
     <message>
         <location filename="../ui/qml/Pages2/PageProtocolAwgClientSettings.qml" line="55"/>
-        <source>AmneziaWG settings</source>
-        <translation>Настройки WG</translation>
+        <source>AWG settings</source>
+        <translation>Настройки AWG</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageProtocolAwgClientSettings.qml" line="79"/>
@@ -699,8 +699,8 @@ Already installed containers were found on the server. All installed containers 
     <name>PageProtocolAwgSettings</name>
     <message>
         <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="67"/>
-        <source>AmneziaWG settings</source>
-        <translation>Настройки WG</translation>
+        <source>AWG settings</source>
+        <translation>Настройки AWG</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="107"/>
@@ -1379,7 +1379,7 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageServiceDnsSettings.qml" line="78"/>
-        <source>Cannot remove AmneziaDNS from running server</source>
+        <source>Cannot remove DopamineDNS from running server</source>
         <translation>Невозможно удалить DNS с работающего сервера</translation>
     </message>
 </context>
@@ -1925,7 +1925,7 @@ Already installed containers were found on the server. All installed containers 
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiNativeConfigs.qml" line="61"/>
         <source>For router setup or the Dopamine app</source>
-        <translation>Для настройки роутера или приложения AmneziaWG</translation>
+        <translation>Для настройки роутера или приложения AWG</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiNativeConfigs.qml" line="73"/>
@@ -2297,10 +2297,6 @@ Already installed containers were found on the server. All installed containers 
         <source>To read the QR code in the Dopamine app, tap + in the main menu → &apos;QR code&apos;</source>
         <translation>Для считывания QR-кода в приложении Dopamine нажмите + в главном меню → «QR-код»</translation>
     </message>
-    <message>
-        <source>To read the QR code in the Amnezia app, tap + in the main menu → &apos;QR code&apos;</source>
-        <translation type="vanished">To read the QR code in the FRKN app, tap + in the main menu → &apos;QR code&apos;</translation>
-    </message>
 </context>
 <context>
     <name>PageSettingsApiSupport</name>
@@ -2659,12 +2655,12 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="67"/>
-        <source>Use AmneziaDNS</source>
+        <source>Use DopamineDNS</source>
         <translation>Использовать DNS</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="68"/>
-        <source>If AmneziaDNS is installed on the server</source>
+        <source>If DopamineDNS is installed on the server</source>
         <translation>Если DNS установлен на сервере</translation>
     </message>
     <message>
@@ -2674,7 +2670,7 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="88"/>
-        <source>When AmneziaDNS is not used or installed</source>
+        <source>When DopamineDNS is not used or installed</source>
         <translation>Позволяет использовать предпочитаемые адреса DNS серверов</translation>
     </message>
     <message>
@@ -2736,7 +2732,7 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsDns.qml" line="67"/>
-        <source>If AmneziaDNS is not used or installed</source>
+        <source>If DopamineDNS is not used or installed</source>
         <translation>Позволяет использовать предпочитаемые адреса DNS серверов</translation>
     </message>
     <message>
@@ -4181,8 +4177,8 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShare.qml" line="71"/>
-        <source>Save AmneziaWG config</source>
-        <translation>Сохранить конфигурацию WG</translation>
+        <source>Save AWG config</source>
+        <translation>Сохранить конфигурацию AWG</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShare.qml" line="78"/>
@@ -4206,8 +4202,8 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShare.qml" line="135"/>
-        <source>AmneziaWG native format</source>
-        <translation>Оригинальный формат AmneziaWG</translation>
+        <source>AWG native format</source>
+        <translation>Оригинальный формат AWG</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShare.qml" line="140"/>
@@ -4381,10 +4377,6 @@ Already installed containers were found on the server. All installed containers 
         <location filename="../ui/qml/Pages2/PageShareConnection.qml" line="323"/>
         <source>To read the QR code in the Dopamine app, select &quot;Add server&quot; → &quot;I have data to connect&quot; → &quot;QR code, key or settings file&quot;</source>
         <translation>Для считывания QR-кода в приложении Dopamine выберите «Добавить сервер» → «У меня есть данные для подключения» → «QR-код, ключ или файл настроек»</translation>
-    </message>
-    <message>
-        <source>To read the QR code in the Amnezia app, select &quot;Add server&quot; → &quot;I have data to connect&quot; → &quot;QR code, key or settings file&quot;</source>
-        <translation type="obsolete">Для считывания QR-кода в приложении FRKN выберите &quot;Добавить сервер&quot; → &quot;У меня есть данные для подключения&quot; → &quot;Открыть файл конфигурации, ключ или QR-код&quot;</translation>
     </message>
 </context>
 <context>
@@ -5157,7 +5149,7 @@ While it offers a blend of security, stability, and speed, it&apos;s essential t
     </message>
     <message>
         <location filename="../containers/containers_defs.cpp" line="111"/>
-        <source>AmneziaDNS</source>
+        <source>DopamineDNS</source>
         <translation>DNS</translation>
     </message>
     <message>
@@ -5183,8 +5175,8 @@ While it offers a blend of security, stability, and speed, it&apos;s essential t
     <message>
         <location filename="../containers/containers_defs.cpp" line="130"/>
         <location filename="../containers/containers_defs.cpp" line="133"/>
-        <source>AmneziaWG is a special protocol based on WireGuard. It provides high connection speed and ensures stable operation even in the most challenging network conditions.</source>
-        <translation>AmneziaWG — специальный протокол от FRKN на базе WireGuard. Обеспечивает высокую скорость подключения и стабильную работу даже в самых сложных сетевых условиях.</translation>
+        <source>AWG is a special protocol based on WireGuard. It provides high connection speed and ensures stable operation even in the most challenging network conditions.</source>
+        <translation>AWG — специальный протокол от FRKN на базе WireGuard. Обеспечивает высокую скорость подключения и стабильную работу даже в самых сложных сетевых условиях.</translation>
     </message>
     <message>
         <location filename="../containers/containers_defs.cpp" line="136"/>
@@ -5215,7 +5207,7 @@ Features:
     </message>
     <message>
         <location filename="../containers/containers_defs.cpp" line="166"/>
-        <source>Shadowsocks is based on the SOCKS5 protocol and encrypts connections using AEAD cipher. Although designed to be discreet, it doesn&apos;t mimic a standard HTTPS connection and can be detected by some DPI systems. Due to limited support in Dopamine, we recommend using the AmneziaWG protocol.
+        <source>Shadowsocks is based on the SOCKS5 protocol and encrypts connections using AEAD cipher. Although designed to be discreet, it doesn&apos;t mimic a standard HTTPS connection and can be detected by some DPI systems. Due to limited support in Dopamine, we recommend using the AWG protocol.
 
 Features:
 * Available in Dopamine only on desktop platforms
@@ -5223,7 +5215,7 @@ Features:
 * Detectable by some DPI systems
 * Operates over TCP protocol
 </source>
-        <translation>Shadowsocks основан на протоколе SOCKS5 и шифрует соединения с помощью шифра AEAD. Хотя он разработан, чтобы быть незаметным, он не имитирует стандартное HTTPS-соединение и может быть обнаружен некоторыми системами DPI. Из-за ограниченной поддержки в Dopamine мы рекомендуем использовать протокол AmneziaWG.
+        <translation>Shadowsocks основан на протоколе SOCKS5 и шифрует соединения с помощью шифра AEAD. Хотя он разработан, чтобы быть незаметным, он не имитирует стандартное HTTPS-соединение и может быть обнаружен некоторыми системами DPI. Из-за ограниченной поддержки в Dopamine мы рекомендуем использовать протокол AWG.
 
 Особенности:
 * Доступен в Dopamine только на десктопных платформах
@@ -5284,9 +5276,9 @@ Features:
     </message>
     <message>
         <location filename="../containers/containers_defs.cpp" line="198"/>
-        <source>AmneziaWG is a modern VPN protocol based on WireGuard, combining simplified architecture with high performance across all devices. It addresses WireGuard&apos;s main vulnerability (easy detection by DPI systems) through advanced obfuscation techniques, making VPN traffic indistinguishable from regular internet traffic.
+        <source>AWG is a modern VPN protocol based on WireGuard, combining simplified architecture with high performance across all devices. It addresses WireGuard&apos;s main vulnerability (easy detection by DPI systems) through advanced obfuscation techniques, making VPN traffic indistinguishable from regular internet traffic.
 
-AmneziaWG is an excellent choice for those seeking a fast, stealthy VPN connection.
+AWG is an excellent choice for those seeking a fast, stealthy VPN connection.
 
 Features:
 * Available on all Dopamine platforms
@@ -5294,9 +5286,9 @@ Features:
 * Minimal settings required
 * Undetectable by traffic analysis systems (DPI)
 * Operates over UDP protocol</source>
-        <translation>AmneziaWG — современный VPN-протокол на основе WireGuard, сочетающий упрощённую архитектуру с высокой производительностью на всех устройствах. Он устраняет главную уязвимость WireGuard (лёгкое обнаружение системами DPI) с помощью продвинутых методов обфускации, делая VPN-трафик неотличимым от обычного интернет-трафика.
+        <translation>AWG — современный VPN-протокол на основе WireGuard, сочетающий упрощённую архитектуру с высокой производительностью на всех устройствах. Он устраняет главную уязвимость WireGuard (лёгкое обнаружение системами DPI) с помощью продвинутых методов обфускации, делая VPN-трафик неотличимым от обычного интернет-трафика.
 
-AmneziaWG — отличный выбор для тех, кому нужно быстрое и незаметное VPN-соединение.
+AWG — отличный выбор для тех, кому нужно быстрое и незаметное VPN-соединение.
 
 Особенности:
 * Доступен на всех платформах Dopamine
@@ -5350,8 +5342,8 @@ Features:
         <translation type="vanished">WireGuard — новый популярный VPN-протокол с высокой производительностью, высокой скоростью и низким энергопотреблением. Рекомендуется для регионов с низким уровнем цензуры.</translation>
     </message>
     <message>
-        <source>AmneziaWG - Special protocol from Amnezia, based on WireGuard. It&apos;s fast like WireGuard, but very resistant to blockages. Recommended for regions with high levels of censorship.</source>
-        <translation type="vanished">AmneziaWG — специальный протокол от Amnezia, основанный на протоколе WireGuard. Он такой же быстрый, как WireGuard, но очень устойчив к блокировкам. Рекомендуется для регионов с высоким уровнем цензуры.</translation>
+        <source>AWG - Special protocol from Dopamine, based on WireGuard. It&apos;s fast like WireGuard, but very resistant to blockages. Recommended for regions with high levels of censorship.</source>
+        <translation type="vanished">AWG — специальный протокол от Dopamine, основанный на протоколе WireGuard. Он такой же быстрый, как WireGuard, но очень устойчив к блокировкам. Рекомендуется для регионов с высоким уровнем цензуры.</translation>
     </message>
     <message>
         <source>XRay with REALITY - Suitable for countries with the highest level of internet censorship. Traffic masking as web traffic at the TLS level, and protection against detection by active probing methods.</source>
@@ -5386,7 +5378,7 @@ It employs its unique security protocol, leveraging the strength of SSL/TLS for 
 * Может работать по сетевым протоколам TCP и UDP</translation>
     </message>
     <message>
-        <source>Shadowsocks, inspired by the SOCKS5 protocol, safeguards the connection using the AEAD cipher. Although Shadowsocks is designed to be discreet and challenging to identify, it isn&apos;t identical to a standard HTTPS connection.However, certain traffic analysis systems might still detect a Shadowsocks connection. Due to limited support in Amnezia, it&apos;s recommended to use AmneziaWG protocol.
+        <source>Shadowsocks, inspired by the SOCKS5 protocol, safeguards the connection using the AEAD cipher. Although Shadowsocks is designed to be discreet and challenging to identify, it isn&apos;t identical to a standard HTTPS connection.However, certain traffic analysis systems might still detect a Shadowsocks connection. Due to limited support in Dopamine, it&apos;s recommended to use AWG protocol.
 
 * Available in the Dopamine only on desktop platforms
 * Configurable encryption protocol
@@ -5419,18 +5411,18 @@ For more detailed information, you can
 найти в разделе поддержки &quot;Создание файлового хранилища SFTP.&quot;</translation>
     </message>
     <message>
-        <source>A modern iteration of the popular VPN protocol, AmneziaWG builds upon the foundation set by WireGuard, retaining its simplified architecture and high-performance capabilities across devices.
-While WireGuard is known for its efficiency, it had issues with being easily detected due to its distinct packet signatures. AmneziaWG solves this problem by using better obfuscation methods, making its traffic blend in with regular internet traffic.
-This means that AmneziaWG keeps the fast performance of the original while adding an extra layer of stealth, making it a great choice for those wanting a fast and discreet VPN connection.
+        <source>A modern iteration of the popular VPN protocol, AWG builds upon the foundation set by WireGuard, retaining its simplified architecture and high-performance capabilities across devices.
+While WireGuard is known for its efficiency, it had issues with being easily detected due to its distinct packet signatures. AWG solves this problem by using better obfuscation methods, making its traffic blend in with regular internet traffic.
+This means that AWG keeps the fast performance of the original while adding an extra layer of stealth, making it a great choice for those wanting a fast and discreet VPN connection.
 
 * Available in the Dopamine across all platforms
 * Low power consumption
 * Minimum number of settings
 * Not recognised by DPI analysis systems, resistant to blocking
 * Works over UDP network protocol.</source>
-        <translation type="vanished">AmneziaWG — усовершенствованная версия популярного VPN-протокола WireGuard. AmneziaWG опирается на фундамент, заложенный WireGuard, сохраняя упрощенную архитектуру и высокую производительность на различных устройствах.
-Хотя WireGuard известен своей эффективностью, у него были проблемы с обнаружением из-за характерных сигнатур пакетов. AmneziaWG решает эту проблему за счет использования более совершенных методов обфускации, благодаря чему его трафик сливается с обычным интернет-трафиком.
-Таким образом, AmneziaWG сохраняет высокую производительность оригинального протокола, добавляя при этом дополнительный уровень скрытности, что делает его отличным выбором для тех, кому нужно быстрое и незаметное VPN-соединение.
+        <translation type="vanished">AWG — усовершенствованная версия популярного VPN-протокола WireGuard. AWG опирается на фундамент, заложенный WireGuard, сохраняя упрощенную архитектуру и высокую производительность на различных устройствах.
+Хотя WireGuard известен своей эффективностью, у него были проблемы с обнаружением из-за характерных сигнатур пакетов. AWG решает эту проблему за счет использования более совершенных методов обфускации, благодаря чему его трафик сливается с обычным интернет-трафиком.
+Таким образом, AWG сохраняет высокую производительность оригинального протокола, добавляя при этом дополнительный уровень скрытности, что делает его отличным выбором для тех, кому нужно быстрое и незаметное VPN-соединение.
 
 * Доступен в FRKN VPN на всех платформах
 * Низкое энергопотребление на мобильных устройствах
@@ -5658,8 +5650,8 @@ This means that AmneziaWG keeps the fast performance of the original while addin
     </message>
     <message>
         <location filename="../ui/models/containers_model.cpp" line="34"/>
-        <source>AmneziaWG Legacy is a outdated version of AmneziaWG protocol. To upgrade, install AmneziaWG and recreate users.</source>
-        <translation>AmneziaWG Legacy — устаревшая версия протокола AmneziaWG. Для обновления установите AmneziaWG и пересоздайте пользователей.</translation>
+        <source>AWG Legacy is a outdated version of AWG protocol. To upgrade, install AWG and recreate users.</source>
+        <translation>AWG Legacy — устаревшая версия протокола AWG. Для обновления установите AWG и пересоздайте пользователей.</translation>
     </message>
     <message>
         <location filename="../core/controllers/coreController.cpp" line="48"/>
@@ -5794,7 +5786,7 @@ This means that AmneziaWG keeps the fast performance of the original while addin
         <translation type="vanished">Показать настройки подключения</translation>
     </message>
     <message>
-        <source>To read the QR code in the Amnezia app, select &quot;Add server&quot; → &quot;I have data to connect&quot; → &quot;QR code, key or settings file&quot;</source>
+        <source>To read the QR code in the Dopamine app, select &quot;Add server&quot; → &quot;I have data to connect&quot; → &quot;QR code, key or settings file&quot;</source>
         <translation type="vanished">Для считывания QR-кода в приложении FRKN выберите &quot;Добавить сервер&quot; → &quot;У меня есть данные для подключения&quot; → &quot;Открыть файл конфигурации, ключ или QR-код&quot;</translation>
     </message>
 </context>
@@ -5963,8 +5955,8 @@ This means that AmneziaWG keeps the fast performance of the original while addin
     </message>
     <message>
         <location filename="../containers/containers_defs.cpp" line="373"/>
-        <source>AmneziaWG protocol will be installed. It provides high connection speed and ensures stable operation even in the most challenging network conditions.</source>
-        <translation>Будет установлен протокол AmneziaWG. Обеспечивает высокую скорость подключения и стабильную работу даже в самых сложных сетевых условиях.</translation>
+        <source>AWG protocol will be installed. It provides high connection speed and ensures stable operation even in the most challenging network conditions.</source>
+        <translation>Будет установлен протокол AWG. Обеспечивает высокую скорость подключения и стабильную работу даже в самых сложных сетевых условиях.</translation>
     </message>
 </context>
 <context>

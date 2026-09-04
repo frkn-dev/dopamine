@@ -69,7 +69,7 @@ QMap<amnezia::Proto, QString> ProtocolProps::protocolHumanNames()
              { Proto::ShadowSocks, "Shadowsocks" },
              { Proto::Cloak, "Cloak" },
              { Proto::WireGuard, "WireGuard" },
-             { Proto::Awg, "AmneziaWG" },
+             { Proto::Awg, "AWG" },
              { Proto::Ikev2, "IKEv2" },
              { Proto::L2tp, "L2TP" },
              { Proto::Xray, "XRay" },
