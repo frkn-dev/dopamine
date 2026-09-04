@@ -57,6 +57,13 @@ endif()
 
 qt_standard_project_setup()
 qt_add_executable(${PROJECT} MANUAL_FINALIZATION)
+
+if(WIN32)
+    # qt_add_executable lost the WIN32 flag somewhere along MANUAL_FINALIZATION —
+    # the shipped exe came out as console subsystem and spawned a terminal window
+    set_target_properties(${PROJECT} PROPERTIES WIN32_EXECUTABLE ON)
+    target_link_options(${PROJECT} PRIVATE "/ENTRY:mainCRTStartup")
+endif()
 target_include_directories(${PROJECT} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 )
