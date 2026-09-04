@@ -83,7 +83,7 @@ TabButton {
         anchors.fill: background
         height: 24
 
-        font.family: "PT Root UI VF"
+        font.family: "IBM Plex Mono"
         font.styleName: "normal"
         font.weight: 500
         font.pixelSize: 16

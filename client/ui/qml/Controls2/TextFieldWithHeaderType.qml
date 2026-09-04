@@ -109,7 +109,7 @@ Item {
 
                         font.pixelSize: 16
                         font.weight: 400
-                        font.family: "PT Root UI VF"
+                        font.family: "IBM Plex Mono"
 
                         height: 24
                         Layout.fillWidth: true

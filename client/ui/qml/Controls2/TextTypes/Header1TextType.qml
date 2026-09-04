@@ -9,7 +9,7 @@ Text {
     color: DopamineStyle.color.paleGray
     font.pixelSize: 32
     font.weight: 700
-    font.family: "PT Root UI VF"
+    font.family: "IBM Plex Mono"
     font.letterSpacing: -1.0
 
     wrapMode: Text.WordWrap

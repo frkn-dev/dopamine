@@ -236,7 +236,7 @@ PageType {
                     selectedTextColor: DopamineStyle.color.paleGray
                     font.pixelSize: 16
                     font.weight: Font.Medium
-                    font.family: "PT Root UI VF"
+                    font.family: "IBM Plex Mono"
                     text: ApiConfigsController.vpnKey
                     wrapMode: Text.Wrap
                     background: Rectangle { color: DopamineStyle.color.transparent }

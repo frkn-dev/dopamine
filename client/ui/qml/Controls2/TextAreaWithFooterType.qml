@@ -64,7 +64,7 @@ Rectangle {
 
                 font.pixelSize: 16
                 font.weight: Font.Medium
-                font.family: "PT Root UI VF"
+                font.family: "IBM Plex Mono"
 
                 placeholderText: root.placeholderText
                 text: root.text

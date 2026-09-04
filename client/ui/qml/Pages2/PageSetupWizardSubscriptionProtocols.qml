@@ -118,7 +118,7 @@ PageType {
                         color: DopamineStyle.color.paleGray
                         font.pixelSize: 16
                         font.weight: 400
-                        font.family: "PT Root UI VF"
+                        font.family: "IBM Plex Mono"
                         lineHeight: 20 + LanguageModel.getLineHeightAppend()
                         lineHeightMode: Text.FixedHeight
                         wrapMode: Text.Wrap
@@ -132,7 +132,7 @@ PageType {
                         color: DopamineStyle.color.mutedGray
                         font.pixelSize: 13
                         font.weight: 400
-                        font.family: "PT Root UI VF"
+                        font.family: "IBM Plex Mono"
                         lineHeight: 16 + LanguageModel.getLineHeightAppend()
                         lineHeightMode: Text.FixedHeight
                         wrapMode: Text.Wrap

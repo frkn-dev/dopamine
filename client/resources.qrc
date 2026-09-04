@@ -1,7 +1,10 @@
 <RCC>
     <qresource prefix="/">
         <file>agw_public.pem</file>
-        <file>fonts/pt-root-ui_vf.ttf</file>
+        <file>fonts/IBMPlexMono-Regular.ttf</file>
+        <file>fonts/IBMPlexMono-Medium.ttf</file>
+        <file>fonts/IBMPlexMono-SemiBold.ttf</file>
+        <file>fonts/IBMPlexMono-Bold.ttf</file>
         <file>images/dopamineBigLogo.png</file>
         <file>images/Dopamine.png</file>
         <file>images/pterodactyl.png</file>
