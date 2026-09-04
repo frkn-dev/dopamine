@@ -193,7 +193,7 @@ PageType {
             PageController.showBusyIndicator(true)
             let result = ApiConfigsController.exportNativeConfig(countryCode, fileName)
             if (result) {
-                ApiSettingsController.getAccountInfo(true)
+                ApiSettingsController.getAccountInfo(true, true)
             }
 
             PageController.showBusyIndicator(false)
@@ -207,7 +207,7 @@ PageType {
         PageController.showBusyIndicator(true)
         let result = ApiConfigsController.revokeNativeConfig(countryCode)
         if (result) {
-            ApiSettingsController.getAccountInfo(true)
+            ApiSettingsController.getAccountInfo(true, true)
         }
         PageController.showBusyIndicator(false)
 

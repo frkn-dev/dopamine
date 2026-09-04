@@ -43,7 +43,7 @@ ApiSettingsController::~ApiSettingsController()
 {
 }
 
-bool ApiSettingsController::getAccountInfo(bool reload)
+bool ApiSettingsController::getAccountInfo(bool reload, bool forceRefresh)
 {
     auto processedIndex = m_serversModel->getProcessedServerIndex();
     auto serverConfig = m_serversModel->getServerConfig(processedIndex);
@@ -71,6 +71,24 @@ bool ApiSettingsController::getAccountInfo(bool reload)
         updateApiCountryModel();
         return true;
     }
+
+    // serve a fresh-enough cached response instead of an API round-trip
+    if (!forceRefresh) {
+        auto infoIt = m_accountInfoCache.constFind(processedIndex);
+        auto timeIt = m_accountInfoCacheTime.constFind(processedIndex);
+        if (infoIt != m_accountInfoCache.constEnd() && timeIt != m_accountInfoCacheTime.constEnd()
+            && timeIt->secsTo(QDateTime::currentDateTime()) < kAccountInfoCacheTtlSecs) {
+            m_apiAccountInfoModel->updateModel(infoIt.value(), serverConfig);
+            updateApiCountryModel();
+            updateApiDevicesModel();
+            return true;
+        }
+        // several warm-up triggers fire together at startup — fetch once
+        if (m_accountInfoInFlight.contains(processedIndex)) {
+            return true;
+        }
+    }
+    m_accountInfoInFlight.insert(processedIndex);
 
     if (reload) {
         QEventLoop wait;
@@ -111,11 +129,15 @@ bool ApiSettingsController::getAccountInfo(bool reload)
 
     ErrorCode errorCode = gatewayController.post(QString("%1v1/account_info"), apiPayload, responseBody);
     if (errorCode != ErrorCode::NoError) {
+        m_accountInfoInFlight.remove(processedIndex);
         emit errorOccurred(errorCode);
         return false;
     }
 
     QJsonObject accountInfo = QJsonDocument::fromJson(responseBody).object();
+    m_accountInfoInFlight.remove(processedIndex);
+    m_accountInfoCache[processedIndex] = accountInfo;
+    m_accountInfoCacheTime[processedIndex] = QDateTime::currentDateTime();
     m_apiAccountInfoModel->updateModel(accountInfo, serverConfig);
 
     if (reload) {

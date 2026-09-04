@@ -568,7 +568,7 @@ PageType {
                         } else {
                             PageController.showBusyIndicator(true)
                             if (ApiConfigsController.deactivateDevice(false)) {
-                                ApiSettingsController.getAccountInfo(true)
+                                ApiSettingsController.getAccountInfo(true, true)
                             }
                             PageController.showBusyIndicator(false)
                         }

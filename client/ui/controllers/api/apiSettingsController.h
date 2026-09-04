@@ -18,7 +18,7 @@ public:
     ~ApiSettingsController();
 
 public slots:
-    bool getAccountInfo(bool reload);
+    bool getAccountInfo(bool reload, bool forceRefresh = false);
     void updateApiCountryModel();
     void updateApiDevicesModel();
 
@@ -32,6 +32,13 @@ private:
     QSharedPointer<ApiDevicesModel> m_apiDevicesModel;
 
     std::shared_ptr<Settings> m_settings;
+
+    // account_info cache per server index — opening the server card must not
+    // hit the gateway every time; refreshed on app start and when older than TTL
+    QHash<int, QJsonObject> m_accountInfoCache;
+    QHash<int, QDateTime> m_accountInfoCacheTime;
+    QSet<int> m_accountInfoInFlight;
+    static constexpr qint64 kAccountInfoCacheTtlSecs = 3600;
 };
 
 #endif // APISETTINGSCONTROLLER_H

@@ -417,6 +417,16 @@ void CoreController::initContainerModelUpdateHandler()
         }
         m_splitPresetsModel->fetchPresets();
     });
+    // warm the account_info cache on start, so opening the server card
+    // doesn't do an API round-trip (served from cache for the next hour)
+    auto warmAccountInfoCache = [this]() {
+        if (m_serversModel->hasServersFromGatewayApi()) {
+            m_serversModel->setProcessedServerIndex(m_serversModel->getDefaultServerIndex());
+            m_apiSettingsController->getAccountInfo(true);
+        }
+    };
+    connect(m_serversModel.get(), &ServersModel::hasServersFromGatewayApiChanged, this, warmAccountInfoCache);
+    QTimer::singleShot(0, this, warmAccountInfoCache);
     m_serversModel->resetModel();
     // the presets catalog is public — fetch on every app start
     m_splitPresetsModel->fetchPresets();
