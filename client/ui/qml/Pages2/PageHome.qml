@@ -234,6 +234,7 @@ PageType {
                 objectName: "splitTunnelingButton"
 
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
+                Layout.bottomMargin: 48
                 leftPadding: 16
                 rightPadding: 16
 
