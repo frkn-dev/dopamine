@@ -136,6 +136,17 @@ bool Daemon::activate(const InterfaceConfig& config) {
     addExclusionRoute(IPAddress(i));
   }
 
+  // Keep the local network reachable: route RFC1918/link-local around the
+  // tunnel and let them through the kill-switch firewall (otherwise LAN,
+  // SSH to the machine, printers etc. die as soon as the VPN connects)
+  static const QList<IPAddress> kLanRanges = {IPAddress("10.0.0.0/8"),
+                                              IPAddress("172.16.0.0/12"),
+                                              IPAddress("192.168.0.0/16"),
+                                              IPAddress("169.254.0.0/16")};
+  if (!wgutils()->excludeLocalNetworks(kLanRanges)) {
+    logger.warning() << "Failed to exclude local networks";
+  }
+
   // Add the peer to this interface.
   if (!wgutils()->updatePeer(config)) {
     logger.error() << "Peer creation failed.";
