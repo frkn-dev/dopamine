@@ -536,32 +536,31 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageHome</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="83"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="85"/>
         <source>Diagnostic Mode Enabled</source>
         <translation>Diagnostic Mode Enabled</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="111"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="113"/>
         <source>Dev gateway enabled</source>
         <translation>Dev gateway enabled</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="153"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="155"/>
         <source>Split tunneling enabled</source>
         <translation>Split tunneling enabled</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="153"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="155"/>
         <source>Split tunneling disabled</source>
         <translation>Split tunneling disabled</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="403"/>
         <source>VPN protocol</source>
-        <translation>VPN protocol</translation>
+        <translation type="vanished">VPN protocol</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="272"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="218"/>
         <source>Auto-select</source>
         <translation>Auto-select</translation>
     </message>
@@ -574,8 +573,8 @@ Already installed containers were found on the server. All installed containers 
     <name>PageProtocolAwgClientSettings</name>
     <message>
         <location filename="../ui/qml/Pages2/PageProtocolAwgClientSettings.qml" line="55"/>
-        <source>AWG settings</source>
-        <translation>AWG settings</translation>
+        <source>AmneziaWG settings</source>
+        <translation>AmneziaWG settings</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageProtocolAwgClientSettings.qml" line="79"/>
@@ -652,8 +651,8 @@ Already installed containers were found on the server. All installed containers 
     <name>PageProtocolAwgSettings</name>
     <message>
         <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="67"/>
-        <source>AWG settings</source>
-        <translation>AWG settings</translation>
+        <source>AmneziaWG settings</source>
+        <translation>AmneziaWG settings</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="80"/>
@@ -1496,47 +1495,45 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageSettings</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="48"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="42"/>
         <source>Settings</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="117"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="110"/>
         <source>Servers</source>
         <translation>Servers</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="128"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="121"/>
         <source>Connection</source>
         <translation>Connection</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="139"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="132"/>
         <source>Application</source>
         <translation>Application</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="150"/>
         <source>News &amp; Notifications</source>
-        <translation>News &amp; Notifications</translation>
+        <translation type="vanished">News &amp; Notifications</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="166"/>
         <source>Backup</source>
-        <translation>Backup</translation>
+        <translation type="vanished">Backup</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="177"/>
-        <source>About Dopamine</source>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="143"/>
+        <source>About FRKN</source>
         <translation>About FRKN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="188"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="154"/>
         <source>Dev console</source>
         <translation>Dev console</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="85"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="80"/>
         <source>Close application</source>
         <translation>Close application</translation>
     </message>
@@ -3952,8 +3949,8 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShare.qml" line="71"/>
-        <source>Save AWG config</source>
-        <translation>Save AWG config</translation>
+        <source>Save AmneziaWG config</source>
+        <translation>Save AmneziaWG config</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShare.qml" line="78"/>
@@ -3987,8 +3984,8 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShare.qml" line="135"/>
-        <source>AWG native format</source>
-        <translation>AWG native format</translation>
+        <source>AmneziaWG native format</source>
+        <translation>AmneziaWG native format</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShare.qml" line="140"/>
@@ -4224,17 +4221,17 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageStart</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageStart.qml" line="205"/>
+        <location filename="../ui/qml/Pages2/PageStart.qml" line="202"/>
         <source>Logging was disabled after 14 days, log files were deleted</source>
         <translation>Logging was disabled after 14 days, log files were deleted</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageStart.qml" line="209"/>
+        <location filename="../ui/qml/Pages2/PageStart.qml" line="206"/>
         <source>Settings restored from backup file</source>
         <translation>Settings restored from backup file</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageStart.qml" line="215"/>
+        <location filename="../ui/qml/Pages2/PageStart.qml" line="212"/>
         <source>Logging is enabled. Note that logs will be automaticallydisabled after 14 days, and all log files will be deleted.</source>
         <translation>Logging is enabled. Note that logs will be automaticallydisabled after 14 days, and all log files will be deleted.</translation>
     </message>
@@ -5004,8 +5001,8 @@ Already installed containers were found on the server. All installed containers 
     <message>
         <location filename="../containers/containers_defs.cpp" line="130"/>
         <location filename="../containers/containers_defs.cpp" line="133"/>
-        <source>AWG is a special protocol based on WireGuard. It provides high connection speed and ensures stable operation even in the most challenging network conditions.</source>
-        <translation>AWG is a special protocol based on WireGuard. It provides high connection speed and ensures stable operation even in the most challenging network conditions.</translation>
+        <source>AmneziaWG is a special protocol based on WireGuard. It provides high connection speed and ensures stable operation even in the most challenging network conditions.</source>
+        <translation>AmneziaWG is a special protocol based on WireGuard. It provides high connection speed and ensures stable operation even in the most challenging network conditions.</translation>
     </message>
     <message>
         <location filename="../containers/containers_defs.cpp" line="136"/>
@@ -5036,7 +5033,7 @@ Features:
     </message>
     <message>
         <location filename="../containers/containers_defs.cpp" line="166"/>
-        <source>Shadowsocks is based on the SOCKS5 protocol and encrypts connections using AEAD cipher. Although designed to be discreet, it doesn&apos;t mimic a standard HTTPS connection and can be detected by some DPI systems. Due to limited support in Dopamine, we recommend using the AWG protocol.
+        <source>Shadowsocks is based on the SOCKS5 protocol and encrypts connections using AEAD cipher. Although designed to be discreet, it doesn&apos;t mimic a standard HTTPS connection and can be detected by some DPI systems. Due to limited support in Dopamine, we recommend using the AmneziaWG protocol.
 
 Features:
 * Available in Dopamine only on desktop platforms
@@ -5044,7 +5041,7 @@ Features:
 * Detectable by some DPI systems
 * Operates over TCP protocol
 </source>
-        <translation>Shadowsocks is based on the SOCKS5 protocol and encrypts connections using AEAD cipher. Although designed to be discreet, it doesn&apos;t mimic a standard HTTPS connection and can be detected by some DPI systems. Due to limited support in Dopamine, we recommend using the AWG protocol.
+        <translation>Shadowsocks is based on the SOCKS5 protocol and encrypts connections using AEAD cipher. Although designed to be discreet, it doesn&apos;t mimic a standard HTTPS connection and can be detected by some DPI systems. Due to limited support in Dopamine, we recommend using the AmneziaWG protocol.
 
 Features:
 * Available in Dopamine only on desktop platforms
@@ -5105,9 +5102,9 @@ Features:
     </message>
     <message>
         <location filename="../containers/containers_defs.cpp" line="198"/>
-        <source>AWG is a modern VPN protocol based on WireGuard, combining simplified architecture with high performance across all devices. It addresses WireGuard&apos;s main vulnerability (easy detection by DPI systems) through advanced obfuscation techniques, making VPN traffic indistinguishable from regular internet traffic.
+        <source>AmneziaWG is a modern VPN protocol based on WireGuard, combining simplified architecture with high performance across all devices. It addresses WireGuard&apos;s main vulnerability (easy detection by DPI systems) through advanced obfuscation techniques, making VPN traffic indistinguishable from regular internet traffic.
 
-AWG is an excellent choice for those seeking a fast, stealthy VPN connection.
+AmneziaWG is an excellent choice for those seeking a fast, stealthy VPN connection.
 
 Features:
 * Available on all Dopamine platforms
@@ -5115,9 +5112,9 @@ Features:
 * Minimal settings required
 * Undetectable by traffic analysis systems (DPI)
 * Operates over UDP protocol</source>
-        <translation>AWG is a modern VPN protocol based on WireGuard, combining simplified architecture with high performance across all devices. It addresses WireGuard&apos;s main vulnerability (easy detection by DPI systems) through advanced obfuscation techniques, making VPN traffic indistinguishable from regular internet traffic.
+        <translation>AmneziaWG is a modern VPN protocol based on WireGuard, combining simplified architecture with high performance across all devices. It addresses WireGuard&apos;s main vulnerability (easy detection by DPI systems) through advanced obfuscation techniques, making VPN traffic indistinguishable from regular internet traffic.
 
-AWG is an excellent choice for those seeking a fast, stealthy VPN connection.
+AmneziaWG is an excellent choice for those seeking a fast, stealthy VPN connection.
 
 Features:
 * Available on all Dopamine platforms
@@ -5205,13 +5202,13 @@ It employs its unique security protocol, leveraging the strength of SSL/TLS for 
 * Can operate over both TCP and UDP network protocols.</translation>
     </message>
     <message>
-        <source>Shadowsocks, inspired by the SOCKS5 protocol, safeguards the connection using the AEAD cipher. Although Shadowsocks is designed to be discreet and challenging to identify, it isn&apos;t identical to a standard HTTPS connection.However, certain traffic analysis systems might still detect a Shadowsocks connection. Due to limited support in Dopamine, it&apos;s recommended to use AWG protocol.
+        <source>Shadowsocks, inspired by the SOCKS5 protocol, safeguards the connection using the AEAD cipher. Although Shadowsocks is designed to be discreet and challenging to identify, it isn&apos;t identical to a standard HTTPS connection.However, certain traffic analysis systems might still detect a Shadowsocks connection. Due to limited support in Dopamine, it&apos;s recommended to use AmneziaWG protocol.
 
 * Available in the Dopamine only on desktop platforms
 * Configurable encryption protocol
 * Detectable by some DPI systems
 * Works over TCP network protocol.</source>
-        <translation type="vanished">Shadowsocks, inspired by the SOCKS5 protocol, safeguards the connection using the AEAD cipher. Although Shadowsocks is designed to be discreet and challenging to identify, it isn&apos;t identical to a standard HTTPS connection.However, certain traffic analysis systems might still detect a Shadowsocks connection. Due to limited support in FRKN, it&apos;s recommended to use AWG protocol.
+        <translation type="vanished">Shadowsocks, inspired by the SOCKS5 protocol, safeguards the connection using the AEAD cipher. Although Shadowsocks is designed to be discreet and challenging to identify, it isn&apos;t identical to a standard HTTPS connection.However, certain traffic analysis systems might still detect a Shadowsocks connection. Due to limited support in FRKN, it&apos;s recommended to use AmneziaWG protocol.
 
 * Available in the FRKN VPN only on desktop platforms
 * Configurable encryption protocol
@@ -5277,18 +5274,18 @@ WireGuard is very susceptible to blocking due to its distinct packet signatures.
 * Works over UDP network protocol.</translation>
     </message>
     <message>
-        <source>A modern iteration of the popular VPN protocol, AWG builds upon the foundation set by WireGuard, retaining its simplified architecture and high-performance capabilities across devices.
-While WireGuard is known for its efficiency, it had issues with being easily detected due to its distinct packet signatures. AWG solves this problem by using better obfuscation methods, making its traffic blend in with regular internet traffic.
-This means that AWG keeps the fast performance of the original while adding an extra layer of stealth, making it a great choice for those wanting a fast and discreet VPN connection.
+        <source>A modern iteration of the popular VPN protocol, AmneziaWG builds upon the foundation set by WireGuard, retaining its simplified architecture and high-performance capabilities across devices.
+While WireGuard is known for its efficiency, it had issues with being easily detected due to its distinct packet signatures. AmneziaWG solves this problem by using better obfuscation methods, making its traffic blend in with regular internet traffic.
+This means that AmneziaWG keeps the fast performance of the original while adding an extra layer of stealth, making it a great choice for those wanting a fast and discreet VPN connection.
 
 * Available in the Dopamine across all platforms
 * Low power consumption
 * Minimum number of settings
 * Not recognised by DPI analysis systems, resistant to blocking
 * Works over UDP network protocol.</source>
-        <translation type="vanished">A modern iteration of the popular VPN protocol, AWG builds upon the foundation set by WireGuard, retaining its simplified architecture and high-performance capabilities across devices.
-While WireGuard is known for its efficiency, it had issues with being easily detected due to its distinct packet signatures. AWG solves this problem by using better obfuscation methods, making its traffic blend in with regular internet traffic.
-This means that AWG keeps the fast performance of the original while adding an extra layer of stealth, making it a great choice for those wanting a fast and discreet VPN connection.
+        <translation type="vanished">A modern iteration of the popular VPN protocol, AmneziaWG builds upon the foundation set by WireGuard, retaining its simplified architecture and high-performance capabilities across devices.
+While WireGuard is known for its efficiency, it had issues with being easily detected due to its distinct packet signatures. AmneziaWG solves this problem by using better obfuscation methods, making its traffic blend in with regular internet traffic.
+This means that AmneziaWG keeps the fast performance of the original while adding an extra layer of stealth, making it a great choice for those wanting a fast and discreet VPN connection.
 
 * Available in the FRKN VPN across all platforms
 * Low power consumption
@@ -5397,8 +5394,8 @@ For more detailed information, you can
     </message>
     <message>
         <location filename="../ui/models/containers_model.cpp" line="34"/>
-        <source>AWG Legacy is a outdated version of AWG protocol. To upgrade, install AWG and recreate users.</source>
-        <translation>AWG Legacy is a outdated version of AWG protocol. To upgrade, install AWG and recreate users.</translation>
+        <source>AmneziaWG Legacy is a outdated version of AmneziaWG protocol. To upgrade, install AmneziaWG and recreate users.</source>
+        <translation>AmneziaWG Legacy is a outdated version of AmneziaWG protocol. To upgrade, install AmneziaWG and recreate users.</translation>
     </message>
     <message>
         <location filename="../core/controllers/coreController.cpp" line="48"/>
@@ -5430,38 +5427,38 @@ For more detailed information, you can
 <context>
     <name>ServersListView</name>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="60"/>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="109"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="58"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="107"/>
         <source>All</source>
         <translation>All</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="112"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="110"/>
         <source>White Elephants</source>
         <translation>White Elephants</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="115"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="113"/>
         <source>Regular</source>
         <translation>Regular</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="118"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="116"/>
         <source>Reverse</source>
         <translation>Reverse</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="403"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="401"/>
         <source>offline</source>
         <translation>offline</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="225"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="223"/>
         <source>Auto-select</source>
         <translation>Auto-select</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="226"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="224"/>
         <source>Fastest available server</source>
         <translation>Fastest available server</translation>
     </message>
@@ -5666,8 +5663,8 @@ For more detailed information, you can
     </message>
     <message>
         <location filename="../containers/containers_defs.cpp" line="373"/>
-        <source>AWG protocol will be installed. It provides high connection speed and ensures stable operation even in the most challenging network conditions.</source>
-        <translation>AWG protocol will be installed. It provides high connection speed and ensures stable operation even in the most challenging network conditions.</translation>
+        <source>AmneziaWG protocol will be installed. It provides high connection speed and ensures stable operation even in the most challenging network conditions.</source>
+        <translation>AmneziaWG protocol will be installed. It provides high connection speed and ensures stable operation even in the most challenging network conditions.</translation>
     </message>
 </context>
 <context>

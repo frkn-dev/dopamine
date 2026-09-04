@@ -552,32 +552,31 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageHome</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="83"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="85"/>
         <source>Diagnostic Mode Enabled</source>
         <translation>Режим діагностики увімкнено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="111"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="113"/>
         <source>Dev gateway enabled</source>
         <translation>Dev-шлюз увімкнено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="153"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="155"/>
         <source>Split tunneling enabled</source>
         <translation>Роздільне тунелювання увімкнено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="153"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="155"/>
         <source>Split tunneling disabled</source>
         <translation>Роздільне тунелювання вимкнено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="403"/>
         <source>VPN protocol</source>
-        <translation>VPN протокол</translation>
+        <translation type="vanished">VPN протокол</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="272"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="218"/>
         <source>Auto-select</source>
         <translation>Автовибір</translation>
     </message>
@@ -594,8 +593,8 @@ Already installed containers were found on the server. All installed containers 
     <name>PageProtocolAwgClientSettings</name>
     <message>
         <location filename="../ui/qml/Pages2/PageProtocolAwgClientSettings.qml" line="55"/>
-        <source>AWG settings</source>
-        <translation>налаштування AWG</translation>
+        <source>AmneziaWG settings</source>
+        <translation>налаштування AmneziaWG</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageProtocolAwgClientSettings.qml" line="79"/>
@@ -672,8 +671,8 @@ Already installed containers were found on the server. All installed containers 
     <name>PageProtocolAwgSettings</name>
     <message>
         <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="67"/>
-        <source>AWG settings</source>
-        <translation>налаштування AWG</translation>
+        <source>AmneziaWG settings</source>
+        <translation>налаштування AmneziaWG</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="80"/>
@@ -1531,42 +1530,40 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageSettings</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="48"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="42"/>
         <source>Settings</source>
         <translation>Налаштування</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="117"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="110"/>
         <source>Servers</source>
         <translation>Сервери</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="128"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="121"/>
         <source>Connection</source>
         <translation>Підключення</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="139"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="132"/>
         <source>Application</source>
         <translation>Застосунок</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="150"/>
         <source>News &amp; Notifications</source>
-        <translation>Новини та сповіщення</translation>
+        <translation type="vanished">Новини та сповіщення</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="166"/>
         <source>Backup</source>
-        <translation>Резервна копія</translation>
+        <translation type="vanished">Резервна копія</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="177"/>
-        <source>About Dopamine</source>
-        <translation>Про FRKN VPN</translation>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="143"/>
+        <source>About FRKN</source>
+        <translation>Про FRKN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="188"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="154"/>
         <source>Dev console</source>
         <translation>Dev-консоль</translation>
     </message>
@@ -1599,7 +1596,7 @@ Already installed containers were found on the server. All installed containers 
         <translation type="obsolete">Відмінити</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="85"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="80"/>
         <source>Close application</source>
         <translation>Закрити застосунок</translation>
     </message>
@@ -4106,8 +4103,8 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShare.qml" line="71"/>
-        <source>Save AWG config</source>
-        <translation>Зберегти AWG конфігурацію</translation>
+        <source>Save AmneziaWG config</source>
+        <translation>Зберегти AmneziaWG конфігурацію</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShare.qml" line="78"/>
@@ -4131,8 +4128,8 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShare.qml" line="135"/>
-        <source>AWG native format</source>
-        <translation>нативний формат AWG</translation>
+        <source>AmneziaWG native format</source>
+        <translation>нативний формат AmneziaWG</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShare.qml" line="140"/>
@@ -4368,17 +4365,17 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageStart</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageStart.qml" line="205"/>
+        <location filename="../ui/qml/Pages2/PageStart.qml" line="202"/>
         <source>Logging was disabled after 14 days, log files were deleted</source>
         <translation>Логування було вимкнено через 14 днів, файли логів видалено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageStart.qml" line="209"/>
+        <location filename="../ui/qml/Pages2/PageStart.qml" line="206"/>
         <source>Settings restored from backup file</source>
         <translation>Відновлення налаштувань із бекап файлу</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageStart.qml" line="215"/>
+        <location filename="../ui/qml/Pages2/PageStart.qml" line="212"/>
         <source>Logging is enabled. Note that logs will be automaticallydisabled after 14 days, and all log files will be deleted.</source>
         <translation>Логування увімкнено. Зверніть увагу: логи будуть автоматично вимкнені через 14 днів, а всі файли логів будуть видалені.</translation>
     </message>
@@ -5042,8 +5039,8 @@ While it offers a blend of security, stability, and speed, it&apos;s essential t
     <message>
         <location filename="../containers/containers_defs.cpp" line="130"/>
         <location filename="../containers/containers_defs.cpp" line="133"/>
-        <source>AWG is a special protocol based on WireGuard. It provides high connection speed and ensures stable operation even in the most challenging network conditions.</source>
-        <translation>AWG — спеціальний протокол на основі WireGuard. Забезпечує високу швидкість з&apos;єднання та стабільну роботу навіть у найскладніших мережевих умовах.</translation>
+        <source>AmneziaWG is a special protocol based on WireGuard. It provides high connection speed and ensures stable operation even in the most challenging network conditions.</source>
+        <translation>AmneziaWG — спеціальний протокол на основі WireGuard. Забезпечує високу швидкість з&apos;єднання та стабільну роботу навіть у найскладніших мережевих умовах.</translation>
     </message>
     <message>
         <location filename="../containers/containers_defs.cpp" line="136"/>
@@ -5074,7 +5071,7 @@ Features:
     </message>
     <message>
         <location filename="../containers/containers_defs.cpp" line="166"/>
-        <source>Shadowsocks is based on the SOCKS5 protocol and encrypts connections using AEAD cipher. Although designed to be discreet, it doesn&apos;t mimic a standard HTTPS connection and can be detected by some DPI systems. Due to limited support in Dopamine, we recommend using the AWG protocol.
+        <source>Shadowsocks is based on the SOCKS5 protocol and encrypts connections using AEAD cipher. Although designed to be discreet, it doesn&apos;t mimic a standard HTTPS connection and can be detected by some DPI systems. Due to limited support in Dopamine, we recommend using the AmneziaWG protocol.
 
 Features:
 * Available in Dopamine only on desktop platforms
@@ -5082,7 +5079,7 @@ Features:
 * Detectable by some DPI systems
 * Operates over TCP protocol
 </source>
-        <translation>Shadowsocks базується на протоколі SOCKS5 і шифрує з&apos;єднання за допомогою шифру AEAD. Хоча він розроблений, щоб бути непомітним, він не імітує стандартне HTTPS-з&apos;єднання і може бути виявлений деякими системами DPI. Через обмежену підтримку в Dopamine ми рекомендуємо використовувати протокол AWG.
+        <translation>Shadowsocks базується на протоколі SOCKS5 і шифрує з&apos;єднання за допомогою шифру AEAD. Хоча він розроблений, щоб бути непомітним, він не імітує стандартне HTTPS-з&apos;єднання і може бути виявлений деякими системами DPI. Через обмежену підтримку в Dopamine ми рекомендуємо використовувати протокол AmneziaWG.
 
 Особливості:
 * Доступний у Dopamine лише на десктопних платформах
@@ -5143,9 +5140,9 @@ Features:
     </message>
     <message>
         <location filename="../containers/containers_defs.cpp" line="198"/>
-        <source>AWG is a modern VPN protocol based on WireGuard, combining simplified architecture with high performance across all devices. It addresses WireGuard&apos;s main vulnerability (easy detection by DPI systems) through advanced obfuscation techniques, making VPN traffic indistinguishable from regular internet traffic.
+        <source>AmneziaWG is a modern VPN protocol based on WireGuard, combining simplified architecture with high performance across all devices. It addresses WireGuard&apos;s main vulnerability (easy detection by DPI systems) through advanced obfuscation techniques, making VPN traffic indistinguishable from regular internet traffic.
 
-AWG is an excellent choice for those seeking a fast, stealthy VPN connection.
+AmneziaWG is an excellent choice for those seeking a fast, stealthy VPN connection.
 
 Features:
 * Available on all Dopamine platforms
@@ -5153,9 +5150,9 @@ Features:
 * Minimal settings required
 * Undetectable by traffic analysis systems (DPI)
 * Operates over UDP protocol</source>
-        <translation>AWG — сучасний VPN-протокол на основі WireGuard, що поєднує спрощену архітектуру з високою продуктивністю на всіх пристроях. Він усуває головну вразливість WireGuard (легке виявлення системами DPI) за допомогою просунутих методів обфускації, роблячи VPN-трафік невідмітним від звичайного інтернет-трафіку.
+        <translation>AmneziaWG — сучасний VPN-протокол на основі WireGuard, що поєднує спрощену архітектуру з високою продуктивністю на всіх пристроях. Він усуває головну вразливість WireGuard (легке виявлення системами DPI) за допомогою просунутих методів обфускації, роблячи VPN-трафік невідмітним від звичайного інтернет-трафіку.
 
-AWG — чудовий вибір для тих, кому потрібне швидке та непомітне VPN-з&apos;єднання.
+AmneziaWG — чудовий вибір для тих, кому потрібне швидке та непомітне VPN-з&apos;єднання.
 
 Особливості:
 * Доступний на всіх платформах Dopamine
@@ -5209,8 +5206,8 @@ Features:
         <translation type="vanished">WireGuard - новий популярний VPN-протокол, з високою швидістю та низьким енергоспоживанням. Для регіонів з низьким рівнем цензури.</translation>
     </message>
     <message>
-        <source>AWG - Special protocol from Dopamine, based on WireGuard. It&apos;s fast like WireGuard, but very resistant to blockages. Recommended for regions with high levels of censorship.</source>
-        <translation type="vanished">AWG - фірмовий протокол Dopamine, оснований на протоколі WireGuard. Такий же швидкий, як і WireGuard, але стійкий до блокувань. Рекомендується для регіонів з високим рівнем цензури.</translation>
+        <source>AmneziaWG - Special protocol from Dopamine, based on WireGuard. It&apos;s fast like WireGuard, but very resistant to blockages. Recommended for regions with high levels of censorship.</source>
+        <translation type="vanished">AmneziaWG - фірмовий протокол Dopamine, оснований на протоколі WireGuard. Такий же швидкий, як і WireGuard, але стійкий до блокувань. Рекомендується для регіонів з високим рівнем цензури.</translation>
     </message>
     <message>
         <location filename="../containers/containers_defs.cpp" line="142"/>
@@ -5241,13 +5238,13 @@ It employs its unique security protocol, leveraging the strength of SSL/TLS for 
 * Може працювати за протоколом TCP і UDP.</translation>
     </message>
     <message>
-        <source>Shadowsocks, inspired by the SOCKS5 protocol, safeguards the connection using the AEAD cipher. Although Shadowsocks is designed to be discreet and challenging to identify, it isn&apos;t identical to a standard HTTPS connection.However, certain traffic analysis systems might still detect a Shadowsocks connection. Due to limited support in Dopamine, it&apos;s recommended to use AWG protocol.
+        <source>Shadowsocks, inspired by the SOCKS5 protocol, safeguards the connection using the AEAD cipher. Although Shadowsocks is designed to be discreet and challenging to identify, it isn&apos;t identical to a standard HTTPS connection.However, certain traffic analysis systems might still detect a Shadowsocks connection. Due to limited support in Dopamine, it&apos;s recommended to use AmneziaWG protocol.
 
 * Available in the Dopamine only on desktop platforms
 * Configurable encryption protocol
 * Detectable by some DPI systems
 * Works over TCP network protocol.</source>
-        <translation type="vanished">Shadowsocks, створений на основі протоколу SOCKS5, захищає з&apos;єднання AEAD шифруванням. Незважаючи на те, що протокол Shadowsocks розроблений таким чином, щоб бути незаметним і складним для ідентифікації, він не ідентичний стандартному HTTPS-з&apos;єднанню. Однак деякі системи аналізу трафіку все-таки можуть знайти підключення Shadowsocks. У зв’язку з обмеженою підтримкою в Dopamine рекомендується використовувати протокол AWG або OpenVPN через Cloak.
+        <translation type="vanished">Shadowsocks, створений на основі протоколу SOCKS5, захищає з&apos;єднання AEAD шифруванням. Незважаючи на те, що протокол Shadowsocks розроблений таким чином, щоб бути незаметним і складним для ідентифікації, він не ідентичний стандартному HTTPS-з&apos;єднанню. Однак деякі системи аналізу трафіку все-таки можуть знайти підключення Shadowsocks. У зв’язку з обмеженою підтримкою в Dopamine рекомендується використовувати протокол AmneziaWG або OpenVPN через Cloak.
 
 * Доступний в FRKN VPN тільки на ПК.
 * Гнучке налаштування протоколу шифрування
@@ -5274,18 +5271,18 @@ For more detailed information, you can
  знайти в розділі підтримки «Створення SFTP файлового сховища». </translation>
     </message>
     <message>
-        <source>A modern iteration of the popular VPN protocol, AWG builds upon the foundation set by WireGuard, retaining its simplified architecture and high-performance capabilities across devices.
-While WireGuard is known for its efficiency, it had issues with being easily detected due to its distinct packet signatures. AWG solves this problem by using better obfuscation methods, making its traffic blend in with regular internet traffic.
-This means that AWG keeps the fast performance of the original while adding an extra layer of stealth, making it a great choice for those wanting a fast and discreet VPN connection.
+        <source>A modern iteration of the popular VPN protocol, AmneziaWG builds upon the foundation set by WireGuard, retaining its simplified architecture and high-performance capabilities across devices.
+While WireGuard is known for its efficiency, it had issues with being easily detected due to its distinct packet signatures. AmneziaWG solves this problem by using better obfuscation methods, making its traffic blend in with regular internet traffic.
+This means that AmneziaWG keeps the fast performance of the original while adding an extra layer of stealth, making it a great choice for those wanting a fast and discreet VPN connection.
 
 * Available in the Dopamine across all platforms
 * Low power consumption
 * Minimum number of settings
 * Not recognised by DPI analysis systems, resistant to blocking
 * Works over UDP network protocol.</source>
-        <translation type="vanished">Сучасна ітерація популярного протоколу VPN, AWG спирається на протокол WireGuard, зберігаючи його просту архітектуру та високопродуктивні можливості на різних пристроях.
-Незважаючи на те, що WireGuard відомий своєю ефективністю, він має проблеми з легким виявленням через чіткі підписи пакетів. AWG вирішує цю проблему, використовуючи кращі методи обфускації, завдяки чому її трафік змішується зі звичайним інтернет-трафіком.
-Це означає, що AWG зберігає швидку роботу оригінального протоколу WireGuard, додаючи додатковий рівень скритності, що робить його чудовим вибором для тих, хто бажає швидкого та непомітного VPN-з’єднання.
+        <translation type="vanished">Сучасна ітерація популярного протоколу VPN, AmneziaWG спирається на протокол WireGuard, зберігаючи його просту архітектуру та високопродуктивні можливості на різних пристроях.
+Незважаючи на те, що WireGuard відомий своєю ефективністю, він має проблеми з легким виявленням через чіткі підписи пакетів. AmneziaWG вирішує цю проблему, використовуючи кращі методи обфускації, завдяки чому її трафік змішується зі звичайним інтернет-трафіком.
+Це означає, що AmneziaWG зберігає швидку роботу оригінального протоколу WireGuard, додаючи додатковий рівень скритності, що робить його чудовим вибором для тих, хто бажає швидкого та непомітного VPN-з’єднання.
 
 * Доступно в FRKN VPN на всіх платформах
 * Низьке енергоспоживання
@@ -5507,8 +5504,8 @@ This means that AWG keeps the fast performance of the original while adding an e
     </message>
     <message>
         <location filename="../ui/models/containers_model.cpp" line="34"/>
-        <source>AWG Legacy is a outdated version of AWG protocol. To upgrade, install AWG and recreate users.</source>
-        <translation>AWG Legacy — це застаріла версія протоколу AWG. Щоб оновитися, встановіть AWG і створіть користувачів заново.</translation>
+        <source>AmneziaWG Legacy is a outdated version of AmneziaWG protocol. To upgrade, install AmneziaWG and recreate users.</source>
+        <translation>AmneziaWG Legacy — це застаріла версія протоколу AmneziaWG. Щоб оновитися, встановіть AmneziaWG і створіть користувачів заново.</translation>
     </message>
     <message>
         <location filename="../core/controllers/coreController.cpp" line="48"/>
@@ -5540,38 +5537,38 @@ This means that AWG keeps the fast performance of the original while adding an e
 <context>
     <name>ServersListView</name>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="60"/>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="109"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="58"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="107"/>
         <source>All</source>
         <translation>Всі</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="112"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="110"/>
         <source>White Elephants</source>
         <translation>Білі Слони</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="115"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="113"/>
         <source>Regular</source>
         <translation>Основний</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="118"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="116"/>
         <source>Reverse</source>
         <translation>Зворотний</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="403"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="401"/>
         <source>offline</source>
         <translation>офлайн</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="225"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="223"/>
         <source>Auto-select</source>
         <translation>Автовибір</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="226"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="224"/>
         <source>Fastest available server</source>
         <translation>Найшвидший доступний сервер</translation>
     </message>
@@ -5812,8 +5809,8 @@ This means that AWG keeps the fast performance of the original while adding an e
     </message>
     <message>
         <location filename="../containers/containers_defs.cpp" line="373"/>
-        <source>AWG protocol will be installed. It provides high connection speed and ensures stable operation even in the most challenging network conditions.</source>
-        <translation>Буде встановлено протокол AWG. Він забезпечує високу швидкість з&apos;єднання та стабільну роботу навіть у найскладніших мережевих умовах.</translation>
+        <source>AmneziaWG protocol will be installed. It provides high connection speed and ensures stable operation even in the most challenging network conditions.</source>
+        <translation>Буде встановлено протокол AmneziaWG. Він забезпечує високу швидкість з&apos;єднання та стабільну роботу навіть у найскладніших мережевих умовах.</translation>
     </message>
 </context>
 <context>

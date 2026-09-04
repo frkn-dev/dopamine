@@ -52,7 +52,7 @@ PageType {
                 Layout.leftMargin: 16
                 Layout.rightMargin: 16
 
-                headerText: qsTr("AWG settings")
+                headerText: qsTr("AmneziaWG settings")
             }
         }
 

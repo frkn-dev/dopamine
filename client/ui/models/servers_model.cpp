@@ -312,7 +312,7 @@ const QString ServersModel::getDefaultServerProtocolName()
         if (display != protocol) {
             return display;
         }
-        static const QHash<QString, QString> names = { { QStringLiteral("awg"), QStringLiteral("AWG") },
+        static const QHash<QString, QString> names = { { QStringLiteral("awg"), QStringLiteral("AmneziaWG") },
                                                        { QStringLiteral("vless"), QStringLiteral("VLESS") },
                                                        { QStringLiteral("hysteria2"), QStringLiteral("Hysteria2") },
                                                        { QStringLiteral("wireguard"), QStringLiteral("WireGuard") } };
@@ -378,7 +378,7 @@ const QString ServersModel::getDefaultServerDescriptionCollapsed()
 
         auto isThirdPartyConfig = serverProtocolConfig.value(config_key::isThirdPartyConfig).toBool();
         if (container == DockerContainer::Awg && !isThirdPartyConfig) {
-            containerName = "AWG Legacy";
+            containerName = "AmneziaWG Legacy";
         }
     }
 
@@ -729,7 +729,7 @@ const QString ServersModel::getDefaultServerDefaultContainerName()
 
         auto isThirdPartyConfig = serverProtocolConfig.value(config_key::isThirdPartyConfig).toBool();
         if (defaultContainer == DockerContainer::Awg && !isThirdPartyConfig) {
-            containerName = "AWG Legacy";
+            containerName = "AmneziaWG Legacy";
         }
     }
 
