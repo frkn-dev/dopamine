@@ -90,41 +90,6 @@ void CoreController::initModels()
     m_appSplitTunnelingModel.reset(new AppSplitTunnelingModel(m_settings, this));
     m_engine->rootContext()->setContextProperty("AppSplitTunnelingModel", m_appSplitTunnelingModel.get());
 
-    m_protocolsModel.reset(new ProtocolsModel(m_settings, this));
-    m_engine->rootContext()->setContextProperty("ProtocolsModel", m_protocolsModel.get());
-
-    m_openVpnConfigModel.reset(new OpenVpnConfigModel(this));
-    m_engine->rootContext()->setContextProperty("OpenVpnConfigModel", m_openVpnConfigModel.get());
-
-    m_shadowSocksConfigModel.reset(new ShadowSocksConfigModel(this));
-    m_engine->rootContext()->setContextProperty("ShadowSocksConfigModel", m_shadowSocksConfigModel.get());
-
-    m_cloakConfigModel.reset(new CloakConfigModel(this));
-    m_engine->rootContext()->setContextProperty("CloakConfigModel", m_cloakConfigModel.get());
-
-    m_wireGuardConfigModel.reset(new WireGuardConfigModel(this));
-    m_engine->rootContext()->setContextProperty("WireGuardConfigModel", m_wireGuardConfigModel.get());
-
-    m_awgConfigModel.reset(new AwgConfigModel(this));
-    m_engine->rootContext()->setContextProperty("AwgConfigModel", m_awgConfigModel.get());
-
-    m_xrayConfigModel.reset(new XrayConfigModel(this));
-    m_engine->rootContext()->setContextProperty("XrayConfigModel", m_xrayConfigModel.get());
-
-#ifdef Q_OS_WINDOWS
-    m_ikev2ConfigModel.reset(new Ikev2ConfigModel(this));
-    m_engine->rootContext()->setContextProperty("Ikev2ConfigModel", m_ikev2ConfigModel.get());
-#endif
-
-    m_sftpConfigModel.reset(new SftpConfigModel(this));
-    m_engine->rootContext()->setContextProperty("SftpConfigModel", m_sftpConfigModel.get());
-
-    m_socks5ConfigModel.reset(new Socks5ProxyConfigModel(this));
-    m_engine->rootContext()->setContextProperty("Socks5ProxyConfigModel", m_socks5ConfigModel.get());
-
-    m_clientManagementModel.reset(new ClientManagementModel(m_settings, this));
-    m_engine->rootContext()->setContextProperty("ClientManagementModel", m_clientManagementModel.get());
-
     m_apiServicesModel.reset(new ApiServicesModel(this));
     m_engine->rootContext()->setContextProperty("ApiServicesModel", m_apiServicesModel.get());
 
@@ -136,15 +101,12 @@ void CoreController::initModels()
 
     m_apiDevicesModel.reset(new ApiDevicesModel(m_settings, this));
     m_engine->rootContext()->setContextProperty("ApiDevicesModel", m_apiDevicesModel.get());
-
-    m_newsModel.reset(new NewsModel(m_settings, this));
-    m_engine->rootContext()->setContextProperty("NewsModel", m_newsModel.get());
 }
 
 void CoreController::initControllers()
 {
     m_connectionController.reset(
-            new ConnectionController(m_serversModel, m_containersModel, m_clientManagementModel, m_vpnConnection, m_settings));
+            new ConnectionController(m_serversModel, m_containersModel, m_vpnConnection, m_settings));
     m_engine->rootContext()->setContextProperty("ConnectionController", m_connectionController.get());
 
     m_pageController.reset(new PageController(m_serversModel, m_settings));
@@ -153,20 +115,11 @@ void CoreController::initControllers()
     m_focusController.reset(new FocusController(m_engine, this));
     m_engine->rootContext()->setContextProperty("FocusController", m_focusController.get());
 
-    m_installController.reset(new InstallController(m_serversModel, m_containersModel, m_protocolsModel, m_clientManagementModel, m_settings));
+    m_installController.reset(new InstallController(m_serversModel, m_settings));
     m_engine->rootContext()->setContextProperty("InstallController", m_installController.get());
-
-    connect(m_installController.get(), &InstallController::currentContainerUpdated, m_connectionController.get(),
-            &ConnectionController::onCurrentContainerUpdated); // TODO remove this
-
-    connect(m_installController.get(), &InstallController::profileCleared,
-            m_protocolsModel.get(), &ProtocolsModel::updateModel);
 
     m_importController.reset(new ImportController(m_serversModel, m_containersModel, m_settings));
     m_engine->rootContext()->setContextProperty("ImportController", m_importController.get());
-
-    m_exportController.reset(new ExportController(m_serversModel, m_containersModel, m_clientManagementModel, m_settings));
-    m_engine->rootContext()->setContextProperty("ExportController", m_exportController.get());
 
     m_settingsController.reset(
             new SettingsController(m_serversModel, m_containersModel, m_languageModel, m_sitesModel, m_appSplitTunnelingModel, m_settings));
@@ -212,9 +165,6 @@ void CoreController::initControllers()
                 m_apiConfigsController->importSharedConnection(shareToken);
                 m_pageController->showBusyIndicator(false);
             });
-
-    m_apiNewsController.reset(new ApiNewsController(m_newsModel, m_settings, m_serversModel, this));
-    m_engine->rootContext()->setContextProperty("ApiNewsController", m_apiNewsController.get());
 
     m_splitPresetsModel.reset(new SplitPresetsModel(m_settings, m_serversModel, this));
     m_engine->rootContext()->setContextProperty("SplitPresetsModel", m_splitPresetsModel.get());
@@ -307,8 +257,6 @@ void CoreController::initSignalHandlers()
 
     initApiCountryModelUpdateHandler();
     initContainerModelUpdateHandler();
-    initAdminConfigRevokedHandler();
-    initPassphraseRequestHandler();
     initTranslationsUpdatedHandler();
     initAutoConnectHandler();
     initAmneziaDnsToggledHandler();
@@ -412,16 +360,16 @@ void CoreController::initContainerModelUpdateHandler()
     connect(m_serversModel.get(), &ServersModel::defaultServerContainersUpdated, m_defaultServerContainersModel.get(),
             &ContainersModel::updateModel);
     connect(m_serversModel.get(), &ServersModel::gatewayStacksExpanded, this, [this]() {
-        if (m_serversModel->hasServersFromGatewayApi()) {
-            m_apiNewsController->fetchNews(false);
-        }
         m_splitPresetsModel->fetchPresets();
     });
     // warm the account_info cache on start, so opening the server card
-    // doesn't do an API round-trip (served from cache for the next hour)
+    // doesn't do an API round-trip (served from cache for the next hour).
+    // Skip while no default server is selected yet (first import in progress):
+    // hasServersFromGatewayApiChanged fires again as soon as one appears.
     auto warmAccountInfoCache = [this]() {
-        if (m_serversModel->hasServersFromGatewayApi()) {
-            m_serversModel->setProcessedServerIndex(m_serversModel->getDefaultServerIndex());
+        const int defaultIndex = m_serversModel->getDefaultServerIndex();
+        if (m_serversModel->hasServersFromGatewayApi() && defaultIndex >= 0) {
+            m_serversModel->setProcessedServerIndex(defaultIndex);
             m_apiSettingsController->getAccountInfo(true);
         }
     };
@@ -432,20 +380,6 @@ void CoreController::initContainerModelUpdateHandler()
     m_splitPresetsModel->fetchPresets();
     // pick up backend-side config changes (e.g. node IP updates) — throttled inside
     m_apiConfigsController->refreshSubscriptionConfigs();
-}
-
-void CoreController::initAdminConfigRevokedHandler()
-{
-    connect(m_clientManagementModel.get(), &ClientManagementModel::adminConfigRevoked, m_serversModel.get(),
-            &ServersModel::clearCachedProfile);
-}
-
-void CoreController::initPassphraseRequestHandler()
-{
-    connect(m_installController.get(), &InstallController::passphraseRequestStarted, m_pageController.get(),
-            &PageController::showPassphraseRequestDrawer);
-    connect(m_pageController.get(), &PageController::passphraseRequestDrawerClosed, m_installController.get(),
-            &InstallController::setEncryptedPassphrase);
 }
 
 void CoreController::initTranslationsUpdatedHandler()

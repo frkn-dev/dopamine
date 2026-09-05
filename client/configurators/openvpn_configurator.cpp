@@ -15,8 +15,6 @@
 
 #include "core/networkUtilities.h"
 #include "containers/containers_defs.h"
-#include "core/controllers/serverController.h"
-#include "core/scripts_registry.h"
 #include "settings.h"
 #include "utilities.h"
 
@@ -25,103 +23,9 @@
 #include <openssl/x509.h>
 
 
-OpenVpnConfigurator::OpenVpnConfigurator(std::shared_ptr<Settings> settings, const QSharedPointer<ServerController> &serverController,
-                                         QObject *parent)
-    : ConfiguratorBase(settings, serverController, parent)
+OpenVpnConfigurator::OpenVpnConfigurator(std::shared_ptr<Settings> settings, QObject *parent)
+    : ConfiguratorBase(settings, parent)
 {
-}
-
-OpenVpnConfigurator::ConnectionData OpenVpnConfigurator::prepareOpenVpnConfig(const ServerCredentials &credentials,
-                                                                              DockerContainer container, ErrorCode &errorCode)
-{
-    OpenVpnConfigurator::ConnectionData connData = OpenVpnConfigurator::createCertRequest();
-    connData.host = credentials.hostName;
-
-    if (connData.privKey.isEmpty() || connData.request.isEmpty()) {
-        errorCode = ErrorCode::OpenSslFailed;
-        return connData;
-    }
-
-    QString reqFileName = QString("%1/%2.req").arg(amnezia::protocols::openvpn::clientsDirPath).arg(connData.clientId);
-
-    errorCode = m_serverController->uploadTextFileToContainer(container, credentials, connData.request, reqFileName);
-    if (errorCode != ErrorCode::NoError) {
-        return connData;
-    }
-
-    errorCode = signCert(container, credentials, connData.clientId);
-    if (errorCode != ErrorCode::NoError) {
-        return connData;
-    }
-
-    connData.caCert =
-            m_serverController->getTextFileFromContainer(container, credentials, amnezia::protocols::openvpn::caCertPath, errorCode);
-    connData.clientCert = m_serverController->getTextFileFromContainer(
-            container, credentials, QString("%1/%2.crt").arg(amnezia::protocols::openvpn::clientCertPath).arg(connData.clientId), errorCode);
-
-    if (errorCode != ErrorCode::NoError) {
-        return connData;
-    }
-
-    connData.taKey = m_serverController->getTextFileFromContainer(container, credentials, amnezia::protocols::openvpn::taKeyPath, errorCode);
-
-    if (connData.caCert.isEmpty() || connData.clientCert.isEmpty() || connData.taKey.isEmpty()) {
-        errorCode = ErrorCode::SshScpFailureError;
-    }
-
-    return connData;
-}
-
-QString OpenVpnConfigurator::createConfig(const ServerCredentials &credentials, DockerContainer container,
-                                          const QJsonObject &containerConfig, ErrorCode &errorCode)
-{
-    QString config = m_serverController->replaceVars(amnezia::scriptData(ProtocolScriptType::openvpn_template, container),
-                                                     m_serverController->genVarsForScript(credentials, container, containerConfig));
-
-    ConnectionData connData = prepareOpenVpnConfig(credentials, container, errorCode);
-    if (errorCode != ErrorCode::NoError) {
-        return "";
-    }
-
-    auto sanitizeStaticKey = [](const QString &key) {
-        QStringList lines = key.split('\n');
-        QStringList filtered;
-        filtered.reserve(lines.size());
-        for (const QString &line : lines) {
-            const QString trimmed = line.trimmed();
-            if (trimmed.startsWith('#')) {
-                continue;
-            }
-            filtered.append(line);
-        }
-        QString result = filtered.join('\n');
-        if (!result.endsWith('\n')) {
-            result.append('\n');
-        }
-        return result;
-    };
-
-    config.replace("$OPENVPN_CA_CERT", connData.caCert);
-    config.replace("$OPENVPN_CLIENT_CERT", connData.clientCert);
-    config.replace("$OPENVPN_PRIV_KEY", connData.privKey);
-
-    if (config.contains("$OPENVPN_TA_KEY")) {
-        config.replace("$OPENVPN_TA_KEY", sanitizeStaticKey(connData.taKey));
-    } else {
-        config.replace("<tls-auth>", "");
-        config.replace("</tls-auth>", "");
-    }
-
-#ifndef MZ_WINDOWS
-    config.replace("block-outside-dns", "");
-#endif
-
-    QJsonObject jConfig;
-    jConfig[config_key::config] = config;
-
-    jConfig[config_key::clientId] = connData.clientId;
-
-    return QJsonDocument(jConfig).toJson();
 }
 
 QString OpenVpnConfigurator::processConfigWithLocalSettings(const QPair<QString, QString> &dns, const bool isApiConfig,
@@ -201,25 +105,6 @@ QString OpenVpnConfigurator::processConfigWithExportSettings(const QPair<QString
 
     json[config_key::config] = config;
     return QJsonDocument(json).toJson();
-}
-
-ErrorCode OpenVpnConfigurator::signCert(DockerContainer container, const ServerCredentials &credentials, QString clientId)
-{
-    QString script_import = QString("sudo docker exec -i %1 bash -c \"cd /opt/amnezia/openvpn && "
-                                    "easyrsa import-req %2/%3.req %3\"")
-                                    .arg(ContainerProps::containerToString(container))
-                                    .arg(amnezia::protocols::openvpn::clientsDirPath)
-                                    .arg(clientId);
-
-    QString script_sign = QString("sudo docker exec -i %1 bash -c \"export EASYRSA_BATCH=1; cd /opt/amnezia/openvpn && "
-                                  "easyrsa sign-req client %2\"")
-                                  .arg(ContainerProps::containerToString(container))
-                                  .arg(clientId);
-
-    QStringList scriptList { script_import, script_sign };
-    QString script = m_serverController->replaceVars(scriptList.join("\n"), m_serverController->genVarsForScript(credentials, container));
-
-    return m_serverController->runScript(credentials, script);
 }
 
 OpenVpnConfigurator::ConnectionData OpenVpnConfigurator::createCertRequest()

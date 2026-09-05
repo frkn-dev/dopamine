@@ -1,20 +1,17 @@
 #ifndef WIREGUARD_CONFIGURATOR_H
 #define WIREGUARD_CONFIGURATOR_H
 
-#include <QHostAddress>
 #include <QObject>
 #include <QProcessEnvironment>
 
 #include "configurator_base.h"
 #include "core/defs.h"
-#include "core/scripts_registry.h"
 
 class WireguardConfigurator : public ConfiguratorBase
 {
     Q_OBJECT
 public:
-    WireguardConfigurator(std::shared_ptr<Settings> settings, const QSharedPointer<ServerController> &serverController,
-                          bool isAwg, QObject *parent = nullptr);
+    WireguardConfigurator(std::shared_ptr<Settings> settings, QObject *parent = nullptr);
 
     struct ConnectionData
     {
@@ -27,9 +24,6 @@ public:
         QString port;
     };
 
-    QString createConfig(const ServerCredentials &credentials, DockerContainer container,
-                         const QJsonObject &containerConfig, ErrorCode &errorCode);
-
     QString processConfigWithLocalSettings(const QPair<QString, QString> &dns, const bool isApiConfig,
                                            QString &protocolConfigString);
     QString processConfigWithExportSettings(const QPair<QString, QString> &dns, const bool isApiConfig,
@@ -41,19 +35,6 @@ public:
     // Returns an empty string on failure. Lets us keep a client's key pair stable
     // across reconnects when only the private key was persisted in last_config.
     static QString genPublicKeyFromPrivate(const QString &privateKeyBase64);
-
-private:
-    QList<QHostAddress> getIpsFromConf(const QString &input);
-    ConnectionData prepareWireguardConfig(const ServerCredentials &credentials, DockerContainer container,
-                                          const QJsonObject &containerConfig, ErrorCode &errorCode);
-
-    bool m_isAwg;
-    QString m_serverConfigPath;
-    QString m_serverPublicKeyPath;
-    QString m_serverPskKeyPath;
-    amnezia::ProtocolScriptType m_configTemplate;
-    QString m_protocolName;
-    QString m_defaultPort;
 };
 
 #endif // WIREGUARD_CONFIGURATOR_H

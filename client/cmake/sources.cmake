@@ -7,13 +7,11 @@ set(HEADERS ${HEADERS}
     ${CLIENT_ROOT_DIR}/containers/containers_defs.h
     ${CLIENT_ROOT_DIR}/core/defs.h
     ${CLIENT_ROOT_DIR}/core/errorstrings.h
-    ${CLIENT_ROOT_DIR}/core/scripts_registry.h
     ${CLIENT_ROOT_DIR}/core/server_defs.h
     ${CLIENT_ROOT_DIR}/core/api/apiDefs.h
     ${CLIENT_ROOT_DIR}/core/qrCodeUtils.h
     ${CLIENT_ROOT_DIR}/core/controllers/coreController.h
     ${CLIENT_ROOT_DIR}/core/controllers/gatewayController.h
-    ${CLIENT_ROOT_DIR}/core/controllers/serverController.h
     ${CLIENT_ROOT_DIR}/core/controllers/vpnConfigurationController.h
     ${CLIENT_ROOT_DIR}/protocols/protocols_defs.h
     ${CLIENT_ROOT_DIR}/protocols/qml_register_protocols.h
@@ -21,7 +19,6 @@ set(HEADERS ${HEADERS}
     ${CLIENT_ROOT_DIR}/ui/qautostart.h
     ${CLIENT_ROOT_DIR}/protocols/vpnprotocol.h
     ${CMAKE_CURRENT_BINARY_DIR}/version.h
-    ${CLIENT_ROOT_DIR}/core/sshclient.h
     ${CLIENT_ROOT_DIR}/core/networkUtilities.h
     ${CLIENT_ROOT_DIR}/core/serialization/serialization.h
     ${CLIENT_ROOT_DIR}/core/serialization/transfer.h
@@ -57,17 +54,14 @@ set(SOURCES ${SOURCES}
     ${CLIENT_ROOT_DIR}/dopamine_application.cpp
     ${CLIENT_ROOT_DIR}/containers/containers_defs.cpp
     ${CLIENT_ROOT_DIR}/core/errorstrings.cpp
-    ${CLIENT_ROOT_DIR}/core/scripts_registry.cpp
     ${CLIENT_ROOT_DIR}/core/server_defs.cpp
     ${CLIENT_ROOT_DIR}/core/qrCodeUtils.cpp
     ${CLIENT_ROOT_DIR}/core/controllers/coreController.cpp
     ${CLIENT_ROOT_DIR}/core/controllers/gatewayController.cpp
-    ${CLIENT_ROOT_DIR}/core/controllers/serverController.cpp
     ${CLIENT_ROOT_DIR}/core/controllers/vpnConfigurationController.cpp
     ${CLIENT_ROOT_DIR}/protocols/protocols_defs.cpp
     ${CLIENT_ROOT_DIR}/ui/qautostart.cpp
     ${CLIENT_ROOT_DIR}/protocols/vpnprotocol.cpp
-    ${CLIENT_ROOT_DIR}/core/sshclient.cpp
     ${CLIENT_ROOT_DIR}/core/networkUtilities.cpp
     ${CLIENT_ROOT_DIR}/core/serialization/outbound.cpp
     ${CLIENT_ROOT_DIR}/core/serialization/inbound.cpp

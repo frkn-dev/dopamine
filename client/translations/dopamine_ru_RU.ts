@@ -176,30 +176,28 @@
  Пожалуйста, установите протокол</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="432"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="913"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="429"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="910"/>
         <source>Connecting...</source>
         <translation>Подключение...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="918"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="915"/>
         <source>Connected</source>
         <translation>Подключено</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="979"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="976"/>
         <source>Preparing...</source>
         <translation>Подготовка...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="1003"/>
         <source>Settings updated successfully, reconnnection...</source>
-        <translation>Настройки успешно обновлены, переподключение...</translation>
+        <translation type="vanished">Настройки успешно обновлены, переподключение...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="1006"/>
         <source>Settings updated successfully</source>
-        <translation>Настройки успешно обновлены</translation>
+        <translation type="vanished">Настройки успешно обновлены</translation>
     </message>
     <message>
         <source>The selected protocol is not supported on the current platform</source>
@@ -210,31 +208,31 @@
         <translation type="vanished">не удалось создать конфигурацию</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="948"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="945"/>
         <source>Reconnecting...</source>
         <translation>Переподключение...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.h" line="177"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="218"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="706"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="749"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="828"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="854"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="895"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="959"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="984"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="991"/>
+        <location filename="../ui/controllers/connectionController.h" line="171"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="216"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="703"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="746"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="825"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="851"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="892"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="956"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="981"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="988"/>
         <source>Connect</source>
         <translation>Подключиться</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="974"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="971"/>
         <source>Disconnecting...</source>
         <translation>Отключение...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="580"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="577"/>
         <source>Searching for the best server...</source>
         <translation>Поиск лучшего сервера...</translation>
     </message>
@@ -403,73 +401,62 @@ Can&apos;t be disabled for current server</source>
 <context>
     <name>InstallController</name>
     <message>
-        <location filename="../ui/controllers/installController.cpp" line="193"/>
         <source>%1 installed successfully. </source>
-        <translation>%1 успешно установлен. </translation>
+        <translation type="vanished">%1 успешно установлен. </translation>
     </message>
     <message>
-        <location filename="../ui/controllers/installController.cpp" line="195"/>
         <source>%1 is already installed on the server. </source>
-        <translation>%1 уже установлен на сервер. </translation>
+        <translation type="vanished">%1 уже установлен на сервер. </translation>
     </message>
     <message>
-        <location filename="../ui/controllers/installController.cpp" line="215"/>
         <source>
 Added containers that were already installed on the server</source>
-        <translation>
+        <translation type="vanished">
 Добавлены сервисы и протоколы, которые были ранее установлены на сервер</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/installController.cpp" line="295"/>
         <source>
 Already installed containers were found on the server. All installed containers have been added to the application</source>
-        <translation>
+        <translation type="vanished">
 На сервере обнаружены установленные протоколы и сервисы. Все они были добавлены в приложение</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/installController.cpp" line="729"/>
         <source>Settings updated successfully</source>
-        <translation>Настройки успешно обновлены</translation>
+        <translation type="vanished">Настройки успешно обновлены</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/installController.cpp" line="746"/>
         <source>Server &apos;%1&apos; was rebooted</source>
-        <translation>Сервер &apos;%1&apos; был перезагружен</translation>
+        <translation type="vanished">Сервер &apos;%1&apos; был перезагружен</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/installController.cpp" line="758"/>
+        <location filename="../ui/controllers/installController.cpp" line="21"/>
         <source>Server &apos;%1&apos; was removed</source>
         <translation>Сервер &apos;%1&apos; был удален</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/installController.cpp" line="769"/>
         <source>All containers from server &apos;%1&apos; have been removed</source>
-        <translation>Все протоколы и сервисы были удалены с сервера &apos;%1&apos;</translation>
+        <translation type="vanished">Все протоколы и сервисы были удалены с сервера &apos;%1&apos;</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/installController.cpp" line="787"/>
         <source>%1 has been removed from the server &apos;%2&apos;</source>
-        <translation>%1 был удален с сервера &apos;%2&apos;</translation>
+        <translation type="vanished">%1 был удален с сервера &apos;%2&apos;</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/installController.cpp" line="796"/>
+        <location filename="../ui/controllers/installController.cpp" line="27"/>
         <source>Api config removed</source>
         <translation>Конфигурация API удалена</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/installController.cpp" line="818"/>
         <source>%1 cached profile cleared</source>
-        <translation>%1 закэшированный профиль очищен</translation>
+        <translation type="vanished">%1 закэшированный профиль очищен</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/installController.cpp" line="959"/>
         <source>Please login as the user</source>
-        <translation>Пожалуйста, войдите в систему от имени пользователя</translation>
+        <translation type="vanished">Пожалуйста, войдите в систему от имени пользователя</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/installController.cpp" line="987"/>
         <source>Server added successfully</source>
-        <translation>Сервер успешно добавлен</translation>
+        <translation type="vanished">Сервер успешно добавлен</translation>
     </message>
     <message>
         <source>%1 installed successfully.</source>
@@ -552,14 +539,12 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageDeinstalling</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageDeinstalling.qml" line="52"/>
         <source>Removing services from %1</source>
-        <translation>Удаление сервисов c %1</translation>
+        <translation type="vanished">Удаление сервисов c %1</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageDeinstalling.qml" line="81"/>
         <source>Usually it takes no more than 5 minutes</source>
-        <translation>Обычно это занимает не более 5 минут</translation>
+        <translation type="vanished">Обычно это занимает не более 5 минут</translation>
     </message>
 </context>
 <context>
@@ -613,275 +598,222 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageProtocolAwgClientSettings</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgClientSettings.qml" line="55"/>
         <source>AmneziaWG settings</source>
-        <translation>Настройки AmneziaWG</translation>
+        <translation type="vanished">Настройки AmneziaWG</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgClientSettings.qml" line="79"/>
         <source>MTU</source>
-        <translation>MTU</translation>
+        <translation type="vanished">MTU</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgClientSettings.qml" line="170"/>
         <source>I1 - First special junk packet</source>
-        <translation>I1 — Первый специальный мусорный пакет</translation>
+        <translation type="vanished">I1 — Первый специальный мусорный пакет</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgClientSettings.qml" line="194"/>
         <source>I2 - Second special junk packet</source>
-        <translation>I2 — Второй специальный мусорный пакет</translation>
+        <translation type="vanished">I2 — Второй специальный мусорный пакет</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgClientSettings.qml" line="218"/>
         <source>I3 - Third special junk packet</source>
-        <translation>I3 — Третий специальный мусорный пакет</translation>
+        <translation type="vanished">I3 — Третий специальный мусорный пакет</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgClientSettings.qml" line="242"/>
         <source>I4 - Fourth special junk packet</source>
-        <translation>I4 — Четвёртый специальный мусорный пакет</translation>
+        <translation type="vanished">I4 — Четвёртый специальный мусорный пакет</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgClientSettings.qml" line="266"/>
         <source>I5 - Fifth special junk packet</source>
-        <translation>I5 — Пятый специальный мусорный пакет</translation>
+        <translation type="vanished">I5 — Пятый специальный мусорный пакет</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgClientSettings.qml" line="291"/>
         <source>Server settings</source>
-        <translation>Настройки сервера</translation>
+        <translation type="vanished">Настройки сервера</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgClientSettings.qml" line="302"/>
         <source>Port</source>
-        <translation>Порт</translation>
+        <translation type="vanished">Порт</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgClientSettings.qml" line="422"/>
         <source>Save</source>
-        <translation>Сохранить</translation>
+        <translation type="vanished">Сохранить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgClientSettings.qml" line="431"/>
         <source>Save settings?</source>
-        <translation>Сохранить настройки?</translation>
+        <translation type="vanished">Сохранить настройки?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgClientSettings.qml" line="432"/>
         <source>Only the settings for this device will be changed</source>
-        <translation>Будут изменены настройки только для этого устройства</translation>
+        <translation type="vanished">Будут изменены настройки только для этого устройства</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgClientSettings.qml" line="433"/>
         <source>Continue</source>
-        <translation>Продолжить</translation>
+        <translation type="vanished">Продолжить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgClientSettings.qml" line="434"/>
         <source>Cancel</source>
-        <translation>Отменить</translation>
+        <translation type="vanished">Отменить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgClientSettings.qml" line="438"/>
         <source>Unable change settings while there is an active connection</source>
-        <translation>Невозможно изменить настройки во время активного соединения</translation>
+        <translation type="vanished">Невозможно изменить настройки во время активного соединения</translation>
     </message>
 </context>
 <context>
     <name>PageProtocolAwgSettings</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="67"/>
         <source>AmneziaWG settings</source>
-        <translation>Настройки AmneziaWG</translation>
+        <translation type="vanished">Настройки AmneziaWG</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="107"/>
         <source>Port</source>
-        <translation>Порт</translation>
+        <translation type="vanished">Порт</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="391"/>
         <source>I1 - Special junk 1</source>
-        <translation>I1 — Мусорный пакет 1</translation>
+        <translation type="vanished">I1 — Мусорный пакет 1</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="414"/>
         <source>I2 - Special junk 2</source>
-        <translation>I2 — Мусорный пакет 2</translation>
+        <translation type="vanished">I2 — Мусорный пакет 2</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="437"/>
         <source>I3 - Special junk 3</source>
-        <translation>I3 — Мусорный пакет 3</translation>
+        <translation type="vanished">I3 — Мусорный пакет 3</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="460"/>
         <source>I4 - Special junk 4</source>
-        <translation>I4 — Мусорный пакет 4</translation>
+        <translation type="vanished">I4 — Мусорный пакет 4</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="483"/>
         <source>I5 - Special junk 5</source>
-        <translation>I5 — Мусорный пакет 5</translation>
+        <translation type="vanished">I5 — Мусорный пакет 5</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="545"/>
         <source>The value of the field S1 + message initiation size (148) must not equal S2 + message response size (92) + S3 + cookie reply size (64) + S4 + transport packet size (32)</source>
-        <translation>Значение поля S1 + размер init-сообщения (148) не должно равняться S2 + размер response-сообщения (92) + S3 + размер cookie reply (64) + S4 + размер transport-пакета (32)</translation>
+        <translation type="vanished">Значение поля S1 + размер init-сообщения (148) не должно равняться S2 + размер response-сообщения (92) + S3 + размер cookie reply (64) + S4 + размер transport-пакета (32)</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="551"/>
         <source>All users with whom you shared a connection with will no longer be able to connect to it.</source>
-        <translation>Все пользователи, с которыми вы поделились конфигурацией вашего VPN, больше не смогут к нему подключаться.</translation>
+        <translation type="vanished">Все пользователи, с которыми вы поделились конфигурацией вашего VPN, больше не смогут к нему подключаться.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="522"/>
         <source>Save</source>
-        <translation>Сохранить</translation>
+        <translation type="vanished">Сохранить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="80"/>
         <source>VPN address subnet</source>
-        <translation>Подсеть VPN-адресов</translation>
+        <translation type="vanished">Подсеть VPN-адресов</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="133"/>
         <source>Jc - Junk packet count</source>
-        <translation>Jc — Количество мусорных пакетов</translation>
+        <translation type="vanished">Jc — Количество мусорных пакетов</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="155"/>
         <source>Jmin - Junk packet minimum size</source>
-        <translation>Jmin — Минимальный размер мусорного пакета</translation>
+        <translation type="vanished">Jmin — Минимальный размер мусорного пакета</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="177"/>
         <source>Jmax - Junk packet maximum size</source>
-        <translation>Jmax — Максимальный размер мусорного пакета</translation>
+        <translation type="vanished">Jmax — Максимальный размер мусорного пакета</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="199"/>
         <source>S1 - Init packet junk size</source>
-        <translation>S1 — Размер мусора в init-пакете</translation>
+        <translation type="vanished">S1 — Размер мусора в init-пакете</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="221"/>
         <source>S2 - Response packet junk size</source>
-        <translation>S2 — Размер мусора в response-пакете</translation>
+        <translation type="vanished">S2 — Размер мусора в response-пакете</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="245"/>
         <source>S3 - Cookie reply packet junk size</source>
-        <translation>S3 — Размер мусора в cookie reply-пакете</translation>
+        <translation type="vanished">S3 — Размер мусора в cookie reply-пакете</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="269"/>
         <source>S4 - Transport packet junk size</source>
-        <translation>S4 — Размер мусора в transport-пакете</translation>
+        <translation type="vanished">S4 — Размер мусора в transport-пакете</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="291"/>
         <source>H1 - Init packet magic header</source>
-        <translation>H1 — Магический заголовок init-пакета</translation>
+        <translation type="vanished">H1 — Магический заголовок init-пакета</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="316"/>
         <source>H2 - Response packet magic header</source>
-        <translation>H2 — Магический заголовок response-пакета</translation>
+        <translation type="vanished">H2 — Магический заголовок response-пакета</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="366"/>
         <source>H4 - Transport packet magic header</source>
-        <translation>H4 — Магический заголовок transport-пакета</translation>
+        <translation type="vanished">H4 — Магический заголовок transport-пакета</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="341"/>
         <source>H3 - Underload packet magic header</source>
-        <translation>H3 — Магический заголовок underload-пакета</translation>
+        <translation type="vanished">H3 — Магический заголовок underload-пакета</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="537"/>
         <source>The values of the H1-H4 fields must be unique</source>
-        <translation>Значения в полях H1-H4 должны быть уникальными</translation>
+        <translation type="vanished">Значения в полях H1-H4 должны быть уникальными</translation>
     </message>
     <message>
         <source>The value of the field S1 + message initiation size (148) must not equal S2 + message response size (92)</source>
         <translation type="vanished">Значение в поле S1 + размер инициации сообщения (148) не должно равняться значению в поле S2 + размер ответа на сообщение (92)</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="550"/>
         <source>Save settings?</source>
-        <translation>Сохранить настройки?</translation>
+        <translation type="vanished">Сохранить настройки?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="552"/>
         <source>Continue</source>
-        <translation>Продолжить</translation>
+        <translation type="vanished">Продолжить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="553"/>
         <source>Cancel</source>
-        <translation>Отменить</translation>
+        <translation type="vanished">Отменить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolAwgSettings.qml" line="557"/>
         <source>Unable change settings while there is an active connection</source>
-        <translation>Невозможно изменить настройки во время активного соединения</translation>
+        <translation type="vanished">Невозможно изменить настройки во время активного соединения</translation>
     </message>
 </context>
 <context>
     <name>PageProtocolCloakSettings</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolCloakSettings.qml" line="54"/>
         <source>Cloak settings</source>
-        <translation>Настройки Cloak</translation>
+        <translation type="vanished">Настройки Cloak</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolCloakSettings.qml" line="75"/>
         <source>Disguised as traffic from</source>
-        <translation>Замаскировать трафик под</translation>
+        <translation type="vanished">Замаскировать трафик под</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolCloakSettings.qml" line="103"/>
         <source>Port</source>
-        <translation>Порт</translation>
+        <translation type="vanished">Порт</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolCloakSettings.qml" line="125"/>
-        <location filename="../ui/qml/Pages2/PageProtocolCloakSettings.qml" line="126"/>
         <source>Cipher</source>
-        <translation>Шифрование</translation>
+        <translation type="vanished">Шифрование</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolCloakSettings.qml" line="184"/>
         <source>Save</source>
-        <translation>Сохранить</translation>
+        <translation type="vanished">Сохранить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolCloakSettings.qml" line="189"/>
         <source>Save settings?</source>
-        <translation>Сохранить настройки?</translation>
+        <translation type="vanished">Сохранить настройки?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolCloakSettings.qml" line="190"/>
         <source>All users with whom you shared a connection with will no longer be able to connect to it.</source>
-        <translation>Все пользователи, с которыми вы поделились конфигурацией вашего VPN, больше не смогут к нему подключаться.</translation>
+        <translation type="vanished">Все пользователи, с которыми вы поделились конфигурацией вашего VPN, больше не смогут к нему подключаться.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolCloakSettings.qml" line="191"/>
         <source>Continue</source>
-        <translation>Продолжить</translation>
+        <translation type="vanished">Продолжить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolCloakSettings.qml" line="192"/>
         <source>Cancel</source>
-        <translation>Отменить</translation>
+        <translation type="vanished">Отменить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolCloakSettings.qml" line="196"/>
         <source>Unable change settings while there is an active connection</source>
-        <translation>Невозможно изменить настройки во время активного соединения</translation>
+        <translation type="vanished">Невозможно изменить настройки во время активного соединения</translation>
     </message>
 </context>
 <context>
@@ -891,442 +823,355 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Настройки OpenVPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="55"/>
         <source>OpenVPN Settings</source>
-        <translation>Настройки OpenVPN</translation>
+        <translation type="vanished">Настройки OpenVPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="76"/>
         <source>VPN address subnet</source>
-        <translation>Подсеть VPN-адресов</translation>
+        <translation type="vanished">Подсеть VPN-адресов</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="94"/>
         <source>Network protocol</source>
-        <translation>Сетевой протокол</translation>
+        <translation type="vanished">Сетевой протокол</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="131"/>
         <source>Port</source>
-        <translation>Порт</translation>
+        <translation type="vanished">Порт</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="153"/>
         <source>Auto-negotiate encryption</source>
-        <translation>Шифрование с автоматическим согласованием</translation>
+        <translation type="vanished">Шифрование с автоматическим согласованием</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="172"/>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="173"/>
         <source>Hash</source>
-        <translation>Хэш</translation>
+        <translation type="vanished">Хэш</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="183"/>
         <source>SHA512</source>
-        <translation>SHA512</translation>
+        <translation type="vanished">SHA512</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="184"/>
         <source>SHA384</source>
-        <translation>SHA384</translation>
+        <translation type="vanished">SHA384</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="185"/>
         <source>SHA256</source>
-        <translation>SHA256</translation>
+        <translation type="vanished">SHA256</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="186"/>
         <source>SHA3-512</source>
-        <translation>SHA3-512</translation>
+        <translation type="vanished">SHA3-512</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="187"/>
         <source>SHA3-384</source>
-        <translation>SHA3-384</translation>
+        <translation type="vanished">SHA3-384</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="188"/>
         <source>SHA3-256</source>
-        <translation>SHA3-256</translation>
+        <translation type="vanished">SHA3-256</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="189"/>
         <source>whirlpool</source>
-        <translation>whirlpool</translation>
+        <translation type="vanished">whirlpool</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="190"/>
         <source>BLAKE2b512</source>
-        <translation>BLAKE2b512</translation>
+        <translation type="vanished">BLAKE2b512</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="191"/>
         <source>BLAKE2s256</source>
-        <translation>BLAKE2s256</translation>
+        <translation type="vanished">BLAKE2s256</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="192"/>
         <source>SHA1</source>
-        <translation>SHA1</translation>
+        <translation type="vanished">SHA1</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="233"/>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="234"/>
         <source>Cipher</source>
-        <translation>Шифрование</translation>
+        <translation type="vanished">Шифрование</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="244"/>
         <source>AES-256-GCM</source>
-        <translation>AES-256-GCM</translation>
+        <translation type="vanished">AES-256-GCM</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="245"/>
         <source>AES-192-GCM</source>
-        <translation>AES-192-GCM</translation>
+        <translation type="vanished">AES-192-GCM</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="246"/>
         <source>AES-128-GCM</source>
-        <translation>AES-128-GCM</translation>
+        <translation type="vanished">AES-128-GCM</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="247"/>
         <source>AES-256-CBC</source>
-        <translation>AES-256-CBC</translation>
+        <translation type="vanished">AES-256-CBC</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="248"/>
         <source>AES-192-CBC</source>
-        <translation>AES-192-CBC</translation>
+        <translation type="vanished">AES-192-CBC</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="249"/>
         <source>AES-128-CBC</source>
-        <translation>AES-128-CBC</translation>
+        <translation type="vanished">AES-128-CBC</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="250"/>
         <source>ChaCha20-Poly1305</source>
-        <translation>ChaCha20-Poly1305</translation>
+        <translation type="vanished">ChaCha20-Poly1305</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="251"/>
         <source>ARIA-256-CBC</source>
-        <translation>ARIA-256-CBC</translation>
+        <translation type="vanished">ARIA-256-CBC</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="252"/>
         <source>CAMELLIA-256-CBC</source>
-        <translation>CAMELLIA-256-CBC</translation>
+        <translation type="vanished">CAMELLIA-256-CBC</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="253"/>
         <source>none</source>
-        <translation>none</translation>
+        <translation type="vanished">none</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="305"/>
         <source>TLS auth</source>
-        <translation>TLS авторизация</translation>
+        <translation type="vanished">TLS авторизация</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="322"/>
         <source>Block DNS requests outside of VPN</source>
-        <translation>Блокировать DNS-запросы за пределами VPN</translation>
+        <translation type="vanished">Блокировать DNS-запросы за пределами VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="343"/>
         <source>Additional client configuration commands</source>
-        <translation>Дополнительные команды конфигурации клиента</translation>
+        <translation type="vanished">Дополнительные команды конфигурации клиента</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="362"/>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="399"/>
         <source>Commands:</source>
-        <translation>Команды:</translation>
+        <translation type="vanished">Команды:</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="380"/>
         <source>Additional server configuration commands</source>
-        <translation>Дополнительные команды конфигурации сервера</translation>
+        <translation type="vanished">Дополнительные команды конфигурации сервера</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="425"/>
         <source>Save settings?</source>
-        <translation>Сохранить настройки?</translation>
+        <translation type="vanished">Сохранить настройки?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="426"/>
         <source>All users with whom you shared a connection with will no longer be able to connect to it.</source>
-        <translation>Все пользователи, с которыми вы поделились конфигурацией вашего VPN, больше не смогут к нему подключаться.</translation>
+        <translation type="vanished">Все пользователи, с которыми вы поделились конфигурацией вашего VPN, больше не смогут к нему подключаться.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="427"/>
         <source>Continue</source>
-        <translation>Продолжить</translation>
+        <translation type="vanished">Продолжить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="428"/>
         <source>Cancel</source>
-        <translation>Отменить</translation>
+        <translation type="vanished">Отменить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="432"/>
         <source>Unable change settings while there is an active connection</source>
-        <translation>Невозможно изменить настройки во время активного соединения</translation>
+        <translation type="vanished">Невозможно изменить настройки во время активного соединения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolOpenVpnSettings.qml" line="420"/>
         <source>Save</source>
-        <translation>Сохранить</translation>
+        <translation type="vanished">Сохранить</translation>
     </message>
 </context>
 <context>
     <name>PageProtocolRaw</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolRaw.qml" line="54"/>
         <source> settings</source>
-        <translation> настройки</translation>
+        <translation type="vanished"> настройки</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolRaw.qml" line="70"/>
         <source>Show connection options</source>
-        <translation>Показать параметры подключения</translation>
+        <translation type="vanished">Показать параметры подключения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolRaw.qml" line="126"/>
         <source>Connection options %1</source>
-        <translation>Параметры подключения %1</translation>
+        <translation type="vanished">Параметры подключения %1</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolRaw.qml" line="178"/>
         <source>Remove </source>
-        <translation>Удалить </translation>
+        <translation type="vanished">Удалить </translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolRaw.qml" line="182"/>
         <source>Remove %1 from server?</source>
-        <translation>Удалить %1 с сервера?</translation>
+        <translation type="vanished">Удалить %1 с сервера?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolRaw.qml" line="183"/>
         <source>All users with whom you shared a connection with will no longer be able to connect to it.</source>
-        <translation>Все пользователи, с которыми вы поделились конфигурацией вашего VPN, больше не смогут к нему подключаться.</translation>
+        <translation type="vanished">Все пользователи, с которыми вы поделились конфигурацией вашего VPN, больше не смогут к нему подключаться.</translation>
     </message>
     <message>
         <source>All users who you shared a connection with will no longer be able to connect to it.</source>
         <translation type="obsolete">Все пользователи, с которыми вы поделились этим VPN-протоколом, больше не смогут к нему подключаться.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolRaw.qml" line="184"/>
         <source>Continue</source>
-        <translation>Продолжить</translation>
+        <translation type="vanished">Продолжить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolRaw.qml" line="185"/>
         <source>Cancel</source>
-        <translation>Отменить</translation>
+        <translation type="vanished">Отменить</translation>
     </message>
 </context>
 <context>
     <name>PageProtocolShadowSocksSettings</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolShadowSocksSettings.qml" line="56"/>
         <source>Shadowsocks settings</source>
-        <translation>Настройки Shadowsocks</translation>
+        <translation type="vanished">Настройки Shadowsocks</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolShadowSocksSettings.qml" line="69"/>
         <source>Port</source>
-        <translation>Порт</translation>
+        <translation type="vanished">Порт</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolShadowSocksSettings.qml" line="93"/>
-        <location filename="../ui/qml/Pages2/PageProtocolShadowSocksSettings.qml" line="94"/>
         <source>Cipher</source>
-        <translation>Шифрование</translation>
+        <translation type="vanished">Шифрование</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolShadowSocksSettings.qml" line="152"/>
         <source>Save</source>
-        <translation>Сохранить</translation>
+        <translation type="vanished">Сохранить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolShadowSocksSettings.qml" line="157"/>
         <source>Save settings?</source>
-        <translation>Сохранить настройки?</translation>
+        <translation type="vanished">Сохранить настройки?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolShadowSocksSettings.qml" line="158"/>
         <source>All users with whom you shared a connection with will no longer be able to connect to it.</source>
-        <translation>Все пользователи, с которыми вы поделились конфигурацией вашего VPN, больше не смогут к нему подключаться.</translation>
+        <translation type="vanished">Все пользователи, с которыми вы поделились конфигурацией вашего VPN, больше не смогут к нему подключаться.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolShadowSocksSettings.qml" line="159"/>
         <source>Continue</source>
-        <translation>Продолжить</translation>
+        <translation type="vanished">Продолжить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolShadowSocksSettings.qml" line="160"/>
         <source>Cancel</source>
-        <translation>Отменить</translation>
+        <translation type="vanished">Отменить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolShadowSocksSettings.qml" line="164"/>
         <source>Unable change settings while there is an active connection</source>
-        <translation>Невозможно изменить настройки во время активного соединения</translation>
+        <translation type="vanished">Невозможно изменить настройки во время активного соединения</translation>
     </message>
 </context>
 <context>
     <name>PageProtocolWireGuardClientSettings</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolWireGuardClientSettings.qml" line="57"/>
         <source>WG settings</source>
-        <translation>Настройки WG</translation>
+        <translation type="vanished">Настройки WG</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolWireGuardClientSettings.qml" line="67"/>
         <source>MTU</source>
-        <translation>MTU</translation>
+        <translation type="vanished">MTU</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolWireGuardClientSettings.qml" line="85"/>
         <source>Server settings</source>
-        <translation>Настройки сервера</translation>
+        <translation type="vanished">Настройки сервера</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolWireGuardClientSettings.qml" line="97"/>
         <source>Port</source>
-        <translation>Порт</translation>
+        <translation type="vanished">Порт</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolWireGuardClientSettings.qml" line="116"/>
         <source>Save</source>
-        <translation>Сохранить</translation>
+        <translation type="vanished">Сохранить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolWireGuardClientSettings.qml" line="119"/>
         <source>Save settings?</source>
-        <translation>Сохранить настройки?</translation>
+        <translation type="vanished">Сохранить настройки?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolWireGuardClientSettings.qml" line="120"/>
         <source>Only the settings for this device will be changed</source>
-        <translation>Будут изменены настройки только для этого устройства</translation>
+        <translation type="vanished">Будут изменены настройки только для этого устройства</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolWireGuardClientSettings.qml" line="121"/>
         <source>Continue</source>
-        <translation>Продолжить</translation>
+        <translation type="vanished">Продолжить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolWireGuardClientSettings.qml" line="122"/>
         <source>Cancel</source>
-        <translation>Отменить</translation>
+        <translation type="vanished">Отменить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolWireGuardClientSettings.qml" line="126"/>
         <source>Unable change settings while there is an active connection</source>
-        <translation>Невозможно изменить настройки во время активного соединения</translation>
+        <translation type="vanished">Невозможно изменить настройки во время активного соединения</translation>
     </message>
 </context>
 <context>
     <name>PageProtocolWireGuardSettings</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolWireGuardSettings.qml" line="58"/>
         <source>WG settings</source>
-        <translation>Настройки WG</translation>
+        <translation type="vanished">Настройки WG</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolWireGuardSettings.qml" line="69"/>
         <source>VPN address subnet</source>
-        <translation>Подсеть VPN-адресов</translation>
+        <translation type="vanished">Подсеть VPN-адресов</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolWireGuardSettings.qml" line="88"/>
         <source>Port</source>
-        <translation>Порт</translation>
+        <translation type="vanished">Порт</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolWireGuardSettings.qml" line="119"/>
         <source>Save settings?</source>
-        <translation>Сохранить настройки?</translation>
+        <translation type="vanished">Сохранить настройки?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolWireGuardSettings.qml" line="120"/>
         <source>All users with whom you shared a connection with will no longer be able to connect to it.</source>
-        <translation>Все пользователи, с которыми вы поделились конфигурацией вашего VPN, больше не смогут к нему подключаться.</translation>
+        <translation type="vanished">Все пользователи, с которыми вы поделились конфигурацией вашего VPN, больше не смогут к нему подключаться.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolWireGuardSettings.qml" line="126"/>
         <source>Unable change settings while there is an active connection</source>
-        <translation>Невозможно изменить настройки во время активного соединения</translation>
+        <translation type="vanished">Невозможно изменить настройки во время активного соединения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolWireGuardSettings.qml" line="121"/>
         <source>Continue</source>
-        <translation>Продолжить</translation>
+        <translation type="vanished">Продолжить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolWireGuardSettings.qml" line="122"/>
         <source>Cancel</source>
-        <translation>Отменить</translation>
+        <translation type="vanished">Отменить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolWireGuardSettings.qml" line="114"/>
         <source>Save</source>
-        <translation>Сохранить</translation>
+        <translation type="vanished">Сохранить</translation>
     </message>
 </context>
 <context>
     <name>PageProtocolXraySettings</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolXraySettings.qml" line="57"/>
         <source>XRay settings</source>
-        <translation>Настройки XRay</translation>
+        <translation type="vanished">Настройки XRay</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolXraySettings.qml" line="70"/>
         <source>Disguised as traffic from</source>
-        <translation>Замаскировать трафик под</translation>
+        <translation type="vanished">Замаскировать трафик под</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolXraySettings.qml" line="100"/>
         <source>Port</source>
-        <translation>Порт</translation>
+        <translation type="vanished">Порт</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolXraySettings.qml" line="125"/>
         <source>Save</source>
-        <translation>Сохранить</translation>
+        <translation type="vanished">Сохранить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolXraySettings.qml" line="130"/>
         <source>Save settings?</source>
-        <translation>Сохранить настройки?</translation>
+        <translation type="vanished">Сохранить настройки?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolXraySettings.qml" line="131"/>
         <source>All users with whom you shared a connection with will no longer be able to connect to it.</source>
-        <translation>Все пользователи, с которыми вы поделились конфигурацией вашего VPN, больше не смогут к нему подключаться.</translation>
+        <translation type="vanished">Все пользователи, с которыми вы поделились конфигурацией вашего VPN, больше не смогут к нему подключаться.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolXraySettings.qml" line="132"/>
         <source>Continue</source>
-        <translation>Продолжить</translation>
+        <translation type="vanished">Продолжить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolXraySettings.qml" line="133"/>
         <source>Cancel</source>
-        <translation>Отменить</translation>
+        <translation type="vanished">Отменить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageProtocolXraySettings.qml" line="137"/>
         <source>Unable change settings while there is an active connection</source>
-        <translation>Невозможно изменить настройки во время активного соединения</translation>
+        <translation type="vanished">Невозможно изменить настройки во время активного соединения</translation>
     </message>
 </context>
 <context>
@@ -2387,7 +2232,7 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Запускать приложение в свернутом виде</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="205"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="182"/>
         <source>Language</source>
         <translation>Язык</translation>
     </message>
@@ -2402,12 +2247,12 @@ Already installed containers were found on the server. All installed containers 
         <translation>Включить уведомления для отображения статуса VPN в строке состояния</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="222"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="199"/>
         <source>Dark mode</source>
         <translation>Тёмная тема</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="223"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="200"/>
         <source>Use dark mode</source>
         <translation>Использовать тёмную тему</translation>
     </message>
@@ -2417,93 +2262,91 @@ Already installed containers were found on the server. All installed containers 
         <translation>Запускать приложение свёрнутым (работает при включённом автозапуске)</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="180"/>
         <source>News Notification</source>
-        <translation>Уведомления о новостях</translation>
+        <translation type="vanished">Уведомления о новостях</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="181"/>
         <source>Show a notification icon for unread news</source>
-        <translation>Показывать иконку уведомлений о непрочитанных новостях</translation>
+        <translation type="vanished">Показывать иконку уведомлений о непрочитанных новостях</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="245"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="222"/>
         <source>Diagnostics</source>
         <translation>Диагностика</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="246"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="223"/>
         <source>Enabled</source>
         <translation>Включено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="246"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="223"/>
         <source>Disabled</source>
         <translation>Отключено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="299"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="276"/>
         <source>Reset settings and remove all data from the application</source>
         <translation>Сбросить настройки и удалить все данные из приложения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="304"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="281"/>
         <source>Reset settings and remove all data from the application?</source>
         <translation>Сбросить настройки и удалить все данные из приложения?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="305"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="282"/>
         <source>All settings will be reset to default. All installed Dopamine services will still remain on the server.</source>
         <translation>Все настройки будут сброшены до значений по умолчанию.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="306"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="283"/>
         <source>Continue</source>
         <translation>Продолжить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="268"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="307"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="245"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="284"/>
         <source>Cancel</source>
         <translation>Отменить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="311"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="288"/>
         <source>Cannot reset settings during active connection</source>
         <translation>Невозможно сбросить настройки во время активного соединения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="261"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="238"/>
         <source>Reload all servers from subscription</source>
         <translation>Перезагрузить все серверы из подписки</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="265"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="242"/>
         <source>Reload all servers from subscription?</source>
         <translation>Перезагрузить все серверы из подписки?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="266"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="243"/>
         <source>All servers from the current subscription will be removed and downloaded again. Use this if servers stopped working after an update.</source>
         <translation>Все серверы текущей подписки будут удалены и загружены заново. Используйте, если серверы перестали работать после обновления.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="267"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="244"/>
         <source>Reload</source>
         <translation>Перезагрузить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="272"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="249"/>
         <source>Cannot reload configuration during active connection</source>
         <translation>Нельзя перезагрузить конфигурацию при активном подключении</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="279"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="256"/>
         <source>Servers reloaded</source>
         <translation>Серверы перезагружены</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="282"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="259"/>
         <source>Failed to reload servers</source>
         <translation>Не удалось перезагрузить серверы</translation>
     </message>
@@ -2998,123 +2841,106 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageSettingsNewsNotifications</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsNewsNotifications.qml" line="33"/>
         <source>News &amp; Notifications</source>
-        <translation>Новости и уведомления</translation>
+        <translation type="vanished">Новости и уведомления</translation>
     </message>
 </context>
 <context>
     <name>PageSettingsServerData</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="29"/>
         <source>All installed containers have been added to the application</source>
-        <translation>Все установленные протоколы и сервисы были добавлены в приложение</translation>
+        <translation type="vanished">Все установленные протоколы и сервисы были добавлены в приложение</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="31"/>
         <source>No new installed containers found</source>
-        <translation>Новые установленные протоколы и сервисы не обнаружены</translation>
+        <translation type="vanished">Новые установленные протоколы и сервисы не обнаружены</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="130"/>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="160"/>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="190"/>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="219"/>
+        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="73"/>
+        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="103"/>
         <source>Continue</source>
         <translation>Продолжить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="131"/>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="161"/>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="191"/>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="220"/>
+        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="74"/>
+        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="104"/>
         <source>Cancel</source>
         <translation>Отменить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="110"/>
         <source>Check the server for previously installed Dopamine services</source>
-        <translation>Проверить сервер на наличие ранее установленных сервисов</translation>
+        <translation type="vanished">Проверить сервер на наличие ранее установленных сервисов</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="111"/>
         <source>Add them to the application if they were not displayed</source>
-        <translation>Добавить их в приложение, если они не отображаются</translation>
+        <translation type="vanished">Добавить их в приложение, если они не отображаются</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="124"/>
         <source>Reboot server</source>
-        <translation>Перезагрузить сервер</translation>
+        <translation type="vanished">Перезагрузить сервер</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="128"/>
         <source>Do you want to reboot the server?</source>
-        <translation>Вы уверены, что хотите перезагрузить сервер?</translation>
+        <translation type="vanished">Вы уверены, что хотите перезагрузить сервер?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="129"/>
         <source>The reboot process may take approximately 30 seconds. Are you sure you wish to proceed?</source>
-        <translation>Процесс перезагрузки может занять около 30 секунд. Вы уверены, что хотите продолжить?</translation>
+        <translation type="vanished">Процесс перезагрузки может занять около 30 секунд. Вы уверены, что хотите продолжить?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="135"/>
         <source>Cannot reboot server during active connection</source>
-        <translation>Невозможно перезагрузить сервер во время активного соединения</translation>
+        <translation type="vanished">Невозможно перезагрузить сервер во время активного соединения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="158"/>
+        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="71"/>
         <source>Do you want to remove the server from application?</source>
         <translation>Вы уверены, что хотите удалить сервер из приложения?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="165"/>
+        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="78"/>
         <source>Cannot remove server during active connection</source>
         <translation>Невозможно удалить сервер во время активного соединения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="188"/>
         <source>Do you want to clear server from Dopamine software?</source>
-        <translation>Вы уверены, что хотите очистить сервер от всех сервисов?</translation>
+        <translation type="vanished">Вы уверены, что хотите очистить сервер от всех сервисов?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="189"/>
         <source>All users whom you shared a connection with will no longer be able to connect to it.</source>
-        <translation>Все пользователи, с которыми вы поделились конфигурацией вашего VPN, больше не смогут к нему подключаться.</translation>
+        <translation type="vanished">Все пользователи, с которыми вы поделились конфигурацией вашего VPN, больше не смогут к нему подключаться.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="195"/>
         <source>Cannot clear server from Dopamine software during active connection</source>
-        <translation>Невозможно очистить сервер от сервисов во время активного соединения</translation>
+        <translation type="vanished">Невозможно очистить сервер от сервисов во время активного соединения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="213"/>
+        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="97"/>
         <source>Reset API config</source>
         <translation>Сбросить конфигурацию API</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="217"/>
+        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="101"/>
         <source>Do you want to reset API config?</source>
         <translation>Вы хотите сбросить конфигурацию API?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="224"/>
+        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="108"/>
         <source>Cannot reset API config during active connection</source>
         <translation>Невозможно сбросить конфигурацию API во время активного соединения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="154"/>
+        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="67"/>
         <source>Remove server from application</source>
         <translation>Удалить сервер из приложения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="159"/>
+        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="72"/>
         <source>All installed Dopamine services will still remain on the server.</source>
         <translation>Все установленные сервисы и протоколы останутся на сервере.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="184"/>
         <source>Clear server from Dopamine software</source>
-        <translation>Очистить сервер от протоколов и сервисов</translation>
+        <translation type="vanished">Очистить сервер от протоколов и сервисов</translation>
     </message>
 </context>
 <context>
@@ -3143,76 +2969,60 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageSettingsServerProtocol</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerProtocol.qml" line="56"/>
         <source> settings</source>
-        <translation> настройки</translation>
+        <translation type="vanished"> настройки</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerProtocol.qml" line="152"/>
         <source>Clear %1 profile?</source>
-        <translation>Очистить профиль %1?</translation>
+        <translation type="vanished">Очистить профиль %1?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerProtocol.qml" line="75"/>
         <source> connection settings</source>
-        <translation> настройки подключения</translation>
+        <translation type="vanished"> настройки подключения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerProtocol.qml" line="87"/>
         <source>Click the &quot;connect&quot; button to create a connection configuration</source>
-        <translation>Нажмите кнопку &quot;подключить&quot; для создания конфигурации подключения</translation>
+        <translation type="vanished">Нажмите кнопку &quot;подключить&quot; для создания конфигурации подключения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerProtocol.qml" line="107"/>
         <source> server settings</source>
-        <translation> настройки сервера</translation>
+        <translation type="vanished"> настройки сервера</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerProtocol.qml" line="149"/>
         <source>Clear profile</source>
-        <translation>Очистить профиль</translation>
+        <translation type="vanished">Очистить профиль</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerProtocol.qml" line="153"/>
         <source>The connection configuration will be deleted for this device only</source>
-        <translation>Конфигурация подключения будет удалена только для этого устройства</translation>
+        <translation type="vanished">Конфигурация подключения будет удалена только для этого устройства</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerProtocol.qml" line="159"/>
         <source>Unable to clear %1 profile while there is an active connection</source>
-        <translation>Невозможно очистить профиль %1 во время активного соединения</translation>
+        <translation type="vanished">Невозможно очистить профиль %1 во время активного соединения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerProtocol.qml" line="193"/>
         <source>Remove </source>
-        <translation>Удалить </translation>
+        <translation type="vanished">Удалить </translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerProtocol.qml" line="197"/>
         <source>Remove %1 from server?</source>
-        <translation>Удалить %1 с сервера?</translation>
+        <translation type="vanished">Удалить %1 с сервера?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerProtocol.qml" line="198"/>
         <source>All users with whom you shared a connection will no longer be able to connect to it.</source>
-        <translation>Все пользователи, с которыми вы поделились конфигурацией вашего VPN, больше не смогут к нему подключаться.</translation>
+        <translation type="vanished">Все пользователи, с которыми вы поделились конфигурацией вашего VPN, больше не смогут к нему подключаться.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerProtocol.qml" line="205"/>
         <source>Cannot remove active container</source>
-        <translation>Невозможно удалить активный контейнер</translation>
+        <translation type="vanished">Невозможно удалить активный контейнер</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerProtocol.qml" line="154"/>
-        <location filename="../ui/qml/Pages2/PageSettingsServerProtocol.qml" line="199"/>
         <source>Continue</source>
-        <translation>Продолжить</translation>
+        <translation type="vanished">Продолжить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServerProtocol.qml" line="155"/>
-        <location filename="../ui/qml/Pages2/PageSettingsServerProtocol.qml" line="200"/>
         <source>Cancel</source>
-        <translation>Отменить</translation>
+        <translation type="vanished">Отменить</translation>
     </message>
 </context>
 <context>
@@ -4201,40 +4011,32 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageShareConnection</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageShareConnection.qml" line="25"/>
         <source>Share</source>
-        <translation>Поделиться</translation>
+        <translation type="vanished">Поделиться</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShareConnection.qml" line="26"/>
         <source>Copy</source>
-        <translation>Скопировать</translation>
+        <translation type="vanished">Скопировать</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShareConnection.qml" line="30"/>
         <source>Save Dopamine config</source>
-        <translation>Сохранить конфигурацию FRKN</translation>
+        <translation type="vanished">Сохранить конфигурацию FRKN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShareConnection.qml" line="150"/>
         <source>Copy config string</source>
-        <translation>Скопировать строку конфигурации</translation>
+        <translation type="vanished">Скопировать строку конфигурации</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShareConnection.qml" line="168"/>
         <source>Show connection settings</source>
-        <translation>Показать настройки подключения</translation>
+        <translation type="vanished">Показать настройки подключения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShareConnection.qml" line="189"/>
-        <location filename="../ui/qml/Pages2/PageShareConnection.qml" line="199"/>
         <source>Copied</source>
-        <translation>Скопировано</translation>
+        <translation type="vanished">Скопировано</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageShareConnection.qml" line="323"/>
         <source>To read the QR code in the Dopamine app, select &quot;Add server&quot; → &quot;I have data to connect&quot; → &quot;QR code, key or settings file&quot;</source>
-        <translation>Для считывания QR-кода в приложении Dopamine выберите «Добавить сервер» → «У меня есть данные для подключения» → «QR-код, ключ или файл настроек»</translation>
+        <translation type="vanished">Для считывания QR-кода в приложении Dopamine выберите «Добавить сервер» → «У меня есть данные для подключения» → «QR-код, ключ или файл настроек»</translation>
     </message>
 </context>
 <context>
@@ -4285,17 +4087,17 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageStart</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageStart.qml" line="192"/>
+        <location filename="../ui/qml/Pages2/PageStart.qml" line="149"/>
         <source>Logging was disabled after 14 days, log files were deleted</source>
         <translation>Логирование было отключено по прошествии 14 дней, файлы логов были удалены</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageStart.qml" line="196"/>
+        <location filename="../ui/qml/Pages2/PageStart.qml" line="153"/>
         <source>Settings restored from backup file</source>
         <translation>Настройки восстановлены из резервной копии</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageStart.qml" line="202"/>
+        <location filename="../ui/qml/Pages2/PageStart.qml" line="159"/>
         <source>Logging is enabled. Note that logs will be automaticallydisabled after 14 days, and all log files will be deleted.</source>
         <translation>Логирование включено. Обратите внимание, что логирование будет автоматически отключено через 14 дней, а все файлы логов будут удалены.</translation>
     </message>
@@ -5818,14 +5620,12 @@ This means that AmneziaWG keeps the fast performance of the original while addin
 <context>
     <name>main2</name>
     <message>
-        <location filename="../ui/qml/main2.qml" line="243"/>
         <source>Private key passphrase</source>
-        <translation>Парольная фраза для закрытого ключа</translation>
+        <translation type="vanished">Парольная фраза для закрытого ключа</translation>
     </message>
     <message>
-        <location filename="../ui/qml/main2.qml" line="264"/>
         <source>Save</source>
-        <translation>Сохранить</translation>
+        <translation type="vanished">Сохранить</translation>
     </message>
 </context>
 </TS>

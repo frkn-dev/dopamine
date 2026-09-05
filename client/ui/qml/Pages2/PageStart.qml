@@ -47,19 +47,6 @@ PageType {
             tabBarStackView.push(pagePath, { "objectName" : pagePath }, StackView.PushTransition)
         }
 
-        function onGoToShareConnectionPage(headerText, configContentHeaderText, configCaption, configExtension, configFileName) {
-            var pagePath = PageController.getPagePath(PageEnum.PageShareConnection)
-            tabBarStackView.push(pagePath,
-                                 { "objectName" : pagePath,
-                                     "headerText" : headerText,
-                                     "configContentHeaderText" : configContentHeaderText,
-                                     "configCaption" : configCaption,
-                                     "configExtension" : configExtension,
-                                     "configFileName" : configFileName
-                                 },
-                                 StackView.PushTransition)
-        }
-
         function onDisableControls(disabled) {
             isControlsDisabled = disabled
         }
@@ -116,25 +103,6 @@ PageType {
             PageController.showBusyIndicator(false)
 
             PageController.showErrorMessage(error)
-
-            var currentPageName = tabBarStackView.currentItem.objectName
-
-            if (currentPageName === PageController.getPagePath(PageEnum.PageDeinstalling)) {
-                PageController.closePage()
-            }
-        }
-
-        function onWrongInstallationUser(message) {
-            onInstallationErrorOccurred(message)
-        }
-
-        function onUpdateContainerFinished(message) {
-            PageController.showNotificationMessage(message)
-            PageController.closePage()
-        }
-
-        function onCachedProfileCleared(message) {
-            PageController.showNotificationMessage(message)
         }
 
         function onApiConfigRemoved(message) {
@@ -153,17 +121,6 @@ PageType {
 
         function onNoInstalledContainers() {
             PageController.showErrorMessage(ErrorCode.NoInstalledContainersError)
-        }
-    }
-
-    Connections {
-        objectName: "connectionControllerConnections"
-
-        target: ConnectionController
-
-        function onReconnectWithUpdatedContainer(message) {
-            PageController.showNotificationMessage(message)
-            PageController.closePage()
         }
     }
 

@@ -13,18 +13,14 @@ namespace PageLoader
     enum class PageEnum {
         PageStart = 0,
         PageHome,
-        PageDeinstalling,
 
         PageSettingsServersList,
         PageSettings,
         PageSettingsServerData,
         PageSettingsServerInfo,
-        PageSettingsServerProtocol,
         PageSettingsConnection,
         PageSettingsDns,
         PageSettingsApplication,
-        PageSettingsNewsNotifications,
-        PageSettingsNewsDetail,
         PageSettingsBackup,
         PageSettingsAbout,
         PageSettingsLogging,
@@ -48,20 +44,6 @@ namespace PageLoader
         PageSetupWizardApiServicesList,
         PageSetupWizardApiServiceInfo,
         PageSetupWizardSubscriptionProtocols,
-
-        PageProtocolOpenVpnSettings,
-        PageProtocolShadowSocksSettings,
-        PageProtocolCloakSettings,
-        PageProtocolXraySettings,
-        PageProtocolWireGuardSettings,
-        PageProtocolAwgSettings,
-        PageProtocolIKev2Settings,
-        PageProtocolRaw,
-
-        PageProtocolWireGuardClientSettings,
-        PageProtocolAwgClientSettings,
-
-        PageShareConnection,
 
         PageDevMenu
     };
@@ -114,8 +96,6 @@ signals:
     void goToPageViewConfig();
     void goToPageConfigSource();
     void goToPageSettingsBackup();
-    void goToShareConnectionPage(QString headerText, QString configContentHeaderText, QString configCaption, QString configExtension,
-                                 QString configFileName);
 
     void closePage();
 
@@ -131,8 +111,6 @@ signals:
 
     void hideMainWindow();
     void raiseMainWindow();
-    void showPassphraseRequestDrawer();
-    void passphraseRequestDrawerClosed(QString passphrase);
 
     void escapePressed();
     void closeTopDrawer();

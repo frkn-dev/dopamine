@@ -128,10 +128,6 @@ Window  {
             popupNotificationTimer.start()
         }
 
-        function onShowPassphraseRequestDrawer() {
-            privateKeyPassphraseDrawer.openTriggered()
-        }
-
         function onGoToPageSettingsBackup() {
             PageController.goToPage(PageEnum.PageSettingsBackup)
         }
@@ -194,81 +190,6 @@ Window  {
 
         PopupType {
             id: popupErrorMessage
-        }
-    }
-
-    Item {
-        objectName: "privateKeyPassphraseDrawerItem"
-
-        anchors.fill: parent
-
-        DrawerType2 {
-            id: privateKeyPassphraseDrawer
-
-            anchors.fill: parent
-            expandedHeight: root.height * 0.35 + SettingsController.safeAreaBottomMargin + SettingsController.imeHeight
-
-            expandedStateContent: ColumnLayout {
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.topMargin: 16
-                anchors.leftMargin: 16
-                anchors.rightMargin: 16
-
-                Connections {
-                    target: privateKeyPassphraseDrawer
-                    function onOpened() {
-                        passphrase.textField.text = ""
-                        passphrase.textField.forceActiveFocus()
-                    }
-
-                    function onAboutToHide() {
-                        if (passphrase.textField.text !== "") {
-                            PageController.showBusyIndicator(true)
-                        }
-                    }
-
-                    function onAboutToShow() {
-                        PageController.showBusyIndicator(false)
-                    }
-                }
-
-                TextFieldWithHeaderType {
-                    id: passphrase
-
-                    property bool hidePassword: true
-
-                    Layout.fillWidth: true
-                    headerText: qsTr("Private key passphrase")
-                    textField.echoMode: hidePassword ? TextInput.Password : TextInput.Normal
-                    buttonImageSource: hidePassword ? "qrc:/images/controls/eye.svg" : "qrc:/images/controls/eye-off.svg"
-
-                    clickedFunc: function() {
-                        hidePassword = !hidePassword
-                    }
-                }
-
-                BasicButtonType {
-                    id: saveButton
-
-                    Layout.fillWidth: true
-
-                    defaultColor: DopamineStyle.color.transparent
-                    hoveredColor: DopamineStyle.color.translucentWhite
-                    pressedColor: DopamineStyle.color.sheerWhite
-                    disabledColor: DopamineStyle.color.mutedGray
-                    textColor: DopamineStyle.color.paleGray
-                    borderWidth: 1
-
-                    text: qsTr("Save")
-
-                    clickedFunc: function() {
-                        privateKeyPassphraseDrawer.closeTriggered()
-                        PageController.passphraseRequestDrawerClosed(passphrase.textField.text)
-                    }
-                }
-            }
         }
     }
 

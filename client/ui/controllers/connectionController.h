@@ -7,7 +7,6 @@
 #include <QElapsedTimer>
 
 #include "protocols/vpnprotocol.h"
-#include "ui/models/clientManagementModel.h"
 #include "ui/models/containers_model.h"
 #include "ui/models/servers_model.h"
 #include "vpnconnection.h"
@@ -28,7 +27,6 @@ public:
     Q_PROPERTY(QString uploadSpeed READ uploadSpeed NOTIFY speedChanged)
 
     explicit ConnectionController(const QSharedPointer<ServersModel> &serversModel, const QSharedPointer<ContainersModel> &containersModel,
-                                  const QSharedPointer<ClientManagementModel> &clientManagementModel,
                                   const QSharedPointer<VpnConnection> &vpnConnection, const std::shared_ptr<Settings> &settings,
                                   QObject *parent = nullptr);
 
@@ -56,8 +54,6 @@ public slots:
     ErrorCode getLastConnectionError();
     void onConnectionStateChanged(Vpn::ConnectionState state);
 
-    void onCurrentContainerUpdated();
-
     void onTranslationsUpdated();
 
 signals:
@@ -66,7 +62,6 @@ signals:
     void connectionStateChanged();
 
     void connectionErrorOccurred(ErrorCode errorCode);
-    void reconnectWithUpdatedContainer(const QString &message);
 
     void connectButtonClicked();
     void preparingConfig();
@@ -166,7 +161,6 @@ private:
 
     QSharedPointer<ServersModel> m_serversModel;
     QSharedPointer<ContainersModel> m_containersModel;
-    QSharedPointer<ClientManagementModel> m_clientManagementModel;
 
     QSharedPointer<VpnConnection> m_vpnConnection;
 

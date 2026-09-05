@@ -583,13 +583,3 @@ void Settings::setAllowedDnsServers(const QStringList &servers)
 {
     m_settings.setValue("Conf/allowedDnsServers", servers);
 }
-
-QStringList Settings::readNewsIds() const
-{
-    return m_settings.value("News/readIds").toStringList();
-}
-
-void Settings::setReadNewsIds(const QStringList &ids)
-{
-    m_settings.setValue("News/readIds", ids);
-}

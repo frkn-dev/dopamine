@@ -3,7 +3,6 @@
 #include <QSet>
 
 #include "core/api/apiDefs.h"
-#include "core/controllers/serverController.h"
 #include "core/networkUtilities.h"
 
 #if defined(Q_OS_IOS) || defined(MACOS_NE)
@@ -734,67 +733,6 @@ const QString ServersModel::getDefaultServerDefaultContainerName()
     }
 
     return containerName + protocolVersion;
-}
-
-ErrorCode ServersModel::removeAllContainers(const QSharedPointer<ServerController> &serverController)
-{
-
-    ErrorCode errorCode = serverController->removeAllContainers(m_settings->serverCredentials(m_processedServerIndex));
-
-    if (errorCode == ErrorCode::NoError) {
-        QJsonObject s = m_servers.at(m_processedServerIndex).toObject();
-        s.insert(config_key::containers, {});
-        s.insert(config_key::defaultContainer, ContainerProps::containerToString(DockerContainer::None));
-
-        editServer(s, m_processedServerIndex);
-    }
-    return errorCode;
-}
-
-ErrorCode ServersModel::rebootServer(const QSharedPointer<ServerController> &serverController)
-{
-
-    auto credentials = m_settings->serverCredentials(m_processedServerIndex);
-
-    ErrorCode errorCode = serverController->rebootServer(credentials);
-    return errorCode;
-}
-
-ErrorCode ServersModel::removeContainer(const QSharedPointer<ServerController> &serverController, const int containerIndex)
-{
-
-    auto credentials = m_settings->serverCredentials(m_processedServerIndex);
-    auto dockerContainer = static_cast<DockerContainer>(containerIndex);
-
-    ErrorCode errorCode = serverController->removeContainer(credentials, dockerContainer);
-
-    if (errorCode == ErrorCode::NoError) {
-        QJsonObject server = m_servers.at(m_processedServerIndex).toObject();
-
-        auto containers = server.value(config_key::containers).toArray();
-        for (auto it = containers.begin(); it != containers.end(); it++) {
-            if (it->toObject().value(config_key::container).toString() == ContainerProps::containerToString(dockerContainer)) {
-                containers.erase(it);
-                break;
-            }
-        }
-
-        server.insert(config_key::containers, containers);
-
-        auto defaultContainer = ContainerProps::containerFromString(server.value(config_key::defaultContainer).toString());
-        if (defaultContainer == containerIndex) {
-            if (containers.empty()) {
-                defaultContainer = DockerContainer::None;
-            } else {
-                defaultContainer =
-                        ContainerProps::containerFromString(containers.begin()->toObject().value(config_key::container).toString());
-            }
-            server.insert(config_key::defaultContainer, ContainerProps::containerToString(defaultContainer));
-        }
-
-        editServer(server, m_processedServerIndex);
-    }
-    return errorCode;
 }
 
 void ServersModel::clearCachedProfile(const DockerContainer container)

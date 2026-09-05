@@ -154,13 +154,11 @@ void patchServerConfigAddress(QJsonObject &serverConfig, const QString &ip)
 
 ConnectionController::ConnectionController(const QSharedPointer<ServersModel> &serversModel,
                                            const QSharedPointer<ContainersModel> &containersModel,
-                                           const QSharedPointer<ClientManagementModel> &clientManagementModel,
                                            const QSharedPointer<VpnConnection> &vpnConnection, const std::shared_ptr<Settings> &settings,
                                            QObject *parent)
     : QObject(parent),
       m_serversModel(serversModel),
       m_containersModel(containersModel),
-      m_clientManagementModel(clientManagementModel),
       m_vpnConnection(vpnConnection),
       m_settings(settings)
 {
@@ -357,8 +355,7 @@ void ConnectionController::connectToServerIndexWithIp(int serverIndex, const QSt
         patchServerConfigAddress(serverConfig, ip);
     }
 
-    QSharedPointer<ServerController> serverController(new ServerController(m_settings));
-    VpnConfigurationsController vpnConfigurationController(m_settings, serverController);
+    VpnConfigurationsController vpnConfigurationController(m_settings);
 
     QJsonObject containerConfig;
     {
@@ -995,16 +992,6 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
     }
     }
     emit connectionStateChanged();
-}
-
-void ConnectionController::onCurrentContainerUpdated()
-{
-    if (m_isConnected || m_isConnectionInProgress) {
-        emit reconnectWithUpdatedContainer(tr("Settings updated successfully, reconnnection..."));
-        openConnection();
-    } else {
-        emit reconnectWithUpdatedContainer(tr("Settings updated successfully"));
-    }
 }
 
 void ConnectionController::onTranslationsUpdated()

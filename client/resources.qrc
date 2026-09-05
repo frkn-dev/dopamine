@@ -190,16 +190,8 @@
         <file>ui/qml/main2.qml</file>
         <file>ui/qml/Modules/Style/DopamineStyle.qml</file>
         <file>ui/qml/Modules/Style/qmldir</file>
-        <file>ui/qml/Pages2/PageDeinstalling.qml</file>
         <file>ui/qml/Pages2/PageDevMenu.qml</file>
         <file>ui/qml/Pages2/PageHome.qml</file>
-        <file>ui/qml/Pages2/PageProtocolAwgSettings.qml</file>
-        <file>ui/qml/Pages2/PageProtocolCloakSettings.qml</file>
-        <file>ui/qml/Pages2/PageProtocolOpenVpnSettings.qml</file>
-        <file>ui/qml/Pages2/PageProtocolRaw.qml</file>
-        <file>ui/qml/Pages2/PageProtocolShadowSocksSettings.qml</file>
-        <file>ui/qml/Pages2/PageProtocolWireGuardSettings.qml</file>
-        <file>ui/qml/Pages2/PageProtocolXraySettings.qml</file>
         <file>ui/qml/Pages2/PageSettings.qml</file>
         <file>ui/qml/Pages2/PageSettingsAbout.qml</file>
         <file>ui/qml/Pages2/PageSettingsApiAvailableCountries.qml</file>
@@ -215,13 +207,8 @@
         <file>ui/qml/Pages2/PageSettingsLogging.qml</file>
         <file>ui/qml/Pages2/PageSettingsServerData.qml</file>
         <file>ui/qml/Pages2/PageSettingsServerInfo.qml</file>
-        <file>ui/qml/Pages2/PageSettingsServerProtocol.qml</file>
         <file>ui/qml/Pages2/PageSettingsServersList.qml</file>
         <file>ui/qml/Pages2/PageSettingsSplitTunneling.qml</file>
-        <file>ui/qml/Pages2/PageSettingsNewsNotifications.qml</file>
-        <file>ui/qml/Pages2/PageSettingsNewsDetail.qml</file>
-        <file>ui/qml/Pages2/PageProtocolAwgClientSettings.qml</file>
-        <file>ui/qml/Pages2/PageProtocolWireGuardClientSettings.qml</file>
         <file>ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml</file>
         <file>ui/qml/Pages2/PageSetupWizardApiServicesList.qml</file>
         <file>ui/qml/Pages2/PageSetupWizardSubscriptionProtocols.qml</file>
@@ -229,7 +216,6 @@
         <file>ui/qml/Pages2/PageSetupWizardQrReader.qml</file>
         <file>ui/qml/Pages2/PageSetupWizardStart.qml</file>
         <file>ui/qml/Pages2/PageSetupWizardViewConfig.qml</file>
-        <file>ui/qml/Pages2/PageShareConnection.qml</file>
         <file>ui/qml/Pages2/PageStart.qml</file>
         <file>ui/qml/Components/RenameServerDrawer.qml</file>
         <file>ui/qml/Controls2/ListViewType.qml</file>

@@ -95,15 +95,6 @@ public:
         m_settings.setValue("Conf/startMinimized", enabled);
     }
 
-    bool isNewsNotifications() const
-    {
-        return m_settings.value("Conf/newsNotifications", true).toBool();
-    }
-    void setNewsNotifications(bool enabled)
-    {
-        m_settings.setValue("Conf/newsNotifications", enabled);
-    }
-
     bool isSaveLogs() const
     {
         return m_settings.value("Conf/saveLogs", false).toBool();
@@ -331,9 +322,6 @@ public:
     
     QStringList allowedDnsServers() const;
     void setAllowedDnsServers(const QStringList &servers);
-
-    QStringList readNewsIds() const;
-    void setReadNewsIds(const QStringList &ids);
 
     bool frknDarkMode() const { return m_settings.value("FRKN/darkMode", true).toBool(); }
     void setFrknDarkMode(bool enabled) { m_settings.setValue("FRKN/darkMode", enabled); }

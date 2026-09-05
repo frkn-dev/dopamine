@@ -122,6 +122,15 @@ bool ApiSettingsController::getAccountInfo(bool reload, bool forceRefresh)
 
     qDebug().noquote() << "[ACCOUNT INFO] authData after fix:" << QJsonDocument(authData).toJson(QJsonDocument::Compact);
 
+    // Nothing to authenticate with (e.g. the start-up warm-up fired before a
+    // default server was selected, processedIndex == -1): skip quietly instead
+    // of sending empty auth_data and getting a 400 "Missing subscription id".
+    if (!authData.contains(apiDefs::key::apiKey) && !authData.contains(QStringLiteral("share_token"))) {
+        qWarning().noquote() << "[ACCOUNT INFO] no auth data (serverIndex:" << processedIndex << ") — skipping request";
+        m_accountInfoInFlight.remove(processedIndex);
+        return false;
+    }
+
     bool isTestPurchase = apiConfig.value(apiDefs::key::isTestPurchase).toBool(false);
     GatewayController gatewayController(m_settings->getGatewayEndpoint(isTestPurchase), m_settings->isDevGatewayEnv(isTestPurchase),
                                         requestTimeoutMsecs, m_settings->isStrictKillSwitchEnabled(), nullptr,

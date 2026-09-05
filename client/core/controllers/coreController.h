@@ -11,11 +11,9 @@
 
 #include "ui/controllers/api/apiConfigsController.h"
 #include "ui/controllers/api/apiSettingsController.h"
-#include "ui/controllers/api/apiNewsController.h"
 #include "ui/controllers/appSplitTunnelingController.h"
 #include "ui/controllers/allowedDnsController.h"
 #include "ui/controllers/connectionController.h"
-#include "ui/controllers/exportController.h"
 #include "ui/controllers/focusController.h"
 #include "ui/controllers/healthCheckController.h"
 #include "ui/controllers/importController.h"
@@ -28,27 +26,13 @@
 #include "ui/models/allowed_dns_model.h"
 #include "ui/models/containers_model.h"
 #include "ui/models/languageModel.h"
-#include "ui/models/protocols/cloakConfigModel.h"
-#ifdef Q_OS_WINDOWS
-    #include "ui/models/protocols/ikev2ConfigModel.h"
-#endif
 #include "ui/models/api/apiAccountInfoModel.h"
 #include "ui/models/api/apiCountryModel.h"
 #include "ui/models/api/apiDevicesModel.h"
 #include "ui/models/api/apiServicesModel.h"
 #include "ui/models/appSplitTunnelingModel.h"
-#include "ui/models/clientManagementModel.h"
-#include "ui/models/protocols/awgConfigModel.h"
-#include "ui/models/protocols/openvpnConfigModel.h"
-#include "ui/models/protocols/shadowsocksConfigModel.h"
-#include "ui/models/protocols/wireguardConfigModel.h"
-#include "ui/models/protocols/xrayConfigModel.h"
-#include "ui/models/protocols_model.h"
 #include "ui/models/servers_model.h"
-#include "ui/models/services/sftpConfigModel.h"
-#include "ui/models/services/socks5ProxyConfigModel.h"
 #include "ui/models/sites_model.h"
-#include "ui/models/newsModel.h"
 #include "ui/models/splitPresetsModel.h"
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
@@ -88,8 +72,6 @@ private:
 
     void initApiCountryModelUpdateHandler();
     void initContainerModelUpdateHandler();
-    void initAdminConfigRevokedHandler();
-    void initPassphraseRequestHandler();
     void initTranslationsUpdatedHandler();
     void initAutoConnectHandler();
     void initAmneziaDnsToggledHandler();
@@ -112,7 +94,6 @@ private:
     QSharedPointer<PageController> m_pageController; // TODO
     QScopedPointer<InstallController> m_installController;
     QScopedPointer<ImportController> m_importController;
-    QScopedPointer<ExportController> m_exportController;
     QScopedPointer<SettingsController> m_settingsController;
     QScopedPointer<SitesController> m_sitesController;
     QScopedPointer<SystemController> m_systemController;
@@ -121,37 +102,21 @@ private:
 
     QScopedPointer<ApiSettingsController> m_apiSettingsController;
     QScopedPointer<ApiConfigsController> m_apiConfigsController;
-    QScopedPointer<ApiNewsController> m_apiNewsController;
 
     QSharedPointer<ContainersModel> m_containersModel;
     QSharedPointer<ContainersModel> m_defaultServerContainersModel;
     QSharedPointer<ServersModel> m_serversModel;
     QSharedPointer<LanguageModel> m_languageModel;
-    QSharedPointer<ProtocolsModel> m_protocolsModel;
     QSharedPointer<SitesModel> m_sitesModel;
-    QSharedPointer<NewsModel> m_newsModel;
     QSharedPointer<SplitPresetsModel> m_splitPresetsModel;
     QSharedPointer<HealthCheckController> m_healthCheckController;
     QSharedPointer<AllowedDnsModel> m_allowedDnsModel;
     QSharedPointer<AppSplitTunnelingModel> m_appSplitTunnelingModel;
-    QSharedPointer<ClientManagementModel> m_clientManagementModel;
 
     QSharedPointer<ApiServicesModel> m_apiServicesModel;
     QSharedPointer<ApiCountryModel> m_apiCountryModel;
     QSharedPointer<ApiAccountInfoModel> m_apiAccountInfoModel;
     QSharedPointer<ApiDevicesModel> m_apiDevicesModel;
-
-    QScopedPointer<OpenVpnConfigModel> m_openVpnConfigModel;
-    QScopedPointer<ShadowSocksConfigModel> m_shadowSocksConfigModel;
-    QScopedPointer<CloakConfigModel> m_cloakConfigModel;
-    QScopedPointer<XrayConfigModel> m_xrayConfigModel;
-    QScopedPointer<WireGuardConfigModel> m_wireGuardConfigModel;
-    QScopedPointer<AwgConfigModel> m_awgConfigModel;
-#ifdef Q_OS_WINDOWS
-    QScopedPointer<Ikev2ConfigModel> m_ikev2ConfigModel;
-#endif
-    QScopedPointer<SftpConfigModel> m_sftpConfigModel;
-    QScopedPointer<Socks5ProxyConfigModel> m_socks5ConfigModel;
 };
 
 #endif // CORECONTROLLER_H
