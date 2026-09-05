@@ -3,6 +3,7 @@
 
 #include <QMetaEnum>
 #include <QObject>
+#include <QQmlEngine>
 
 namespace amnezia
 {
@@ -136,6 +137,12 @@ namespace amnezia
         AbortError = 1205
       };
       Q_ENUM_NS(ErrorCode)
+
+      static void declareQmlErrorCode()
+      {
+          qmlRegisterUncreatableMetaObject(error_code_ns::staticMetaObject, "ErrorCode", 1, 0, "ErrorCode",
+                                           "Error: only enums");
+      }
     }
 
     using ErrorCode = error_code_ns::ErrorCode;

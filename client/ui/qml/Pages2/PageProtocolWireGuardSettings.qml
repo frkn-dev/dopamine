@@ -127,7 +127,6 @@ PageType {
                             return
                         }
 
-                        PageController.goToPage(PageEnum.PageSetupWizardInstalling);
                         InstallController.updateContainer(WireGuardConfigModel.getConfig())
                     }
                     var noButtonFunction = function() {

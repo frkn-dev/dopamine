@@ -134,13 +134,11 @@
         <file>ui/qml/Components/ConnectButton.qml</file>
         <file>ui/qml/Components/FilterDropDown.qml</file>
         <file>ui/qml/Components/GamepadLoader.qml</file>
-        <file>ui/qml/Components/HomeContainersListView.qml</file>
         <file>ui/qml/Components/HomeSplitTunnelingDrawer.qml</file>
         <file>ui/qml/Components/InstalledAppsDrawer.qml</file>
         <file>ui/qml/Components/QuestionDrawer.qml</file>
         <file>ui/qml/Components/SelectLanguageDrawer.qml</file>
         <file>ui/qml/Components/ServersListView.qml</file>
-        <file>ui/qml/Components/SettingsContainersListView.qml</file>
         <file>ui/qml/Components/TransportProtoSelector.qml</file>
         <file>ui/qml/Components/AddSitePanel.qml</file>
         <file>ui/qml/Config/GlobalConfig.qml</file>
@@ -202,10 +200,6 @@
         <file>ui/qml/Pages2/PageProtocolShadowSocksSettings.qml</file>
         <file>ui/qml/Pages2/PageProtocolWireGuardSettings.qml</file>
         <file>ui/qml/Pages2/PageProtocolXraySettings.qml</file>
-        <file>ui/qml/Pages2/PageServiceDnsSettings.qml</file>
-        <file>ui/qml/Pages2/PageServiceSftpSettings.qml</file>
-        <file>ui/qml/Pages2/PageServiceSocksProxySettings.qml</file>
-        <file>ui/qml/Pages2/PageServiceTorWebsiteSettings.qml</file>
         <file>ui/qml/Pages2/PageSettings.qml</file>
         <file>ui/qml/Pages2/PageSettingsAbout.qml</file>
         <file>ui/qml/Pages2/PageSettingsApiAvailableCountries.qml</file>
@@ -222,8 +216,6 @@
         <file>ui/qml/Pages2/PageSettingsServerData.qml</file>
         <file>ui/qml/Pages2/PageSettingsServerInfo.qml</file>
         <file>ui/qml/Pages2/PageSettingsServerProtocol.qml</file>
-        <file>ui/qml/Pages2/PageSettingsServerProtocols.qml</file>
-        <file>ui/qml/Pages2/PageSettingsServerServices.qml</file>
         <file>ui/qml/Pages2/PageSettingsServersList.qml</file>
         <file>ui/qml/Pages2/PageSettingsSplitTunneling.qml</file>
         <file>ui/qml/Pages2/PageSettingsNewsNotifications.qml</file>
@@ -234,17 +226,9 @@
         <file>ui/qml/Pages2/PageSetupWizardApiServicesList.qml</file>
         <file>ui/qml/Pages2/PageSetupWizardSubscriptionProtocols.qml</file>
         <file>ui/qml/Pages2/PageSetupWizardConfigSource.qml</file>
-        <file>ui/qml/Pages2/PageSetupWizardCredentials.qml</file>
-        <file>ui/qml/Pages2/PageSetupWizardEasy.qml</file>
-        <file>ui/qml/Pages2/PageSetupWizardInstalling.qml</file>
-        <file>ui/qml/Pages2/PageSetupWizardProtocols.qml</file>
-        <file>ui/qml/Pages2/PageSetupWizardProtocolSettings.qml</file>
         <file>ui/qml/Pages2/PageSetupWizardQrReader.qml</file>
         <file>ui/qml/Pages2/PageSetupWizardStart.qml</file>
-        <file>ui/qml/Pages2/PageSetupWizardTextKey.qml</file>
         <file>ui/qml/Pages2/PageSetupWizardViewConfig.qml</file>
-        <file>ui/qml/Pages2/PageShare.qml</file>
-        <file>ui/qml/Pages2/PageShareFullAccess.qml</file>
         <file>ui/qml/Pages2/PageShareConnection.qml</file>
         <file>ui/qml/Pages2/PageStart.qml</file>
         <file>ui/qml/Components/RenameServerDrawer.qml</file>

@@ -439,7 +439,6 @@ PageType {
                     return
                 }
 
-                PageController.goToPage(PageEnum.PageSetupWizardInstalling);
                 InstallController.updateContainer(AwgConfigModel.getConfig())
             }
 

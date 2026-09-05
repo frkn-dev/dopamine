@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import QtQuick.Shapes
 
 import PageEnum 1.0
+import ErrorCode 1.0
 import Style 1.0
 
 import "./"
@@ -97,8 +98,7 @@ PageType {
             }
 
             var pageName = tabBarStackView.currentItem.objectName
-            if ((pageName === PageController.getPagePath(PageEnum.PageShare)) ||
-                    (pageName === PageController.getPagePath(PageEnum.PageSettings)) ||
+            if ((pageName === PageController.getPagePath(PageEnum.PageSettings)) ||
                     (pageName === PageController.getPagePath(PageEnum.PageSetupWizardConfigSource))) {
                 PageController.goToPageHome()
             } else {
@@ -117,15 +117,9 @@ PageType {
 
             PageController.showErrorMessage(error)
 
-            var needCloseCurrentPage = false
             var currentPageName = tabBarStackView.currentItem.objectName
 
-            if (currentPageName === PageController.getPagePath(PageEnum.PageSetupWizardInstalling)) {
-                needCloseCurrentPage = true
-            } else if (currentPageName === PageController.getPagePath(PageEnum.PageDeinstalling)) {
-                needCloseCurrentPage = true
-            }
-            if (needCloseCurrentPage) {
+            if (currentPageName === PageController.getPagePath(PageEnum.PageDeinstalling)) {
                 PageController.closePage()
             }
         }
@@ -158,11 +152,7 @@ PageType {
         }
 
         function onNoInstalledContainers() {
-            PageController.setTriggeredByConnectButton(true)
-
-            ServersModel.processedIndex = ServersModel.getDefaultServerIndex()
-            InstallController.setShouldCreateServer(false)
-            PageController.goToPage(PageEnum.PageSetupWizardEasy)
+            PageController.showErrorMessage(ErrorCode.NoInstalledContainersError)
         }
     }
 

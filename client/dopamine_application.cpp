@@ -231,6 +231,7 @@ void DopamineApplication::registerTypes()
 
     Vpn::declareQmlVpnConnectionStateEnum();
     PageLoader::declareQmlPageEnum();
+    amnezia::error_code_ns::declareQmlErrorCode();
 }
 
 void DopamineApplication::loadFonts()

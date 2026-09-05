@@ -138,7 +138,6 @@ PageType {
                             return
                         }
 
-                        PageController.goToPage(PageEnum.PageSetupWizardInstalling);
                         InstallController.updateContainer(XrayConfigModel.getConfig())
                     }
                     var noButtonFunction = function() {

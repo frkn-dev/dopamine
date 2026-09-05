@@ -13,15 +13,12 @@ namespace PageLoader
     enum class PageEnum {
         PageStart = 0,
         PageHome,
-        PageShare,
         PageDeinstalling,
 
         PageSettingsServersList,
         PageSettings,
         PageSettingsServerData,
         PageSettingsServerInfo,
-        PageSettingsServerProtocols,
-        PageSettingsServerServices,
         PageSettingsServerProtocol,
         PageSettingsConnection,
         PageSettingsDns,
@@ -44,19 +41,8 @@ namespace PageLoader
         PageSettingsApiSubscriptionKey,
         PageSettingsKillSwitchExceptions,
 
-        PageServiceSftpSettings,
-        PageServiceTorWebsiteSettings,
-        PageServiceDnsSettings,
-        PageServiceSocksProxySettings,
-
         PageSetupWizardStart,
-        PageSetupWizardCredentials,
-        PageSetupWizardProtocols,
-        PageSetupWizardEasy,
-        PageSetupWizardProtocolSettings,
-        PageSetupWizardInstalling,
         PageSetupWizardConfigSource,
-        PageSetupWizardTextKey,
         PageSetupWizardViewConfig,
         PageSetupWizardQrReader,
         PageSetupWizardApiServicesList,
@@ -75,7 +61,6 @@ namespace PageLoader
         PageProtocolWireGuardClientSettings,
         PageProtocolAwgClientSettings,
 
-        PageShareFullAccess,
         PageShareConnection,
 
         PageDevMenu
@@ -128,7 +113,6 @@ signals:
     void goToPageSettings();
     void goToPageViewConfig();
     void goToPageConfigSource();
-    void goToPageSettingsServerServices();
     void goToPageSettingsBackup();
     void goToShareConnectionPage(QString headerText, QString configContentHeaderText, QString configCaption, QString configExtension,
                                  QString configFileName);

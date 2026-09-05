@@ -197,7 +197,6 @@ PageType {
                             return
                         }
 
-                        PageController.goToPage(PageEnum.PageSetupWizardInstalling)
                         InstallController.updateContainer(CloakConfigModel.getConfig())
                     }
 

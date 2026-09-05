@@ -4,6 +4,8 @@ macOSPackage/
 Dopamine.dmg
 Dopamine.exe
 Dopamine_*.exe
+Dopamine.msi
+Dopamine_*.msi
 FRKN.dmg
 FRKN.exe
 FRKN_*.exe
@@ -166,3 +168,7 @@ AuthKey_*.p8
 *.certSigningRequest
 devid_*_private.key
 *.cer
+logs/
+photo_*.jpg
+*.log
+fetch_*.py

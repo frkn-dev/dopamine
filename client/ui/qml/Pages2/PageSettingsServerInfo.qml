@@ -19,19 +19,7 @@ import "../Components"
 PageType {
     id: root
 
-    readonly property int pageSettingsServerProtocols: 0
-    readonly property int pageSettingsServerServices: 1
-    readonly property int pageSettingsServerData: 2
-
     property var processedServer
-
-    Connections {
-        target: PageController
-
-        function onGoToPageSettingsServerServices() {
-            tabBar.setCurrentIndex(root.pageSettingsServerServices)
-        }
-    }
 
     Connections {
         target: ServersModel
@@ -109,73 +97,13 @@ PageType {
             serverNameText: root.processedServer.name
         }
 
-        TabBar {
-            id: tabBar
+        PageSettingsServerData {
+            id: dataPage
 
             Layout.fillWidth: true
+            Layout.fillHeight: true
 
-            currentIndex: (ServersModel.getProcessedServerData("isServerFromTelegramApi")
-                           && !ServersModel.getProcessedServerData("hasInstalledContainers")) ?
-                              root.pageSettingsServerData : root.pageSettingsServerProtocols
-
-            background: Rectangle {
-                color: DopamineStyle.color.transparent
-            }
-
-
-            TabButtonType {
-                id: protocolsTab
-                visible: protocolsPage.installedProtocolsCount
-                width: protocolsPage.installedProtocolsCount ? undefined : 0
-                isSelected: TabBar.tabBar.currentIndex === root.pageSettingsServerProtocols
-                text: qsTr("Protocols")
-
-                Keys.onReturnPressed: TabBar.tabBar.setCurrentIndex(root.pageSettingsServerProtocols)
-                Keys.onEnterPressed: TabBar.tabBar.setCurrentIndex(root.pageSettingsServerProtocols)
-            }
-
-            TabButtonType {
-                id: servicesTab
-                visible: servicesPage.installedServicesCount
-                width: servicesPage.installedServicesCount ? undefined : 0
-                isSelected: TabBar.tabBar.currentIndex === root.pageSettingsServerServices
-                text: qsTr("Services")
-
-                Keys.onReturnPressed: TabBar.tabBar.setCurrentIndex(root.pageSettingsServerServices)
-                Keys.onEnterPressed: TabBar.tabBar.setCurrentIndex(root.pageSettingsServerServices)
-            }
-
-            TabButtonType {
-                id: dataTab
-                isSelected: tabBar.currentIndex === root.pageSettingsServerData
-                text: qsTr("Management")
-
-                Keys.onReturnPressed: TabBar.tabBar.setCurrentIndex(root.pageSettingsServerData)
-                Keys.onEnterPressed: TabBar.tabBar.setCurrentIndex(root.pageSettingsServerData)
-            }
-        }
-
-        StackLayout {
-            id: nestedStackView
-
-            Layout.fillWidth: true
-
-            currentIndex: tabBar.currentIndex
-
-            PageSettingsServerProtocols {
-                id: protocolsPage
-                stackView: root.stackView
-            }
-
-            PageSettingsServerServices {
-                id: servicesPage
-                stackView: root.stackView
-            }
-
-            PageSettingsServerData {
-                id: dataPage
-                stackView: root.stackView
-            }
+            stackView: root.stackView
         }
     }
 }

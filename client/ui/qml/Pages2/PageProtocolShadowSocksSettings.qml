@@ -165,7 +165,6 @@ PageType {
                             return
                         }
 
-                        PageController.goToPage(PageEnum.PageSetupWizardInstalling);
                         InstallController.updateContainer(ShadowSocksConfigModel.getConfig())
                     }
                     var noButtonFunction = function() {
