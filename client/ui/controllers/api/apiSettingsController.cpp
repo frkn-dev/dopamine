@@ -53,9 +53,9 @@ bool ApiSettingsController::getAccountInfo(bool reload, bool forceRefresh)
     // ONLY on /v1/config — any other endpoint (incl. account_info) returns 403.
     // Serve them locally regardless of reload/cache state.
     const auto apiAuthData = apiConfig.value(configKey::authData).toObject();
-    const auto rootAuthData = serverConfig.value(configKey::authData).toObject();
+    const auto rootAuthDataShared = serverConfig.value(configKey::authData).toObject();
     const bool isShared = apiAuthData.contains(QStringLiteral("share_token"))
-                          || rootAuthData.contains(QStringLiteral("share_token"));
+                          || rootAuthDataShared.contains(QStringLiteral("share_token"));
 
     // When just opening the settings screen we can show whatever we have stored locally
     // without waiting for an API round-trip. Refresh/reload still hits the server.
