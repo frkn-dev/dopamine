@@ -23,6 +23,12 @@ DEVID_APP="Developer ID Application: FRKN LLP (455SJ7P6J3)"
 DEVID_INSTALLER="Developer ID Installer: FRKN LLP (455SJ7P6J3)"
 NOTARY_PROFILE="frkn-notary"
 
+# App Store Connect API key auth is more reliable than the keychain profile
+# (the profile item silently disappears when the login keychain locks).
+NOTARY_KEY_FILE="${NOTARY_KEY_FILE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/AuthKey_9Y92B3WCJF.p8}"
+NOTARY_KEY_ID="9Y92B3WCJF"
+NOTARY_ISSUER="d3135078-58fb-4834-8f6e-b729e970ba87"
+
 SIGN_APP=0
 SIGN_PKG=0
 if security find-identity -v -p codesigning | grep -qF "$DEVID_APP"; then
@@ -153,7 +159,11 @@ if [ "$SIGN_PKG" = 1 ]; then
                "$FINAL_PKG"
 
   echo "Notarizing $FINAL_PKG ..."
-  xcrun notarytool submit "$FINAL_PKG" --keychain-profile "$NOTARY_PROFILE" --wait
+  if [ -f "$NOTARY_KEY_FILE" ]; then
+    xcrun notarytool submit "$FINAL_PKG" --key "$NOTARY_KEY_FILE" --key-id "$NOTARY_KEY_ID" --issuer "$NOTARY_ISSUER" --wait
+  else
+    xcrun notarytool submit "$FINAL_PKG" --keychain-profile "$NOTARY_PROFILE" --wait
+  fi
 
   echo "Stapling ticket..."
   xcrun stapler staple "$FINAL_PKG"
