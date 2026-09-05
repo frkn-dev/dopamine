@@ -93,6 +93,17 @@ PageType {
 
                 visible: GC.isDesktop()
             }
+
+            Text {
+                Layout.alignment: Qt.AlignHCenter
+                Layout.topMargin: 12
+                Layout.bottomMargin: 16
+
+                text: "v" + SettingsController.getAppVersion().split(" ")[0]
+                color: DopamineStyle.color.mutedGray
+                font.pixelSize: 13
+                font.family: "IBM Plex Mono"
+            }
         }
     }
 
@@ -140,7 +151,7 @@ PageType {
     QtObject {
         id: about
 
-        property string title: qsTr("About FRKN")
+        property string title: qsTr("About FRKN Dopamine")
         readonly property string leftImagePath: "qrc:/images/controls/app.svg"
         property bool isVisible: true
         readonly property var clickedHandler: function() {

@@ -1379,8 +1379,8 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettings.qml" line="143"/>
-        <source>About FRKN</source>
-        <translation>О FRKN</translation>
+        <source>About FRKN Dopamine</source>
+        <translation>О FRKN Dopamine</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettings.qml" line="154"/>

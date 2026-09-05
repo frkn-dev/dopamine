@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25.0 FATAL_ERROR)
 
 set(PROJECT Dopamine)
-set(DOPAMINE_VERSION 4.8.14.52)
+set(DOPAMINE_VERSION 1.0.53)
 
 project(${PROJECT} VERSION ${DOPAMINE_VERSION}
         DESCRIPTION "Dopamine by FRKN"
@@ -12,7 +12,9 @@ string(TIMESTAMP CURRENT_DATE "%Y-%m-%d")
 set(RELEASE_DATE "${CURRENT_DATE}")
 
 set(APP_MAJOR_VERSION ${CMAKE_PROJECT_VERSION_MAJOR}.${CMAKE_PROJECT_VERSION_MINOR}.${CMAKE_PROJECT_VERSION_PATCH})
-set(APP_ANDROID_VERSION_CODE 2121)
+# versionCode must keep growing monotonically (Google Play / APK update
+# requirement) — it does NOT follow the marketing version reset to 1.0.x
+set(APP_ANDROID_VERSION_CODE 2122)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     set(MZ_PLATFORM_NAME "linux")
