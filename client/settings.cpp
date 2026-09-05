@@ -15,6 +15,10 @@ namespace
     const char cloudFlareNs2[] = "1.0.0.1";
 
     constexpr char gatewayEndpoint[] = "https://api.frkn.org/";
+    // Secondary API host, tried once when the primary one times out / is
+    // unreachable (see GatewayController). Must serve the same backend with a
+    // TLS certificate covering this name.
+    constexpr char gatewayEndpointFallback[] = "https://api2.frkn.org/";
 }
 
 Settings::Settings(QObject *parent) : QObject(parent), m_settings(ORGANIZATION_NAME, APPLICATION_NAME, this)
@@ -533,6 +537,11 @@ void Settings::setDevGatewayEndpoint()
 QString Settings::getGatewayEndpoint(bool isTestPurchase)
 {
     return isTestPurchase ? DEV_AGW_ENDPOINT : m_gatewayEndpoint;
+}
+
+QString Settings::getGatewayEndpointFallback(bool isTestPurchase)
+{
+    return QString(isTestPurchase ? DEV_AGW_ENDPOINT : gatewayEndpointFallback);
 }
 
 bool Settings::isDevGatewayEnv(bool isTestPurchase)

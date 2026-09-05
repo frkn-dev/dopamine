@@ -20,7 +20,8 @@ class GatewayController : public QObject
 
 public:
     explicit GatewayController(const QString &gatewayEndpoint, const bool isDevEnvironment, const int requestTimeoutMsecs,
-                               const bool isStrictKillSwitchEnabled, QObject *parent = nullptr);
+                               const bool isStrictKillSwitchEnabled, QObject *parent = nullptr,
+                               const QString &fallbackEndpoint = QString());
 
     amnezia::ErrorCode post(const QString &endpoint, const QJsonObject apiPayload, QByteArray &responseBody);
     QFuture<QPair<amnezia::ErrorCode, QByteArray>> postAsync(const QString &endpoint, const QJsonObject apiPayload);
@@ -43,6 +44,7 @@ private:
     };
 
     EncryptedRequestData prepareRequest(const QString &endpoint, const QJsonObject &apiPayload);
+    amnezia::ErrorCode doPost(const QString &endpoint, const QJsonObject &apiPayload, QByteArray &responseBody);
     DecryptionResult tryDecryptResponseBody(const QByteArray &encryptedResponseBody, QNetworkReply::NetworkError replyError,
                                             const QByteArray &key, const QByteArray &iv, const QByteArray &salt);
 
@@ -61,6 +63,7 @@ private:
 
     int m_requestTimeoutMsecs;
     QString m_gatewayEndpoint;
+    QString m_fallbackEndpoint;
     bool m_isDevEnvironment = false;
     bool m_isStrictKillSwitchEnabled = false;
 

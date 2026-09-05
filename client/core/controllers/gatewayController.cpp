@@ -59,9 +59,10 @@ namespace
 }
 
 GatewayController::GatewayController(const QString &gatewayEndpoint, const bool isDevEnvironment, const int requestTimeoutMsecs,
-                                     const bool isStrictKillSwitchEnabled, QObject *parent)
+                                     const bool isStrictKillSwitchEnabled, QObject *parent, const QString &fallbackEndpoint)
     : QObject(parent),
       m_gatewayEndpoint(gatewayEndpoint),
+      m_fallbackEndpoint(fallbackEndpoint),
       m_isDevEnvironment(isDevEnvironment),
       m_requestTimeoutMsecs(requestTimeoutMsecs),
       m_isStrictKillSwitchEnabled(isStrictKillSwitchEnabled)
@@ -184,6 +185,24 @@ GatewayController::DecryptionResult GatewayController::tryDecryptResponseBody(co
 }
 
 ErrorCode GatewayController::post(const QString &endpoint, const QJsonObject apiPayload, QByteArray &responseBody)
+{
+    ErrorCode errorCode = doPost(endpoint, apiPayload, responseBody);
+
+    // The primary API host timed out or is unreachable — retry once against the
+    // fallback host (same backend, different name). HTTP-level errors (404/409/501)
+    // are not retried: the fallback would answer the same.
+    if (!m_fallbackEndpoint.isEmpty() && m_fallbackEndpoint != m_gatewayEndpoint
+        && (errorCode == ErrorCode::ApiConfigTimeoutError || errorCode == ErrorCode::ApiConfigDownloadError)) {
+        qWarning() << "[AGW] primary endpoint failed with" << static_cast<int>(errorCode)
+                   << "— retrying via fallback endpoint" << m_fallbackEndpoint;
+        m_gatewayEndpoint = m_fallbackEndpoint;
+        m_proxyUrl.clear();
+        errorCode = doPost(endpoint, apiPayload, responseBody);
+    }
+    return errorCode;
+}
+
+ErrorCode GatewayController::doPost(const QString &endpoint, const QJsonObject &apiPayload, QByteArray &responseBody)
 {
     EncryptedRequestData encRequestData = prepareRequest(endpoint, apiPayload);
     if (encRequestData.errorCode != ErrorCode::NoError) {

@@ -319,6 +319,7 @@ public:
     void setGatewayEndpoint(const QString &endpoint);
     void setDevGatewayEndpoint();
     QString getGatewayEndpoint(bool isTestPurchase = false);
+    QString getGatewayEndpointFallback(bool isTestPurchase = false);
     bool isDevGatewayEnv(bool isTestPurchase = false);
     void toggleDevGatewayEnv(bool enabled);
 

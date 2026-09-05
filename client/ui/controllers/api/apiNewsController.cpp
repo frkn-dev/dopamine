@@ -32,7 +32,8 @@ void ApiNewsController::fetchNews(bool showError)
     }
 
     auto gatewayController = QSharedPointer<GatewayController>::create(m_settings->getGatewayEndpoint(), m_settings->isDevGatewayEnv(),
-                                                                       apiDefs::requestTimeoutMsecs, m_settings->isStrictKillSwitchEnabled());
+                                                                       apiDefs::requestTimeoutMsecs, m_settings->isStrictKillSwitchEnabled(),
+                                                                       nullptr, m_settings->getGatewayEndpointFallback());
     QJsonObject payload;
     payload.insert("locale", m_settings->getAppLanguage().name().split("_").first());
 

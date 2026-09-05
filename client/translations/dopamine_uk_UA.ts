@@ -76,31 +76,31 @@
 <context>
     <name>ApiConfigsController</name>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1012"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1249"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1274"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1481"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1578"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1015"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1252"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1277"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1484"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1581"/>
         <source>%1 installed successfully.</source>
         <translation>%1 успішно встановлено.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1138"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1141"/>
         <source>Subscription restored successfully.</source>
         <translation>Підписку успішно відновлено.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1454"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1457"/>
         <source>API config reloaded</source>
         <translation>Конфігурацію API перезавантажено</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1458"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1461"/>
         <source>Successfully changed the country of connection to %1</source>
         <translation>Країну підключення змінено на %1</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1556"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1559"/>
         <source>Shared connection</source>
         <translation>Спільне підключення</translation>
     </message>
@@ -5436,13 +5436,13 @@ This means that AmneziaWG keeps the fast performance of the original while addin
 <context>
     <name>Settings</name>
     <message>
-        <location filename="../settings.cpp" line="35"/>
+        <location filename="../settings.cpp" line="39"/>
         <source>Server #1</source>
         <translation>Server #1</translation>
     </message>
     <message>
-        <location filename="../settings.cpp" line="222"/>
-        <location filename="../settings.cpp" line="229"/>
+        <location filename="../settings.cpp" line="226"/>
+        <location filename="../settings.cpp" line="233"/>
         <source>Server</source>
         <translation>Server</translation>
     </message>

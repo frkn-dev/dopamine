@@ -1,5 +1,8 @@
 #include "apiConfigsController.h"
 
+#include <algorithm>
+#include <vector>
+
 #include "dopamine_application.h"
 #include "configurators/wireguard_configurator.h"
 #include "containers/containers_defs.h"
@@ -1752,7 +1755,7 @@ bool ApiConfigsController::updateServiceFromTelegram(const int serverIndex)
 #endif
 
     GatewayController gatewayController(m_settings->getGatewayEndpoint(), m_settings->isDevGatewayEnv(), apiDefs::requestTimeoutMsecs,
-                                        m_settings->isStrictKillSwitchEnabled());
+                                        m_settings->isStrictKillSwitchEnabled(), nullptr, m_settings->getGatewayEndpointFallback());
 
     auto serverConfig = m_serversModel->getServerConfig(serverIndex);
     auto installationUuid = m_settings->getInstallationUuid(true);
@@ -2184,7 +2187,8 @@ bool ApiConfigsController::fetchSubscriptionConfigs(const QString &subscriptionI
     servicesPayload[apiDefs::key::appLanguage] = m_settings->getAppLanguage().name().split("_").first();
     servicesPayload[configKey::authData] = authData;
 
-    GatewayController gatewayController(m_settings->getGatewayEndpoint(), false, apiDefs::requestTimeoutMsecs, false);
+    GatewayController gatewayController(m_settings->getGatewayEndpoint(), false, apiDefs::requestTimeoutMsecs, false, nullptr,
+                                        m_settings->getGatewayEndpointFallback());
     QByteArray servicesResponse;
     ErrorCode errorCode = gatewayController.post(QString("%1v1/services"), servicesPayload, servicesResponse);
     if (errorCode != ErrorCode::NoError) {
@@ -2380,7 +2384,47 @@ bool ApiConfigsController::fetchSubscriptionConfigs(const QString &subscriptionI
         configObject.insert("displayInfo", displayInfo);
         indexedConfigs.append(configObject);
     }
-    m_subscriptionConfigs = indexedConfigs;
+
+    // Protocol priority for the subscription list: AmneziaWgMobile first (our
+    // primary protocol), then AmneziaWG, hysteria2, VLESS, plain WireGuard last —
+    // the same order the auto server selection uses. The API returns VLESS
+    // services first, which made fresh imports and the fallback default server
+    // land on VLESS. Stable sort keeps the relative order (and the duplicate
+    // label numbering above) inside each protocol group.
+    auto protocolRank = [](const QJsonValue &config) {
+        const QString rawProtocol = config.toObject()
+                                            .value(configKey::apiConfig)
+                                            .toObject()
+                                            .value(configKey::serviceProtocol)
+                                            .toString();
+        if (rawProtocol.compare(QStringLiteral("AmneziaWgMobile"), Qt::CaseInsensitive) == 0) {
+            return 0;
+        }
+        const QString protocol = canonicalServiceProtocol(rawProtocol);
+        if (protocol == configKey::awg) {
+            return 1;
+        }
+        if (protocol == QLatin1String("hysteria2")) {
+            return 2;
+        }
+        if (protocol == configKey::vless) {
+            return 3;
+        }
+        if (protocol == configKey::wireguard) {
+            return 4;
+        }
+        return 5;
+    };
+    // std::stable_sort cannot run on QJsonArray directly (QJsonValueRef is not
+    // swappable), so sort a copy and rebuild the array.
+    std::vector<QJsonValue> sortedConfigs(indexedConfigs.begin(), indexedConfigs.end());
+    std::stable_sort(sortedConfigs.begin(), sortedConfigs.end(),
+                     [&protocolRank](const QJsonValue &a, const QJsonValue &b) { return protocolRank(a) < protocolRank(b); });
+
+    m_subscriptionConfigs = QJsonArray();
+    for (const auto &config : sortedConfigs) {
+        m_subscriptionConfigs.append(config);
+    }
 
     emit subscriptionConfigsChanged();
     qDebug() << "[SUBSCRIPTION] fetch done, success:" << anySuccess << "configs count:" << m_subscriptionConfigs.size();
@@ -2575,6 +2619,7 @@ ErrorCode ApiConfigsController::executeRequest(const QString &endpoint, const QJ
     qDebug().noquote() << "[AGW EXECUTE] endpoint:" << endpoint.arg(m_settings->getGatewayEndpoint(isTestPurchase))
                        << "payload keys:" << apiPayload.keys();
     GatewayController gatewayController(m_settings->getGatewayEndpoint(isTestPurchase), m_settings->isDevGatewayEnv(isTestPurchase),
-                                        apiDefs::requestTimeoutMsecs, m_settings->isStrictKillSwitchEnabled());
+                                        apiDefs::requestTimeoutMsecs, m_settings->isStrictKillSwitchEnabled(), nullptr,
+                                        m_settings->getGatewayEndpointFallback(isTestPurchase));
     return gatewayController.post(endpoint, apiPayload, responseBody);
 }

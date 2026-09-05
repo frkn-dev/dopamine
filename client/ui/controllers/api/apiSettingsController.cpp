@@ -124,7 +124,8 @@ bool ApiSettingsController::getAccountInfo(bool reload, bool forceRefresh)
 
     bool isTestPurchase = apiConfig.value(apiDefs::key::isTestPurchase).toBool(false);
     GatewayController gatewayController(m_settings->getGatewayEndpoint(isTestPurchase), m_settings->isDevGatewayEnv(isTestPurchase),
-                                        requestTimeoutMsecs, m_settings->isStrictKillSwitchEnabled());
+                                        requestTimeoutMsecs, m_settings->isStrictKillSwitchEnabled(), nullptr,
+                                        m_settings->getGatewayEndpointFallback(isTestPurchase));
 
     QJsonObject apiPayload;
     apiPayload[configKey::userCountryCode] = apiConfig.value(configKey::userCountryCode).toString();

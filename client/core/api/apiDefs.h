@@ -79,7 +79,7 @@ namespace apiDefs
         constexpr QLatin1String adEndpoint("ad_endpoint");
     }
 
-    const int requestTimeoutMsecs = 12 * 1000; // 12 secs
+    const int requestTimeoutMsecs = 20 * 1000; // 20 secs — slow mobile networks need headroom
 }
 
 #endif // APIDEFS_H
