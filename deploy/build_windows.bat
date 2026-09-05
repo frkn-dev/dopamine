@@ -101,6 +101,19 @@ signtool sign /v /n "Privacy Technologies OU" /fd sha256 /tr http://timestamp.co
 "%QT_BIN_DIR:"=%\windeployqt" --release --qmldir "%PROJECT_DIR:"=%\client"  --force --no-translations --force-openssl "%OUT_APP_DIR:"=%\%APP_FILENAME:"=%"
 "%QT_BIN_DIR:"=%\windeployqt" --release "%OUT_APP_DIR:"=%\%SERVICE_FILENAME:"=%"
 
+REM Bundle the MSVC runtime app-local, so Dopamine.exe and dopamine-service.exe
+REM also start on clean machines without the VC++ redistributable installed
+REM (missing VCRUNTIME140.dll = service fails to start -> MSI error 1920)
+if "%VS2022_DIR%"=="" set VS2022_DIR=C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools
+set VC_CRT_DIR=
+for /d %%D in ("%VS2022_DIR:"=%\VC\Redist\MSVC\14.*") do set VC_CRT_DIR=%%~fD\x64\Microsoft.VC143.CRT
+if exist "%VC_CRT_DIR%\" (
+    echo "Bundling MSVC CRT from %VC_CRT_DIR%"
+    copy /Y "%VC_CRT_DIR%\*.dll" "%OUT_APP_DIR%\" >nul
+) else (
+    echo "WARNING: MSVC CRT redist folder not found - the MSI will lack vcruntime dlls"
+)
+
 signtool sign /v /n "Privacy Technologies OU" /fd sha256 /tr http://timestamp.comodoca.com/?td=sha256 /td sha256 *.dll
 
 echo "Copying deploy data..."
