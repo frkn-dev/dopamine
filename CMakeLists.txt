@@ -20,6 +20,16 @@ if("${CMAKE_PROJECT_VERSION_TWEAK}" STREQUAL "")
 else()
     set(DOPAMINE_VERSION_RC_TWEAK ${CMAKE_PROJECT_VERSION_TWEAK})
 endif()
+
+# Apple bundle build number (CFBundleVersion / CURRENT_PROJECT_VERSION):
+# the tweak for 4-part versions (4.8.14.52 -> 52), the patch for 3-part
+# marketing ones (1.0.53 -> 53). Must never be empty — iOS refuses to install
+# an app whose appex has an empty CFBundleVersion.
+if("${CMAKE_PROJECT_VERSION_TWEAK}" STREQUAL "")
+    set(DOPAMINE_BUILD_NUMBER ${CMAKE_PROJECT_VERSION_PATCH})
+else()
+    set(DOPAMINE_BUILD_NUMBER ${CMAKE_PROJECT_VERSION_TWEAK})
+endif()
 # versionCode must keep growing monotonically (Google Play / APK update
 # requirement) — it does NOT follow the marketing version reset to 1.0.x
 set(APP_ANDROID_VERSION_CODE 2122)

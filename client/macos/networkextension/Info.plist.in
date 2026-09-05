@@ -18,7 +18,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>${APPLE_PROJECT_VERSION}</string>
 	<key>CFBundleVersion</key>
-	<string>${CMAKE_PROJECT_VERSION_TWEAK}</string>
+	<string>${DOPAMINE_BUILD_NUMBER}</string>
 
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
