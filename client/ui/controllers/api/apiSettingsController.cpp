@@ -49,9 +49,17 @@ bool ApiSettingsController::getAccountInfo(bool reload, bool forceRefresh)
     auto serverConfig = m_serversModel->getServerConfig(processedIndex);
     auto apiConfig = serverConfig.value(configKey::apiConfig).toObject();
 
+    // Shared connections authenticate by share_token, which the backend accepts
+    // ONLY on /v1/config — any other endpoint (incl. account_info) returns 403.
+    // Serve them locally regardless of reload/cache state.
+    const auto apiAuthData = apiConfig.value(configKey::authData).toObject();
+    const auto rootAuthData = serverConfig.value(configKey::authData).toObject();
+    const bool isShared = apiAuthData.contains(QStringLiteral("share_token"))
+                          || rootAuthData.contains(QStringLiteral("share_token"));
+
     // When just opening the settings screen we can show whatever we have stored locally
     // without waiting for an API round-trip. Refresh/reload still hits the server.
-    if (!reload) {
+    if (!reload || isShared) {
         QJsonObject localAccountInfo;
         localAccountInfo[apiDefs::key::availableCountries] = apiConfig.value(apiDefs::key::availableCountries).toArray();
         localAccountInfo[apiDefs::key::supportedProtocols] = apiConfig.value(apiDefs::key::supportedProtocols).toArray();
