@@ -12,6 +12,14 @@ string(TIMESTAMP CURRENT_DATE "%Y-%m-%d")
 set(RELEASE_DATE "${CURRENT_DATE}")
 
 set(APP_MAJOR_VERSION ${CMAKE_PROJECT_VERSION_MAJOR}.${CMAKE_PROJECT_VERSION_MINOR}.${CMAKE_PROJECT_VERSION_PATCH})
+
+# Windows VERSIONINFO resources need 4 numeric parts — pad 3-part marketing
+# versions (e.g. 1.0.53) with a trailing .0 for the .rc files
+if("${CMAKE_PROJECT_VERSION_TWEAK}" STREQUAL "")
+    set(DOPAMINE_VERSION_RC_TWEAK 0)
+else()
+    set(DOPAMINE_VERSION_RC_TWEAK ${CMAKE_PROJECT_VERSION_TWEAK})
+endif()
 # versionCode must keep growing monotonically (Google Play / APK update
 # requirement) — it does NOT follow the marketing version reset to 1.0.x
 set(APP_ANDROID_VERSION_CODE 2122)
