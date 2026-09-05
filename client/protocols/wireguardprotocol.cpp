@@ -50,6 +50,17 @@ WireguardProtocol::WireguardProtocol(const QJsonObject &configuration, QObject *
     // poll it once a second so the live speed meter works
     m_statsTimer.setInterval(1000);
     connect(&m_statsTimer, &QTimer::timeout, this, [this]() { m_impl->checkStatus(); });
+
+    // The stats timer is normally kicked by the daemon's connected() callback,
+    // but after a daemon-socket reconnect (system sleep / App Nap wake) the
+    // controller can report Connected without re-emitting connected() — the
+    // timer then stays dead and the speed meter shows only the arrows.
+    // Self-heal on any transition to Connected.
+    connect(this, &VpnProtocol::connectionStateChanged, this, [this](Vpn::ConnectionState state) {
+        if (state == Vpn::ConnectionState::Connected && !m_statsTimer.isActive()) {
+            m_statsTimer.start();
+        }
+    });
     m_impl->initialize(nullptr, nullptr);
 }
 
