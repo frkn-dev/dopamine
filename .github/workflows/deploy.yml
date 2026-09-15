@@ -51,7 +51,7 @@ jobs:
     - name: 'Get version from CMakeLists.txt'
       id: get_version
       run: |
-        VERSION=$(grep 'set(DOPAMINE_VERSION' CMakeLists.txt | sed -E 's/.*DOPAMINE_VERSION ([0-9]+.[0-9]+.[0-9]+.[0-9]+)\)/\1/')
+        VERSION=$(grep -E '^set\(DOPAMINE_VERSION [0-9.]+\)$' CMakeLists.txt | sed -E 's/.*DOPAMINE_VERSION ([0-9]+.[0-9]+.[0-9]+.[0-9]+)\)/\1/')
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "Version: $VERSION"
 
@@ -117,7 +117,7 @@ jobs:
       id: get_version
       shell: bash
       run: |
-        VERSION=$(grep 'set(DOPAMINE_VERSION' CMakeLists.txt | sed -E 's/.*DOPAMINE_VERSION ([0-9]+.[0-9]+.[0-9]+.[0-9]+)\)/\1/')
+        VERSION=$(grep -E '^set\(DOPAMINE_VERSION [0-9.]+\)$' CMakeLists.txt | sed -E 's/.*DOPAMINE_VERSION ([0-9]+.[0-9]+.[0-9]+.[0-9]+)\)/\1/')
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "Version: $VERSION"
 
@@ -433,7 +433,7 @@ jobs:
     - name: 'Get version from CMakeLists.txt'
       id: get_version
       run: |
-        VERSION=$(grep 'set(DOPAMINE_VERSION' CMakeLists.txt | sed -E 's/.*DOPAMINE_VERSION ([0-9]+.[0-9]+.[0-9]+.[0-9]+)\)/\1/')
+        VERSION=$(grep -E '^set\(DOPAMINE_VERSION [0-9.]+\)$' CMakeLists.txt | sed -E 's/.*DOPAMINE_VERSION ([0-9]+.[0-9]+.[0-9]+.[0-9]+)\)/\1/')
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "Version: $VERSION"
 
@@ -634,7 +634,7 @@ jobs:
     - name: 'Get version from CMakeLists.txt'
       id: get_version
       run: |
-        VERSION=$(grep 'set(DOPAMINE_VERSION' CMakeLists.txt | sed -E 's/.*DOPAMINE_VERSION ([0-9]+.[0-9]+.[0-9]+.[0-9]+)\)/\1/')
+        VERSION=$(grep -E '^set\(DOPAMINE_VERSION [0-9.]+\)$' CMakeLists.txt | sed -E 's/.*DOPAMINE_VERSION ([0-9]+.[0-9]+.[0-9]+.[0-9]+)\)/\1/')
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "Version: $VERSION"
 
