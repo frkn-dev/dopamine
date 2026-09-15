@@ -145,24 +145,53 @@ void CoreController::initControllers()
     m_engine->rootContext()->setContextProperty("ApiConfigsController", m_apiConfigsController.get());
     m_connectionController->setApiConfigsController(m_apiConfigsController.get());
 
+    m_keyActivationController.reset(new KeyActivationController());
+    m_engine->rootContext()->setContextProperty("KeyActivationController", m_keyActivationController.get());
+
+    // shared tail of the subscription-id flows (entered UUID, frkn://sub/, activation key):
+    // busy on, fetch the configs, import them ALL (no protocol selection screen), go home
+    auto fetchSubscriptionConfigs = [this](const QString &subscriptionId) {
+        m_pageController->showBusyIndicator(true);
+        // the fetch is async now: navigate when it reports completion
+        // (one-shot connection — reloadSubscriptionConfigs has its own signal)
+        auto connection = QSharedPointer<QMetaObject::Connection>::create();
+        *connection = connect(m_apiConfigsController.get(), &ApiConfigsController::fetchSubscriptionConfigsFinished, this,
+                              [this, connection](bool success) {
+                                  disconnect(*connection);
+                                  m_pageController->showBusyIndicator(false);
+                                  qDebug() << "[CORE] fetch subscription configs result:" << success;
+                                  if (success) {
+                                      const int importedCount = m_apiConfigsController->installAllSubscriptionConfigs();
+                                      qDebug() << "[CORE] imported all subscription configs:" << importedCount;
+                                      emit m_pageController->showNotificationMessage(
+                                              tr("Imported %1 configurations").arg(importedCount));
+                                      emit m_pageController->goToPageHome();
+                                  }
+                              });
+        m_apiConfigsController->fetchSubscriptionConfigs(subscriptionId);
+    };
+
     connect(m_importController.get(), &ImportController::frknSubscriptionLinkDetected, this,
-            [this](const QString &subscriptionId) {
+            [this, fetchSubscriptionConfigs](const QString &subscriptionId) {
                 qDebug() << "[CORE] frkn subscription link detected:" << subscriptionId;
+                fetchSubscriptionConfigs(subscriptionId);
+            });
+
+    connect(m_importController.get(), &ImportController::frknActivationKeyDetected, this,
+            [this](const QString &code) {
+                qDebug() << "[CORE] frkn activation key detected";
                 m_pageController->showBusyIndicator(true);
-                // the fetch is async now: navigate when it reports completion
-                // (one-shot connection — reloadSubscriptionConfigs has its own signal)
-                auto connection = QSharedPointer<QMetaObject::Connection>::create();
-                *connection = connect(m_apiConfigsController.get(), &ApiConfigsController::fetchSubscriptionConfigsFinished, this,
-                                      [this, connection](bool success) {
-                                          disconnect(*connection);
-                                          m_pageController->showBusyIndicator(false);
-                                          qDebug() << "[CORE] fetch subscription configs result:" << success;
-                                          if (success) {
-                                              emit m_pageController->goToPage(PageLoader::PageEnum::PageSetupWizardSubscriptionProtocols);
-                                              qDebug() << "[CORE] navigated to subscription protocols page";
-                                          }
-                                      });
-                m_apiConfigsController->fetchSubscriptionConfigs(subscriptionId);
+                m_keyActivationController->validateKey(code);
+            });
+
+    connect(m_keyActivationController.get(), &KeyActivationController::keyAlreadyLinked, this, fetchSubscriptionConfigs);
+
+    connect(m_keyActivationController.get(), &KeyActivationController::keyActivated, this, fetchSubscriptionConfigs);
+
+    connect(m_keyActivationController.get(), &KeyActivationController::keyErrorOccurred, this,
+            [this](const QString &message) {
+                m_pageController->showBusyIndicator(false);
+                emit m_pageController->showErrorMessage(message);
             });
 
     connect(m_importController.get(), &ImportController::frknShareLinkDetected, this,

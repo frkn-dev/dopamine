@@ -188,9 +188,9 @@
         <file>ui/qml/Pages2/PageSettingsServerInfo.qml</file>
         <file>ui/qml/Pages2/PageSettingsServersList.qml</file>
         <file>ui/qml/Pages2/PageSettingsSplitTunneling.qml</file>
+        <file>ui/qml/Pages2/PageSettingsRuAppsHelp.qml</file>
         <file>ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml</file>
         <file>ui/qml/Pages2/PageSetupWizardApiServicesList.qml</file>
-        <file>ui/qml/Pages2/PageSetupWizardSubscriptionProtocols.qml</file>
         <file>ui/qml/Pages2/PageSetupWizardConfigSource.qml</file>
         <file>ui/qml/Pages2/PageSetupWizardQrReader.qml</file>
         <file>ui/qml/Pages2/PageSetupWizardStart.qml</file>

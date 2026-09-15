@@ -43,7 +43,12 @@ namespace PageLoader
         PageSetupWizardQrReader,
         PageSetupWizardApiServicesList,
         PageSetupWizardApiServiceInfo,
+        // unused: subscription import no longer shows a protocol selection
+        // screen (all configs are imported at once) — value kept so the enum
+        // numbering stays stable
         PageSetupWizardSubscriptionProtocols,
+
+        PageSettingsRuAppsHelp,
 
         PageDevMenu
     };

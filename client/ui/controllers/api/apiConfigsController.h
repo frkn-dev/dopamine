@@ -89,6 +89,9 @@ public slots:
 
     Q_INVOKABLE void fetchSubscriptionConfigs(const QString &subscriptionId);
     Q_INVOKABLE bool installSubscriptionConfig(int index);
+    // installs every fetched subscription config at once (we no longer show the
+    // protocol selection screen — users were confused by it); returns the count
+    int installAllSubscriptionConfigs();
     Q_INVOKABLE void reloadSubscriptionConfigs();
 
     // FRKN connection sharing (frkn://conn/<share_token>): the recipient imports a single

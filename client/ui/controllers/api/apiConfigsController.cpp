@@ -2631,6 +2631,18 @@ bool ApiConfigsController::installSubscriptionConfig(int index)
     return serversAfter > serversBefore;
 }
 
+int ApiConfigsController::installAllSubscriptionConfigs()
+{
+    int importedCount = 0;
+    for (int i = 0; i < m_subscriptionConfigs.size(); ++i) {
+        if (installSubscriptionConfig(i)) {
+            ++importedCount;
+        }
+    }
+    qDebug() << "[SUBSCRIPTION] install all: imported" << importedCount << "of" << m_subscriptionConfigs.size();
+    return importedCount;
+}
+
 QList<QString> ApiConfigsController::getQrCodes()
 {
     return m_qrCodes;
