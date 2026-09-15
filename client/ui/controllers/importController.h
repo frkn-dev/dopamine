@@ -65,6 +65,7 @@ signals:
     void importErrorOccurred(ErrorCode errorCode, bool goToPageHome);
     void frknSubscriptionLinkDetected(const QString &subscriptionId);
     void frknShareLinkDetected(const QString &shareToken);
+    void frknActivationKeyDetected(const QString &code);
 
     void qrDecodingFinished();
 

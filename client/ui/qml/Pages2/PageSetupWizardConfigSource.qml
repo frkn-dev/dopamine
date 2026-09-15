@@ -56,6 +56,26 @@ PageType {
         }
     }
 
+    Connections {
+        target: KeyActivationController
+
+        function onKeyValidationPassed(code, days, trafficGib, isLite) {
+            PageController.showBusyIndicator(false)
+            keyActivationDrawer.code = code
+            keyActivationDrawer.days = days
+            keyActivationDrawer.trafficGib = trafficGib
+            keyActivationDrawer.isLite = isLite
+            keyActivationDrawer.emailForced = false
+            keyActivationDrawer.openTriggered()
+        }
+
+        function onEmailRequired() {
+            PageController.showBusyIndicator(false)
+            keyActivationDrawer.emailForced = true
+            keyActivationDrawer.openTriggered()
+        }
+    }
+
     ListViewType {
         id: listView
 
@@ -503,6 +523,106 @@ PageType {
 
                 clickedFunc: function() {
                     subscriptionDrawer.closeTriggered()
+                }
+            }
+        }
+    }
+
+    DrawerType2 {
+        id: keyActivationDrawer
+
+        property string code: ""
+        property int days: 0
+        property int trafficGib: 0
+        property bool isLite: false
+        property bool emailForced: false
+
+        property bool emailVisible: isLite || emailForced
+
+        parent: root
+        anchors.fill: parent
+
+        expandedStateContent: ColumnLayout {
+            id: keyActivationContent
+
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            spacing: 0
+
+            Component.onCompleted: {
+                keyActivationDrawer.expandedHeight = keyActivationContent.implicitHeight + 32
+            }
+
+            Header2Type {
+                Layout.fillWidth: true
+                Layout.topMargin: 24
+                Layout.rightMargin: 16
+                Layout.leftMargin: 16
+                Layout.bottomMargin: 16
+
+                headerText: qsTr("Activation key")
+            }
+
+            ParagraphTextType {
+                Layout.fillWidth: true
+                Layout.rightMargin: 16
+                Layout.leftMargin: 16
+                Layout.bottomMargin: 24
+
+                text: keyActivationDrawer.isLite ?
+                          qsTr("This key gives you %n GiB of traffic", "", keyActivationDrawer.trafficGib) :
+                          qsTr("This key gives you %n day(s) of VPN access", "", keyActivationDrawer.days)
+            }
+
+            TextFieldWithHeaderType {
+                id: emailTextField
+
+                Layout.fillWidth: true
+                Layout.rightMargin: 16
+                Layout.leftMargin: 16
+                Layout.bottomMargin: 16
+
+                visible: keyActivationDrawer.emailVisible
+
+                headerText: qsTr("Email")
+            }
+
+            BasicButtonType {
+                Layout.fillWidth: true
+                Layout.rightMargin: 16
+                Layout.leftMargin: 16
+                Layout.bottomMargin: 8
+
+                text: qsTr("Activate")
+
+                clickedFunc: function() {
+                    var email = emailTextField.textField.text.trim()
+                    if (keyActivationDrawer.emailVisible && email === "") {
+                        PageController.showErrorMessage(qsTr("Enter your email"))
+                        return
+                    }
+                    PageController.showBusyIndicator(true)
+                    keyActivationDrawer.closeTriggered()
+                    KeyActivationController.activateKey(keyActivationDrawer.code, email)
+                }
+            }
+
+            BasicButtonType {
+                Layout.fillWidth: true
+                Layout.rightMargin: 16
+                Layout.leftMargin: 16
+                Layout.bottomMargin: 16
+
+                defaultColor: DopamineStyle.color.transparent
+                hoveredColor: DopamineStyle.color.translucentWhite
+                pressedColor: DopamineStyle.color.sheerWhite
+                textColor: DopamineStyle.color.paleGray
+
+                text: qsTr("Cancel")
+
+                clickedFunc: function() {
+                    keyActivationDrawer.closeTriggered()
                 }
             }
         }

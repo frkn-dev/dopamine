@@ -209,6 +209,24 @@ bool ImportController::extractConfigFromData(QString data)
             return false;
         }
 
+        // frkn://key/<code> — activation key deeplink; strip the prefix and let
+        // the bare-key detection below handle the code itself
+        if (urlCandidate.startsWith("frkn://key/")) {
+            urlCandidate = urlCandidate.mid(11);
+        }
+
+        // FRKN activation key (e.g. 77MNO-PUBHY-AW2RS-SJNHP-5TNMY-E) — 5 groups
+        // of 5 chars plus a check char; validated/activated via api.frkn.org/key
+        {
+            QString normalizedKey = urlCandidate.toUpper();
+            normalizedKey.remove(QRegularExpression(QStringLiteral("\\s")));
+            static const QRegularExpression activationKeyRegex(QStringLiteral("^[A-Z0-9]{5}(-[A-Z0-9]{5}){4}-[A-Z0-9]$"));
+            if (activationKeyRegex.match(normalizedKey).hasMatch()) {
+                emit frknActivationKeyDetected(normalizedKey);
+                return false;
+            }
+        }
+
         // frkn:// is an alias for https://
         if (urlCandidate.startsWith("frkn://")) {
             urlCandidate.replace(0, 7, "https://");
