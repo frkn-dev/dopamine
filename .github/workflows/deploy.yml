@@ -6,7 +6,9 @@ on:
       - '**'
 
 env:
-  QT_MIRROR: https://mirrors.ocf.berkeley.edu/qt/ # https://download.qt.io/static/mirrorlist/
+  # mirrors.ocf.berkeley.edu is down and the aqt fallback (ustc) lacks 6.10.1 —
+  # use the official CDN
+  QT_MIRROR: https://download.qt.io
 
 jobs:
   Build-Linux-Ubuntu:
