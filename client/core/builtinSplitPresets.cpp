@@ -95,9 +95,12 @@ QJsonArray BuiltinSplitPresets::presets()
 
     // own additions on top of the upstream subnet list: big RU services the
     // upstream list misses. Stored as domains (resolved at connect) so they
-    // survive IP changes
-    const QStringList ruDirectExtraDomains = { "ozon.ru",  "www.ozon.ru", "m.ozon.ru",
-                                               "avito.ru", "www.avito.ru", "m.avito.ru" };
+    // survive IP changes. The list lives in ruServicesDomains.inc — flattened
+    // from v2fly domain-list-community (marketplaces, banks, gov) since those
+    // are CDN-fronted and fall outside the RU subnet ranges
+    const QStringList ruDirectExtraDomains = {
+#include "ruServicesDomains.inc"
+    };
 
     QJsonObject ruDirect;
     ruDirect.insert("id", QStringLiteral("builtin-ru-direct"));

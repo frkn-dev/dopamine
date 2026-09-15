@@ -112,6 +112,18 @@ PageType {
             color: DopamineStyle.color.mutedGray
             text: qsTr("VPN is connected — changes will apply on the next connection")
         }
+
+        LabelWithButtonType {
+            Layout.fillWidth: true
+            Layout.topMargin: 8
+
+            text: qsTr("Bank and marketplace apps don't work?")
+            rightImageSource: "qrc:/images/controls/chevron-right.svg"
+
+            clickedFunction: function() {
+                PageController.goToPage(PageEnum.PageSettingsRuAppsHelp)
+            }
+        }
     }
 
     ListViewType {
