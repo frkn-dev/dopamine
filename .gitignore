@@ -153,6 +153,7 @@ DeveloperIdInstallerCertificate.p12
 # AGW / API keys and debug artifacts
 agw_private.pem
 agw_public.pem
+!client/agw_public.pem
 services_response.json
 test_agw_encryption.py
 fetch_frkn_config.py
