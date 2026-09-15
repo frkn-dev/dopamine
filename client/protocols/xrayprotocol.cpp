@@ -122,7 +122,18 @@ ErrorCode XrayProtocol::startTun2Socks()
     }
 
     m_tun2socksProcess->setProgram(PermittedProcess::Tun2Socks);
-    m_tun2socksProcess->setArguments({"-device", QString("tun://%1").arg(tunName), "-proxy", "socks5://127.0.0.1:10808" });
+    // the socks inbound port is chosen per-connect (random, see
+    // vpnConfigurationController) — read it back from the config
+    int localProxyPort = QString(amnezia::protocols::xray::defaultLocalProxyPort).toInt();
+    const QJsonArray inbounds = m_xrayConfig.value(QStringLiteral("inbounds")).toArray();
+    if (!inbounds.isEmpty()) {
+        const int port = inbounds.first().toObject().value(QStringLiteral("port")).toInt();
+        if (port > 0) {
+            localProxyPort = port;
+        }
+    }
+    m_tun2socksProcess->setArguments({"-device", QString("tun://%1").arg(tunName), "-proxy",
+                                      QString("socks5://127.0.0.1:%1").arg(localProxyPort) });
 
     connect(m_tun2socksProcess.data(), &IpcProcessInterfaceReplica::readyReadStandardOutput, this, [this]() {
         auto readAllStandardOutput = m_tun2socksProcess->readAllStandardOutput();

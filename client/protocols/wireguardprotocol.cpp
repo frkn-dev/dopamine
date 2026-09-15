@@ -16,6 +16,9 @@ WireguardProtocol::WireguardProtocol(const QJsonObject &configuration, QObject *
     connect(m_impl.get(), &ControllerImpl::connected, this,
             [this](const QString &pubkey, const QDateTime &connectionTimestamp) {
                 setConnectionState(Vpn::ConnectionState::Connected);
+                // fresh tunnel = fresh uapi counters, reset the delta baseline
+                m_lastRxBytes = 0;
+                m_lastTxBytes = 0;
                 m_statsTimer.start();
             });
     connect(m_impl.get(), &ControllerImpl::statusUpdated, this,
@@ -37,7 +40,14 @@ WireguardProtocol::WireguardProtocol(const QJsonObject &configuration, QObject *
                     emit tunnelAddressesUpdated(m_vpnGateway, m_vpnLocalAddress);
                 }
 
-                emit bytesChanged(rxBytes, txBytes);
+                // cumulative counters → per-interval deltas; on a counter reset
+                // (tunnel re-created under us) the current value IS the delta
+                const quint64 rxDelta = rxBytes >= m_lastRxBytes ? rxBytes - m_lastRxBytes : rxBytes;
+                const quint64 txDelta = txBytes >= m_lastTxBytes ? txBytes - m_lastTxBytes : txBytes;
+                m_lastRxBytes = rxBytes;
+                m_lastTxBytes = txBytes;
+
+                emit bytesChanged(rxDelta, txDelta);
             });
 
     connect(m_impl.get(), &ControllerImpl::disconnected, this,

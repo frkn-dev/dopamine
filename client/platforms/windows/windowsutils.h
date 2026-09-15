@@ -18,6 +18,13 @@ class WindowsUtils final {
 
   // Force an application crash for testing
   static void forceCrash();
+
+  // Make sure the dopamine-service process is running: tries an elevated
+  // `net start`, and if the service was never installed (silent MSI
+  // failure), installs and starts it elevated. Returns true when the
+  // service process is up. Shows a UAC prompt; returns false if the user
+  // declines or the recovery fails.
+  static bool ensureDopamineServiceRunning();
 };
 
 #endif  // WINDOWSUTILS_H

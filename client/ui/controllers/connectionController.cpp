@@ -15,6 +15,10 @@
     #include <QApplication>
 #endif
 
+#ifdef Q_OS_WIN
+    #include "platforms/windows/windowsutils.h"
+#endif
+
 #include "utilities.h"
 #include "core/controllers/vpnConfigurationController.h"
 #include "ui/controllers/api/apiConfigsController.h"
@@ -241,22 +245,16 @@ ConnectionController::ConnectionController(const QSharedPointer<ServersModel> &s
         }
 
         if (m_autoPhase == AutoPhase::Connecting && m_autoAwaitingTraffic) {
-            if (m_autoTrafficBaseline == ~0ULL) {
-                m_autoTrafficBaseline = receivedBytes; // first sample = baseline
-                return;
-            }
-            if (receivedBytes > m_autoTrafficBaseline) {
+            // bytesChanged carries per-interval deltas on all platforms — any
+            // non-zero receive is proof the tunnel moves traffic
+            if (receivedBytes > 0) {
                 qDebug() << "[AUTO] traffic confirmed on row" << m_autoCandidates.at(m_autoCandidatePos).row;
                 finalizeAutoSuccess();
             }
             return;
         }
         if (m_autoPhase == AutoPhase::None && m_ipAwaitingTraffic) {
-            if (m_ipTrafficBaseline == ~0ULL) {
-                m_ipTrafficBaseline = receivedBytes; // first sample = baseline
-                return;
-            }
-            if (receivedBytes > m_ipTrafficBaseline) {
+            if (receivedBytes > 0) {
                 qDebug() << "[IPPOOL] traffic confirmed on row" << m_ipPoolRow;
                 resetIpPool(); // success — the next connect starts from a fresh random pool
             }
@@ -292,8 +290,18 @@ void ConnectionController::openConnection()
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS) && !defined(MACOS_NE)
     if (!Utils::processIsRunning(Utils::executable(SERVICE_NAME, false), true))
     {
-        emit connectionErrorOccurred(ErrorCode::DopamineServiceNotRunning);
-        return;
+#ifdef Q_OS_WIN
+        // the service may be stopped (crash, upgrade) or missing entirely
+        // (silent MSI failure without admin rights) — try to revive it with
+        // elevation before erroring out
+        if (WindowsUtils::ensureDopamineServiceRunning()) {
+            qDebug() << "ConnectionController: service recovered, proceeding with connect";
+        } else
+#endif
+        {
+            emit connectionErrorOccurred(ErrorCode::DopamineServiceNotRunning);
+            return;
+        }
     }
 #endif
 
@@ -786,7 +794,6 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
             // handshake-gated (see the Connected case below).
             if (m_autoCandidatePos < m_autoCandidates.size()) {
                 m_autoAwaitingTraffic = true;
-                m_autoTrafficBaseline = ~0ULL;
                 m_autoAttemptTimer->start(kAutoTrafficTimeoutMs);
             } else {
                 finalizeAutoSuccess();
@@ -880,7 +887,6 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
 #endif
             // a blocked entry address can still bring the tunnel up — require real bytes
             m_ipAwaitingTraffic = true;
-            m_ipTrafficBaseline = ~0ULL;
             m_ipTrafficTimer->start(kIpTrafficTimeoutMs);
 #if defined(Q_OS_IOS) || defined(MACOS_NE) || defined(Q_OS_ANDROID)
             }

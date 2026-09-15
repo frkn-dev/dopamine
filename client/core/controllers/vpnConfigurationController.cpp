@@ -1,6 +1,7 @@
 #include "vpnConfigurationController.h"
 
 #include <QJsonArray>
+#include <QTcpServer>
 
 #include "core/api/apiUtils.h"
 
@@ -216,9 +217,18 @@ QJsonObject VpnConfigurationsController::createVpnConfiguration(const QPair<QStr
             }
 
             if (!vpnConfigData.contains(QStringLiteral("inbounds"))) {
+                // random free port instead of the well-known 10808: RU apps
+                // probe 127.0.0.1:10808 to detect xray-based VPN clients even
+                // under per-app split tunneling
+                int localPort = QString(protocols::xray::defaultLocalProxyPort).toInt();
+                QTcpServer portProbe;
+                if (portProbe.listen(QHostAddress::LocalHost, 0)) {
+                    localPort = portProbe.serverPort();
+                    portProbe.close();
+                }
                 QJsonObject inbound;
                 inbound[QStringLiteral("listen")] = QStringLiteral("127.0.0.1");
-                inbound[QStringLiteral("port")] = QString(protocols::xray::defaultLocalProxyPort).toInt();
+                inbound[QStringLiteral("port")] = localPort;
                 inbound[QStringLiteral("protocol")] = QStringLiteral("socks");
                 inbound[QStringLiteral("settings")] = QJsonObject { { QStringLiteral("udp"), true } };
                 vpnConfigData[QStringLiteral("inbounds")] = QJsonArray { inbound };

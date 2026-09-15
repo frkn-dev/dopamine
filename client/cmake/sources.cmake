@@ -160,6 +160,14 @@ set(SOURCES ${SOURCES}
 )
 
 if(WIN32)
+    # WindowsUtils is shared with dopamine-service; the client links it too
+    # (service auto-recovery on connect)
+    set(HEADERS ${HEADERS}
+        ${CLIENT_ROOT_DIR}/platforms/windows/windowsutils.h
+    )
+    set(SOURCES ${SOURCES}
+        ${CLIENT_ROOT_DIR}/platforms/windows/windowsutils.cpp
+    )
     set(RESOURCES ${RESOURCES}
         ${CMAKE_CURRENT_BINARY_DIR}/dopamine.rc
     )

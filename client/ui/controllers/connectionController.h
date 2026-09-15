@@ -95,7 +95,6 @@ private:
     QString m_uploadSpeed;
     QElapsedTimer m_speedTimer;
     static QString formatSpeed(qint64 bytesPerSec);
-    quint64 m_ipTrafficBaseline = 0;
     static constexpr int kIpTrafficTimeoutMs = 8000;
     // ---
 
@@ -146,7 +145,6 @@ private:
     int m_autoCandidatePos = 0;
     bool m_autoAdvancing = false; // teardown states between attempts are not a user cancel
     bool m_autoAwaitingTraffic = false; // connected to an unprobed server, waiting for bytes
-    quint64 m_autoTrafficBaseline = 0;
     QTimer *m_autoProbeTimer;
     QTimer *m_autoAttemptTimer;
 

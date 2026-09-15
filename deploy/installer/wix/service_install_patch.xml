@@ -9,10 +9,20 @@
                 Start="auto"
                 Type="ownProcess"
                 ErrorControl="normal"
-                Vital="no">
+                Vital="yes">
             <ServiceDependency Id="BFE" />
             <ServiceDependency Id="nsi" />
         </ServiceInstall>
+        <!-- auto-restart on crash: without this a single service crash left the
+             client permanently dead ("Background service is not running") until
+             a manual reboot/reinstall -->
+        <util:ServiceConfig
+                ServiceName="dopamine-service"
+                FirstFailureActionType="restart"
+                SecondFailureActionType="restart"
+                ThirdFailureActionType="restart"
+                RestartServiceDelayInSeconds="5"
+                ResetPeriodInDays="1" />
         <ServiceControl
                 Id="DopamineServiceControl"
                 Name="dopamine-service"

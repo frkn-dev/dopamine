@@ -28,6 +28,12 @@ public:
 private:
     QTimer m_statsTimer;
 
+    // the desktop daemon reports CUMULATIVE rx/tx (uapi counters) — keep the
+    // previous sample to emit per-interval deltas, matching the iOS/Android
+    // bytesChanged contract (and the live speed meter that divides by elapsed)
+    quint64 m_lastRxBytes = 0;
+    quint64 m_lastTxBytes = 0;
+
     QScopedPointer<ControllerImpl> m_impl;
 };
 
