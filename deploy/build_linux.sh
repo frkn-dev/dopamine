@@ -76,8 +76,8 @@ if [ ! -f $CQTDEPLOYER_DIR/cqtdeployer.sh ]; then
 fi
 
 
-$CQTDEPLOYER_DIR/cqtdeployer.sh -bin $BUILD_DIR/client/FRKN -qmake $QT_BIN_DIR/qmake -qmlDir $PROJECT_DIR/client/ui/qml/ -targetDir $APP_DIR/client/
-$CQTDEPLOYER_DIR/cqtdeployer.sh -bin $BUILD_DIR/service/server/FRKN-service -qmake $QT_BIN_DIR/qmake -targetDir $APP_DIR/service/
+$CQTDEPLOYER_DIR/cqtdeployer.sh -bin $BUILD_DIR/client/Dopamine -qmake $QT_BIN_DIR/qmake -qmlDir $PROJECT_DIR/client/ui/qml/ -targetDir $APP_DIR/client/
+$CQTDEPLOYER_DIR/cqtdeployer.sh -bin $BUILD_DIR/service/server/dopamine-service -qmake $QT_BIN_DIR/qmake -targetDir $APP_DIR/service/
 
 mkdir -p $INSTALLER_DATA_DIR
 rm -f $INSTALLER_DATA_DIR/data.7z
@@ -88,4 +88,4 @@ ldd $CQTDEPLOYER_DIR/bin/binarycreator
 
 cp -r $PROJECT_DIR/deploy/installer $BUILD_DIR
 
-$CQTDEPLOYER_DIR/binarycreator.sh --offline-only -v -c $BUILD_DIR/installer/config/linux.xml -p $BUILD_DIR/installer/packages -f $PROJECT_DIR/deploy/FRKN_Linux_Installer.bin
+$CQTDEPLOYER_DIR/binarycreator.sh --offline-only -v -c $BUILD_DIR/installer/config/linux.xml -p $BUILD_DIR/installer/packages -f $PROJECT_DIR/deploy/Dopamine_Linux_Installer.bin

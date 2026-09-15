@@ -1,6 +1,6 @@
 #!/bin/bash
 
-APP_NAME=FRKN
+APP_NAME=Dopamine
 ORG_NAME=FRKN.ORG
 LOG_FOLDER=/var/log/$APP_NAME
 LOG_FILE="$LOG_FOLDER/post-uninstall.log"
@@ -19,7 +19,7 @@ if command -v steamos-readonly &> /dev/null; then
 	echo "steamos-readonly disabled" >> $LOG_FILE
 fi
 
-ls /opt/FRKN/client/lib/* | while IFS=: read -r dir; do
+ls /opt/$APP_NAME/client/lib/* | while IFS=: read -r dir; do
 	sudo unlink $dir  >> $LOG_FILE
 done
 
@@ -66,8 +66,8 @@ if test -f /usr/share/pixmaps/$APP_NAME.png; then
 fi
 
 ### Remove the service log file (keep post-uninstall.log)
-if test -f "$LOG_FOLDER/FRKN-service.log"; then
-    sudo rm -f "$LOG_FOLDER/FRKN-service.log" >> $LOG_FILE 2>&1
+if test -f "$LOG_FOLDER/dopamine-service.log"; then
+    sudo rm -f "$LOG_FOLDER/dopamine-service.log" >> $LOG_FILE 2>&1
 fi
 
 ### Remove user logs for current user only

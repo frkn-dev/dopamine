@@ -66,13 +66,13 @@ jobs:
         bash deploy/build_linux.sh
 
     - name: 'Pack installer'
-      run: cd deploy && tar -cf FRKN_Linux_Installer.tar FRKN_Linux_Installer.bin && zip FRKN_${VERSION}_linux_x64.tar.zip FRKN_Linux_Installer.tar
+      run: cd deploy && tar -cf Dopamine_Linux_Installer.tar Dopamine_Linux_Installer.bin && zip Dopamine_${VERSION}_linux_x64.tar.zip Dopamine_Linux_Installer.tar
 
     - name: 'Upload installer artifact'
       uses: actions/upload-artifact@v4
       with:
-        name: FRKN_${{ env.VERSION }}_linux_x64.tar.zip
-        path: deploy/FRKN_${{ env.VERSION }}_linux_x64.tar.zip
+        name: Dopamine_${{ env.VERSION }}_linux_x64.tar.zip
+        path: deploy/Dopamine_${{ env.VERSION }}_linux_x64.tar.zip
         retention-days: 1
 
     - name: 'Upload unpacked artifact'

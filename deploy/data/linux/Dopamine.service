@@ -1,5 +1,5 @@
 [Unit]
-Description=FRKN Service
+Description=Dopamine Service
 After=network.target
 StartLimitIntervalSec=0
 
@@ -7,8 +7,8 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 RestartSec=1
-ExecStart=/opt/FRKN/service/FRKN-service.sh
-Environment=LD_LIBRARY_PATH=/opt/FRKN/client/lib
+ExecStart=/opt/Dopamine/service/dopamine-service.sh
+Environment=LD_LIBRARY_PATH=/opt/Dopamine/client/lib
 
 [Install]
 WantedBy=multi-user.target

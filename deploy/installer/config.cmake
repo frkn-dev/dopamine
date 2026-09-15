@@ -18,8 +18,8 @@ elseif(LINUX)
     )
     
     configure_file(
-        ${CMAKE_CURRENT_LIST_DIR}/config/FRKN.desktop.in
-        ${CMAKE_BINARY_DIR}/../AppDir/FRKN.desktop
+        ${CMAKE_CURRENT_LIST_DIR}/config/Dopamine.desktop.in
+        ${CMAKE_BINARY_DIR}/../AppDir/Dopamine.desktop
     )
 endif()
 
