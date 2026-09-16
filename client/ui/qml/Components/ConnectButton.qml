@@ -20,6 +20,16 @@ Button {
     // set by PageHome when the flying pterodactyl lands on the button
     property bool birdPerched: false
 
+    // desktop easter egg: right-click the button (where the bird perches);
+    // on mobile the flight is triggered by a shake instead
+    signal rightClicked()
+
+    TapHandler {
+        acceptedButtons: Qt.RightButton
+        enabled: Qt.platform.os !== "android" && Qt.platform.os !== "ios"
+        onTapped: root.rightClicked()
+    }
+
     property bool isFocusable: true
     
     Keys.onTabPressed: {

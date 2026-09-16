@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QMetaObject>
+#include <QSet>
 #include <QString>
 #include <QScopedPointer>
 #include <QRemoteObjectNode>
@@ -89,6 +90,23 @@ private:
 
    void appendSplitTunnelingConfig();
    void appendKillSwitchConfig();
+
+#ifdef AMNEZIA_DESKTOP
+   // Route-based site split tunneling resolves domains once at connect, but
+   // CDN-fronted sites rotate IPs within minutes. While connected the active
+   // list is re-resolved periodically and the route table patched with the
+   // delta only (refreshSitesRoutes applies it).
+   void refreshSitesRoutes();
+   void applySplitRefreshDelta(const QSet<QString> &resolved);
+
+   QTimer m_splitRefreshTimer;
+   QString m_splitRefreshGw;
+   Settings::RouteMode m_splitRefreshMode = Settings::VpnAllSites;
+   QSet<QString> m_installedSplitRoutes;
+   QSet<QString> m_splitRefreshResolved;
+   quint64 m_splitRefreshGeneration = 0;
+   int m_splitRefreshPending = 0;
+#endif
 };
 
 #endif // VPNCONNECTION_H

@@ -127,6 +127,15 @@ PageType {
 
                 Layout.fillHeight: true
                 Layout.alignment: Qt.AlignCenter
+
+                // desktop easter egg: right-click sends the bird flying
+                onRightClicked: {
+                    if (ConnectionController.isConnected) {
+                        root.startPterodactylSideTrip()
+                    } else {
+                        root.startPterodactylFlight()
+                    }
+                }
             }
 
             Rectangle {

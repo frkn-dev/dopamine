@@ -35,9 +35,20 @@
 #include "core/networkUtilities.h"
 #include "vpnconnection.h"
 
+#ifdef AMNEZIA_DESKTOP
+// CDN-fronted split-tunnel sites rotate IPs within minutes; re-resolve the
+// active list periodically and patch the route table with the delta.
+constexpr int kSplitRefreshFirstDelayMs = 60 * 1000;
+constexpr int kSplitRefreshIntervalMs = 5 * 60 * 1000;
+#endif
+
 VpnConnection::VpnConnection(std::shared_ptr<Settings> settings, QObject *parent)
     : QObject(parent), m_settings(settings), m_checkTimer(new QTimer(this))
 {
+#ifdef AMNEZIA_DESKTOP
+    m_splitRefreshTimer.setInterval(kSplitRefreshIntervalMs);
+    connect(&m_splitRefreshTimer, &QTimer::timeout, this, &VpnConnection::refreshSitesRoutes);
+#endif
 #if defined(Q_OS_IOS) || defined(MACOS_NE)
     m_checkTimer.setInterval(1000);
     connect(IosController::Instance(), &IosController::connectionStateChanged, this, &VpnConnection::setConnectionState);
@@ -87,6 +98,14 @@ void VpnConnection::onKillSwitchModeChanged(bool enabled)
 void VpnConnection::onConnectionStateChanged(Vpn::ConnectionState state)
 {
 #ifdef AMNEZIA_DESKTOP
+    if (state != Vpn::ConnectionState::Connected) {
+        m_splitRefreshTimer.stop();
+        m_splitRefreshGeneration++;
+        m_splitRefreshPending = 0;
+        m_splitRefreshResolved.clear();
+        m_installedSplitRoutes.clear();
+    }
+
     auto container = m_settings->defaultContainer(m_settings->defaultServerIndex());
 
     IpcClient::withInterface([&](QSharedPointer<IpcInterfaceReplica> iface) {
@@ -121,6 +140,19 @@ void VpnConnection::onConnectionStateChanged(Vpn::ConnectionState state)
 
                             iface->routeAddList(m_vpnProtocol->routeGateway(), QStringList() << remoteAddress());
                             addSitesRoutes(m_vpnProtocol->routeGateway(), m_settings->routeMode());
+                        }
+
+                        if (m_settings->routeMode() == Settings::VpnOnlyForwardSites
+                            || m_settings->routeMode() == Settings::VpnAllExceptSites) {
+                            m_splitRefreshGeneration++;
+                            QTimer::singleShot(kSplitRefreshFirstDelayMs, this,
+                                               [this, generation = m_splitRefreshGeneration]() {
+                                                   if (generation != m_splitRefreshGeneration
+                                                       || m_connectionState != Vpn::ConnectionState::Connected)
+                                                       return;
+                                                   refreshSitesRoutes();
+                                                   m_splitRefreshTimer.start();
+                                               });
                         }
                     }
                 }
@@ -164,6 +196,9 @@ const QString &VpnConnection::remoteAddress() const
 void VpnConnection::addSitesRoutes(const QString &gw, Settings::RouteMode mode)
 {
 #ifdef AMNEZIA_DESKTOP
+    m_splitRefreshGw = gw;
+    m_splitRefreshMode = mode;
+
     QStringList ips;
     QStringList sites;
     const QVariantMap &m = m_settings->vpnSites(mode);
@@ -178,6 +213,7 @@ void VpnConnection::addSitesRoutes(const QString &gw, Settings::RouteMode mode)
         }
     }
     ips.removeDuplicates();
+    m_installedSplitRoutes = QSet<QString>(ips.begin(), ips.end());
 
     IpcClient::withInterface([&](QSharedPointer<IpcInterfaceReplica> iface) {
         iface->routeAddList(gw, ips);
@@ -197,6 +233,7 @@ void VpnConnection::addSitesRoutes(const QString &gw, Settings::RouteMode mode)
                             iface->routeAddList(gw, QStringList() << ip);
                         });
                         m_settings->addVpnSite(mode, site, ip);
+                        m_installedSplitRoutes.insert(ip);
                     }
                     IpcClient::withInterface([](QSharedPointer<IpcInterfaceReplica> iface) {
                         auto reply = iface->flushDns();
@@ -211,6 +248,108 @@ void VpnConnection::addSitesRoutes(const QString &gw, Settings::RouteMode mode)
     }
 #endif
 }
+
+#ifdef AMNEZIA_DESKTOP
+void VpnConnection::refreshSitesRoutes()
+{
+    if (m_connectionState != Vpn::ConnectionState::Connected || m_vpnProtocol.isNull())
+        return;
+    if (m_splitRefreshPending > 0) {
+        qDebug() << "[SPLIT REFRESH] previous refresh still resolving, skipping cycle";
+        return;
+    }
+
+    // Same parsing as addSitesRoutes for the keys (subnets are used as-is,
+    // domains are re-resolved below). Stored values are NOT taken verbatim —
+    // they are the previously resolved IPs and counting them in would make
+    // removed IPs look still valid; they are only the fallback when a domain
+    // fails to re-resolve.
+    QStringList domains;
+    const QVariantMap &sites = m_settings->vpnSites(m_splitRefreshMode);
+    m_splitRefreshResolved.clear();
+    for (auto i = sites.constBegin(); i != sites.constEnd(); ++i) {
+        if (NetworkUtilities::checkIpSubnetFormat(i.key())) {
+            m_splitRefreshResolved.insert(i.key());
+        } else {
+            domains.append(i.key());
+        }
+    }
+    domains.removeDuplicates();
+
+    if (domains.isEmpty()) {
+        const QSet<QString> resolved = m_splitRefreshResolved;
+        m_splitRefreshResolved.clear();
+        applySplitRefreshDelta(resolved);
+        return;
+    }
+
+    // QHostInfo::lookupHost resolves on Qt's internal worker threads and
+    // delivers the callback on this thread — the UI never blocks on DNS.
+    const quint64 generation = m_splitRefreshGeneration;
+    m_splitRefreshPending = domains.size();
+    for (const QString &domain : domains) {
+        const QString lastKnownIp = sites.value(domain).toString();
+        QHostInfo::lookupHost(domain, this, [this, generation, domain, lastKnownIp](const QHostInfo &hostInfo) {
+            if (generation != m_splitRefreshGeneration || m_connectionState != Vpn::ConnectionState::Connected)
+                return;
+
+            QString ip;
+            for (const QHostAddress &addr : hostInfo.addresses()) {
+                if (addr.protocol() == QAbstractSocket::NetworkLayerProtocol::IPv4Protocol) {
+                    ip = addr.toString();
+                    break;
+                }
+            }
+            if (!ip.isEmpty()) {
+                m_splitRefreshResolved.insert(ip);
+                m_settings->addVpnSite(m_splitRefreshMode, domain, ip);
+            } else if (NetworkUtilities::checkIpSubnetFormat(lastKnownIp)) {
+                // transient DNS failure: keep the last known route rather
+                // than tearing it down
+                m_splitRefreshResolved.insert(lastKnownIp);
+            }
+
+            if (--m_splitRefreshPending == 0) {
+                const QSet<QString> resolved = m_splitRefreshResolved;
+                m_splitRefreshResolved.clear();
+                applySplitRefreshDelta(resolved);
+            }
+        });
+    }
+}
+
+void VpnConnection::applySplitRefreshDelta(const QSet<QString> &resolved)
+{
+    if (m_connectionState != Vpn::ConnectionState::Connected)
+        return;
+
+    QStringList added;
+    for (const QString &ip : resolved) {
+        if (!m_installedSplitRoutes.contains(ip))
+            added.append(ip);
+    }
+    QStringList removed;
+    for (const QString &ip : m_installedSplitRoutes) {
+        if (!resolved.contains(ip))
+            removed.append(ip);
+    }
+
+    qDebug() << "[SPLIT REFRESH] added" << added.size() << ", removed" << removed.size();
+
+    m_installedSplitRoutes = resolved;
+
+    if (added.isEmpty() && removed.isEmpty())
+        return;
+
+    const QString gw = m_splitRefreshGw;
+    IpcClient::withInterface([&](QSharedPointer<IpcInterfaceReplica> iface) {
+        if (!added.isEmpty())
+            iface->routeAddList(gw, added);
+        if (!removed.isEmpty())
+            iface->routeDeleteList(gw, removed);
+    });
+}
+#endif
 
 QSharedPointer<VpnProtocol> VpnConnection::vpnProtocol() const
 {
