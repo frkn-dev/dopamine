@@ -225,6 +225,13 @@ bool ImportController::extractConfigFromData(QString data)
                 emit frknActivationKeyDetected(normalizedKey);
                 return false;
             }
+            // light (traffic) key — same activation flow backend-side; format is
+            // 6 groups of 5 chars + a single check char (e.g. ALPMQ-6TSD2-DUMUS-LJYAA-AAABP-ETLFP-A)
+            static const QRegularExpression lightKeyRegex(QStringLiteral("^[A-Z0-9]{5}(-[A-Z0-9]{5}){5}-[A-Z0-9]$"));
+            if (lightKeyRegex.match(normalizedKey).hasMatch()) {
+                emit frknActivationKeyDetected(normalizedKey);
+                return false;
+            }
         }
 
         // frkn:// is an alias for https://
@@ -255,6 +262,16 @@ bool ImportController::extractConfigFromData(QString data)
             fetchAndImportFromUrl(frknApiBase + QUrl::toPercentEncoding(urlCandidate));
             return false;
         }
+    }
+
+    // None of the branches above matched — the text neither looks like a key,
+    // a share/subscription link, a UUID, an Xray subscription URL, nor a known
+    // Amnezia/Qt config block. Tell the user explicitly instead of letting it
+    // fall through to the generic "Что-то с интернетом" path.
+    const QString unrecognized = config.trimmed();
+    if (!unrecognized.isEmpty()) {
+        emit unknownFormatDetected(unrecognized);
+        return false;
     }
 
     m_configType = checkConfigFormat(config);

@@ -76,6 +76,18 @@ PageType {
         }
     }
 
+    Connections {
+        // input text that doesn't match any known format (key, share/subscription
+        // link, UUID, Xray subscription URL, Amnezia config) — hide the busy
+        // indicator set by the Continue button and surface a clear message
+        target: ImportController
+
+        function onUnknownFormatDetected(rawInput) {
+            PageController.showBusyIndicator(false)
+            PageController.showErrorMessage(qsTr("Unrecognized input — paste an activation key, frkn:// link, subscription UUID or vless:// configuration"))
+        }
+    }
+
     ListViewType {
         id: listView
 
