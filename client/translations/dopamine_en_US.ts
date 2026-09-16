@@ -162,7 +162,7 @@
 <context>
     <name>ConnectButton</name>
     <message>
-        <location filename="../ui/qml/Components/ConnectButton.qml" line="58"/>
+        <location filename="../ui/qml/Components/ConnectButton.qml" line="68"/>
         <source>Unable to disconnect during configuration preparation</source>
         <translation>Unable to disconnect during configuration preparation</translation>
     </message>
@@ -361,7 +361,7 @@ Can&apos;t be disabled for current server</translation>
 <context>
     <name>ImportController</name>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="794"/>
+        <location filename="../ui/controllers/importController.cpp" line="811"/>
         <source>Scanned %1 of %2.</source>
         <translation>Scanned %1 of %2.</translation>
     </message>
@@ -374,18 +374,18 @@ Can&apos;t be disabled for current server</translation>
         <translation type="vanished">&lt;br&gt;In the imported configuration, potentially dangerous lines were found:</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="904"/>
+        <location filename="../ui/controllers/importController.cpp" line="921"/>
         <source>No valid configurations found at the provided URL</source>
         <translation>No valid configurations found at the provided URL</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="955"/>
-        <location filename="../ui/controllers/importController.cpp" line="978"/>
+        <location filename="../ui/controllers/importController.cpp" line="972"/>
+        <location filename="../ui/controllers/importController.cpp" line="995"/>
         <source>Failed to fetch configurations: %1</source>
         <translation>Failed to fetch configurations: %1</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="984"/>
+        <location filename="../ui/controllers/importController.cpp" line="1001"/>
         <source>Empty response from server</source>
         <translation>Empty response from server</translation>
     </message>
@@ -580,7 +580,7 @@ Already installed containers were found on the server. All installed containers 
         <translation>Dev gateway enabled</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="268"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="277"/>
         <source>Split tunneling</source>
         <translation>Split tunneling</translation>
     </message>
@@ -589,7 +589,7 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">VPN protocol</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="166"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="175"/>
         <source>Auto-select</source>
         <translation>Auto-select</translation>
     </message>
@@ -3296,12 +3296,12 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageSetupWizardConfigSource</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="472"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="484"/>
         <source>Subscription loaded</source>
         <translation>Subscription loaded</translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="481"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="493"/>
         <source>Found %n configuration(s). Add them all?</source>
         <translation>
             <numerusform>Found %n configuration. Add it?</numerusform>
@@ -3309,12 +3309,12 @@ Already installed containers were found on the server. All installed containers 
         </translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="491"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="503"/>
         <source>Delete previous configurations</source>
         <translation>Delete previous configurations</translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="502"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="514"/>
         <source>Add %n server(s)</source>
         <translation>
             <numerusform>Add %n server</numerusform>
@@ -3322,13 +3322,13 @@ Already installed containers were found on the server. All installed containers 
         </translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="522"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="622"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="534"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="634"/>
         <source>Cancel</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="108"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="120"/>
         <source>Connection</source>
         <translation>Connection</translation>
     </message>
@@ -3338,82 +3338,82 @@ Already installed containers were found on the server. All installed containers 
         <translation>All configurations have already been added</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="135"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="147"/>
         <source>Settings</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="145"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="157"/>
         <source>Enable logs</source>
         <translation>Enable logs</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="159"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="171"/>
         <source>Export client logs</source>
         <translation>Export client logs</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="169"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="181"/>
         <source>Save</source>
         <translation>Save</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="170"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="182"/>
         <source>Logs files (*.log)</source>
         <translation>Logs files (*.log)</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="179"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="191"/>
         <source>Logs file saved</source>
         <translation>Logs file saved</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="189"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="201"/>
         <source>Support tag</source>
         <translation>Support tag</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="200"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="212"/>
         <source>Copied</source>
         <translation>Copied</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="220"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="232"/>
         <source>Insert the key, add a configuration file or scan the QR-code</source>
         <translation>Insert the key, add a configuration file or scan the QR-code</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="230"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="242"/>
         <source>Insert key</source>
         <translation>Insert key</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="231"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="243"/>
         <source>Insert</source>
         <translation>Insert</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="249"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="261"/>
         <source>Continue</source>
         <translation>Continue</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="282"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="294"/>
         <source>Other connection options</source>
         <translation>Other connection options</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="332"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="344"/>
         <source>FRKN website</source>
         <translation>Site FRKN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="353"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="365"/>
         <source>VPN by FRKN</source>
         <translation>VPN by FRKN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="354"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="366"/>
         <source>Connect to classic paid and free VPN services from FRKN</source>
         <translation>Connect to classic paid and free VPN services from FRKN</translation>
     </message>
@@ -3426,61 +3426,61 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Configure VPN on your own server</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="370"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="382"/>
         <source>Restore from backup</source>
         <translation>Restore from backup</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="371"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="389"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="408"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="423"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="437"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="383"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="401"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="420"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="435"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="449"/>
         <source></source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="375"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="387"/>
         <source>Open backup file</source>
         <translation>Open backup file</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="376"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="388"/>
         <source>Backup files (*.backup)</source>
         <translation>Backup files (*.backup)</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="388"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="400"/>
         <source>File with connection settings</source>
         <translation>File with connection settings</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="395"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="407"/>
         <source>Open config file</source>
         <translation>Open config file</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="407"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="419"/>
         <source>QR code</source>
         <translation>QR code</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="422"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="434"/>
         <source>Restore purchases</source>
         <translation>Restore purchases</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="436"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="448"/>
         <source>I have nothing</source>
         <translation>I have nothing</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="564"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="576"/>
         <source>Activation key</source>
         <translation>Activation key</translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="574"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="586"/>
         <source>This key gives you %n GiB of traffic</source>
         <translation>
             <numerusform>This key gives you %n GiB of traffic</numerusform>
@@ -3488,7 +3488,7 @@ Already installed containers were found on the server. All installed containers 
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="575"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="587"/>
         <source>This key gives you %n day(s) of VPN access</source>
         <translation>
             <numerusform>This key gives you %n day of VPN access</numerusform>
@@ -3496,19 +3496,24 @@ Already installed containers were found on the server. All installed containers 
         </translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="588"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="600"/>
         <source>Email</source>
         <translation>Email</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="597"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="609"/>
         <source>Activate</source>
         <translation>Activate</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="602"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="614"/>
         <source>Enter your email</source>
         <translation>Enter your email</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="87"/>
+        <source>Unrecognized input — paste an activation key, frkn:// link, subscription UUID or vless:// configuration</source>
+        <translation>Unrecognized input — paste an activation key, frkn:// link, subscription UUID or vless:// configuration</translation>
     </message>
 </context>
 <context>
@@ -5385,7 +5390,7 @@ For more detailed information, you can
 <context>
     <name>VpnConnection</name>
     <message>
-        <location filename="../vpnconnection.cpp" line="549"/>
+        <location filename="../vpnconnection.cpp" line="688"/>
         <source>Mbps</source>
         <translation>Mbps</translation>
     </message>

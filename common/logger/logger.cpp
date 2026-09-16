@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QJsonDocument>
 #include <QMetaEnum>
+#include <QMutexLocker>
 #include <QStandardPaths>
 #include <QUrl>
 
@@ -22,6 +23,8 @@
 
 QFile Logger::m_file;
 QTextStream Logger::m_textStream;
+QMutex Logger::m_fileMutex;
+QElapsedTimer Logger::m_flushTimer;
 QString Logger::m_logFileName = QStringLiteral("Dopamine.log");
 QString Logger::m_serviceLogFileName = QString("%1.log").arg(SERVICE_NAME);
 
@@ -83,6 +86,7 @@ bool Logger::init(bool isServiceLogger)
 
     m_file.setTextModeEnabled(true);
     m_textStream.setDevice(&m_file);
+    m_flushTimer.start();
 
     qInstallMessageHandler(messageHandler);
 
@@ -91,8 +95,14 @@ bool Logger::init(bool isServiceLogger)
 
 void Logger::deInit()
 {
-    m_textStream.setDevice(nullptr);
-    m_file.close();
+    {
+        QMutexLocker locker(&m_fileMutex);
+        if (m_file.isOpen()) {
+            m_textStream.flush();
+        }
+        m_textStream.setDevice(nullptr);
+        m_file.close();
+    }
 }
 
 bool Logger::setServiceLogsEnabled(bool enabled)
@@ -144,7 +154,12 @@ QString Logger::serviceLogsFilePath()
 
 QString Logger::getLogFile()
 {
-    m_file.flush();
+    {
+        QMutexLocker locker(&m_fileMutex);
+        if (m_file.isOpen()) {
+            m_textStream.flush();
+        }
+    }
     QFile file(userLogsFilePath());
 
     file.open(QIODevice::ReadOnly);
@@ -159,7 +174,12 @@ QString Logger::getLogFile()
 
 QString Logger::getServiceLogFile()
 {
-    m_file.flush();
+    {
+        QMutexLocker locker(&m_fileMutex);
+        if (m_file.isOpen()) {
+            m_textStream.flush();
+        }
+    }
     QFile file(serviceLogsFilePath());
 
     file.open(QIODevice::ReadOnly);
@@ -188,7 +208,13 @@ bool Logger::openLogsFolder(bool isServiceLogger)
 void Logger::clearLogs(bool isServiceLogger)
 {
     bool isLogActive = m_file.isOpen();
-    m_file.close();
+    {
+        QMutexLocker locker(&m_fileMutex);
+        if (isLogActive) {
+            m_textStream.flush();
+        }
+        m_file.close();
+    }
 
     QFile file(isServiceLogger ? serviceLogsFilePath() : userLogsFilePath());
 
@@ -246,9 +272,18 @@ Logger::LogStreamer::~LogStreamer()
                                     .arg(QDateTime::currentDateTimeUtc().toString("[yyyy-MM-dd hh:mm:ss.zzzZ]"),
                                          logLevelString, m_logger->className(), m_data->m_buffer.trimmed());
 
-    if (m_file.isOpen()) {
-        QTextStream logToFile(&m_file);
-        logToFile << message << Qt::endl << Qt::flush;
+    {
+        QMutexLocker locker(&m_fileMutex);
+        if (m_file.isOpen()) {
+            // Batched flushing: a sync flush per message used to stall the
+            // logging thread on disk I/O during connect bursts. Errors flush
+            // immediately; shutdown paths (deInit/clearLogs/getLogFile) flush too.
+            m_textStream << message << Qt::endl;
+            if (m_logLevel == LogLevel::Error || m_flushTimer.elapsed() >= 1000) {
+                m_textStream.flush();
+                m_flushTimer.restart();
+            }
+        }
     }
 
     QTextStream logToOutput((m_logLevel == LogLevel::Error) ? stderr : stdout);

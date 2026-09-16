@@ -307,19 +307,47 @@ bool IosController::connectVpn(amnezia::Proto proto, const QJsonObject& configur
 
     m_currentTunnel = nullptr;
 
-    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-    __block bool ok = true;
     __block bool isNewTunnelCreated = false;
-    // Set to false when the "wait for old tunnels to stop" continuation takes
-    // over signaling the semaphore from a background queue (see below).
-    __block bool signalInFinally = true;
+
+    // The NE preference load/save is slow (up to several seconds), so the whole
+    // continuation runs async: observer re-registration and the per-protocol
+    // setup happen only after the manager is configured and any previous tunnel
+    // has fully stopped (see the completion handler below). Blocking the caller
+    // on a semaphore here used to freeze the UI for the whole duration.
+    // NETunnelProviderManager and the setup* methods must run on the main queue.
+    void (^proceed)(void) = ^{
+        [[NSNotificationCenter defaultCenter]
+            removeObserver:(__bridge NSObject *)m_iosControllerWrapper];
+
+        [[NSNotificationCenter defaultCenter]
+            addObserver:(__bridge NSObject *)m_iosControllerWrapper
+                selector:@selector(vpnStatusDidChange:)
+                name:NEVPNStatusDidChangeNotification
+                object:m_currentTunnel.connection];
+
+        if (proto == amnezia::Proto::WireGuard) {
+            setupWireGuard();
+            return;
+        }
+        if (proto == amnezia::Proto::Awg) {
+            setupAwg();
+            return;
+        }
+        if (proto == amnezia::Proto::Xray) {
+            setupXray();
+            return;
+        }
+        if (proto == amnezia::Proto::SSXray) {
+            setupSSXray();
+            return;
+        }
+    };
 
     [NETunnelProviderManager loadAllFromPreferencesWithCompletionHandler:^(NSArray<NETunnelProviderManager *> * _Nullable managers, NSError * _Nullable error) {
         @try {
             if (error) {
                 qDebug() << "IosController::connectVpn : VPNC: loadAllFromPreferences error:" << [error.localizedDescription UTF8String];
                 emit connectionStateChanged(Vpn::ConnectionState::Error);
-                ok = false;
                 return;
             }
 
@@ -371,13 +399,12 @@ bool IosController::connectVpn(amnezia::Proto proto, const QJsonObject& configur
             // old one may win the routes (UI says new server, traffic exits the
             // old one). Wait until every manager we stopped is fully Disconnected.
             //
-            // IMPORTANT: this completion handler runs on the MAIN queue, so the
-            // wait must not block here (it froze the whole UI for the full 5s —
-            // and since the status notification is also delivered on the main
-            // thread, the wait could never finish early anyway). Poll from a
-            // background queue instead and signal the outer semaphore from there.
+            // IMPORTANT: this completion handler may run on the MAIN queue, so
+            // the wait must not block here (it froze the whole UI for the full
+            // 5s — and since the status notification is also delivered on the
+            // main thread, the wait could never finish early anyway). Poll from
+            // a background queue instead, then proceed on the main queue.
             if (stoppedManagers.count > 0) {
-                signalInFinally = false;
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                     const qint64 deadline = QDateTime::currentMSecsSinceEpoch() + 5000;
                     BOOL allStopped = NO;
@@ -398,50 +425,22 @@ bool IosController::connectVpn(amnezia::Proto proto, const QJsonObject& configur
                     if (!allStopped) {
                         qWarning() << "IosController::connectVpn : timed out waiting for the previous tunnel to stop";
                     }
-                    dispatch_semaphore_signal(semaphore);
+                    dispatch_async(dispatch_get_main_queue(), proceed);
                 });
+            } else {
+                dispatch_async(dispatch_get_main_queue(), proceed);
             }
 
         }
         @catch (NSException *exception) {
             qDebug() << "IosController::connectVpn : exception" << QString::fromNSString(exception.reason);
-            ok = false;
             m_currentTunnel = nullptr;
-        }
-        @finally {
-            if (signalInFinally) {
-                dispatch_semaphore_signal(semaphore);
-            }
         }
     }];
 
-    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-    if (!ok) return false;
-
-    [[NSNotificationCenter defaultCenter]
-        removeObserver:(__bridge NSObject *)m_iosControllerWrapper];
-
-    [[NSNotificationCenter defaultCenter]
-        addObserver:(__bridge NSObject *)m_iosControllerWrapper
-            selector:@selector(vpnStatusDidChange:)
-            name:NEVPNStatusDidChangeNotification
-            object:m_currentTunnel.connection];
-
-
-    if (proto == amnezia::Proto::WireGuard) {
-        return setupWireGuard();
-    }
-    if (proto == amnezia::Proto::Awg) {
-        return setupAwg();
-    }
-    if (proto == amnezia::Proto::Xray) {
-        return setupXray();
-    }
-    if (proto == amnezia::Proto::SSXray) {
-        return setupSSXray();
-    }
-
-    return false;
+    // Async by design: the continuation above reports failures through
+    // connectionStateChanged(Vpn::ConnectionState::Error) instead of a return value.
+    return true;
 }
 
 void IosController::disconnectVpn()
