@@ -1945,6 +1945,11 @@ Already installed containers were found on the server. All installed containers 
         <translation>Speed</translation>
     </message>
     <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="320"/>
+        <source>Ping</source>
+        <translation>Ping</translation>
+    </message>
+    <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="318"/>
         <source>Copy technical information</source>
         <translation>Copy technical information</translation>

@@ -308,9 +308,19 @@ PageType {
                 imageSource: "qrc:/images/controls/gauge.svg"
                 leftText: qsTr("Speed")
                 rightText: "↓ " + ConnectionController.downloadSpeed + "   ↑ " + ConnectionController.uploadSpeed
-                           + (ConnectionController.ping !== "" ? "   " + ConnectionController.ping + " ms" : "")
                 visible: ServersModel.processedIndex === ServersModel.defaultIndex
                          && ConnectionController.isConnected && ConnectionController.downloadSpeed !== ""
+            }
+
+            LabelWithImageType {
+                Layout.fillWidth: true
+                Layout.margins: 16
+
+                imageSource: "qrc:/images/controls/gauge.svg"
+                leftText: qsTr("Ping")
+                rightText: ConnectionController.ping + " ms"
+                visible: ServersModel.processedIndex === ServersModel.defaultIndex
+                         && ConnectionController.isConnected && ConnectionController.ping !== ""
             }
 
             LabelWithButtonType {

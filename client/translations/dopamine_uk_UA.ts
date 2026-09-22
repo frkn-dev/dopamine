@@ -2008,6 +2008,11 @@ Already installed containers were found on the server. All installed containers 
         <translation>Швидкість</translation>
     </message>
     <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="320"/>
+        <source>Ping</source>
+        <translation>Пінг</translation>
+    </message>
+    <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="318"/>
         <source>Copy technical information</source>
         <translation>Скопіювати технічну інформацію</translation>
