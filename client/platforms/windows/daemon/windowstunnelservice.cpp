@@ -218,9 +218,10 @@ static bool stopAndDeleteTunnelService(SC_HANDLE service) {
 
   if (status.dwCurrentState != SERVICE_STOPPED) {
     logger.debug() << "The service is not stopped yet.";
+    // A killed tunnel process makes ControlService fail (the SCM is already
+    // moving to STOPPED). Wait that out instead of aborting the connect.
     if (!ControlService(service, SERVICE_CONTROL_STOP, &status)) {
       WindowsUtils::windowsLog("Failed to control the service");
-      return false;
     }
 
     if (!waitForServiceStatus(service, SERVICE_STOPPED)) {

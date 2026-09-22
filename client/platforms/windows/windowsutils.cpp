@@ -7,6 +7,7 @@
 #include <Windows.h>
 #include <errhandlingapi.h>
 #include <shellapi.h>
+#include <winsvc.h>
 
 #include <QFileInfo>
 #include <QSettings>
@@ -76,23 +77,83 @@ bool runElevatedAndWait(const QString& program, const QString& params) {
   SHELLEXECUTEINFOW sei = {};
   sei.cbSize = sizeof(sei);
   sei.fMask = SEE_MASK_NOCLOSEPROCESS;
+  sei.hwnd = GetForegroundWindow();
   sei.lpVerb = L"runas";
   sei.lpFile = file.c_str();
   sei.lpParameters = parameters.c_str();
   sei.nShow = SW_HIDE;
 
-  if (!ShellExecuteExW(&sei)) {
+  if (!ShellExecuteExW(&sei) || !sei.hProcess) {
     // ERROR_CANCELLED = the user declined the UAC prompt
     logger.warning() << "runElevatedAndWait: ShellExecuteEx failed for"
                      << program << "-" << WindowsUtils::getErrorMessage();
     return false;
   }
 
-  WaitForSingleObject(sei.hProcess, 30000);
+  // long enough for the UAC prompt plus sc.exe, which waits out a slow start
+  const DWORD wait = WaitForSingleObject(sei.hProcess, 90000);
   DWORD exitCode = 1;
-  GetExitCodeProcess(sei.hProcess, &exitCode);
+  if (wait == WAIT_OBJECT_0) {
+    GetExitCodeProcess(sei.hProcess, &exitCode);
+  }
   CloseHandle(sei.hProcess);
+  if (exitCode != 0) {
+    logger.debug() << "runElevatedAndWait:" << program << "exit" << exitCode;
+  }
   return exitCode == 0;
+}
+
+QString scExePath() {
+  wchar_t systemDir[MAX_PATH] = {};
+  GetSystemDirectoryW(systemDir, MAX_PATH);
+  return QString::fromWCharArray(systemDir) + QStringLiteral("\\sc.exe");
+}
+
+struct ServiceQuery {
+  bool exists = false;
+  DWORD state = 0;
+  DWORD pid = 0;
+};
+
+// SERVICE_QUERY_STATUS is granted to interactive users; START is not.
+ServiceQuery queryService(const wchar_t* name) {
+  ServiceQuery query;
+  const SC_HANDLE scm = OpenSCManagerW(nullptr, nullptr, SC_MANAGER_CONNECT);
+  if (!scm) {
+    return query;
+  }
+  const SC_HANDLE service = OpenServiceW(scm, name, SERVICE_QUERY_STATUS);
+  if (!service) {
+    CloseServiceHandle(scm);
+    return query;
+  }
+  query.exists = true;
+  SERVICE_STATUS_PROCESS status = {};
+  DWORD needed = 0;
+  if (QueryServiceStatusEx(service, SC_STATUS_PROCESS_INFO, reinterpret_cast<LPBYTE>(&status),
+                           sizeof(status), &needed)) {
+    query.state = status.dwCurrentState;
+    query.pid = status.dwProcessId;
+  }
+  CloseServiceHandle(service);
+  CloseServiceHandle(scm);
+  return query;
+}
+
+// OpenProcess on a SYSTEM service often fails with ACCESS_DENIED while the
+// process is alive. ERROR_INVALID_PARAMETER means the pid is gone.
+bool pidAlive(DWORD pid) {
+  if (pid == 0) {
+    return false;
+  }
+  const HANDLE process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
+  if (!process) {
+    return GetLastError() == ERROR_ACCESS_DENIED;
+  }
+  DWORD code = 0;
+  const bool alive = GetExitCodeProcess(process, &code) && code == STILL_ACTIVE;
+  CloseHandle(process);
+  return alive;
 }
 
 }  // namespace
@@ -100,35 +161,56 @@ bool runElevatedAndWait(const QString& program, const QString& params) {
 // static
 bool WindowsUtils::ensureDopamineServiceRunning() {
   const QString serviceProcess = Utils::executable(SERVICE_NAME, false);
-  if (Utils::processIsRunning(serviceProcess, true)) {
+  const auto running = [&]() { return Utils::processIsRunning(serviceProcess, true); };
+  if (running()) {
     return true;
   }
 
-  logger.debug() << "ensureDopamineServiceRunning: service is not running,"
-                    " trying an elevated start";
+  const QString serviceName = QString::fromLatin1(SERVICE_NAME);
+  const std::wstring serviceNameW = serviceName.toStdWString();
+  ServiceQuery query = queryService(serviceNameW.c_str());
 
-  // service installed but stopped (crashed without recovery, stopped by an
-  // upgrade, killed by AV) — a plain elevated start fixes it
-  runElevatedAndWait(QStringLiteral("net.exe"),
-                     QStringLiteral("start %1").arg(QString::fromLatin1(SERVICE_NAME)));
-
-  // not installed at all (MSI ran without enough privileges and Vital="no"
-  // used to swallow the failure) — install elevated, then start
-  if (!Utils::processIsRunning(serviceProcess, true)) {
-    const QString serviceExe = Utils::executable(SERVICE_NAME, true);
-    if (QFileInfo::exists(serviceExe)) {
-      logger.debug() << "ensureDopamineServiceRunning: net start failed,"
-                        " installing the service elevated";
-      runElevatedAndWait(serviceExe, QStringLiteral("-i"));
-      runElevatedAndWait(QStringLiteral("net.exe"),
-                         QStringLiteral("start %1").arg(QString::fromLatin1(SERVICE_NAME)));
+  // A killed service process stays STOP_PENDING (or RUNNING with a dead pid)
+  // until the SCM notices. `sc start` in that window fails, and reinstalling
+  // the service makes it worse — wait, then start the existing service.
+  if (query.exists && (query.state == SERVICE_STOP_PENDING || query.state == SERVICE_START_PENDING
+                       || (query.state == SERVICE_RUNNING && !pidAlive(query.pid)))) {
+    logger.debug() << "ensureDopamineServiceRunning: service is wedged, waiting for SCM";
+    if (query.state == SERVICE_RUNNING) {
+      runElevatedAndWait(scExePath(), QStringLiteral("stop %1").arg(serviceName));
+    }
+    for (int i = 0; i < 40 && !running(); ++i) {
+      query = queryService(serviceNameW.c_str());
+      if (query.state == SERVICE_STOPPED) {
+        break;
+      }
+      Sleep(250);
     }
   }
 
-  // give the SCM a moment to spawn the process, then do the final check
-  for (int i = 0; i < 20; ++i) {
-    if (Utils::processIsRunning(serviceProcess, true)) {
+  if (!running() && !query.exists) {
+    // not installed at all (MSI ran without enough privileges) — install, then start
+    const QString serviceExe = Utils::executable(SERVICE_NAME, true);
+    if (!QFileInfo::exists(serviceExe)) {
+      logger.warning() << "ensureDopamineServiceRunning: service executable missing";
+      return false;
+    }
+    logger.debug() << "ensureDopamineServiceRunning: service is not installed, installing";
+    if (!runElevatedAndWait(serviceExe, QStringLiteral("-i"))) {
+      return false;
+    }
+  }
+
+  if (!running()) {
+    logger.debug() << "ensureDopamineServiceRunning: starting the service";
+    runElevatedAndWait(scExePath(), QStringLiteral("start %1").arg(serviceName));
+  }
+
+  for (int i = 0; i < 60; ++i) {
+    if (running()) {
       logger.debug() << "ensureDopamineServiceRunning: service is up";
+      // the process is up before its IPC socket listens
+      Sleep(500);
       return true;
     }
     Sleep(250);
