@@ -79,8 +79,8 @@
         <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1009"/>
         <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1246"/>
         <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1271"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1521"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1618"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1532"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1629"/>
         <source>%1 installed successfully.</source>
         <translation>%1 установлено успешно.</translation>
     </message>
@@ -90,17 +90,17 @@
         <translation>Подписка успешно восстановлена.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1470"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1475"/>
         <source>API config reloaded</source>
         <translation>Конфигурация API перезагружена</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1474"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1479"/>
         <source>Successfully changed the country of connection to %1</source>
         <translation>Страна подключения изменена на %1</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1596"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1607"/>
         <source>Shared connection</source>
         <translation>Общее подключение</translation>
     </message>
@@ -578,7 +578,7 @@ Already installed containers were found on the server. All installed containers 
     <message>
         <location filename="../ui/notificationhandler.cpp" line="88"/>
         <source>Dopamine notification</source>
-        <translation>Уведомление FRKN VPN</translation>
+        <translation>Уведомление FRKN</translation>
     </message>
     <message>
         <location filename="../ui/notificationhandler.cpp" line="89"/>
@@ -1761,7 +1761,7 @@ Already installed containers were found on the server. All installed containers 
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiNativeConfigs.qml" line="61"/>
         <source>For router setup or the Dopamine app</source>
-        <translation>Для настройки роутера или приложения AmneziaWG</translation>
+        <translation>Для настройки роутера или приложения Dopamine</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiNativeConfigs.qml" line="73"/>

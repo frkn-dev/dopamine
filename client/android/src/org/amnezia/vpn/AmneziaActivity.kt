@@ -251,13 +251,17 @@ class AmneziaActivity : QtActivity() {
     }
 
     private fun loadLibs() {
+        // Load failures must not kill the app at startup (e.g. a 16 KB page-size
+        // device rejecting a 4 KB-aligned .so) — TLS will just fall back or fail later
         listOf(
-            "rsapss",
             "crypto_3",
-            "ssl_3",
-            "ssh"
+            "ssl_3"
         ).forEach {
-            loadSharedLibrary(this.applicationContext, it)
+            try {
+                loadSharedLibrary(this.applicationContext, it)
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to load library $it: $e")
+            }
         }
     }
 

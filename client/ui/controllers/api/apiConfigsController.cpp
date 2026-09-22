@@ -1296,6 +1296,7 @@ void ApiConfigsController::prepareGatewayConfigUpdate(const int serverIndex, con
                        << "authData keys:" << serverConfig.value(configKey::authData).toObject().keys();
 
     const bool isConnectEvent = newCountryCode.isEmpty() && newCountryName.isEmpty() && !reloadServiceConfig;
+    update.isConnectEvent = isConnectEvent;
 
     QJsonObject authData = apiConfig.value(configKey::authData).toObject();
     if (authData.isEmpty()) {
@@ -1459,6 +1460,10 @@ bool ApiConfigsController::finishGatewayConfigUpdate(const GatewayConfigUpdate &
             qWarning() << "ApiConfigsController::updateServiceFromGateway: refusing to save an empty"
                           "server config received from the gateway (hostName or containers missing),"
                           "keeping the local one";
+            if (update.isConnectEvent && m_serversModel->serverHasUsableConfig(serverIndex)) {
+                qWarning() << "[UPDATE GATEWAY] connect with the locally stored config despite the poisoned response";
+                return true;
+            }
             if (!silent) {
                 emit errorOccurred(ErrorCode::ApiConfigDownloadError);
             }
@@ -1475,6 +1480,12 @@ bool ApiConfigsController::finishGatewayConfigUpdate(const GatewayConfigUpdate &
         }
         return true;
     } else {
+        // API is down/flapping on connect — use the locally stored config instead of failing
+        if (update.isConnectEvent && m_serversModel->serverHasUsableConfig(serverIndex)) {
+            qWarning() << "[UPDATE GATEWAY] config fetch failed on connect (" << errorCode
+                       << "), falling back to the locally stored config";
+            return true;
+        }
         if (!silent) {
             emit errorOccurred(errorCode);
         }
@@ -1926,15 +1937,13 @@ bool ApiConfigsController::isConfigValid()
     } else if (configSource && m_serversModel->isApiKeyExpired(serverIndex)) {
         qDebug() << "[IS CONFIG VALID] updating by expires_at event";
         if (configSource == apiDefs::ConfigSource::AmneziaGateway) {
-            const bool hasInstalledConfig = m_serversModel->data(serverIndex, ServersModel::Roles::HasInstalledContainers).toBool();
-            const bool updated = updateServiceFromGateway(serverIndex, "", "", false, hasInstalledConfig);
-            if (!updated && hasInstalledConfig) {
-                // the API is unreachable but a usable config is already installed —
-                // connect with it instead of showing an error
-                qWarning() << "[IS CONFIG VALID] config refresh failed, falling back to the installed config";
+            if (m_serversModel->serverHasUsableConfig(serverIndex)) {
+                // don't block the connect on an API call when a usable config is already
+                // stored — connect with it even if expires_at has passed
+                qDebug() << "[IS CONFIG VALID] expired api key, connecting with the locally stored config";
                 return true;
             }
-            return updated;
+            return updateServiceFromGateway(serverIndex, "", "");
         } else {
             m_serversModel->removeApiConfig(serverIndex);
             return updateServiceFromTelegram(serverIndex);

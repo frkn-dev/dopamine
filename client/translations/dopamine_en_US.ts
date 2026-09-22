@@ -79,8 +79,8 @@
         <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1009"/>
         <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1246"/>
         <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1271"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1521"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1618"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1532"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1629"/>
         <source>%1 installed successfully.</source>
         <translation>%1 installed successfully.</translation>
     </message>
@@ -90,17 +90,17 @@
         <translation>Subscription restored successfully.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1470"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1475"/>
         <source>API config reloaded</source>
         <translation>API config reloaded</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1474"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1479"/>
         <source>Successfully changed the country of connection to %1</source>
         <translation>Successfully changed the country of connection to %1</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1596"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1607"/>
         <source>Shared connection</source>
         <translation>Shared connection</translation>
     </message>

@@ -31,8 +31,8 @@ object LibraryLoader {
                                 outStream.fd.sync()
                             }
                         }
+                        return true
                     }
-                    return true
                 }
             }
         }
@@ -60,6 +60,7 @@ object LibraryLoader {
         } finally {
             tempFile?.delete()
         }
+        throw LoadLibraryException("Library not found in apk: $libraryName")
     }
 }
 

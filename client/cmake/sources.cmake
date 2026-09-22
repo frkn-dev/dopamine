@@ -144,6 +144,10 @@ file(GLOB UI_CONTROLLERS_CPP CONFIGURE_DEPENDS
     ${CLIENT_ROOT_DIR}/ui/controllers/api/*.cpp
 )
 
+# Ensure keyActivationController is always included (GLOB may miss it on some platforms)
+list(APPEND UI_CONTROLLERS_H ${CLIENT_ROOT_DIR}/ui/controllers/keyActivationController.h)
+list(APPEND UI_CONTROLLERS_CPP ${CLIENT_ROOT_DIR}/ui/controllers/keyActivationController.cpp)
+
 set(HEADERS ${HEADERS}
     ${COMMON_FILES_H}
     ${PAGE_LOGIC_H}

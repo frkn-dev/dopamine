@@ -167,6 +167,7 @@ private:
         bool reloadServiceConfig = false;
         bool silent = false;
         bool isTestPurchase = false;
+        bool isConnectEvent = false;
         QString serviceProtocol;
         ProtocolData protocolData;
         QJsonObject serverConfig; // as of request time
