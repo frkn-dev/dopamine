@@ -308,6 +308,7 @@ PageType {
                 imageSource: "qrc:/images/controls/gauge.svg"
                 leftText: qsTr("Speed")
                 rightText: "↓ " + ConnectionController.downloadSpeed + "   ↑ " + ConnectionController.uploadSpeed
+                           + (ConnectionController.ping !== "" ? "   " + ConnectionController.ping + " ms" : "")
                 visible: ServersModel.processedIndex === ServersModel.defaultIndex
                          && ConnectionController.isConnected && ConnectionController.downloadSpeed !== ""
             }

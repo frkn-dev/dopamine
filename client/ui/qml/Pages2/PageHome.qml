@@ -160,6 +160,7 @@ PageType {
 
                     ColumnLayout {
                         Layout.fillWidth: true
+                        Layout.rightMargin: 56
                         spacing: 2
 
                         ListItemTitleType {
@@ -197,6 +198,7 @@ PageType {
                             font.pixelSize: 13
 
                             text: "↓ " + ConnectionController.downloadSpeed + "   ↑ " + ConnectionController.uploadSpeed
+                                  + (ConnectionController.ping !== "" ? "   " + ConnectionController.ping + " ms" : "")
                         }
                     }
 

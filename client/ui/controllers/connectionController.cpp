@@ -1,11 +1,13 @@
 #include "connectionController.h"
 
 #include <QDateTime>
+#include <QHostAddress>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRandomGenerator>
 #include <QRegularExpression>
+#include <QTcpSocket>
 
 #include <algorithm>
 
@@ -156,6 +158,8 @@ void patchServerConfigAddress(QJsonObject &serverConfig, const QString &ip)
 
 } // namespace
 
+ConnectionController::~ConnectionController() = default;
+
 ConnectionController::ConnectionController(const QSharedPointer<ServersModel> &serversModel,
                                            const QSharedPointer<ContainersModel> &containersModel,
                                            const QSharedPointer<VpnConnection> &vpnConnection, const std::shared_ptr<Settings> &settings,
@@ -273,6 +277,95 @@ QString ConnectionController::formatSpeed(qint64 bytesPerSec)
         return QStringLiteral("%1 KB/s").arg(bytesPerSec / 1024.0, 0, 'f', 1);
     }
     return QStringLiteral("%1 MB/s").arg(bytesPerSec / 1024.0 / 1024.0, 0, 'f', 1);
+}
+
+void ConnectionController::startLivePing()
+{
+    if (!m_pingTimer) {
+        m_pingTimer = new QTimer(this);
+        m_pingTimer->setInterval(kLivePingIntervalMs);
+        connect(m_pingTimer, &QTimer::timeout, this, &ConnectionController::probeLivePing);
+    }
+    if (m_pingTimer->isActive()) {
+        return;
+    }
+    m_pingTimer->start();
+    probeLivePing();
+}
+
+void ConnectionController::stopLivePing()
+{
+    if (m_pingTimer) {
+        m_pingTimer->stop();
+    }
+    if (m_pingSocket) {
+        QTcpSocket *socket = m_pingSocket;
+        m_pingSocket = nullptr;
+        socket->disconnect(this);
+        socket->abort();
+        socket->deleteLater();
+    }
+    if (!m_ping.isEmpty()) {
+        m_ping.clear();
+        emit pingChanged();
+    }
+}
+
+void ConnectionController::probeLivePing()
+{
+    if (!m_isConnected || m_pingSocket) {
+        return;
+    }
+
+    // Pre-connect health probes are stopped once the tunnel is up (their packets
+    // would be captured by it). This measures the latency the session actually
+    // has: a TCP handshake through the tunnel to a public anycast.
+    static const QHostAddress hosts[] = {
+        QHostAddress(QStringLiteral("1.1.1.1")),
+        QHostAddress(QStringLiteral("8.8.8.8")),
+    };
+
+    auto *socket = new QTcpSocket(this);
+    m_pingSocket = socket;
+    m_pingElapsed.start();
+
+    connect(socket, &QTcpSocket::connected, this, [this, socket]() { finishLivePing(socket, true); });
+    connect(socket, &QTcpSocket::errorOccurred, this, [this, socket](QTcpSocket::SocketError) {
+        finishLivePing(socket, false);
+    });
+    QTimer::singleShot(kLivePingTimeoutMs, socket, [this, socket]() {
+        if (m_pingSocket == socket && socket->state() != QAbstractSocket::ConnectedState) {
+            finishLivePing(socket, false);
+        }
+    });
+
+    socket->connectToHost(hosts[m_pingHostIndex % 2], 443);
+}
+
+void ConnectionController::finishLivePing(QTcpSocket *socket, bool ok)
+{
+    if (m_pingSocket != socket) {
+        return;
+    }
+
+    const int ms = static_cast<int>(m_pingElapsed.elapsed());
+    m_pingSocket = nullptr;
+    socket->disconnect(this);
+    socket->abort();
+    socket->deleteLater();
+
+    if (!ok || !m_isConnected) {
+        if (m_isConnected) {
+            m_pingHostIndex = (m_pingHostIndex + 1) % 2;
+        }
+        return;
+    }
+
+    const QString text = QString::number(qMax(ms, 1));
+    if (text != m_ping) {
+        m_ping = text;
+        emit pingChanged();
+    }
 }
 
 void ConnectionController::setHealthCheckController(HealthCheckController *healthCheckController)
@@ -1004,6 +1097,11 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
         emit connectionErrorOccurred(getLastConnectionError());
         break;
     }
+    }
+    if (m_isConnected) {
+        startLivePing();
+    } else {
+        stopLivePing();
     }
     emit connectionStateChanged();
 }
