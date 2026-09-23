@@ -13,6 +13,7 @@
 
 class HealthCheckController;
 class ApiConfigsController;
+class QTcpSocket;
 
 class ConnectionController : public QObject
 {
@@ -25,12 +26,13 @@ public:
     Q_PROPERTY(QString currentEndpoint READ currentEndpoint NOTIFY connectionStateChanged)
     Q_PROPERTY(QString downloadSpeed READ downloadSpeed NOTIFY speedChanged)
     Q_PROPERTY(QString uploadSpeed READ uploadSpeed NOTIFY speedChanged)
+    Q_PROPERTY(QString ping READ ping NOTIFY pingChanged)
 
     explicit ConnectionController(const QSharedPointer<ServersModel> &serversModel, const QSharedPointer<ContainersModel> &containersModel,
                                   const QSharedPointer<VpnConnection> &vpnConnection, const std::shared_ptr<Settings> &settings,
                                   QObject *parent = nullptr);
 
-    ~ConnectionController() = default;
+    ~ConnectionController() override;
 
     // needed only for auto server selection; may stay null (auto falls back to default server)
     void setHealthCheckController(HealthCheckController *healthCheckController);
@@ -44,6 +46,7 @@ public:
     QString currentEndpoint() const { return m_currentEndpoint; }
     QString downloadSpeed() const { return m_downloadSpeed; }
     QString uploadSpeed() const { return m_uploadSpeed; }
+    QString ping() const { return m_ping; }
 
 public slots:
     void toggleConnection();
@@ -67,6 +70,7 @@ signals:
     void preparingConfig();
     void prepareConfig();
     void speedChanged();
+    void pingChanged();
 
 private:
     Vpn::ConnectionState getCurrentConnectionState();
@@ -95,6 +99,20 @@ private:
     QString m_uploadSpeed;
     QElapsedTimer m_speedTimer;
     static QString formatSpeed(qint64 bytesPerSec);
+
+    // live ping (server card), TCP handshake RTT through the tunnel
+    void startLivePing();
+    void stopLivePing();
+    void probeLivePing();
+    void finishLivePing(QTcpSocket *socket, bool ok);
+
+    QString m_ping;
+    QTimer *m_pingTimer = nullptr;
+    QTcpSocket *m_pingSocket = nullptr;
+    QElapsedTimer m_pingElapsed;
+    int m_pingHostIndex = 0;
+    static constexpr int kLivePingIntervalMs = 2000;
+    static constexpr int kLivePingTimeoutMs = 2000;
     static constexpr int kIpTrafficTimeoutMs = 8000;
     // ---
 

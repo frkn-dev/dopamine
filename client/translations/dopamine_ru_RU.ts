@@ -1849,6 +1849,11 @@ Already installed containers were found on the server. All installed containers 
         <translation type="unfinished">Скорость</translation>
     </message>
     <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="320"/>
+        <source>Ping</source>
+        <translation>Пинг</translation>
+    </message>
+    <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="323"/>
         <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="480"/>
         <source>Copied</source>

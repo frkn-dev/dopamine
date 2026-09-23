@@ -147,7 +147,7 @@ PageType {
                 Layout.rightMargin: 16
                 Layout.bottomMargin: 8
 
-                implicitHeight: 96
+                implicitHeight: ConnectionController.isConnected ? 112 : 96
                 radius: 20
 
                 color: serverCardMouse.containsPress ? DopamineStyle.color.sheerWhite
@@ -160,6 +160,7 @@ PageType {
 
                     ColumnLayout {
                         Layout.fillWidth: true
+                        Layout.rightMargin: 56
                         spacing: 2
 
                         ListItemTitleType {
@@ -197,6 +198,16 @@ PageType {
                             font.pixelSize: 13
 
                             text: "↓ " + ConnectionController.downloadSpeed + "   ↑ " + ConnectionController.uploadSpeed
+                        }
+
+                        CaptionTextType {
+                            Layout.fillWidth: true
+
+                            visible: ConnectionController.isConnected && ConnectionController.ping !== ""
+                            color: DopamineStyle.color.mutedGray
+                            font.pixelSize: 13
+
+                            text: ConnectionController.ping + " ms"
                         }
                     }
 
