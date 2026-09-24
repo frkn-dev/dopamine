@@ -94,11 +94,6 @@ QJsonArray BuiltinSplitPresets::presets()
 {
     QJsonArray result;
 
-    // own additions on top of the upstream subnet list: big RU services the
-    // upstream list misses. Stored as domains (resolved at connect) so they
-    // survive IP changes. The list lives in ruServicesDomains.inc — flattened
-    // from v2fly domain-list-community (marketplaces, banks, gov) since those
-    // are CDN-fronted and fall outside the RU subnet ranges
     const QStringList ruDirectExtraDomains = {
 #include "ruServicesDomains.inc"
     };
@@ -112,6 +107,16 @@ QJsonArray BuiltinSplitPresets::presets()
     }
     ruDirect.insert("domains", ruDirectDomains);
     result.append(ruDirect);
+
+    const QStringList ruBankingDomains = {
+#include "ruBankingDomains.inc"
+    };
+
+    QJsonObject ruBanking;
+    ruBanking.insert("id", QStringLiteral("builtin-ru-banking"));
+    ruBanking.insert("name", QObject::tr("Online Banking"));
+    ruBanking.insert("domains", QJsonArray::fromStringList(ruBankingDomains));
+    result.append(ruBanking);
 
     QJsonObject ruVpn;
     ruVpn.insert("id", QStringLiteral("builtin-ru-vpn"));

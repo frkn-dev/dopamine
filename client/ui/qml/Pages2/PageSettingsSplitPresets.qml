@@ -98,6 +98,9 @@ PageType {
 
                 onToggled: function() {
                     SplitPresetsModel.setPresetEnabled(index, checked)
+                    if (checked && !SitesModel.isTunnelingEnabled) {
+                        SitesModel.toggleSplitTunneling(true)
+                    }
                 }
             }
 

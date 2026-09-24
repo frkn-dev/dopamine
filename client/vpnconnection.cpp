@@ -4,14 +4,17 @@
 #include <QEventLoop>
 #include <QFile>
 #include <QGuiApplication>
+#include <QHostAddress>
 #include <QHostInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QObject>
+#include <QPair>
 #include <QSharedPointer>
 #include <QString>
 #include <QStringList>
 #include <QTimer>
+#include <QVector>
 
 #include <configurators/shadowsocks_configurator.h>
 #include <configurators/wireguard_configurator.h>
@@ -552,9 +555,15 @@ void VpnConnection::appendSplitTunnelingConfig()
 
         const QStringList enabledPresets = m_settings->splitPresetsEnabled();
         if (!enabledPresets.isEmpty()) {
-            QJsonArray presetDomains;
-            // enabled presets are resolved by id against the API catalog cache
-            // plus the hardcoded presets (same JSON shape, see builtinSplitPresets)
+            struct PresetBucket
+            {
+                QStringList cidrs;
+                QStringList hosts;
+            };
+            PresetBucket followMode;
+            PresetBucket alwaysDirect;
+            PresetBucket alwaysVpn;
+
             QJsonArray presets = QJsonDocument::fromJson(m_settings->splitPresetsCache().toUtf8()).array();
             const QJsonArray builtinPresets = BuiltinSplitPresets::presets();
             for (const auto &value : builtinPresets) {
@@ -562,33 +571,50 @@ void VpnConnection::appendSplitTunnelingConfig()
             }
             for (const auto &value : presets) {
                 const QJsonObject preset = value.toObject();
-                if (!enabledPresets.contains(preset.value("id").toString())) {
+                const QString id = preset.value("id").toString();
+                if (!enabledPresets.contains(id)) {
                     continue;
+                }
+                PresetBucket *bucket = &followMode;
+                if (id == QLatin1String("builtin-ru-direct")
+                    || id == QLatin1String("builtin-ru-banking")) {
+                    bucket = &alwaysDirect;
+                } else if (id == QLatin1String("builtin-ru-vpn")) {
+                    bucket = &alwaysVpn;
                 }
                 const QJsonArray domains = preset.value("domains").toArray();
                 for (const auto &domain : domains) {
-                    presetDomains.append(domain);
+                    const QString entry = domain.toString();
+                    if (NetworkUtilities::checkIpSubnetFormat(entry)) {
+                        bucket->cidrs.append(entry);
+                    } else if (!entry.isEmpty()) {
+                        bucket->hosts.append(entry);
+                    }
                 }
             }
 
-            // The network extension routes by IP: resolve preset domains (manual
-            // sites are already stored resolved). Never block on a synchronous
-            // QHostInfo::fromName here: on a dead network getaddrinfo parks the
-            // VpnConnection thread for tens of seconds, the connect spinner runs
-            // forever and the app aborts on quit ("QThread destroyed while still
-            // running"). Resolve all domains in parallel with a hard deadline —
-            // domains that don't answer in time are simply skipped.
-            QJsonArray presetIps;
-            {
-                QStringList domainsToResolve;
-                for (const auto &domainValue : presetDomains) {
-                    const QString domain = domainValue.toString();
-                    if (NetworkUtilities::checkIpSubnetFormat(domain)) {
-                        presetIps.append(domain);
-                    } else {
-                        domainsToResolve.append(domain);
+            auto parseSubnet = [](const QString &cidr) -> QPair<QHostAddress, int> {
+                const QStringList parts = cidr.split('/');
+                QHostAddress addr(parts.value(0));
+                int prefix = -1;
+                if (addr.protocol() == QAbstractSocket::IPv4Protocol) {
+                    prefix = parts.size() > 1 ? parts.at(1).toInt() : 32;
+                }
+                return { addr, prefix };
+            };
+
+            auto flattenBucket = [&](const PresetBucket &bucket) -> QJsonArray {
+                QJsonArray out;
+                QList<QPair<QHostAddress, int>> nets;
+                for (const QString &cidr : bucket.cidrs) {
+                    out.append(cidr);
+                    const auto net = parseSubnet(cidr);
+                    if (net.second >= 0) {
+                        nets.append(net);
                     }
                 }
+
+                QStringList domainsToResolve = bucket.hosts;
                 if (!domainsToResolve.isEmpty()) {
                     QVector<QHostInfo> resolvedInfos(domainsToResolve.size());
                     QEventLoop loop;
@@ -608,25 +634,92 @@ void VpnConnection::appendSplitTunnelingConfig()
                     loop.exec();
                     for (const QHostInfo &hostInfo : resolvedInfos) {
                         for (const auto &addr : hostInfo.addresses()) {
-                            if (addr.protocol() == QAbstractSocket::IPv4Protocol) {
-                                presetIps.append(addr.toString());
-                                break;
+                            if (addr.protocol() != QAbstractSocket::IPv4Protocol) {
+                                continue;
                             }
+                            bool covered = false;
+                            for (const auto &net : nets) {
+                                if (addr.isInSubnet(net.first, net.second)) {
+                                    covered = true;
+                                    break;
+                                }
+                            }
+                            if (!covered) {
+                                out.append(addr.toString());
+                            }
+                            break;
                         }
                     }
                 }
+                return out;
+            };
+
+            const QJsonArray followIps = flattenBucket(followMode);
+            const QJsonArray directIps = flattenBucket(alwaysDirect);
+            const QJsonArray vpnIps = flattenBucket(alwaysVpn);
+
+            auto appendAll = [](QJsonArray &dst, const QJsonArray &src) {
+                for (const auto &v : src) {
+                    dst.append(v);
+                }
+            };
+
+            if (routeMode == Settings::VpnOnlyForwardSites) {
+                appendAll(includeSitesJsonArray, followIps);
+                appendAll(includeSitesJsonArray, vpnIps);
+            } else {
+                appendAll(excludeSitesJsonArray, followIps);
+                appendAll(excludeSitesJsonArray, directIps);
             }
 
-            // default-direct base => presets go via VPN; default-VPN base => presets bypass
-            if (routeMode == Settings::VpnOnlyForwardSites) {
-                for (const auto &ip : presetIps) {
-                    includeSitesJsonArray.append(ip);
+            const QVector<QPair<QHostAddress, int>> sharedCdn = {
+                { QHostAddress(QStringLiteral("104.16.0.0")), 12 },
+                { QHostAddress(QStringLiteral("104.64.0.0")), 10 },
+                { QHostAddress(QStringLiteral("162.158.0.0")), 15 },
+                { QHostAddress(QStringLiteral("172.64.0.0")), 13 },
+                { QHostAddress(QStringLiteral("173.245.48.0")), 20 },
+                { QHostAddress(QStringLiteral("188.114.96.0")), 20 },
+                { QHostAddress(QStringLiteral("190.93.240.0")), 20 },
+                { QHostAddress(QStringLiteral("197.234.240.0")), 22 },
+                { QHostAddress(QStringLiteral("198.41.128.0")), 17 },
+                { QHostAddress(QStringLiteral("141.101.64.0")), 18 },
+                { QHostAddress(QStringLiteral("103.21.244.0")), 22 },
+                { QHostAddress(QStringLiteral("103.22.200.0")), 22 },
+                { QHostAddress(QStringLiteral("103.31.4.0")), 22 },
+                { QHostAddress(QStringLiteral("151.101.0.0")), 16 },
+                { QHostAddress(QStringLiteral("199.232.0.0")), 16 },
+                { QHostAddress(QStringLiteral("23.32.0.0")), 11 },
+                { QHostAddress(QStringLiteral("23.192.0.0")), 11 },
+                { QHostAddress(QStringLiteral("2.16.0.0")), 13 },
+                { QHostAddress(QStringLiteral("13.32.0.0")), 12 },
+                { QHostAddress(QStringLiteral("13.224.0.0")), 12 },
+                { QHostAddress(QStringLiteral("99.84.0.0")), 16 },
+                { QHostAddress(QStringLiteral("76.223.0.0")), 16 },
+                { QHostAddress(QStringLiteral("13.248.0.0")), 14 },
+            };
+            auto isSharedCdnHost = [&sharedCdn](const QString &entry) -> bool {
+                if (entry.contains(QLatin1Char('/'))) {
+                    return false;
                 }
-            } else {
-                for (const auto &ip : presetIps) {
-                    excludeSitesJsonArray.append(ip);
+                const QHostAddress addr(entry);
+                if (addr.protocol() != QAbstractSocket::IPv4Protocol) {
+                    return false;
+                }
+                for (const auto &net : sharedCdn) {
+                    if (addr.isInSubnet(net.first, net.second)) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+            QJsonArray filteredExclude;
+            for (const auto &value : excludeSitesJsonArray) {
+                const QString entry = value.toString();
+                if (!isSharedCdnHost(entry)) {
+                    filteredExclude.append(entry);
                 }
             }
+            excludeSitesJsonArray = filteredExclude;
         }
     }
     m_vpnConfiguration.insert(config_key::splitTunnelIncludeSites, includeSitesJsonArray);

@@ -176,18 +176,18 @@
  Пожалуйста, установите протокол</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="437"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="924"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="533"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1020"/>
         <source>Connecting...</source>
         <translation>Подключение...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="929"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1025"/>
         <source>Connected</source>
         <translation>Подключено</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="990"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1086"/>
         <source>Preparing...</source>
         <translation>Подготовка...</translation>
     </message>
@@ -208,31 +208,31 @@
         <translation type="vanished">не удалось создать конфигурацию</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="959"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1055"/>
         <source>Reconnecting...</source>
         <translation>Переподключение...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.h" line="169"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="220"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="719"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="762"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="840"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="866"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="906"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="970"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="995"/>
+        <location filename="../ui/controllers/connectionController.h" line="187"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="224"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="815"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="858"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="936"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="962"/>
         <location filename="../ui/controllers/connectionController.cpp" line="1002"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1066"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1091"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1098"/>
         <source>Connect</source>
         <translation>Подключиться</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="985"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1081"/>
         <source>Disconnecting...</source>
         <translation>Отключение...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="593"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="689"/>
         <source>Searching
 for the best server...</source>
         <translation>Поиск
@@ -623,7 +623,7 @@ Already installed containers were found on the server. All installed containers 
         <translation>Dev-шлюз включён</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="277"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="313"/>
         <source>Split tunneling</source>
         <translation>Раздельное туннелирование</translation>
     </message>
@@ -632,7 +632,7 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">VPN-протокол</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="175"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="176"/>
         <source>Auto-select</source>
         <translation>Автовыбор</translation>
     </message>
@@ -1854,8 +1854,8 @@ Already installed containers were found on the server. All installed containers 
         <translation>Пинг</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="323"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="480"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="336"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="493"/>
         <source>Copied</source>
         <translation>Скопировано</translation>
     </message>
@@ -1906,17 +1906,17 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Ключ подписки</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="333"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="346"/>
         <source>Configuration Files</source>
         <translation>Файлы конфигурации</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="335"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="348"/>
         <source>WireGuard configuration file (INI) for routers and other clients</source>
         <translation>Конфигурационный файл WireGuard (INI) для роутеров и других клиентов</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="342"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="355"/>
         <source>Configuration file (INI)</source>
         <translation>Конфигурационный файл (INI)</translation>
     </message>
@@ -1925,32 +1925,32 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Управление файлами конфигурации</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="356"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="369"/>
         <source>Active Devices</source>
         <translation>Активные устройства</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="358"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="371"/>
         <source>Manage currently connected devices</source>
         <translation>Управление подключёнными устройствами</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="375"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="388"/>
         <source>Support</source>
         <translation>Поддержка</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="391"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="404"/>
         <source>How to connect on another device</source>
         <translation>Как подключиться на другом устройстве</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="407"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="420"/>
         <source>Show raw config</source>
         <translation>Показать исходную конфигурацию</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="412"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="425"/>
         <source>Raw JSON</source>
         <translation>Исходный JSON</translation>
     </message>
@@ -1971,76 +1971,76 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Параметры туннеля</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="476"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="489"/>
         <source>Copy</source>
         <translation>Скопировать</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="497"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="510"/>
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="520"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="533"/>
         <source>Reload API config</source>
         <translation>Перезагрузить конфигурацию API</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="523"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="536"/>
         <source>Reload API config?</source>
         <translation>Перезагрузить конфигурацию API?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="524"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="562"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="599"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="537"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="575"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="612"/>
         <source>Continue</source>
         <translation>Продолжить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="525"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="563"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="600"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="538"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="576"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="613"/>
         <source>Cancel</source>
         <translation>Отменить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="529"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="542"/>
         <source>Cannot reload API config during active connection</source>
         <translation>Невозможно перезагрузить конфигурацию API во время активного подключения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="557"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="570"/>
         <source>Unlink this device</source>
         <translation>Отвязать устройство</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="560"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="573"/>
         <source>Are you sure you want to unlink this device?</source>
         <translation>Вы уверены, что хотите отвязать это устройство?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="561"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="574"/>
         <source>This will unlink the device from your subscription. You can reconnect it anytime by pressing&#xa0;&quot;Reload API config&quot; in subscription settings on device.</source>
         <translation>Устройство будет отвязано от подписки. Вы можете подключить его снова, нажав&#xa0;&quot;Перезагрузить конфигурацию API&quot; в настройках подписки на устройстве.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="567"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="580"/>
         <source>Cannot unlink device during active connection</source>
         <translation>Невозможно отвязать устройство во время активного подключения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="595"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="608"/>
         <source>Remove from application</source>
         <translation>Удалить из приложения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="598"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="611"/>
         <source>Remove from application?</source>
         <translation>Удалить из приложения?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="604"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="617"/>
         <source>Cannot remove server during active connection</source>
         <translation>Невозможно удалить сервер во время активного соединения</translation>
     </message>
@@ -2080,7 +2080,7 @@ Already installed containers were found on the server. All installed containers 
         <translation>Используемый адрес</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="318"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="331"/>
         <source>Copy technical information</source>
         <translation>Скопировать техническую информацию</translation>
     </message>
@@ -2923,8 +2923,8 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsRuAppsHelp.qml" line="76"/>
-        <source>Enable the «RU services» preset in site split tunneling and set its direction to «bypass VPN» — the app&apos;s traffic will go directly, bypassing the VPN.</source>
-        <translation>Включите пресет «RU services» в раздельном туннелировании сайтов и выберите направление «мимо VPN» — трафик приложения пойдёт напрямую, минуя VPN.</translation>
+        <source>Enable the «Online Banking» and/or «RU services» presets in site split tunneling — their traffic will go directly, bypassing the VPN.</source>
+        <translation>Включите пресеты «Онлайн-банкинг» и/или «RU-сервисы» в раздельном туннелировании сайтов — их трафик пойдёт напрямую, минуя VPN.</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsRuAppsHelp.qml" line="85"/>
@@ -3155,7 +3155,7 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">мимо VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitPresets.qml" line="116"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitPresets.qml" line="119"/>
         <source>No services available yet. They will appear after the subscription sync.</source>
         <translation>Сервисы пока недоступны. Они появятся после синхронизации подписки.</translation>
     </message>
@@ -4480,12 +4480,17 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../core/builtinSplitPresets.cpp" line="107"/>
+        <location filename="../core/builtinSplitPresets.cpp" line="103"/>
         <source>RU services</source>
         <translation>RU-сервисы</translation>
     </message>
     <message>
         <location filename="../core/builtinSplitPresets.cpp" line="117"/>
+        <source>Online Banking</source>
+        <translation>Онлайн-банкинг</translation>
+    </message>
+    <message>
+        <location filename="../core/builtinSplitPresets.cpp" line="123"/>
         <source>Blocked in RU</source>
         <translation>Заблокированные в РФ</translation>
     </message>
@@ -5670,7 +5675,7 @@ This means that AmneziaWG keeps the fast performance of the original while addin
 <context>
     <name>VpnConnection</name>
     <message>
-        <location filename="../vpnconnection.cpp" line="688"/>
+        <location filename="../vpnconnection.cpp" line="782"/>
         <source>Mbps</source>
         <translation>Мбит/с</translation>
     </message>

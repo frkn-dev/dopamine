@@ -73,7 +73,7 @@ PageType {
                 Layout.bottomMargin: 16
 
                 visible: !root.isAndroid
-                text: qsTr("Enable the «RU services» preset in site split tunneling and set its direction to «bypass VPN» — the app's traffic will go directly, bypassing the VPN.")
+                text: qsTr("Enable the «Online Banking» and/or «RU services» presets in site split tunneling — their traffic will go directly, bypassing the VPN.")
             }
 
             ParagraphTextType {

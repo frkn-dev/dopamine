@@ -320,7 +320,9 @@ PageType {
                 leftText: qsTr("Ping")
                 rightText: ConnectionController.ping + " ms"
                 visible: ServersModel.processedIndex === ServersModel.defaultIndex
-                         && ConnectionController.isConnected && ConnectionController.ping !== ""
+                         && ConnectionController.isConnected
+                         && ConnectionController.ping !== ""
+                         && SettingsController.isServerPingTextVisible
             }
 
             LabelWithButtonType {

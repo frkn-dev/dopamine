@@ -190,24 +190,49 @@ PageType {
                             text: ServersModel.defaultServerProtocolName
                         }
 
-                        CaptionTextType {
+                        RowLayout {
                             Layout.fillWidth: true
+                            spacing: 6
 
                             visible: ConnectionController.isConnected
-                            color: DopamineStyle.color.mutedGray
-                            font.pixelSize: 13
 
-                            text: "↓ " + ConnectionController.downloadSpeed + "   ↑ " + ConnectionController.uploadSpeed
-                        }
+                            CaptionTextType {
+                                Layout.fillWidth: true
 
-                        CaptionTextType {
-                            Layout.fillWidth: true
+                                color: DopamineStyle.color.mutedGray
+                                font.pixelSize: 13
 
-                            visible: ConnectionController.isConnected && ConnectionController.ping !== ""
-                            color: DopamineStyle.color.mutedGray
-                            font.pixelSize: 13
+                                text: "↓ " + ConnectionController.downloadSpeed
+                                      + "   ↑ " + ConnectionController.uploadSpeed
+                            }
 
-                            text: ConnectionController.ping + " ms"
+                            Rectangle {
+                                Layout.alignment: Qt.AlignVCenter
+                                width: 8
+                                height: 8
+                                radius: 4
+
+                                visible: ConnectionController.ping !== ""
+
+                                color: {
+                                    const ms = Number(ConnectionController.ping)
+                                    return ms < 120 ? "#34C759" : (ms < 300 ? "#FF9F0A" : "#FF453A")
+                                }
+                            }
+
+                            CaptionTextType {
+                                Layout.alignment: Qt.AlignVCenter
+
+                                visible: SettingsController.isServerPingTextVisible
+                                         && ConnectionController.ping !== ""
+                                font.pixelSize: 13
+
+                                text: ConnectionController.ping + " ms"
+                                color: {
+                                    const ms = Number(ConnectionController.ping)
+                                    return ms < 120 ? "#34C759" : (ms < 300 ? "#FF9F0A" : "#FF453A")
+                                }
+                            }
                         }
                     }
 

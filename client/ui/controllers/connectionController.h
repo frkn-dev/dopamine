@@ -111,8 +111,8 @@ private:
     QTcpSocket *m_pingSocket = nullptr;
     QElapsedTimer m_pingElapsed;
     int m_pingHostIndex = 0;
-    static constexpr int kLivePingIntervalMs = 2000;
-    static constexpr int kLivePingTimeoutMs = 2000;
+    static constexpr int kLivePingIntervalMs = 3000;
+    static constexpr int kLivePingTimeoutMs = 4000;
     static constexpr int kIpTrafficTimeoutMs = 8000;
     // ---
 

@@ -323,7 +323,10 @@ void ConnectionController::probeLivePing()
     static const QHostAddress hosts[] = {
         QHostAddress(QStringLiteral("1.1.1.1")),
         QHostAddress(QStringLiteral("8.8.8.8")),
+        QHostAddress(QStringLiteral("1.0.0.1")),
+        QHostAddress(QStringLiteral("9.9.9.9")),
     };
+    static constexpr int hostCount = int(sizeof(hosts) / sizeof(hosts[0]));
 
     auto *socket = new QTcpSocket(this);
     m_pingSocket = socket;
@@ -339,7 +342,7 @@ void ConnectionController::probeLivePing()
         }
     });
 
-    socket->connectToHost(hosts[m_pingHostIndex % 2], 443);
+    socket->connectToHost(hosts[m_pingHostIndex % hostCount], 443);
 }
 
 void ConnectionController::finishLivePing(QTcpSocket *socket, bool ok)
@@ -356,7 +359,7 @@ void ConnectionController::finishLivePing(QTcpSocket *socket, bool ok)
 
     if (!ok || !m_isConnected) {
         if (m_isConnected) {
-            m_pingHostIndex = (m_pingHostIndex + 1) % 2;
+            m_pingHostIndex = (m_pingHostIndex + 1) % 4;
         }
         return;
     }
