@@ -593,8 +593,9 @@ void VpnConnection::appendSplitTunnelingConfig()
                     QVector<QHostInfo> resolvedInfos(domainsToResolve.size());
                     QEventLoop loop;
                     int remaining = domainsToResolve.size();
-                    constexpr int kPresetResolveTimeoutMs = 2500;
-                    QTimer::singleShot(kPresetResolveTimeoutMs, &loop, &QEventLoop::quit);
+                    const int resolveTimeoutMs =
+                            qMin(12000, 2500 + domainsToResolve.size() * 12);
+                    QTimer::singleShot(resolveTimeoutMs, &loop, &QEventLoop::quit);
                     for (int i = 0; i < domainsToResolve.size(); ++i) {
                         QHostInfo::lookupHost(domainsToResolve.at(i), &loop,
                                 [&resolvedInfos, &remaining, &loop, i](const QHostInfo &info) {

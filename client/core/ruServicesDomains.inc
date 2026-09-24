@@ -3,9 +3,9 @@
 // flowwow, funpay, sber, tbank-ru, category-bank-ru, category-ecommerce-ru) + manual gov/travel.
 // NOTE: unlike v2fly, the client resolves every entry as an exact host at connect time
 // (vpnconnection.cpp) — no subdomain suffix matching — hence explicit www./m. variants.
-// 509 domains total. Domains only; subnets stay in kRuDirectSubnets.
+// 510 domains total. Domains only; subnets stay in kRuDirectSubnets.
 
-    // Ozon (marketplace + Ozon Bank) (63)
+    // Ozon (marketplace + Ozon Bank) (64)
     "ad.ozone.ru", "adv.ozon.ru", "agency-adv.ozon.ru", "analytics-adv.ozon.ru", "beginners-adv.ozon.ru",
     "google-analytics-suite.ozon.ru", "loyalnost-adv.ozon.ru", "new-adv.ozon.ru", "o-courier.ru",
     "o3.ru", "o3t.ru", "o3team.ru", "ocourier.ru", "ozon-credit.ru", "ozon-dostavka.ru", "ozon-tech.ru", "ozon.app",
@@ -13,7 +13,8 @@
     "ozon.li", "ozon.market", "ozon.ru", "ozon.tech", "ozon.tm", "ozon.travel", "ozoncamp.pro", "ozoncard.ru",
     "ozoncom.by", "ozoncorporate.ru", "ozone.ru", "ozonglobalevents.com", "ozonpartners.by", "ozonpartners.ru",
     "ozonrocet.by", "ozonroket.by", "ozonru.co.il", "ozonru.com", "ozonru.eu", "ozonru.me", "ozonsport.ru",
-    "ozonstatus.ru", "ozonusercontent.com", "prodvizhenie-adv.ozon.ru", "questions-adv.ozon.ru", "rocketozon.by",
+    "ozonstatus.ru", "cdn1.ozonusercontent.com", "ir.ozone.ru", "prodvizhenie-adv.ozon.ru",
+    "questions-adv.ozon.ru", "rocketozon.by",
     "sentry.ozon.ru", "xapi.ozon.by", "xapi.ozon.com", "xapi.ozon.com.by", "xapi.ozon.com.kz", "xapi.ozon.kz",
     "xapi.ozon.ru", "xapi.ozonru.me", "xn----8sbahiqzthbd0bn.xn--p1ai", "xn--80aafgovrgbc7am.xn--p1ai",
     "xn--e1adjldbbpv.xn--90ais",
