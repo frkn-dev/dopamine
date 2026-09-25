@@ -455,6 +455,11 @@ void IosController::disconnectVpn()
 }
 
 
+void IosController::clearStatusRequest()
+{
+    m_statusRequestInFlight = false;
+}
+
 void IosController::checkStatus()
 {
     if (!m_currentTunnel) {

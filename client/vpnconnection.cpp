@@ -65,10 +65,10 @@ VpnConnection::VpnConnection(std::shared_ptr<Settings> settings, QObject *parent
         if (state == Qt::ApplicationActive
             && (m_connectionState == Vpn::ConnectionState::Connected
                 || m_connectionState == Vpn::ConnectionState::Reconnecting)) {
+            IosController::Instance()->clearStatusRequest();
             if (!m_checkTimer.isActive()) {
                 m_checkTimer.start();
             }
-            // checkStatus lives on the IosController's (main) thread
             QMetaObject::invokeMethod(IosController::Instance(), []() { IosController::Instance()->checkStatus(); },
                                       Qt::QueuedConnection);
         }

@@ -22,7 +22,7 @@ import org.amnezia.vpn.util.Log
 
 private const val TAG = "ImportConfigActivity"
 
-const val ACTION_IMPORT_CONFIG = "org.amnezia.vpn.IMPORT_CONFIG"
+const val ACTION_IMPORT_CONFIG = "org.frkn.dopamine.IMPORT_CONFIG"
 const val EXTRA_CONFIG = "CONFIG"
 
 class ImportConfigActivity : ComponentActivity() {

@@ -20,6 +20,7 @@ public:
     enum Roles {
         PresetIdRole = Qt::UserRole + 1,
         NameRole,
+        DescriptionRole,
         DomainsCountRole,
         EnabledRole
     };
@@ -56,6 +57,7 @@ private:
     {
         QString id;
         QString name;
+        QString description;
         QStringList domains;
     };
 

@@ -37,7 +37,7 @@ void Migrations::migrateV3()
 #ifdef Q_OS_ANDROID
     qDebug() << "Migration to V3 on Android...";
 
-    QString packageName = "org.frkn.vpn";
+    QString packageName = "org.frkn.dopamine";
 
     QDir dir(".");
     QString currentDir = dir.absolutePath();

@@ -34,6 +34,7 @@ QVariant SplitPresetsModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case PresetIdRole: return preset.id;
     case NameRole: return preset.name;
+    case DescriptionRole: return preset.description;
     case DomainsCountRole: return preset.domains.size();
     case EnabledRole: return m_enabledPresets.contains(preset.id);
     default: return QVariant();
@@ -45,6 +46,7 @@ QHash<int, QByteArray> SplitPresetsModel::roleNames() const
     QHash<int, QByteArray> roles;
     roles[PresetIdRole] = "presetId";
     roles[NameRole] = "name";
+    roles[DescriptionRole] = "description";
     roles[DomainsCountRole] = "domainsCount";
     roles[EnabledRole] = "enabled";
     return roles;
@@ -111,6 +113,7 @@ void SplitPresetsModel::fetchPresets()
             Preset preset;
             preset.id = presetObj.value("id").toString();
             preset.name = presetObj.value("name").toString();
+            preset.description = presetObj.value("description").toString();
             const QJsonArray domains = presetObj.value("domains").toArray();
             for (const auto &domain : domains) {
                 preset.domains.append(domain.toString());
@@ -169,6 +172,7 @@ void SplitPresetsModel::loadFromCache()
         Preset preset;
         preset.id = presetObj.value("id").toString();
         preset.name = presetObj.value("name").toString();
+        preset.description = presetObj.value("description").toString();
         const QJsonArray domains = presetObj.value("domains").toArray();
         for (const auto &domain : domains) {
             preset.domains.append(domain.toString());
@@ -200,6 +204,7 @@ void SplitPresetsModel::appendBuiltinPresets()
             continue;
         }
         preset.name = presetObj.value("name").toString();
+        preset.description = presetObj.value("description").toString();
         const QJsonArray domains = presetObj.value("domains").toArray();
         for (const auto &domain : domains) {
             preset.domains.append(domain.toString());
@@ -226,6 +231,9 @@ void SplitPresetsModel::saveToCache() const
         QJsonObject presetObj;
         presetObj.insert("id", preset.id);
         presetObj.insert("name", preset.name);
+        if (!preset.description.isEmpty()) {
+            presetObj.insert("description", preset.description);
+        }
         presetObj.insert("domains", QJsonArray::fromStringList(preset.domains));
         presetsArray.append(presetObj);
     }

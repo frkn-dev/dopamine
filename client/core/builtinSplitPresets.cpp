@@ -124,5 +124,17 @@ QJsonArray BuiltinSplitPresets::presets()
     ruVpn.insert("domains", subnetsJson(kRuVpnSubnets, sizeof(kRuVpnSubnets) / sizeof(kRuVpnSubnets[0])));
     result.append(ruVpn);
 
+    const QStringList aiDomains = {
+#include "aiServicesDomains.inc"
+    };
+
+    QJsonObject ai;
+    ai.insert("id", QStringLiteral("builtin-ai"));
+    ai.insert("name", QObject::tr("AI"));
+    ai.insert("description",
+              QObject::tr("ChatGPT, Claude, Gemini, Perplexity, DeepSeek, Grok"));
+    ai.insert("domains", QJsonArray::fromStringList(aiDomains));
+    result.append(ai);
+
     return result;
 }

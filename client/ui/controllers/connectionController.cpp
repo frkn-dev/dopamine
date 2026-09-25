@@ -227,6 +227,28 @@ ConnectionController::ConnectionController(const QSharedPointer<ServersModel> &s
         emit connectionStateChanged();
     });
 
+#if defined(Q_OS_IOS) || defined(MACOS_NE) || defined(Q_OS_ANDROID)
+    connect(qApp, &QGuiApplication::applicationStateChanged, this, [this](Qt::ApplicationState state) {
+        if (state != Qt::ApplicationActive || !m_isConnected) {
+            return;
+        }
+        m_speedTimer.invalidate();
+        if (m_pingSocket) {
+            QTcpSocket *socket = m_pingSocket;
+            m_pingSocket = nullptr;
+            socket->disconnect(this);
+            socket->abort();
+            socket->deleteLater();
+        }
+        if (m_pingTimer) {
+            if (!m_pingTimer->isActive()) {
+                m_pingTimer->start();
+            }
+            probeLivePing();
+        }
+    });
+#endif
+
     // traffic proof: bytes must move. Used by auto selection for probe-unconfirmed
     // candidates and by the multi-IP failover for every multi-IP connect
     connect(m_vpnConnection.get(), &VpnConnection::bytesChanged, this, [this](quint64 receivedBytes, quint64 sentBytes) {

@@ -56,7 +56,7 @@ set_target_properties(DopamineNetworkExtension PROPERTIES
 )
 
 set_target_properties("DopamineNetworkExtension" PROPERTIES
-    XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "X7UJ388FXK"
+    XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "455SJ7P6J3"
 )
 
 find_library(FW_ASSETS_LIBRARY AssetsLibrary)

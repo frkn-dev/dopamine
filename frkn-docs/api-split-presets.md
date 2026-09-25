@@ -102,6 +102,7 @@ Fields:
 | `version` | string | yes | Any string that **changes whenever the list changes** (date-based is fine). The client refetches and reapplies on change. |
 | `presets[].id` | string | yes | Stable unique id (`youtube`, `chatgpt`, …). **Never reuse** for a different service — the client stores toggle state per id. |
 | `presets[].name` | string | yes | Display name (brand names need no real localization; still returned per `locale`). |
+| `presets[].description` | string | no | Short hint under the name (e.g. which AIs are inside a combined preset). Shown in small muted type. |
 | `presets[].domains` | array of strings | yes | Plain host suffixes, **no scheme, no `*.` prefix**. A domain matches itself and all subdomains. |
 
 Domain semantics (must match the client's site list):
@@ -139,6 +140,7 @@ Avoid `404` / `409` / `501` (special semantics in other client flows).
 | `youtube` | YouTube | see example above |
 | `chatgpt` | ChatGPT | see example above |
 | `gemini` | Gemini | see example above |
+| `ai` | AI | Combined bundle: ChatGPT, Claude, Gemini, Perplexity, DeepSeek, Grok. Optional `description` lists the brands. Prefer this over shipping six separate AI toggles for most users. |
 | `instagram` | Instagram | see example above |
 | `tiktok` | TikTok | tiktok.com, tiktokv.com, tiktokcdn.com, musical.ly |
 | `x` | X (Twitter) | x.com, twitter.com, twimg.com, t.co |
@@ -150,6 +152,8 @@ Avoid `404` / `409` / `501` (special semantics in other client flows).
 | `discord` | Discord | discord.com, discord.gg, discordapp.com, discordcdn.com |
 
 Review each bundle against the «conservative» rule above before publishing.
+
+The Dopamine client also ships a builtin `builtin-ai` preset with the same six services (no API deploy required).
 
 ## Client flow (for context)
 

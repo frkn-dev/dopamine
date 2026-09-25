@@ -34,7 +34,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "org.frkn.vpn"
+        applicationId = "org.frkn.dopamine"
         targetSdk = qtTargetSdkVersion.toInt()
 
         // keeps language resources for only the locales specified below

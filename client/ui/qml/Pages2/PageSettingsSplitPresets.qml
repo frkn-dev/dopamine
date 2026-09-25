@@ -94,6 +94,7 @@ PageType {
                 enabled: root.pageEnabled
 
                 text: name
+                descriptionText: description
                 checked: model.enabled
 
                 onToggled: function() {

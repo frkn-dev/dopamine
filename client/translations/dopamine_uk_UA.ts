@@ -176,18 +176,18 @@
  Будь-ласка, встановіть VPN контейнер</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="533"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="1020"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="555"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1042"/>
         <source>Connecting...</source>
         <translation>Підключення...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="1025"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1047"/>
         <source>Connected</source>
         <translation>Підключено</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="1086"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1108"/>
         <source>Preparing...</source>
         <translation>Підготовка...</translation>
     </message>
@@ -204,31 +204,31 @@
         <translation type="obsolete">Вибраний протокол не підтримується на цьому пристрої</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="1055"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1077"/>
         <source>Reconnecting...</source>
         <translation>Перепідключення...</translation>
     </message>
     <message>
         <location filename="../ui/controllers/connectionController.h" line="187"/>
         <location filename="../ui/controllers/connectionController.cpp" line="224"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="815"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="858"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="936"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="962"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="1002"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="1066"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="1091"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="1098"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="837"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="880"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="958"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="984"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1024"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1088"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1113"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1120"/>
         <source>Connect</source>
         <translation>Підключитись</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="1081"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1103"/>
         <source>Disconnecting...</source>
         <translation>Відключаємось...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="689"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="711"/>
         <source>Searching
 for the best server...</source>
         <translation>Пошук
@@ -4425,6 +4425,16 @@ Already installed containers were found on the server. All installed containers 
         <location filename="../core/builtinSplitPresets.cpp" line="123"/>
         <source>Blocked in RU</source>
         <translation>Заблоковані в РФ</translation>
+    </message>
+    <message>
+        <location filename="../core/builtinSplitPresets.cpp"/>
+        <source>AI</source>
+        <translation>AI</translation>
+    </message>
+    <message>
+        <location filename="../core/builtinSplitPresets.cpp"/>
+        <source>ChatGPT, Claude, Gemini, Perplexity, DeepSeek, Grok</source>
+        <translation>ChatGPT, Claude, Gemini, Perplexity, DeepSeek, Grok</translation>
     </message>
     <message>
         <location filename="../core/errorstrings.cpp" line="76"/>

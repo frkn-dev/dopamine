@@ -5,4 +5,4 @@
 useLegacyPackaging
 
 // package name for androiddeployqt
-namespace = "org.frkn.vpn"
+namespace = "org.frkn.dopamine"
