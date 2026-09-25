@@ -129,7 +129,7 @@ PageType {
     QtObject {
         id: connection
 
-        property string title: qsTr("Connection")
+        property string title: Qt.platform.os === "android" ? qsTr("BelySlon") : qsTr("Connection")
         readonly property string leftImagePath: "qrc:/images/controls/radio.svg"
         // the page is empty on iOS: LAN routing and KillSwitch are desktop-only,
         // app split tunneling is Windows/Android — hide the entry there

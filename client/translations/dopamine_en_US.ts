@@ -1349,6 +1349,11 @@ Already installed containers were found on the server. All installed containers 
         <translation>Connection</translation>
     </message>
     <message>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="132"/>
+        <source>BelySlon</source>
+        <translation>BelySlon</translation>
+    </message>
+    <message>
         <location filename="../ui/qml/Pages2/PageSettings.qml" line="145"/>
         <source>Application</source>
         <translation>Application</translation>
@@ -2358,17 +2363,22 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageSettingsConnection</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="49"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="47"/>
         <source>Connection</source>
         <translation>Connection</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="67"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="47"/>
+        <source>BelySlon</source>
+        <translation>BelySlon</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="65"/>
         <source>Use DopamineDNS</source>
         <translation>Use DNS</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="68"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="66"/>
         <source>If DopamineDNS is installed on the server</source>
         <translation>If DNS is installed on the server</translation>
     </message>
@@ -2397,42 +2407,40 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Allows you to select which sites you want to access through the VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="114"/>
         <source>App-based split tunneling</source>
-        <translation>App-based split tunneling</translation>
+        <translation type="vanished">App-based split tunneling</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="115"/>
         <source>Allows you to use the VPN only for certain Apps</source>
-        <translation>Allows you to use the VPN only for certain Apps</translation>
+        <translation type="vanished">Allows you to use the VPN only for certain Apps</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="133"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="105"/>
         <source>KillSwitch</source>
         <translation>KillSwitch</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="134"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="106"/>
         <source>Blocks network connections without VPN</source>
         <translation>Blocks network connections without VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="90"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="88"/>
         <source>Route local network through VPN</source>
         <translation>Route local network through VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="91"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="89"/>
         <source>When off, devices in your local network (SSH, printers, shared folders) stay reachable while the VPN is on. Applies on the next connection.</source>
         <translation>When off, devices in your local network (SSH, printers, shared folders) stay reachable while the VPN is on. Applies on the next connection.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="152"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="124"/>
         <source>VK TURN</source>
         <translation>VK TURN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="153"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="125"/>
         <source>WireGuard via VK call relay (fallback)</source>
         <translation>WireGuard via VK call relay (fallback)</translation>
     </message>

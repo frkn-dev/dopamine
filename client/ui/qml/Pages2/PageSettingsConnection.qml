@@ -44,7 +44,7 @@ PageType {
                 Layout.leftMargin: 16
                 Layout.rightMargin: 16
 
-                headerText: qsTr("Connection")
+                headerText: Qt.platform.os === "android" ? qsTr("BelySlon") : qsTr("Connection")
             }
         }
 
@@ -95,12 +95,6 @@ PageType {
                     }
                 }
             }
-
-        }
-
-        footer: ColumnLayout { // TODO(CyAn84): move to delegate,add DelegateChooser when have migrated to 6.9
-
-            width: listView.width
 
             LabelWithButtonType {
                 id: killSwitchButton

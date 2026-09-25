@@ -1415,6 +1415,11 @@ Already installed containers were found on the server. All installed containers 
         <translation>Соединение</translation>
     </message>
     <message>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="132"/>
+        <source>BelySlon</source>
+        <translation>Белые Слоны</translation>
+    </message>
+    <message>
         <location filename="../ui/qml/Pages2/PageSettings.qml" line="145"/>
         <source>Application</source>
         <translation>Приложение</translation>
@@ -2492,17 +2497,22 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageSettingsConnection</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="49"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="47"/>
         <source>Connection</source>
         <translation>Соединение</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="67"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="47"/>
+        <source>BelySlon</source>
+        <translation>Белые Слоны</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="65"/>
         <source>Use DopamineDNS</source>
         <translation>Использовать DNS</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="68"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="66"/>
         <source>If DopamineDNS is installed on the server</source>
         <translation>Если DNS установлен на сервере</translation>
     </message>
@@ -2515,17 +2525,16 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Позволяет использовать предпочитаемые адреса DNS серверов</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="115"/>
         <source>Allows you to use the VPN only for certain Apps</source>
-        <translation>Позволяет использовать VPN только для определенных приложений</translation>
+        <translation type="vanished">Позволяет использовать VPN только для определенных приложений</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="133"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="105"/>
         <source>KillSwitch</source>
         <translation>Аварийный выключатель</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="134"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="106"/>
         <source>Blocks network connections without VPN</source>
         <translation>Блокирует сетевые подключения без VPN</translation>
     </message>
@@ -2554,27 +2563,26 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Позволяет выбирать, к каким сайтам подключаться через VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="114"/>
         <source>App-based split tunneling</source>
-        <translation>Раздельное туннелирование приложений</translation>
+        <translation type="vanished">Раздельное туннелирование приложений</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="90"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="88"/>
         <source>Route local network through VPN</source>
         <translation>Пускать локальную сеть через VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="91"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="89"/>
         <source>When off, devices in your local network (SSH, printers, shared folders) stay reachable while the VPN is on. Applies on the next connection.</source>
         <translation>Если выключено, устройства в локальной сети (SSH, принтеры, общие папки) остаются доступны при включённом VPN. Применяется при следующем подключении.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="152"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="124"/>
         <source>VK TURN</source>
         <translation>VK TURN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="153"/>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="125"/>
         <source>WireGuard via VK call relay (fallback)</source>
         <translation>WireGuard через VK-звонок (запасной канал)</translation>
     </message>
