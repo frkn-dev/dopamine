@@ -50,6 +50,8 @@ namespace PageLoader
 
         PageSettingsRuAppsHelp,
 
+        PageSettingsVkTurn,
+
         PageDevMenu
     };
     Q_ENUM_NS(PageEnum)

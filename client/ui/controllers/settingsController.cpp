@@ -582,3 +582,73 @@ bool SettingsController::frknDarkMode() { return m_settings->frknDarkMode(); }
 void SettingsController::toggleFrknDarkMode(bool enable) {
     m_settings->setFrknDarkMode(enable);
 }
+
+bool SettingsController::isVkTurnEnabled()
+{
+    return m_settings->isVkTurnEnabled();
+}
+
+void SettingsController::setVkTurnEnabled(bool enable)
+{
+    if (m_settings->isVkTurnEnabled() == enable) {
+        return;
+    }
+    m_settings->setVkTurnEnabled(enable);
+    emit vkTurnEnabledChanged();
+}
+
+QString SettingsController::vkCallLink()
+{
+    return m_settings->vkCallLink();
+}
+
+void SettingsController::setVkCallLink(const QString &link)
+{
+    if (m_settings->vkCallLink() == link) {
+        return;
+    }
+    m_settings->setVkCallLink(link);
+    emit vkCallLinkChanged();
+}
+
+QString SettingsController::vkTurnPeerHost()
+{
+    return m_settings->vkTurnPeerHost();
+}
+
+void SettingsController::setVkTurnPeerHost(const QString &host)
+{
+    if (m_settings->vkTurnPeerHost() == host) {
+        return;
+    }
+    m_settings->setVkTurnPeerHost(host);
+    emit vkTurnPeerHostChanged();
+}
+
+int SettingsController::vkTurnPeerPort()
+{
+    return m_settings->vkTurnPeerPort();
+}
+
+void SettingsController::setVkTurnPeerPort(int port)
+{
+    if (m_settings->vkTurnPeerPort() == port) {
+        return;
+    }
+    m_settings->setVkTurnPeerPort(port);
+    emit vkTurnPeerPortChanged();
+}
+
+int SettingsController::vkTurnStreams()
+{
+    return m_settings->vkTurnStreams();
+}
+
+void SettingsController::setVkTurnStreams(int streams)
+{
+    if (m_settings->vkTurnStreams() == streams) {
+        return;
+    }
+    m_settings->setVkTurnStreams(streams);
+    emit vkTurnStreamsChanged();
+}

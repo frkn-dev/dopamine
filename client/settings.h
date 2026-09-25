@@ -326,6 +326,55 @@ public:
     bool frknDarkMode() const { return m_settings.value("FRKN/darkMode", true).toBool(); }
     void setFrknDarkMode(bool enabled) { m_settings.setValue("FRKN/darkMode", enabled); }
 
+    bool isVkTurnEnabled() const
+    {
+        return m_settings.value("Conf/vkTurnEnabled", false).toBool();
+    }
+    void setVkTurnEnabled(bool enabled)
+    {
+        m_settings.setValue("Conf/vkTurnEnabled", enabled);
+    }
+    QString vkCallLink() const
+    {
+        return m_settings.value("Conf/vkCallLink", QString()).toString();
+    }
+    void setVkCallLink(const QString &link)
+    {
+        m_settings.setValue("Conf/vkCallLink", link);
+    }
+    QString vkTurnPeerHost() const
+    {
+        return m_settings.value("Conf/vkTurnPeerHost", QString()).toString();
+    }
+    void setVkTurnPeerHost(const QString &host)
+    {
+        m_settings.setValue("Conf/vkTurnPeerHost", host);
+    }
+    int vkTurnPeerPort() const
+    {
+        return m_settings.value("Conf/vkTurnPeerPort", 56000).toInt();
+    }
+    void setVkTurnPeerPort(int port)
+    {
+        m_settings.setValue("Conf/vkTurnPeerPort", port);
+    }
+    int vkTurnStreams() const
+    {
+        return m_settings.value("Conf/vkTurnStreams", 2).toInt();
+    }
+    void setVkTurnStreams(int streams)
+    {
+        m_settings.setValue("Conf/vkTurnStreams", streams);
+    }
+    int vkTurnLocalPort() const
+    {
+        return m_settings.value("Conf/vkTurnLocalPort", 9000).toInt();
+    }
+    void setVkTurnLocalPort(int port)
+    {
+        m_settings.setValue("Conf/vkTurnLocalPort", port);
+    }
+
 signals:
     void saveLogsChanged(bool enabled);
     void screenshotsEnabledChanged(bool enabled);

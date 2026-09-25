@@ -406,6 +406,7 @@ void VpnConnection::connectToVpn(int serverIndex, const ServerCredentials &crede
 #endif
 
     appendSplitTunnelingConfig();
+    appendVkTurnConfig();
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS) && !defined(MACOS_NE)
     m_vpnProtocol.reset(VpnProtocol::factory(container, m_vpnConfiguration));
@@ -459,6 +460,22 @@ void VpnConnection::appendKillSwitchConfig()
     m_vpnConfiguration.insert(config_key::killSwitchOption, QVariant(m_settings->isKillSwitchEnabled()).toString());
     m_vpnConfiguration.insert(config_key::routeLanThroughVpn, QVariant(m_settings->isRouteLanThroughVpn()).toString());
     m_vpnConfiguration.insert(config_key::allowedDnsServers, QVariant(m_settings->allowedDnsServers()).toJsonValue());
+}
+
+void VpnConnection::appendVkTurnConfig()
+{
+#if defined(Q_OS_ANDROID)
+    const bool enabled = m_settings->isVkTurnEnabled();
+    m_vpnConfiguration.insert(config_key::vkTurnEnabled, enabled);
+    if (!enabled) {
+        return;
+    }
+    m_vpnConfiguration.insert(config_key::vkCallLink, m_settings->vkCallLink());
+    m_vpnConfiguration.insert(config_key::vkTurnPeerHost, m_settings->vkTurnPeerHost());
+    m_vpnConfiguration.insert(config_key::vkTurnPeerPort, m_settings->vkTurnPeerPort());
+    m_vpnConfiguration.insert(config_key::vkTurnStreams, m_settings->vkTurnStreams());
+    m_vpnConfiguration.insert(config_key::vkTurnLocalPort, m_settings->vkTurnLocalPort());
+#endif
 }
 
 void VpnConnection::appendSplitTunnelingConfig()

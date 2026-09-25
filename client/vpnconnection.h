@@ -90,6 +90,7 @@ private:
 
    void appendSplitTunnelingConfig();
    void appendKillSwitchConfig();
+   void appendVkTurnConfig();
 
 #ifdef AMNEZIA_DESKTOP
    // Route-based site split tunneling resolves domains once at connect, but

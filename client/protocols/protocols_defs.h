@@ -145,6 +145,13 @@ namespace amnezia
 
         constexpr char routeLanThroughVpn[] = "routeLanThroughVpn";
 
+        constexpr char vkTurnEnabled[] = "vkTurnEnabled";
+        constexpr char vkCallLink[] = "vkCallLink";
+        constexpr char vkTurnPeerHost[] = "vkTurnPeerHost";
+        constexpr char vkTurnPeerPort[] = "vkTurnPeerPort";
+        constexpr char vkTurnStreams[] = "vkTurnStreams";
+        constexpr char vkTurnLocalPort[] = "vkTurnLocalPort";
+
         constexpr char crc[] = "crc";
 
         constexpr char clientId[] = "clientId";

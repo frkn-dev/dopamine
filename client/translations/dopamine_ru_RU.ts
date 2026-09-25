@@ -2568,6 +2568,16 @@ Already installed containers were found on the server. All installed containers 
         <source>When off, devices in your local network (SSH, printers, shared folders) stay reachable while the VPN is on. Applies on the next connection.</source>
         <translation>Если выключено, устройства в локальной сети (SSH, принтеры, общие папки) остаются доступны при включённом VPN. Применяется при следующем подключении.</translation>
     </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="152"/>
+        <source>VK TURN</source>
+        <translation>VK TURN</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="153"/>
+        <source>WireGuard via VK call relay (fallback)</source>
+        <translation>WireGuard через VK-звонок (запасной канал)</translation>
+    </message>
 </context>
 <context>
     <name>PageSettingsDns</name>
@@ -3155,7 +3165,7 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">мимо VPN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsSplitPresets.qml" line="119"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSplitPresets.qml" line="120"/>
         <source>No services available yet. They will appear after the subscription sync.</source>
         <translation>Сервисы пока недоступны. Они появятся после синхронизации подписки.</translation>
     </message>
@@ -3314,6 +3324,54 @@ Already installed containers were found on the server. All installed containers 
         <location filename="../ui/qml/Pages2/PageSettingsSplitTunneling.qml" line="120"/>
         <source>Bank and marketplace apps don&apos;t work?</source>
         <translation>Не работают банки и маркетплейсы?</translation>
+    </message>
+</context>
+<context>
+    <name>PageSettingsVkTurn</name>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsVkTurn.qml" line="43"/>
+        <source>VK TURN</source>
+        <translation>VK TURN</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsVkTurn.qml" line="51"/>
+        <source>Fallback for hard blocking: WireGuard goes through your VK call TURN relay. Paste your own join link. Keep the call alive — do not end it for everyone. Android 13+ only. Slower than a direct connection.</source>
+        <translation>Запасной канал при жёсткой блокировке: WireGuard идёт через TURN вашего VK-звонка. Вставьте свою ссылку на звонок. Не завершайте звонок для всех. Только Android 13+. Медленнее прямого подключения.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsVkTurn.qml" line="68"/>
+        <source>Use VK TURN</source>
+        <translation>Использовать VK TURN</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsVkTurn.qml" line="69"/>
+        <source>Applies on the next WireGuard / AmneziaWG connect</source>
+        <translation>Применяется при следующем подключении WireGuard / AmneziaWG</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsVkTurn.qml" line="86"/>
+        <source>VK call link</source>
+        <translation>Ссылка на VK-звонок</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsVkTurn.qml" line="103"/>
+        <source>TURN peer host (optional)</source>
+        <translation>Хост TURN peer (необязательно)</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsVkTurn.qml" line="104"/>
+        <source>Empty = VPN server host</source>
+        <translation>Пусто = хост VPN-сервера</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsVkTurn.qml" line="120"/>
+        <source>TURN peer port</source>
+        <translation>Порт TURN peer</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsVkTurn.qml" line="139"/>
+        <source>Parallel streams</source>
+        <translation>Параллельные потоки</translation>
     </message>
 </context>
 <context>
@@ -4495,12 +4553,12 @@ Already installed containers were found on the server. All installed containers 
         <translation>Заблокированные в РФ</translation>
     </message>
     <message>
-        <location filename="../core/builtinSplitPresets.cpp"/>
+        <location filename="../core/builtinSplitPresets.cpp" line="133"/>
         <source>AI</source>
         <translation>AI</translation>
     </message>
     <message>
-        <location filename="../core/builtinSplitPresets.cpp"/>
+        <location filename="../core/builtinSplitPresets.cpp" line="135"/>
         <source>ChatGPT, Claude, Gemini, Perplexity, DeepSeek, Grok</source>
         <translation>ChatGPT, Claude, Gemini, Perplexity, DeepSeek, Grok</translation>
     </message>
@@ -5685,7 +5743,7 @@ This means that AmneziaWG keeps the fast performance of the original while addin
 <context>
     <name>VpnConnection</name>
     <message>
-        <location filename="../vpnconnection.cpp" line="782"/>
+        <location filename="../vpnconnection.cpp" line="799"/>
         <source>Mbps</source>
         <translation>Мбит/с</translation>
     </message>

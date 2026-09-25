@@ -44,10 +44,14 @@ VPN-клиент (форк AmneziaVPN): Qt6/QML, C++20. Платформы: macO
 ## Деплой релиза
 
 1. Бинарники → `~/c/f/frkn.org/dopamine/` (в гите сайта pkg/apk/dmg заигнорены, MSI коммитить не надо)
-2. Бамп ссылок и бейджа версии в `dopamine/index.html` (и `en/index.html`)
+2. Бамп ссылок и бейджа версии в `dopamine/index.html` (и `dopamine/en/index.html`)
 3. Коммит в `frkn.org` (ветка feature/*, правила мёржа — в `~/c/f/frkn.org/AGENTS.md`)
-4. Деплой: `RSYNC_RSH="ssh -i ~/.ssh/ed25519_frkn -o IdentitiesOnly=yes" ./deploy-site.sh` — rsync на `root@141.133.173.16:/opt/frkn.org`
-5. Проверка: `curl -sI https://frkn.org/dopamine/<файл>` — 200 и Content-Length = локальному размеру
+4. **frkn.app** сейчас смотрит в `/opt/beta/frkn.org` (не prod):
+   `RSYNC_RSH="ssh -i ~/.ssh/ed25519_frkn -o IdentitiesOnly=yes" ./deploy-beta.sh`
+   — HTML + бинарники (второй проход с `chmod 644`, иначе nginx не отдаёт MSI с режимом 600)
+5. Старый prod (`./deploy-site.sh` → `/opt/frkn.org`) — только если vhost frkn.org/dopamine ещё нужен
+6. Проверка: `curl -sI https://frkn.app/dopamine/<файл>` — 200 и Content-Length = локальному размеру
+   Лендинг: `https://frkn.app/` (= dopamine/index.html); путь `/dopamine/` для файлов, `/dopamine` HTML → `/`
 
 ## Git
 
@@ -62,6 +66,7 @@ VPN-клиент (форк AmneziaVPN): Qt6/QML, C++20. Платформы: macO
 - AWG 3.1-параметры (I1–I5, junk) портированы на все платформы — не потерять при обновлении 3rd
 - UI-фризы при старте были связаны с синхронными вызовами API — сетевое в фоне
 - API таймауты у юзеров: базовый таймаут поднят, запасной эндпойнт обсуждён
+- VK TURN MVP (ветка `feature/vk-turn-android-mvp`): перед Android-сборкой `./deploy/fetch_vkturn_client.sh`; тестовый VPS = plain WG + free-turn-proxy server; см. `frkn-docs/vk-turn-mvp.md`
 
 ## Стиль
 

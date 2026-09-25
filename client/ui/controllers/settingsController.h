@@ -42,6 +42,12 @@ public:
     Q_PROPERTY(QString serversEnvFilter READ getServersEnvFilter WRITE setServersEnvFilter NOTIFY serversEnvFilterChanged)
     Q_PROPERTY(bool autoServerSelection READ isAutoServerSelection WRITE setAutoServerSelection NOTIFY autoServerSelectionChanged)
 
+    Q_PROPERTY(bool isVkTurnEnabled READ isVkTurnEnabled WRITE setVkTurnEnabled NOTIFY vkTurnEnabledChanged)
+    Q_PROPERTY(QString vkCallLink READ vkCallLink WRITE setVkCallLink NOTIFY vkCallLinkChanged)
+    Q_PROPERTY(QString vkTurnPeerHost READ vkTurnPeerHost WRITE setVkTurnPeerHost NOTIFY vkTurnPeerHostChanged)
+    Q_PROPERTY(int vkTurnPeerPort READ vkTurnPeerPort WRITE setVkTurnPeerPort NOTIFY vkTurnPeerPortChanged)
+    Q_PROPERTY(int vkTurnStreams READ vkTurnStreams WRITE setVkTurnStreams NOTIFY vkTurnStreamsChanged)
+
 public slots:
     void toggleAmneziaDns(bool enable);
     bool isAmneziaDnsEnabled();
@@ -132,6 +138,17 @@ public slots:
     QString getServersEnvFilter();
     void setServersEnvFilter(const QString &filter);
 
+    bool isVkTurnEnabled();
+    void setVkTurnEnabled(bool enable);
+    QString vkCallLink();
+    void setVkCallLink(const QString &link);
+    QString vkTurnPeerHost();
+    void setVkTurnPeerHost(const QString &host);
+    int vkTurnPeerPort();
+    void setVkTurnPeerPort(int port);
+    int vkTurnStreams();
+    void setVkTurnStreams(int streams);
+
 signals:
     void primaryDnsChanged();
     void secondaryDnsChanged();
@@ -169,6 +186,12 @@ signals:
     void serversProtocolFilterChanged();
     void serversEnvFilterChanged();
     void autoServerSelectionChanged();
+
+    void vkTurnEnabledChanged();
+    void vkCallLinkChanged();
+    void vkTurnPeerHostChanged();
+    void vkTurnPeerPortChanged();
+    void vkTurnStreamsChanged();
 
 private:
     QSharedPointer<ServersModel> m_serversModel;

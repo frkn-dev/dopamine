@@ -1,6 +1,7 @@
 package org.amnezia.vpn.protocol.wireguard
 
 import android.net.VpnService.Builder
+import android.os.Build
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -28,10 +29,20 @@ private const val TAG = "Wireguard"
 open class Wireguard : Protocol() {
 
     private var tunnelHandle: Int = -1
-    private var config: WireguardConfig? = null // save config for reconnect
+    private var config: WireguardConfig? = null
+    private var vkTurnActive: Boolean = false
+    private var vkTurnParams: VkTurnParams? = null
     protected open val ifName: String = "amn0"
     private lateinit var scope: CoroutineScope
     private var statusJob: Job? = null
+
+    private data class VkTurnParams(
+        val peerHost: String,
+        val peerPort: Int,
+        val callLink: String,
+        val localPort: Int,
+        val streams: Int,
+    )
 
     override val statistics: Statistics
         get() {
@@ -96,15 +107,49 @@ open class Wireguard : Protocol() {
         configData.getJSONArray("allowed_ips").asSequence<String>().map { route ->
             InetNetwork.parse(route.trim())
         }.forEach(routes::add)
-        // if the allowed IPs list contains at least one non-default route, disable global split tunneling
         if (routes.any { it !in defRoutes }) disableSplitTunneling()
         addRoutes(routes)
 
         configData.optStringOrNull("mtu")?.let { setMtu(it.toInt()) }
 
-        val host = configData.getString("hostName").let { parseInetAddress(it.trim()) }
+        val hostName = configData.getString("hostName").trim()
         val port = configData.getInt("port")
-        setEndpoint(InetEndpoint(host, port))
+        val vkTurn = config.optBoolean("vkTurnEnabled", false)
+        vkTurnActive = vkTurn
+
+        if (vkTurn) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                vkTurnActive = false
+                vkTurnParams = null
+                throw VpnStartException("VK TURN requires Android 13 or newer")
+            }
+            val localPort = config.optInt("vkTurnLocalPort", 9000)
+            val peerHost = config.optString("vkTurnPeerHost").trim().ifEmpty { hostName }
+            val peerPort = config.optInt("vkTurnPeerPort", 56000)
+            val streams = config.optInt("vkTurnStreams", 2)
+            val callLink = config.optString("vkCallLink")
+            val params = VkTurnParams(peerHost, peerPort, callLink, localPort, streams)
+            try {
+                VkTurnSidecar.start(context, peerHost, peerPort, callLink, localPort, streams)
+                setEndpoint(InetEndpoint(parseInetAddress("127.0.0.1"), localPort))
+                excludeRoute(InetNetwork(parseInetAddress(peerHost), 32))
+                VkTurnSidecar.excludeCidrs.forEach { cidr ->
+                    excludeRoute(InetNetwork.parse(cidr))
+                }
+                setMtu(1280)
+                vkTurnParams = params
+            } catch (e: Exception) {
+                VkTurnSidecar.stop()
+                vkTurnActive = false
+                vkTurnParams = null
+                throw e
+            }
+        } else {
+            VkTurnSidecar.stop()
+            vkTurnParams = null
+            val host = parseInetAddress(hostName)
+            setEndpoint(InetEndpoint(host, port))
+        }
 
         if (configData.optBoolean("isObfuscationEnabled")) {
             setUseProtocolExtension(true)
@@ -145,12 +190,23 @@ open class Wireguard : Protocol() {
         configData.optStringOrNull("MaxHandshakeAttempts")?.let { setMaxHandshakeAttempts(it) }
     }
 
-    // AWG 3.1 boolean params come from the backend as "on"/"off" strings
     private fun String.isAwgOnValue(): Boolean =
         when (trim().lowercase()) {
             "on", "1", "true", "t", "yes" -> true
             else -> false
         }
+
+    private fun ensureVkTurnSidecar() {
+        val params = vkTurnParams ?: return
+        VkTurnSidecar.start(
+            context,
+            params.peerHost,
+            params.peerPort,
+            params.callLink,
+            params.localPort,
+            params.streams,
+        )
+    }
 
     private fun start(
         config: WireguardConfig,
@@ -163,30 +219,43 @@ open class Wireguard : Protocol() {
             return
         }
 
+        if (vkTurnActive) {
+            ensureVkTurnSidecar()
+        }
+
         buildVpnInterface(config, vpnBuilder)
 
-        vpnBuilder.establish().use { tunFd ->
-            if (stopExistingVpn && tunnelHandle != -1) {
-                turnOffVpn()
+        try {
+            vpnBuilder.establish().use { tunFd ->
+                if (stopExistingVpn && tunnelHandle != -1) {
+                    turnOffVpn()
+                }
+                if (tunFd == null) {
+                    throw VpnStartException("Create VPN interface: permission not granted or revoked")
+                }
+                Log.i(TAG, "awg-go backend ${GoBackend.awgVersion()}")
+                tunnelHandle = GoBackend.awgTurnOn(ifName, tunFd.detachFd(), config.toWgUserspaceString())
             }
-            if (tunFd == null) {
-                throw VpnStartException("Create VPN interface: permission not granted or revoked")
+
+            if (tunnelHandle < 0) {
+                tunnelHandle = -1
+                throw VpnStartException("Wireguard tunnel creation error")
             }
-            Log.i(TAG, "awg-go backend ${GoBackend.awgVersion()}")
-            tunnelHandle = GoBackend.awgTurnOn(ifName, tunFd.detachFd(), config.toWgUserspaceString())
-        }
 
-        if (tunnelHandle < 0) {
-            tunnelHandle = -1
-            throw VpnStartException("Wireguard tunnel creation error")
+            if (!protect(GoBackend.awgGetSocketV4(tunnelHandle)) || !protect(GoBackend.awgGetSocketV6(tunnelHandle))) {
+                GoBackend.awgTurnOff(tunnelHandle)
+                tunnelHandle = -1
+                throw VpnStartException("Protect VPN interface: permission not granted or revoked")
+            }
+            launchStatusJob()
+        } catch (e: Exception) {
+            if (vkTurnActive) {
+                VkTurnSidecar.stop()
+                vkTurnActive = false
+                vkTurnParams = null
+            }
+            throw e
         }
-
-        if (!protect(GoBackend.awgGetSocketV4(tunnelHandle)) || !protect(GoBackend.awgGetSocketV6(tunnelHandle))) {
-            GoBackend.awgTurnOff(tunnelHandle)
-            tunnelHandle = -1
-            throw VpnStartException("Protect VPN interface: permission not granted or revoked")
-        }
-        launchStatusJob()
     }
 
     private fun launchStatusJob() {
@@ -236,9 +305,19 @@ open class Wireguard : Protocol() {
     override fun stopVpn() {
         if (tunnelHandle == -1) {
             Log.w(TAG, "Tunnel already down")
+            if (vkTurnActive) {
+                VkTurnSidecar.stop()
+                vkTurnActive = false
+                vkTurnParams = null
+            }
             return
         }
         turnOffVpn()
+        if (vkTurnActive) {
+            VkTurnSidecar.stop()
+            vkTurnActive = false
+            vkTurnParams = null
+        }
         state.value = DISCONNECTED
     }
 

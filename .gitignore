@@ -1,6 +1,8 @@
 # User settings
 *.user
 macOSPackage/
+client/android/wireguard/src/main/assets/vkturn/client-android-arm64
+client/android/wireguard/src/main/assets/vkturn/client-android-armeabi-v7a
 Dopamine.dmg
 Dopamine.exe
 Dopamine_*.exe
