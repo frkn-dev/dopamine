@@ -1470,6 +1470,79 @@ Already installed containers were found on the server. All installed containers 
         <source>Privacy Policy</source>
         <translation>Privacy Policy</translation>
     </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml"/>
+        <source>You are up to date</source>
+        <translation>You are up to date</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml"/>
+        <source>Update to %1</source>
+        <translation>Update to %1</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml"/>
+        <source>Downloading...</source>
+        <translation>Downloading...</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml"/>
+        <source>Downloading %1%</source>
+        <translation>Downloading %1%</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml"/>
+        <source>Installing update...</source>
+        <translation>Installing update...</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml"/>
+        <source>Checking for updates...</source>
+        <translation>Checking for updates...</translation>
+    </message>
+</context>
+<context>
+    <name>AppUpdateController</name>
+    <message>
+        <location filename="../ui/controllers/appUpdateController.cpp"/>
+        <source>Could not download the update.</source>
+        <translation>Could not download the update.</translation>
+    </message>
+    <message>
+        <location filename="../ui/controllers/appUpdateController.cpp"/>
+        <source>Could not check for updates. Try again later.</source>
+        <translation>Could not check for updates. Try again later.</translation>
+    </message>
+    <message>
+        <location filename="../ui/controllers/appUpdateController.cpp"/>
+        <source>The update server returned an unexpected response.</source>
+        <translation>The update server returned an unexpected response.</translation>
+    </message>
+    <message>
+        <location filename="../ui/controllers/appUpdateController.cpp"/>
+        <source>No installer is published for this system.</source>
+        <translation>No installer is published for this system.</translation>
+    </message>
+    <message>
+        <location filename="../ui/controllers/appUpdateController.cpp"/>
+        <source>The update file failed the integrity check.</source>
+        <translation>The update file failed the integrity check.</translation>
+    </message>
+    <message>
+        <location filename="../ui/controllers/appUpdateController.cpp"/>
+        <source>Could not start the installer.</source>
+        <translation>Could not start the installer.</translation>
+    </message>
+    <message>
+        <location filename="../ui/controllers/appUpdateController.cpp"/>
+        <source>Disconnect the VPN, then try the update again.</source>
+        <translation>Disconnect the VPN, then try the update again.</translation>
+    </message>
+    <message>
+        <location filename="../ui/controllers/appUpdateController.cpp"/>
+        <source>The update file has an untrusted signature.</source>
+        <translation>The update file has an untrusted signature.</translation>
+    </message>
 </context>
 <context>
     <name>PageSettingsApiAvailableCountries</name>

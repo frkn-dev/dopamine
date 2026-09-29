@@ -10,6 +10,7 @@
 #endif
 
 #include "ui/controllers/api/apiConfigsController.h"
+#include "ui/controllers/appUpdateController.h"
 #include "ui/controllers/api/apiSettingsController.h"
 #include "ui/controllers/appSplitTunnelingController.h"
 #include "ui/controllers/allowedDnsController.h"
@@ -91,6 +92,7 @@ private:
     QMetaObject::Connection m_reloadConfigErrorOccurredConnection;
 
     QScopedPointer<ConnectionController> m_connectionController;
+    QScopedPointer<AppUpdateController> m_appUpdateController;
     QScopedPointer<FocusController> m_focusController;
     QSharedPointer<PageController> m_pageController; // TODO
     QScopedPointer<InstallController> m_installController;

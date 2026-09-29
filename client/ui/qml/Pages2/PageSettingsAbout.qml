@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import AppUpdate 1.0
 import PageEnum 1.0
 import Style 1.0
 
@@ -132,6 +133,52 @@ PageType {
                 }
             }
 
+            CaptionTextType {
+                id: updateStatus
+
+                Layout.fillWidth: true
+                Layout.topMargin: 12
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.WordWrap
+                visible: text !== ""
+                color: AppUpdateController.state === AppUpdate.Error
+                       ? DopamineStyle.color.goldenApricot
+                       : DopamineStyle.color.mutedGray
+
+                text: {
+                    if (!AppUpdateController.supported)
+                        return ""
+                    if (AppUpdateController.state === AppUpdate.Error)
+                        return AppUpdateController.errorMessage
+                    if (AppUpdateController.state === AppUpdate.UpToDate)
+                        return qsTr("You are up to date")
+                    if (AppUpdateController.state === AppUpdate.UpdateAvailable)
+                        return AppUpdateController.releaseNotes
+                    return ""
+                }
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.leftMargin: 48
+                Layout.rightMargin: 48
+                Layout.topMargin: 8
+                Layout.preferredHeight: 4
+                radius: 2
+                visible: AppUpdateController.state === AppUpdate.Downloading && AppUpdateController.progress >= 0
+                color: DopamineStyle.color.charcoalGray
+
+                Rectangle {
+                    width: parent.width * AppUpdateController.progress
+                    height: parent.height
+                    radius: 2
+                    color: DopamineStyle.color.goldenApricot
+                }
+            }
+
             BasicButtonType {
                 id: checkUpdatesButton
 
@@ -140,16 +187,44 @@ PageType {
                 Layout.bottomMargin: 16
                 implicitHeight: 32
 
+                enabled: AppUpdateController.state !== AppUpdate.Checking
+                         && AppUpdateController.state !== AppUpdate.Downloading
+                         && AppUpdateController.state !== AppUpdate.Installing
+
                 defaultColor: DopamineStyle.color.transparent
                 hoveredColor: DopamineStyle.color.translucentWhite
                 pressedColor: DopamineStyle.color.sheerWhite
                 disabledColor: DopamineStyle.color.mutedGray
                 textColor: DopamineStyle.color.goldenApricot
 
-                text: qsTr("Check for updates")
+                text: {
+                    if (!AppUpdateController.supported)
+                        return qsTr("Check for updates")
+                    switch (AppUpdateController.state) {
+                    case AppUpdate.Checking:
+                        return qsTr("Checking for updates...")
+                    case AppUpdate.UpdateAvailable:
+                        return qsTr("Update to %1").arg(AppUpdateController.latestVersion)
+                    case AppUpdate.Downloading:
+                        if (AppUpdateController.progress < 0)
+                            return qsTr("Downloading...")
+                        return qsTr("Downloading %1%").arg(Math.round(AppUpdateController.progress * 100))
+                    case AppUpdate.Installing:
+                        return qsTr("Installing update...")
+                    default:
+                        return qsTr("Check for updates")
+                    }
+                }
 
                 clickedFunc: function() {
-                    Qt.openUrlExternally("https://github.com/frkn-dev/client/releases/latest")
+                    if (!AppUpdateController.supported) {
+                        Qt.openUrlExternally("https://frkn.org/dopamine")
+                        return
+                    }
+                    if (AppUpdateController.state === AppUpdate.UpdateAvailable)
+                        AppUpdateController.downloadAndInstall()
+                    else
+                        AppUpdateController.checkForUpdates()
                 }
             }
 
