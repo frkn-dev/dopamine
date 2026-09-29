@@ -109,3 +109,10 @@ ErrorCode WireguardProtocol::start()
 {
     return startMzImpl();
 }
+
+void WireguardProtocol::requestStatus()
+{
+    if (m_connectionState == Vpn::ConnectionState::Connected && !m_statsTimer.isActive())
+        m_statsTimer.start();
+    m_impl->checkStatus();
+}

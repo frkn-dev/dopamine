@@ -75,6 +75,7 @@ signals:
     void tunnelAddressesUpdated(const QString& gateway, const QString& localAddress);
 
 public slots:
+    virtual void requestStatus() {}
     virtual void onTimeout(); // todo: remove?
 
     void setBytesChanged(quint64 receivedBytes, quint64 sentBytes);

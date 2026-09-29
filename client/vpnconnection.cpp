@@ -784,6 +784,15 @@ QString VpnConnection::bytesPerSecToText(quint64 bytes)
     return QString("%1 %2").arg(QString::number(mbps, 'f', 2)).arg(tr("Mbps")); // Mbit/s
 }
 
+void VpnConnection::refreshTunnel()
+{
+#ifdef AMNEZIA_DESKTOP
+    if (m_connectionState != Vpn::ConnectionState::Connected || m_vpnProtocol.isNull())
+        return;
+    m_vpnProtocol->requestStatus();
+#endif
+}
+
 void VpnConnection::reconnectToVpn() {
     if (m_vpnProtocol.isNull())
         return;
@@ -807,6 +816,9 @@ void VpnConnection::reconnectToVpn() {
 
 void VpnConnection::disconnectFromVpn()
 {
+#ifdef AMNEZIA_DESKTOP
+    m_silentReconnectAttempts = 0;
+#endif
 #if defined(Q_OS_IOS) || defined(MACOS_NE)
     // iOS/macOS NE use IosController directly; m_vpnProtocol is not set there.
     IosController::Instance()->disconnectVpn();
@@ -842,6 +854,7 @@ void VpnConnection::disconnectFromVpn()
 }
 
 void VpnConnection::setConnectionState(Vpn::ConnectionState state) {
+    const Vpn::ConnectionState previous = m_connectionState;
     onConnectionStateChanged(state);
 
     if (state == Vpn::Disconnected && m_connectionState == Vpn::Reconnecting)
@@ -849,4 +862,26 @@ void VpnConnection::setConnectionState(Vpn::ConnectionState state) {
 
     m_connectionState = state;
     emit connectionStateChanged(state);
+
+#ifdef AMNEZIA_DESKTOP
+    if (state == Vpn::ConnectionState::Connected)
+        m_silentReconnectAttempts = 0;
+
+    if (state == Vpn::ConnectionState::Disconnected
+        && previous == Vpn::ConnectionState::Connected
+        && !m_vpnProtocol.isNull()
+        && m_silentReconnectAttempts < 3) {
+        ++m_silentReconnectAttempts;
+        QTimer::singleShot(400, this, [this] {
+            if (m_connectionState != Vpn::ConnectionState::Disconnected || m_vpnProtocol.isNull())
+                return;
+            qDebug() << "VpnConnection: tunnel dropped, reconnecting";
+            setConnectionState(Vpn::ConnectionState::Reconnecting);
+            if (ErrorCode err = m_vpnProtocol->start(); err != ErrorCode::NoError) {
+                setConnectionState(Vpn::ConnectionState::Error);
+                emit vpnProtocolError(err);
+            }
+        });
+    }
+#endif
 }
