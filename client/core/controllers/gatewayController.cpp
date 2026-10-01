@@ -5,6 +5,7 @@
 #include <random>
 
 #include <QCryptographicHash>
+#include <QFutureWatcher>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -325,6 +326,29 @@ QFuture<QPair<ErrorCode, QByteArray>> GatewayController::postAsync(const QString
         };
 
         if (sslErrors->isEmpty() && shouldBypassProxy(replyError, decryptionResult.decryptedBody, decryptionResult.isDecryptionSuccessful)) {
+            const bool unreachable = replyError == QNetworkReply::TimeoutError || replyError == QNetworkReply::OperationCanceledError
+                    || replyError == QNetworkReply::HostNotFoundError || replyError == QNetworkReply::ConnectionRefusedError
+                    || replyError == QNetworkReply::RemoteHostClosedError || replyError == QNetworkReply::UnknownNetworkError
+                    || replyError == QNetworkReply::TemporaryNetworkFailureError || replyError == QNetworkReply::NetworkSessionFailedError
+                    || replyError == QNetworkReply::SslHandshakeFailedError;
+            if (unreachable && !m_fallbackEndpoint.isEmpty() && m_gatewayEndpoint != m_fallbackEndpoint) {
+                qWarning() << "[AGW] primary endpoint failed with" << replyError << "— retrying via fallback endpoint" << m_fallbackEndpoint;
+                const QString fallback = m_fallbackEndpoint;
+                QMetaObject::invokeMethod(this, [this, promise, endpoint, apiPayload, fallback]() {
+                    m_gatewayEndpoint = fallback;
+                    m_proxyUrl.clear();
+                    auto *watcher = new QFutureWatcher<QPair<ErrorCode, QByteArray>>();
+                    connect(watcher, &QFutureWatcherBase::finished, watcher, [promise, watcher]() {
+                        const auto result = watcher->result();
+                        watcher->deleteLater();
+                        promise->addResult(result);
+                        promise->finish();
+                    });
+                    watcher->setFuture(postAsync(endpoint, apiPayload));
+                }, Qt::QueuedConnection);
+                return;
+            }
+
             auto serviceType = apiPayload.value(apiDefs::key::serviceType).toString("");
             auto userCountryCode = apiPayload.value(apiDefs::key::userCountryCode).toString("");
 
@@ -536,7 +560,7 @@ void GatewayController::bypassProxy(const QString &endpoint, const QString &serv
 
     if (m_proxyUrl.isEmpty()) {
         QNetworkRequest request;
-        request.setTransferTimeout(1000);
+        request.setTransferTimeout(apiDefs::proxyHealthTimeoutMsecs);
         request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
         QEventLoop wait;
@@ -657,7 +681,7 @@ void GatewayController::getProxyUrlAsync(const QStringList proxyUrls, const int 
     }
 
     QNetworkRequest request;
-    request.setTransferTimeout(1000);
+    request.setTransferTimeout(apiDefs::proxyHealthTimeoutMsecs);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setUrl(proxyUrls[currentProxyIndex] + "lmbd-health");
 

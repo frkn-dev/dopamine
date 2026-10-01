@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QJsonArray>
+#include <QStringList>
 
 #include <functional>
 
@@ -66,8 +67,6 @@ public slots:
 
     bool updateServiceFromGateway(const int serverIndex, const QString &newCountryCode, const QString &newCountryName,
                                   bool reloadServiceConfig = false, bool silent = false);
-    // Silently refreshes gateway-issued server configs (throttled, called on app start)
-    // so backend-side changes like a node IP update reach the client.
     void refreshSubscriptionConfigs();
     bool updateServiceFromTelegram(const int serverIndex);
     bool deactivateDevice(const bool isRemoveEvent);
@@ -91,7 +90,7 @@ public slots:
     // installs every fetched subscription config at once (we no longer show the
     // protocol selection screen — users were confused by it); returns the count
     int installAllSubscriptionConfigs();
-    Q_INVOKABLE void reloadSubscriptionConfigs();
+    Q_INVOKABLE void reloadSubscriptionConfigs(bool silent = false);
 
     // FRKN connection sharing (frkn://conn/<share_token>): the recipient imports a single
     // shared connection via importSharedConnection; the owner creates/lists/revokes share
@@ -152,8 +151,6 @@ private:
     // m_subscriptionId, or recovered from an already imported gateway server
     QString resolveSubscriptionId() const;
 
-    void processNextSubscriptionRefresh();
-
     // async /v1/config refresh of one server; shares all payload/response logic
     // with the synchronous updateServiceFromGateway via the struct below
     void updateServiceFromGatewayAsync(const int serverIndex, const QString &newCountryCode, const QString &newCountryName,
@@ -179,7 +176,8 @@ private:
                                     bool reloadServiceConfig, bool silent, GatewayConfigUpdate &update);
     bool finishGatewayConfigUpdate(const GatewayConfigUpdate &update, ErrorCode errorCode, const QByteArray &responseBody);
 
-    void fetchSubscriptionConfigsAsync(const QString &subscriptionId, const std::function<void(bool)> &callback);
+    void fetchSubscriptionConfigsAsync(const QString &subscriptionId, const std::function<void(bool)> &callback,
+                                       bool reportErrors = true);
     // duplicate-label numbering + protocol sort of m_subscriptionConfigs, emits
     // subscriptionConfigsChanged — the local tail of the async fetch chain
     void finalizeSubscriptionConfigs();
@@ -196,9 +194,11 @@ private:
     QString m_selectedServerCountryCode;
     bool m_importAllCountries = false;
 
-    QList<int> m_pendingSubscriptionRefresh;
+    bool m_subscriptionReloadRunning = false;
+    bool m_subscriptionReloadNotify = false;
 
     QJsonArray m_subscriptionConfigs;
+    QStringList m_subscriptionConfigFailures;
 
     QVariantList m_subscriptionPlans;
     int m_selectedPlanIndex = 2; // default: 6-month plan

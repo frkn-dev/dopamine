@@ -18,12 +18,18 @@ import "../Components"
 PageType {
     id: root
 
+    property bool subscriptionReloadStartedHere: false
+
     Connections {
         target: ApiConfigsController
 
-        // reloadSubscriptionConfigs is async — the busy indicator hides when it reports
         function onReloadSubscriptionConfigsFinished(success) {
+            if (!root.subscriptionReloadStartedHere) {
+                return
+            }
+            root.subscriptionReloadStartedHere = false
             PageController.showBusyIndicator(false)
+            PageController.showNotificationMessage(success ? qsTr("Servers reloaded") : qsTr("Failed to reload servers"))
         }
     }
 
@@ -63,6 +69,7 @@ PageType {
 
             onClicked: {
                 PageController.showBusyIndicator(true)
+                root.subscriptionReloadStartedHere = true
                 ApiConfigsController.reloadSubscriptionConfigs()
             }
         }

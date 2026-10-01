@@ -30,6 +30,7 @@ void Migrations::doMigrations()
     if (currentMajor == 3) {
         migrateV3();
     }
+    migrateAndroidAppSettings();
 }
 
 void Migrations::migrateV3()
@@ -81,6 +82,69 @@ void Migrations::migrateV3()
                 oldConfigDir.rmdir("FRKN.ORG");
             }
         }
+    }
+#endif
+}
+
+#ifdef Q_OS_ANDROID
+namespace {
+bool confHasServers(const QString &path)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return false;
+    }
+    return file.readAll().contains("serversList");
+}
+
+QString androidDataRoot()
+{
+    const QString packageName = QStringLiteral("org.frkn.dopamine");
+    const QString currentDir = QDir(QStringLiteral(".")).absolutePath();
+    const int packageNameIndex = currentDir.indexOf(packageName);
+    if (packageNameIndex < 0) {
+        return {};
+    }
+    return currentDir.left(packageNameIndex + packageName.size());
+}
+}
+#endif
+
+void Migrations::migrateAndroidAppSettings()
+{
+#ifdef Q_OS_ANDROID
+    const QString root = androidDataRoot();
+    if (root.isEmpty()) {
+        return;
+    }
+
+    const QString settingsDir = root + QStringLiteral("/files/settings/") + QLatin1String(ORGANIZATION_NAME);
+    const QString currentFile = settingsDir + QLatin1Char('/') + QLatin1String(APPLICATION_NAME) + QStringLiteral(".conf");
+    if (confHasServers(currentFile)) {
+        return;
+    }
+
+    const QStringList legacyFiles = {
+        settingsDir + QStringLiteral("/FRKN.conf"),
+        root + QStringLiteral("/files/.config/FRKN.ORG/FRKN.conf"),
+        root + QStringLiteral("/files/settings/AmneziaVPN.ORG/AmneziaVPN.conf"),
+        root + QStringLiteral("/files/.config/AmneziaVPN.ORG/AmneziaVPN.conf"),
+    };
+
+    for (const QString &legacyFile : legacyFiles) {
+        if (legacyFile == currentFile || !confHasServers(legacyFile)) {
+            continue;
+        }
+        if (!QDir().mkpath(settingsDir)) {
+            return;
+        }
+        if (QFile::exists(currentFile)) {
+            QFile::remove(currentFile);
+        }
+        if (QFile::copy(legacyFile, currentFile)) {
+            qDebug() << "Migrated Android settings from" << legacyFile;
+        }
+        return;
     }
 #endif
 }

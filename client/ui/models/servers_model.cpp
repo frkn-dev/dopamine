@@ -213,7 +213,14 @@ QVariant ServersModel::data(const QModelIndex &index, int role) const
         return protocol.toLower();
     }
     case ConnectionEnvRole: {
-        return apiConfig.value(QStringLiteral("env")).toString();
+        const QString env = apiConfig.value(QStringLiteral("env")).toString();
+        if (env.startsWith(QLatin1String("custompremium"))) {
+            return QStringLiteral("premium");
+        }
+        if (env.startsWith(QLatin1String("custom"))) {
+            return QStringLiteral("private");
+        }
+        return env;
     }
     case CountryCodeRole: {
         auto countryCode = apiConfig.value(configKey::serverCountryCode).toString();
@@ -546,6 +553,7 @@ void ServersModel::editServer(const QJsonObject &server, const int serverIndex)
     if (serverIndex == m_defaultServerIndex) {
         auto defaultContainer = qvariant_cast<DockerContainer>(getDefaultServerData("defaultContainer"));
         emit defaultServerDefaultContainerChanged(defaultContainer);
+        emit defaultServerNameChanged();
     }
 }
 

@@ -119,6 +119,7 @@ public slots:
     // protocols present on servers of the given env ("" = all envs) — the server
     // list filter never offers protocols the selected env doesn't have
     QStringList availableProtocolsForEnv(const QString &env) const;
+    QStringList availableEnvs() const;
 
     bool isProcessedServerHasWriteAccess();
     bool isDefaultServerHasWriteAccess();
@@ -226,7 +227,6 @@ private:
     QStringList availableProtocols() const;
     void recomputeAvailableProtocols();
 
-    QStringList availableEnvs() const;
     void recomputeAvailableEnvs();
 
     QJsonArray m_servers;

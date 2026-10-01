@@ -13,6 +13,7 @@ public:
 
 private:
     void migrateV3();
+    void migrateAndroidAppSettings();
 
 private:
     int currentMajor = 0;

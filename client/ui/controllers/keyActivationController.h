@@ -13,6 +13,9 @@ public slots:
     void validateKey(const QString &code);
     void activateKey(const QString &code, const QString &email = QString());
 
+private:
+    void recoverActivation(const QString &code);
+
 signals:
     // key already activated and linked to a subscription (e.g. app reinstall) —
     // proceed to import that subscription right away

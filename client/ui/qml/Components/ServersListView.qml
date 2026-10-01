@@ -85,6 +85,7 @@ ListViewType {
         // same priority as auto-select: mobile AWG first, then plain AWG
         function pickDefault() {
             if (protos.indexOf("awg-mobile") >= 0) return "awg-mobile"
+            if (protos.indexOf("amneziawgmobile") >= 0) return "amneziawgmobile"
             if (protos.indexOf("awg") >= 0) return "awg"
             return protos.length > 0 ? protos[0] : ""
         }
@@ -117,6 +118,12 @@ ListViewType {
         }
         if (env === "ru") {
             return qsTr("Reverse")
+        }
+        if (env === "premium") {
+            return qsTr("Premium")
+        }
+        if (env === "private") {
+            return qsTr("Private")
         }
         return env
     }
@@ -258,6 +265,22 @@ ListViewType {
                 enabled: root.envFilter !== ""
             }
         ]
+    }
+
+    Connections {
+        target: ApiConfigsController
+        function onReloadSubscriptionConfigsFinished(success) {
+            if (!success) {
+                return
+            }
+            const savedEnv = SettingsController.serversEnvFilter
+            root.envFilter = savedEnv === "" || savedEnv === "all" ? "" : savedEnv
+            root.rebuildEnvsModel()
+            const savedProto = SettingsController.serversProtocolFilter
+            root.protocolFilterTouched = savedProto !== "" && savedProto !== "all"
+            root.protocolFilter = root.protocolFilterTouched ? savedProto : ""
+            root.rebuildProtocolsModel()
+        }
     }
 
     Connections {

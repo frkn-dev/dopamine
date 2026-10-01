@@ -61,6 +61,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import org.amnezia.vpn.protocol.ProtocolState
 import org.amnezia.vpn.protocol.getStatistics
 import org.amnezia.vpn.protocol.getStatus
 import org.amnezia.vpn.qt.QtAndroidController
@@ -310,24 +311,20 @@ class AmneziaActivity : QtActivity() {
         Log.d(TAG, "Start Amnezia activity")
         mainScope.launch {
             qtInitialized.await()
-            if (rebindServiceOnStart) {
-                // we were bound when backgrounded — the VPN session may still be
-                // alive; rebind and let REQUEST_STATUS restore the real state
-                rebindServiceOnStart = false
+            val wasBound = rebindServiceOnStart
+            rebindServiceOnStart = false
+            val proto = vpnProto ?: VpnProto.entries
+                .distinctBy { it.serviceClass }
+                .firstOrNull { AmneziaVpnService.isRunning(applicationContext, it.processName) }
+                ?.also { vpnProto = it }
+            val running = proto != null &&
+                AmneziaVpnService.isRunning(applicationContext, proto.processName)
+            if (running) {
                 doBindService()
-            } else {
-                // vpnProto is in-memory only: after a cold process start it is null
-                // even if a VPN service outlived us. Probe all known service
-                // processes and bind to whichever is still running (a plain
-                // bindService would start a stopped service via BIND_AUTO_CREATE).
-                val proto = vpnProto ?: VpnProto.entries
-                    .distinctBy { it.serviceClass }
-                    .firstOrNull { AmneziaVpnService.isRunning(applicationContext, it.processName) }
-                    ?.also { vpnProto = it }
-                if (proto != null &&
-                    AmneziaVpnService.isRunning(applicationContext, proto.processName)) {
-                    doBindService()
-                }
+            } else if (wasBound) {
+                isWaitingStatus = true
+                VpnStateStore.store { it.copy(protocolState = ProtocolState.DISCONNECTED) }
+                QtAndroidController.onStatus(ProtocolState.DISCONNECTED)
             }
         }
     }

@@ -57,7 +57,7 @@ static QString libXrayPingAndroid(const QString &configPath, int timeoutSec, con
 #endif
 
 // OpenSSL Noise_IK probe where libwg-go is unavailable (Android, Windows)
-#if defined(Q_OS_ANDROID) || defined(Q_OS_WIN)
+#if defined(Q_OS_ANDROID) || defined(Q_OS_WIN) || defined(Q_OS_LINUX)
 #include "core/wgHandshakeProbe.h"
 #endif
 
@@ -196,9 +196,9 @@ void HealthCheckController::startProbe(bool force)
         }
     }
 
-#if defined(Q_OS_IOS) || defined(Q_OS_MACOS) || defined(Q_OS_ANDROID) || defined(Q_OS_WIN)
+#if defined(Q_OS_IOS) || defined(Q_OS_MACOS) || defined(Q_OS_ANDROID) || defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     // collect awg/wireguard targets: blocking handshake probe on worker threads
-    // (libwg-go on Apple platforms, core/wgHandshakeProbe on Android/Windows)
+    // (libwg-go on Apple platforms, core/wgHandshakeProbe on Android/Windows/Linux)
     for (int i = 0; i < count; ++i) {
         const QString protocol = m_serversModel->data(i, ServersModel::Roles::ServiceProtocolRole).toString();
         if (protocol != QStringLiteral("awg") && protocol != QStringLiteral("wireguard")) {
@@ -562,7 +562,7 @@ void HealthCheckController::finishSocket(QTcpSocket *socket, int latencyMs)
 
 void HealthCheckController::startNextWg()
 {
-#if defined(Q_OS_IOS) || defined(Q_OS_MACOS) || defined(Q_OS_ANDROID) || defined(Q_OS_WIN)
+#if defined(Q_OS_IOS) || defined(Q_OS_MACOS) || defined(Q_OS_ANDROID) || defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     // few parallel WG probes: racing handshakes with the same key get dropped
     while (m_wgWatchers.size() < kWgMaxParallel && !m_wgQueue.isEmpty()) {
         const WgTarget target = m_wgQueue.takeFirst();
@@ -575,7 +575,7 @@ void HealthCheckController::startNextWg()
         });
 
         watcher->setFuture(QtConcurrent::run([target]() -> int {
-#if defined(Q_OS_ANDROID) || defined(Q_OS_WIN)
+#if defined(Q_OS_ANDROID) || defined(Q_OS_WIN) || defined(Q_OS_LINUX)
             const QJsonObject junk = QJsonDocument::fromJson(target.junkParamsJson.toUtf8()).object();
             return wgProbeHandshakeRTT(target.host, target.port, target.clientPrivKey, target.serverPubKey,
                                        target.psk, junk, kWgTimeoutMs);

@@ -239,7 +239,7 @@ PageType {
                 Layout.rightMargin: 16
                 Layout.leftMargin: 16
 
-                headerText: qsTr("Key or config")
+                placeholderText: qsTr("Insert key")
                 buttonText: qsTr("Insert")
                 multiline: true
 
@@ -353,6 +353,7 @@ PageType {
     }
 
     property list<QtObject> variants: [
+        fileOpen,
         qrScan,
         amneziaVpn,
         restorePurchases,

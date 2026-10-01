@@ -1729,37 +1729,12 @@ void ApiConfigsController::refreshSubscriptionConfigs()
     if (now - m_settings->lastSubscriptionRefresh() < 6 * 60 * 60) {
         return;
     }
+    if (resolveSubscriptionId().isEmpty()) {
+        return;
+    }
     m_settings->setLastSubscriptionRefresh(now);
-
-    m_pendingSubscriptionRefresh.clear();
-    const int serversCount = m_serversModel->getServersCount();
-    for (int i = 0; i < serversCount; ++i) {
-        const auto apiConfig = m_serversModel->getServerConfig(i).value(configKey::apiConfig).toObject();
-        if (apiConfig.value("connection_uuid").toString().isEmpty() && !apiConfig.value("shared").toBool()) {
-            continue;
-        }
-        if (!m_serversModel->serverHasUsableConfig(i)) {
-            continue;
-        }
-        m_pendingSubscriptionRefresh.append(i);
-    }
-    if (m_pendingSubscriptionRefresh.isEmpty()) {
-        return;
-    }
-
-    qDebug() << "[SUBSCRIPTION] refreshing" << m_pendingSubscriptionRefresh.size() << "server config(s) from the gateway";
-    processNextSubscriptionRefresh();
-}
-
-void ApiConfigsController::processNextSubscriptionRefresh()
-{
-    if (m_pendingSubscriptionRefresh.isEmpty()) {
-        return;
-    }
-    const int serverIndex = m_pendingSubscriptionRefresh.takeFirst();
-    // one server at a time: the next refresh starts from the previous one's
-    // callback; silent failures keep the local config
-    updateServiceFromGatewayAsync(serverIndex, "", "", false, true, [this](bool) { processNextSubscriptionRefresh(); });
+    qDebug() << "[SUBSCRIPTION] background reload";
+    reloadSubscriptionConfigs(true);
 }
 
 bool ApiConfigsController::updateServiceFromTelegram(const int serverIndex)
@@ -2186,10 +2161,12 @@ void ApiConfigsController::fetchSubscriptionConfigs(const QString &subscriptionI
     fetchSubscriptionConfigsAsync(subscriptionId, [this](bool success) { emit fetchSubscriptionConfigsFinished(success); });
 }
 
-void ApiConfigsController::fetchSubscriptionConfigsAsync(const QString &subscriptionId, const std::function<void(bool)> &callback)
+void ApiConfigsController::fetchSubscriptionConfigsAsync(const QString &subscriptionId, const std::function<void(bool)> &callback,
+                                                          bool reportErrors)
 {
     qDebug() << "[SUBSCRIPTION] fetching configs for" << subscriptionId;
     m_subscriptionConfigs = QJsonArray();
+    m_subscriptionConfigFailures.clear();
     emit subscriptionConfigsChanged();
 
     QJsonObject authData;
@@ -2205,11 +2182,13 @@ void ApiConfigsController::fetchSubscriptionConfigsAsync(const QString &subscrip
                                                                        apiDefs::requestTimeoutMsecs, false, nullptr,
                                                                        m_settings->getGatewayEndpointFallback());
     auto servicesFuture = gatewayController->postAsync(QString("%1v1/services"), servicesPayload);
-    servicesFuture.then(this, [this, gatewayController, authData, callback](QPair<ErrorCode, QByteArray> servicesResult) {
+    servicesFuture.then(this, [this, gatewayController, authData, callback, reportErrors](QPair<ErrorCode, QByteArray> servicesResult) {
         const auto [errorCode, servicesResponse] = servicesResult;
         if (errorCode != ErrorCode::NoError) {
             qWarning() << "[SUBSCRIPTION] failed to fetch services:" << static_cast<int>(errorCode);
-            emit errorOccurred(errorCode);
+            if (reportErrors) {
+                emit errorOccurred(errorCode);
+            }
             callback(false);
             return;
         }
@@ -2220,7 +2199,9 @@ void ApiConfigsController::fetchSubscriptionConfigsAsync(const QString &subscrip
         QJsonArray services = servicesData.value(configKey::services).toArray();
         if (services.isEmpty()) {
             qWarning() << "[SUBSCRIPTION] no services found";
-            emit errorOccurred(ErrorCode::ApiConfigEmptyError);
+            if (reportErrors) {
+                emit errorOccurred(ErrorCode::ApiConfigEmptyError);
+            }
             callback(false);
             return;
         }
@@ -2316,6 +2297,10 @@ void ApiConfigsController::fetchSubscriptionConfigsAsync(const QString &subscrip
                     errorCode = fillServerConfig(serviceProtocol, protocolData, responseBody, serverConfig);
                     if (errorCode != ErrorCode::NoError) {
                         qWarning() << "[SUBSCRIPTION] failed to fill config for" << serviceProtocol << serverCountryCode << ":" << static_cast<int>(errorCode);
+                        const QString failureKey = connectionUuid + QLatin1Char('|') + nodeId;
+                        if (!connectionUuid.isEmpty() && !m_subscriptionConfigFailures.contains(failureKey)) {
+                            m_subscriptionConfigFailures.append(failureKey);
+                        }
                     } else {
 
             // fillServerConfig may have lost auth_data when the decrypted config didn't include it;
@@ -2390,6 +2375,10 @@ void ApiConfigsController::fetchSubscriptionConfigsAsync(const QString &subscrip
                     }
                 } else {
                     qWarning() << "[SUBSCRIPTION] failed to fetch config for" << serviceProtocol << serverCountryCode << ":" << static_cast<int>(errorCode);
+                    const QString failureKey = connectionUuid + QLatin1Char('|') + nodeId;
+                    if (!connectionUuid.isEmpty() && !m_subscriptionConfigFailures.contains(failureKey)) {
+                        m_subscriptionConfigFailures.append(failureKey);
+                    }
                 }
                 (*processNext)();
             });
@@ -2486,15 +2475,28 @@ QVariantList ApiConfigsController::getSubscriptionConfigs() const
     return list;
 }
 
-void ApiConfigsController::reloadSubscriptionConfigs()
+void ApiConfigsController::reloadSubscriptionConfigs(bool silent)
 {
+    if (m_subscriptionReloadRunning) {
+        if (!silent) {
+            m_subscriptionReloadNotify = true;
+        }
+        qDebug() << "[SUBSCRIPTION] reload already running";
+        return;
+    }
+
     const QString subscriptionId = resolveSubscriptionId();
 
     if (subscriptionId.isEmpty()) {
         qWarning() << "[SUBSCRIPTION] reload: no subscription id found";
-        emit reloadSubscriptionConfigsFinished(false);
+        if (!silent) {
+            emit reloadSubscriptionConfigsFinished(false);
+        }
         return;
     }
+
+    m_subscriptionReloadRunning = true;
+    m_subscriptionReloadNotify = !silent;
 
     // Remember the currently selected connection so the user doesn't end up with
     // "no server selected" after the reinstall (which used to dump them into the
@@ -2512,19 +2514,49 @@ void ApiConfigsController::reloadSubscriptionConfigs()
     // the local reinstall runs from the async fetch callback, the result is
     // reported via reloadSubscriptionConfigsFinished
     fetchSubscriptionConfigsAsync(subscriptionId, [this, prevConnectionUuid, prevNodeId](bool fetched) {
+        m_subscriptionReloadRunning = false;
+        const bool notify = m_subscriptionReloadNotify;
+        m_subscriptionReloadNotify = false;
         if (!fetched) {
-            emit reloadSubscriptionConfigsFinished(false);
+            qWarning() << "[SUBSCRIPTION] reload failed";
+            if (notify) {
+                emit reloadSubscriptionConfigsFinished(false);
+            }
             return;
         }
 
-        // remove previously imported subscription servers (they carry connection_uuid)
+        QSet<QString> freshKeys;
+        for (const auto &config : m_subscriptionConfigs) {
+            const QJsonObject apiConfig = config.toObject().value(configKey::apiConfig).toObject();
+            freshKeys.insert(apiConfig.value(QStringLiteral("connection_uuid")).toString() + QLatin1Char('|')
+                             + apiConfig.value(QStringLiteral("node_id")).toString());
+        }
+
+        const qint64 now = QDateTime::currentSecsSinceEpoch();
+        constexpr qint64 absentRemoveAfterSecs = 6 * 60 * 60;
+        QVariantMap absentSince = m_settings->absentSubscriptionNodes();
+        QVariantMap absentNext;
         for (int i = m_serversModel->getServersCount() - 1; i >= 0; --i) {
             const QJsonObject serverConfig = m_serversModel->getServerConfig(i);
             const QJsonObject apiConfig = serverConfig.value(configKey::apiConfig).toObject();
-            if (!apiConfig.value("connection_uuid").toString().isEmpty()) {
-                m_serversModel->removeServer(i);
+            const QString connectionUuid = apiConfig.value("connection_uuid").toString();
+            if (connectionUuid.isEmpty()) {
+                continue;
             }
+            const QString key = connectionUuid + QLatin1Char('|') + apiConfig.value("node_id").toString();
+            if (freshKeys.contains(key) || m_subscriptionConfigFailures.contains(key)) {
+                continue;
+            }
+            const qint64 since = absentSince.value(key).toLongLong();
+            if (since <= 0 || now - since < absentRemoveAfterSecs) {
+                absentNext.insert(key, since > 0 ? since : now);
+                qDebug() << "[SUBSCRIPTION] node missing from subscription, keeping" << key;
+                continue;
+            }
+            qDebug() << "[SUBSCRIPTION] removing node absent for" << (now - since) << "s" << key;
+            m_serversModel->removeServer(i);
         }
+        m_settings->setAbsentSubscriptionNodes(absentNext);
 
         bool anyInstalled = false;
         for (int i = 0; i < m_subscriptionConfigs.size(); ++i) {
@@ -2533,7 +2565,10 @@ void ApiConfigsController::reloadSubscriptionConfigs()
             }
         }
         if (!anyInstalled) {
-            emit reloadSubscriptionConfigsFinished(false);
+            qWarning() << "[SUBSCRIPTION] reload installed nothing";
+            if (notify) {
+                emit reloadSubscriptionConfigsFinished(false);
+            }
             return;
         }
 
@@ -2556,8 +2591,32 @@ void ApiConfigsController::reloadSubscriptionConfigs()
         if (newDefaultIndex >= 0) {
             m_serversModel->setDefaultServerIndex(newDefaultIndex);
         }
+
+        const QStringList envs = m_serversModel->availableEnvs();
+        QString env;
+        if (envs.contains(QStringLiteral("premium"))) {
+            env = QStringLiteral("premium");
+        } else if (envs.contains(QStringLiteral("private"))) {
+            env = QStringLiteral("private");
+        }
+        m_settings->setServersEnvFilter(env.isEmpty() ? QStringLiteral("all") : env);
+
+        const QStringList protos = m_serversModel->availableProtocolsForEnv(env);
+        QString proto = QStringLiteral("awg-mobile");
+        if (!protos.contains(proto)) {
+            if (protos.contains(QStringLiteral("amneziawgmobile"))) {
+                proto = QStringLiteral("amneziawgmobile");
+            } else if (protos.contains(QStringLiteral("awg"))) {
+                proto = QStringLiteral("awg");
+            } else if (!protos.isEmpty()) {
+                proto = protos.first();
+            }
+        }
+        m_settings->setServersProtocolFilter(proto);
+
         emit reloadSubscriptionConfigsFinished(true);
-    });
+    },
+            !silent);
 }
 
 bool ApiConfigsController::installSubscriptionConfig(int index)
@@ -2573,6 +2632,7 @@ bool ApiConfigsController::installSubscriptionConfig(int index)
     QString serviceProtocol = apiConfig.value(configKey::serviceProtocol).toString();
     QString serverCountryCode = apiConfig.value(configKey::userCountryCode).toString();
     QString connectionUuid = apiConfig.value("connection_uuid").toString();
+    const QString nodeId = apiConfig.value("node_id").toString();
 
     qDebug() << "[SUBSCRIPTION] protocol:" << serviceProtocol << "country:" << serverCountryCode << "connection:" << connectionUuid;
 
@@ -2589,18 +2649,40 @@ bool ApiConfigsController::installSubscriptionConfig(int index)
 
     int serversBefore = m_serversModel->getServersCount();
     QString serverName = serverConfig.value(config_key::name).toString();
-    QString serverDescription = serverConfig.value(config_key::description).toString();
 
-    if (m_serversModel->isServerFromApiAlreadyExists(serverName, serverDescription)) {
-        qDebug() << "[SUBSCRIPTION] duplicate name/description:" << serverName << serverDescription;
-    } else {
+    bool sameConnection = false;
+    if (!connectionUuid.isEmpty()) {
+        for (int i = 0; i < m_serversModel->getServersCount(); ++i) {
+            QJsonObject existingServer = m_serversModel->getServerConfig(i);
+            const QJsonObject existing = existingServer.value(configKey::apiConfig).toObject();
+            if (existing.value("connection_uuid").toString() != connectionUuid
+                || existing.value("node_id").toString() != nodeId) {
+                continue;
+            }
+            sameConnection = true;
+            if (!existingServer.value(config_key::nameOverriddenByUser).toBool() && !serverName.isEmpty()
+                && serverName != existingServer.value(config_key::name).toString()) {
+                existingServer.insert(config_key::name, serverName);
+                const QString freshDescription = serverConfig.value(config_key::description).toString();
+                if (!freshDescription.isEmpty()) {
+                    existingServer.insert(config_key::description, freshDescription);
+                }
+                m_serversModel->editServer(existingServer, i);
+                qDebug() << "[SUBSCRIPTION] renamed" << connectionUuid << nodeId << "to" << serverName;
+            } else {
+                qDebug() << "[SUBSCRIPTION] already installed:" << serverName << connectionUuid << nodeId;
+            }
+            break;
+        }
+    }
+    if (!sameConnection) {
         qDebug() << "[SUBSCRIPTION] adding server" << serverName;
         m_serversModel->addServer(serverConfig);
     }
 
     int serversAfter = m_serversModel->getServersCount();
     qDebug() << "[SUBSCRIPTION] count before:" << serversBefore << "after:" << serversAfter;
-    return serversAfter > serversBefore;
+    return sameConnection || serversAfter > serversBefore;
 }
 
 int ApiConfigsController::installAllSubscriptionConfigs()

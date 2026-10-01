@@ -958,7 +958,7 @@ void ImportController::resolveShortCode(const QString &rawInput, const QString &
     request.setRawHeader("Accept", "application/json");
     // browsers get a 302 to the subscription page; we want the JSON payload
     request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::ManualRedirectPolicy);
-    request.setTransferTimeout(15000);
+    request.setTransferTimeout(45000);
 
     QNetworkReply *reply = amnApp->networkManager()->get(request);
 
@@ -996,7 +996,7 @@ void ImportController::fetchAndImportFromUrl(const QString &url)
 
     QNetworkRequest request;
     request.setUrl(QUrl(url));
-    request.setTransferTimeout(15000);
+    request.setTransferTimeout(45000);
 
     QNetworkReply *reply = amnApp->networkManager()->get(request);
 

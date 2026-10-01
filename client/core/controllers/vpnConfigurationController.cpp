@@ -175,7 +175,9 @@ QJsonObject VpnConfigurationsController::createVpnConfiguration(const QPair<QStr
             // AWG 3.1: backend may send RandomTrailers/DisableCookies and the
             // AWG 3.0 device-level keys only inside the INI string — recover
             // them into the JSON the platform layers consume.
-            for (const auto &key : { config_key::randomTrailers, config_key::disableCookies,
+            for (const auto &key : { config_key::specialJunk1, config_key::specialJunk2, config_key::specialJunk3,
+                                     config_key::specialJunk4, config_key::specialJunk5,
+                                     config_key::randomTrailers, config_key::disableCookies,
                                      config_key::headerProtectionKey, config_key::contentPaddingAddition,
                                      config_key::rekeyAfterTime, config_key::rekeyTimeout,
                                      config_key::rejectAfterTime, config_key::keepaliveTimeout,

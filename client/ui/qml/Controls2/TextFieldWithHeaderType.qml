@@ -19,6 +19,7 @@ Item {
 
     property string buttonText
     property string buttonImageSource
+    property string placeholderText
     property var clickedFunc
 
     property alias textField: textField
@@ -105,6 +106,7 @@ Item {
 
                         inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhSensitiveData | Qt.ImhNoPredictiveText
 
+                        placeholderText: root.placeholderText
                         placeholderTextColor: DopamineStyle.color.charcoalGray
 
                         selectionColor:  DopamineStyle.color.richBrown
@@ -156,6 +158,7 @@ Item {
                         wrapMode: TextEdit.Wrap
                         selectByMouse: true
                         inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhSensitiveData | Qt.ImhNoPredictiveText
+                        placeholderText: root.placeholderText
                         placeholderTextColor: DopamineStyle.color.charcoalGray
                         selectionColor: DopamineStyle.color.richBrown
                         selectedTextColor: DopamineStyle.color.paleGray
@@ -166,7 +169,7 @@ Item {
 
                         Layout.fillWidth: true
                         Layout.preferredHeight: Math.min(160, Math.max(48, contentHeight))
-                        rightPadding: 88
+                        rightPadding: insertButton.visible ? insertButton.implicitWidth + 24 : 0
                         topPadding: 0
                         leftPadding: 0
                         bottomPadding: 0
@@ -235,13 +238,15 @@ Item {
         text: root.buttonText
         leftImageSource: root.buttonImageSource
 
-        anchors.top: content.top
+        anchors.verticalCenter: root.multiline ? backgroud.verticalCenter : undefined
+        anchors.top: root.multiline ? undefined : content.top
         anchors.bottom: root.multiline ? undefined : content.bottom
         anchors.right: content.right
+        anchors.rightMargin: root.multiline ? 8 : 0
 
         height: root.multiline ? implicitHeight : content.implicitHeight
         width: root.multiline ? implicitWidth : content.implicitHeight
-        squareLeftSide: true
+        squareLeftSide: !root.multiline
 
         clickedFunc: function() {
             if (root.clickedFunc && typeof root.clickedFunc === "function") {

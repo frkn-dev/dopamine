@@ -998,7 +998,7 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
     } else if (m_ipPoolRow >= 0) {
         // manual connect to a multi-IP server
         if (state == Vpn::ConnectionState::Connected) {
-#if defined(Q_OS_IOS) || defined(MACOS_NE) || defined(Q_OS_ANDROID)
+#if defined(Q_OS_IOS) || defined(MACOS_NE) || defined(Q_OS_ANDROID) || defined(Q_OS_LINUX) || defined(Q_OS_WIN)
             // WG/AWG "Connected" here is handshake-gated (see the Connected case
             // below) — the entry address already proved itself, so waiting for
             // idle-tunnel bytes on top would false-negative the same way
@@ -1014,7 +1014,7 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
             // a blocked entry address can still bring the tunnel up — require real bytes
             m_ipAwaitingTraffic = true;
             m_ipTrafficTimer->start(kIpTrafficTimeoutMs);
-#if defined(Q_OS_IOS) || defined(MACOS_NE) || defined(Q_OS_ANDROID)
+#if defined(Q_OS_IOS) || defined(MACOS_NE) || defined(Q_OS_ANDROID) || defined(Q_OS_LINUX) || defined(Q_OS_WIN)
             }
 #endif
         } else if (state == Vpn::ConnectionState::Reconnecting) {
@@ -1054,13 +1054,12 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
         m_isConnected = true;
         m_connectionStateText = tr("Connected");
         m_manualConnectTimer->stop(); // the traffic watchdogs take it from here
-#if defined(Q_OS_IOS) || defined(MACOS_NE) || defined(Q_OS_ANDROID)
+#if defined(Q_OS_IOS) || defined(MACOS_NE) || defined(Q_OS_ANDROID) || defined(Q_OS_LINUX) || defined(Q_OS_WIN)
         if (m_autoPhase == AutoPhase::Connecting && m_autoAwaitingTraffic
             && m_autoCandidatePos < m_autoCandidates.size()) {
-            // On Apple NE and on Android a WG/AWG "Connected" is emitted only
-            // AFTER a verified handshake (IosController gates it; on Android
-            // Wireguard.kt's status job flips to CONNECTED only when
-            // lastHandshake > 0) — that alone proves the path is bidirectional.
+            // WG/AWG "Connected" is emitted only after a verified handshake
+            // (Apple NE, Android status job, and the desktop daemon all wait
+            // for lastHandshake) — that alone proves the path is bidirectional.
             // Waiting for user bytes on top false-negatives an idle-but-healthy
             // tunnel (keepalive is 25s, the traffic window is 8s) and burned the
             // whole window per candidate.

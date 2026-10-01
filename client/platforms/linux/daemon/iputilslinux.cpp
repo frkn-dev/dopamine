@@ -82,6 +82,14 @@ bool IPUtilsLinux::addIP4AddressToDevice(const InterfaceConfig& config) {
   // Get the device address to add to interface
   QPair<QHostAddress, int> parsedAddr =
       QHostAddress::parseSubnet(config.m_deviceIpv4Address);
+  if (parsedAddr.first.isNull()) {
+    parsedAddr.first = QHostAddress(config.m_deviceIpv4Address);
+    parsedAddr.second = 32;
+  }
+  int prefix = parsedAddr.second;
+  if (prefix < 0 || prefix > 32) {
+    prefix = 32;
+  }
   QByteArray _deviceAddr = parsedAddr.first.toString().toLocal8Bit();
   char* deviceAddr = _deviceAddr.data();
   inet_pton(AF_INET, deviceAddr, &ifrAddr->sin_addr);
@@ -98,6 +106,17 @@ bool IPUtilsLinux::addIP4AddressToDevice(const InterfaceConfig& config) {
   int ret = ioctl(sockfd, SIOCSIFADDR, &ifr);
   if (ret) {
     logger.error() << "Failed to set IPv4: " << deviceAddr
+                   << "error:" << strerror(errno);
+    return false;
+  }
+
+  struct sockaddr_in* ifrMask = (struct sockaddr_in*)&ifr.ifr_netmask;
+  ifrMask->sin_family = AF_INET;
+  const quint32 hostMask = prefix == 0 ? 0u : (0xffffffffu << (32 - prefix));
+  ifrMask->sin_addr.s_addr = htonl(hostMask);
+  ret = ioctl(sockfd, SIOCSIFNETMASK, &ifr);
+  if (ret) {
+    logger.error() << "Failed to set IPv4 netmask /" << prefix
                    << "error:" << strerror(errno);
     return false;
   }

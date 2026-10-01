@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QSettings>
 #include <QString>
+#include <QVariantMap>
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -185,6 +186,15 @@ public:
     void setLastSubscriptionRefresh(qint64 timestamp)
     {
         m_settings.setValue("Conf/lastSubscriptionRefresh", timestamp);
+    }
+
+    QVariantMap absentSubscriptionNodes() const
+    {
+        return m_settings.value("Conf/absentSubscriptionNodes").toMap();
+    }
+    void setAbsentSubscriptionNodes(const QVariantMap &nodes)
+    {
+        m_settings.setValue("Conf/absentSubscriptionNodes", nodes);
     }
 
     // "Auto-select" entry in the server list: on connect the best server is

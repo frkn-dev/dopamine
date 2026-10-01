@@ -1,6 +1,7 @@
 #include "coreController.h"
 
 #include <QDirIterator>
+#include <QTimer>
 #include <QTranslator>
 #include <memory>
 
@@ -414,8 +415,17 @@ void CoreController::initContainerModelUpdateHandler()
     m_serversModel->resetModel();
     // the presets catalog is public — fetch on every app start
     m_splitPresetsModel->fetchPresets();
-    // pick up backend-side config changes (e.g. node IP updates) — throttled inside
-    m_apiConfigsController->refreshSubscriptionConfigs();
+    auto refreshSubscription = [this]() {
+        if (m_connectionController->isConnected() || m_connectionController->isConnectionInProgress()) {
+            return;
+        }
+        m_apiConfigsController->refreshSubscriptionConfigs();
+    };
+    QTimer::singleShot(0, this, refreshSubscription);
+    auto *subscriptionRefreshTimer = new QTimer(this);
+    subscriptionRefreshTimer->setInterval(30 * 60 * 1000);
+    connect(subscriptionRefreshTimer, &QTimer::timeout, this, refreshSubscription);
+    subscriptionRefreshTimer->start();
 }
 
 void CoreController::initTranslationsUpdatedHandler()

@@ -40,7 +40,7 @@ void KeyActivationController::validateKey(const QString &code)
     QNetworkRequest request;
     request.setUrl(QUrl(keyApiBase + QStringLiteral("/validate?key=") + QUrl::toPercentEncoding(code)));
     request.setRawHeader("Accept", "application/json");
-    request.setTransferTimeout(15000);
+    request.setTransferTimeout(45000);
 
     QNetworkReply *reply = amnApp->networkManager()->get(request);
 
@@ -98,11 +98,11 @@ void KeyActivationController::activateKey(const QString &code, const QString &em
     request.setUrl(QUrl(keyApiBase + QStringLiteral("/activate")));
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
     request.setRawHeader("Accept", "application/json");
-    request.setTransferTimeout(15000);
+    request.setTransferTimeout(45000);
 
     QNetworkReply *reply = amnApp->networkManager()->post(request, QJsonDocument(body).toJson());
 
-    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+    connect(reply, &QNetworkReply::finished, this, [this, code, reply]() {
         reply->deleteLater();
 
         const QByteArray responseData = reply->readAll();
@@ -110,12 +110,14 @@ void KeyActivationController::activateKey(const QString &code, const QString &em
             const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
             qWarning() << "[KEY] activate failed:" << reply->errorString() << "status:" << status
                        << "response:" << responseData;
+            const bool noAnswer = status == 0 || status >= 500 || reply->error() == QNetworkReply::TimeoutError
+                    || reply->error() == QNetworkReply::OperationCanceledError;
             if (status == 400 && responseData.contains("email_required")) {
                 emit emailRequired();
-            } else if (status == 400 && responseData.contains("Key already activated")) {
-                emit keyErrorOccurred(tr("Key is already activated"));
             } else if (status == 404) {
                 emit keyErrorOccurred(tr("This key does not exist"));
+            } else if (noAnswer || (status == 400 && responseData.contains("Key already activated"))) {
+                recoverActivation(code);
             } else {
                 emit keyErrorOccurred(tr("Connection failed, try again"));
             }
@@ -130,5 +132,26 @@ void KeyActivationController::activateKey(const QString &code, const QString &em
         }
 
         emit keyActivated(subscriptionId);
+    });
+}
+
+void KeyActivationController::recoverActivation(const QString &code)
+{
+    QNetworkRequest request;
+    request.setUrl(QUrl(keyApiBase + QStringLiteral("/validate?key=") + QUrl::toPercentEncoding(code)));
+    request.setRawHeader("Accept", "application/json");
+    request.setTransferTimeout(45000);
+
+    QNetworkReply *reply = amnApp->networkManager()->get(request);
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        reply->deleteLater();
+        const QJsonObject key = keyObjectFromResponse(reply->readAll());
+        const QString subscriptionId = key.value(QStringLiteral("subscription_id")).toString();
+        if (reply->error() == QNetworkReply::NoError && key.value(QStringLiteral("activated")).toBool() && !subscriptionId.isEmpty()) {
+            qWarning() << "[KEY] activate response lost, subscription already linked";
+            emit keyActivated(subscriptionId);
+            return;
+        }
+        emit keyErrorOccurred(tr("Connection failed, try again"));
     });
 }
