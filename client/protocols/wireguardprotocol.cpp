@@ -2,7 +2,6 @@
 #include <QFileInfo>
 #include <QProcess>
 #include <QTcpSocket>
-#include <QThread>
 
 #include "wireguardprotocol.h"
 #include "core/networkUtilities.h"
@@ -52,8 +51,8 @@ WireguardProtocol::WireguardProtocol(const QJsonObject &configuration, QObject *
 
     connect(m_impl.get(), &ControllerImpl::disconnected, this,
             [this]() {
-                setConnectionState(Vpn::ConnectionState::Disconnected);
                 m_statsTimer.stop();
+                setConnectionState(Vpn::ConnectionState::Disconnected);
             });
 
     // desktop daemon reports cumulative rx/tx only on a status request —
@@ -76,8 +75,9 @@ WireguardProtocol::WireguardProtocol(const QJsonObject &configuration, QObject *
 
 WireguardProtocol::~WireguardProtocol()
 {
+    m_statsTimer.stop();
+    QObject::disconnect(m_impl.get(), nullptr, this, nullptr);
     WireguardProtocol::stop();
-    QThread::msleep(200);
 }
 
 void WireguardProtocol::stop()

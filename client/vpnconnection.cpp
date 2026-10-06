@@ -167,17 +167,19 @@ void VpnConnection::onConnectionStateChanged(Vpn::ConnectionState state)
             } break;
             case Vpn::ConnectionState::Disconnected:
             case Vpn::ConnectionState::Error: {
-                auto flushDns = iface->flushDns();
-                if (flushDns.waitForFinished() && flushDns.returnValue())
-                    qDebug() << "VpnConnection::onConnectionStateChanged: Successfully flushed DNS";
-                else
-                    qWarning() << "VpnConnection::onConnectionStateChanged: Failed to flush DNS";
+                QTimer::singleShot(0, this, [iface]() {
+                    auto flushDns = iface->flushDns();
+                    if (flushDns.waitForFinished() && flushDns.returnValue())
+                        qDebug() << "VpnConnection::onConnectionStateChanged: Successfully flushed DNS";
+                    else
+                        qWarning() << "VpnConnection::onConnectionStateChanged: Failed to flush DNS";
 
-                auto clearSavedRoutes = iface->clearSavedRoutes();
-                if (clearSavedRoutes.waitForFinished() && clearSavedRoutes.returnValue())
-                    qDebug() << "VpnConnection::onConnectionStateChanged: Successfully cleared saved routes";
-                else
-                    qWarning() << "VpnConnection::onConnectionStateChanged: Failed to clear saved routes";
+                    auto clearSavedRoutes = iface->clearSavedRoutes();
+                    if (clearSavedRoutes.waitForFinished() && clearSavedRoutes.returnValue())
+                        qDebug() << "VpnConnection::onConnectionStateChanged: Successfully cleared saved routes";
+                    else
+                        qWarning() << "VpnConnection::onConnectionStateChanged: Failed to clear saved routes";
+                });
             } break;
             default:
                 break;

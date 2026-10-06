@@ -31,6 +31,10 @@ if errorlevel 1 goto fail
 findstr /C:"Dopamine" "%WORK%\conf\path_windows.go" >NUL
 if errorlevel 1 goto fail
 
+echo Patching UAPI pipe AmneziaWG -^> FRKNWireG ...
+powershell -NoProfile -Command "Get-ChildItem -Path '%WORK%' -Recurse -Filter uapi_windows.go | ForEach-Object { $t = Get-Content $_.FullName -Raw; $t = $t -replace 'AmneziaWG','FRKNWireG'; Set-Content $_.FullName $t -NoNewline }"
+if errorlevel 1 goto fail
+
 cd /d "%WORK%"
 echo Building (downloads Go + llvm-mingw on first run, takes a while) ...
 call build.cmd

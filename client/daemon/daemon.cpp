@@ -486,6 +486,9 @@ bool Daemon::parseConfig(const QJsonObject& obj, InterfaceConfig& config) {
 
 bool Daemon::deactivate(bool emitSignals) {
   Q_ASSERT(wgutils() != nullptr);
+  if (m_deactivating)
+    return true;
+  m_deactivating = true;
 
   // stop the handshake polling first — otherwise it keeps firing against the
   // dying interface and spams uapi errors on the way down
@@ -528,8 +531,9 @@ bool Daemon::deactivate(bool emitSignals) {
   m_excludedAddrSet.clear();
 
   m_connections.clear();
-  // Delete the interface
-  return wgutils()->deleteInterface();
+  const bool removed = wgutils()->deleteInterface();
+  m_deactivating = false;
+  return removed;
 }
 
 QString Daemon::logs() {

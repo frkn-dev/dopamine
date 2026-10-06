@@ -40,6 +40,7 @@ public:
     IpcServer m_ipcServer;
     QRemoteObjectHost m_serverNode;
     bool m_isRemotingEnabled = false;
+    int m_clientSockets = 0;
 
     NetworkWatcher m_networkWatcher;
 #ifdef Q_OS_LINUX

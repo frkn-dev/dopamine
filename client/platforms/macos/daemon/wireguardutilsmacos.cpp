@@ -19,7 +19,8 @@
 #include "killswitch.h"
 
 constexpr const int WG_TUN_PROC_TIMEOUT = 5000;
-constexpr const char* WG_RUNTIME_DIR = "/var/run/amneziawg";
+constexpr const char* WG_RUNTIME_DIR = "/var/run/frkn";
+constexpr const char* WG_TUN_NAME_FILE = "frkn.name";
 
 namespace {
 Logger logger("WireguardUtilsMacos");
@@ -70,7 +71,7 @@ bool WireguardUtilsMacos::addInterface(const InterfaceConfig& config) {
   }
 
   QProcessEnvironment pe = QProcessEnvironment::systemEnvironment();
-  QString wgNameFile = wgRuntimeDir.filePath(QString(WG_INTERFACE) + ".name");
+  QString wgNameFile = wgRuntimeDir.filePath(QString(WG_TUN_NAME_FILE));
   pe.insert("WG_TUN_NAME_FILE", wgNameFile);
 #ifdef MZ_DEBUG
   pe.insert("LOG_LEVEL", "debug");
@@ -229,7 +230,7 @@ bool WireguardUtilsMacos::deleteInterface() {
 
   // Garbage collect.
   QDir wgRuntimeDir(WG_RUNTIME_DIR);
-  QFile::remove(wgRuntimeDir.filePath(QString(WG_INTERFACE) + ".name"));
+  QFile::remove(wgRuntimeDir.filePath(QString(WG_TUN_NAME_FILE)));
 
   // double-check + ensure our firewall is installed and enabled
   KillSwitch::instance()->disableKillSwitch();

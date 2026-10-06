@@ -165,7 +165,7 @@ $OUT_APP_DIR/android-build/gradlew \
 if [[ -v CI || -v MOVE_RESULT ]]; then
   echo "Moving APK/AAB..."
   if [ -v AAB ]; then
-    mv -u $OUT_APP_DIR/android-build/build/outputs/bundle/$BUILD_TYPE/FRKN-$BUILD_TYPE.aab \
+    mv $OUT_APP_DIR/android-build/build/outputs/bundle/$BUILD_TYPE/FRKN-$BUILD_TYPE.aab \
        $PROJECT_DIR/deploy/build/
   fi
 
@@ -182,7 +182,7 @@ if [[ -v CI || -v MOVE_RESULT ]]; then
     IFS=';' read -r -a abi_array <<< "$ABIS"
     for ABI in "${abi_array[@]}"
     do
-      mv -u $OUT_APP_DIR/android-build/build/outputs/apk/$BUILD_TYPE/FRKN-$ABI-$suffix.apk \
+      mv $OUT_APP_DIR/android-build/build/outputs/apk/$BUILD_TYPE/FRKN-$ABI-$suffix.apk \
        $PROJECT_DIR/deploy/build/
     done
   fi

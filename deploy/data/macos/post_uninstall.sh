@@ -51,10 +51,10 @@ rm -rf "$CACHES_FOLDER"
 sudo rm -rf "/Library/Application Support/${APP_NAME}/pf"
 
 # ---------------- PF firewall cleanup ----------------------
-# Rules are loaded under the anchor "amn" (see macosfirewall.cpp)
+# Rules are loaded under the anchor "frkn" (see macosfirewall.cpp)
 # Flush only that anchor to avoid destroying user/system rules.
 
-PF_ANCHOR="amn"
+PF_ANCHOR="frkn"
 
 ### Flush all PF rules, NATs, and tables under our anchor and sub-anchors ###
 anchors=$(sudo pfctl -s Anchors 2>/dev/null | awk '/^'"${PF_ANCHOR}"'/ {sub(/\*$/, "", $1); print $1}')

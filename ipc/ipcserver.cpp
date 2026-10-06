@@ -150,6 +150,7 @@ bool IpcServer::createTun(const QString &dev, const QString &subnet)
     qDebug() << "IpcServer::createTun";
 #endif
 
+    m_tunDevice = dev;
     return Router::createTun(dev, subnet);
 }
 
@@ -310,4 +311,22 @@ bool IpcServer::xrayStop()
 #endif
 
     return Xray::getInstance().stopXray();
+}
+
+void IpcServer::releaseOrphanSession()
+{
+    disableKillSwitch();
+    StartRoutingIpv6();
+    restoreResolvers();
+    clearSavedRoutes();
+    flushDns();
+    if (!m_tunDevice.isEmpty()) {
+        deleteTun(m_tunDevice);
+        m_tunDevice.clear();
+    }
+    xrayStop();
+    for (auto it = m_processes.begin(); it != m_processes.end(); ++it) {
+        if (it->ipcProcess)
+            it->ipcProcess->kill();
+    }
 }

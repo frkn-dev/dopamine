@@ -52,13 +52,13 @@ void MacOSUtils::enableLoginItem(bool startAtBoot) {
 
     if (startAtBoot) {
       if (![[SMAppService mainAppService] registerAndReturnError: & error]) {
-        logger.error() << "Failed to register Amnezia VPN LoginItem: " << error.localizedDescription;
+        logger.error() << "Failed to register Dopamine LoginItem: " << error.localizedDescription;
       } else {
-        logger.debug() << "Amnezia VPN LoginItem registered successfully.";
+        logger.debug() << "Dopamine LoginItem registered successfully.";
       }
     } else {
       if (![[SMAppService mainAppService] unregisterAndReturnError: & error]) {
-        logger.error() << "Failed to unregister Amnezia VPN LoginItem: " << error.localizedDescription;
+        logger.error() << "Failed to unregister Dopamine LoginItem: " << error.localizedDescription;
       } else {
         logger.debug() << "LoginItem unregistered successfully.";
       }

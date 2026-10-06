@@ -11,6 +11,7 @@
 #endif
 
 #include <QApplication>
+#include <QCursor>
 #include <QDesktopServices>
 #include <QIcon>
 #include <QWindow>
@@ -50,7 +51,9 @@ SystemTrayNotificationHandler::SystemTrayNotificationHandler(QObject* parent) :
                                        this,
                                        [&](){ qApp->quit(); });
 
+#ifndef Q_OS_MAC
     m_systemTrayIcon.setContextMenu(&m_menu);
+#endif
     setTrayState(Vpn::ConnectionState::Disconnected);
 }
 
@@ -96,7 +99,10 @@ void SystemTrayNotificationHandler::setTrayIcon(const QString &iconPath)
 
 void SystemTrayNotificationHandler::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
 {
-#ifndef Q_OS_MAC
+#ifdef Q_OS_MAC
+    if (reason == QSystemTrayIcon::Trigger || reason == QSystemTrayIcon::Context)
+        m_menu.popup(QCursor::pos());
+#else
     if(reason == QSystemTrayIcon::DoubleClick || reason == QSystemTrayIcon::Trigger) {
         emit raiseRequested();
     }

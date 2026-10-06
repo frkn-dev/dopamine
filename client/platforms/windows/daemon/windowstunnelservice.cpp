@@ -20,7 +20,7 @@
 // (ipc.UAPIListen(name) in amneziawg-go).
 #define TUNNEL_NAMED_PIPE_PREFIX \
   "\\\\."                        \
-  "\\pipe\\ProtectedPrefix\\Administrators\\AmneziaWG\\"
+  "\\pipe\\ProtectedPrefix\\Administrators\\FRKNWireG\\"
 
 constexpr uint32_t WINDOWS_TUNNEL_MONITOR_TIMEOUT_MSEC = 2000;
 
@@ -38,6 +38,23 @@ WindowsTunnelService::WindowsTunnelService(QObject* parent) : QObject(parent) {
   m_scm = OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
   if (m_scm == nullptr) {
     WindowsUtils::windowsLog("Failed to open SCManager");
+  } else {
+    SC_HANDLE legacy = OpenService((SC_HANDLE)m_scm, L"AmneziaWGTunnel$AmneziaVPN",
+                                   SERVICE_ALL_ACCESS);
+    if (legacy) {
+      DWORD need = 0;
+      QueryServiceConfigW(legacy, nullptr, 0, &need);
+      QByteArray buf(static_cast<int>(need), 0);
+      auto* cfg = reinterpret_cast<QUERY_SERVICE_CONFIGW*>(buf.data());
+      if (need > 0 && QueryServiceConfigW(legacy, cfg, need, &need)) {
+        const QString bin = QString::fromWCharArray(cfg->lpBinaryPathName);
+        if (bin.contains(QStringLiteral("Dopamine"), Qt::CaseInsensitive)) {
+          logger.info() << "Removing previous Dopamine tunnel service.";
+          stopAndDeleteTunnelService(legacy);
+        }
+      }
+      CloseServiceHandle(legacy);
+    }
   }
 
   // Is the service already running? Terminate it.
@@ -152,7 +169,7 @@ bool WindowsTunnelService::start(const QString& configData) {
 
   logger.debug() << "Service:" << qApp->applicationFilePath();
 
-  service = CreateService(scm, TUNNEL_SERVICE_NAME, L"Amnezia VPN (tunnel)",
+  service = CreateService(scm, TUNNEL_SERVICE_NAME, L"Dopamine (tunnel)",
                           SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS,
                           SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL,
                           (const wchar_t*)serviceCmdline.utf16(), nullptr, 0,
@@ -163,7 +180,7 @@ bool WindowsTunnelService::start(const QString& configData) {
   }
 
   SERVICE_DESCRIPTION sd = {
-      (wchar_t*)L"Manages the Amnezia VPN tunnel connection"};
+      (wchar_t*)L"Manages the Dopamine tunnel connection"};
 
   if (!ChangeServiceConfig2(service, SERVICE_CONFIG_DESCRIPTION, &sd)) {
     WindowsUtils::windowsLog(

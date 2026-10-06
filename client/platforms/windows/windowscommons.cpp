@@ -111,7 +111,7 @@ QString WindowsCommons::getTunnelLogFilePath() {
     QDir programFilesDir(programFilesPath);
 
     if (programFilesDir.exists()) {
-      for (const char* dir : {WIREGUARD_DIR, WIREGUARD_DIR_LEGACY}) {
+      for (const char* dir : {WIREGUARD_DIR, "FRKNWireG", WIREGUARD_DIR_LEGACY}) {
         QDir wireGuardDir(programFilesDir.filePath(dir));
 
         if (wireGuardDir.exists()) {

@@ -39,7 +39,7 @@ typedef struct wg_allowedip {
     struct wg_allowedip *next_allowedip;
 } wg_allowedip;
 
-constexpr const char* WG_INTERFACE = "amn0";
+constexpr const char* WG_INTERFACE = "frkn0";
 
 static void nlmsg_append_attr(struct nlmsghdr* nlmsg, size_t maxlen,
                               int attrtype, const void* attrdata,

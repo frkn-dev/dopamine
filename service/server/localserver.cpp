@@ -6,6 +6,7 @@
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QObject>
+#include <QTimer>
 #include <QSharedPointer>
 #include <QString>
 
@@ -31,7 +32,22 @@ LocalServer::LocalServer(QObject *parent) : QObject(parent),
 
     QObject::connect(m_server.data(), &QLocalServer::newConnection, this, [this]() {
         qDebug() << "LocalServer new connection";
-        m_serverNode.addHostSideConnection(m_server->nextPendingConnection());
+        QLocalSocket *socket = m_server->nextPendingConnection();
+        if (!socket)
+            return;
+        ++m_clientSockets;
+        QObject::connect(socket, &QLocalSocket::disconnected, this, [this]() {
+            if (--m_clientSockets > 0)
+                return;
+            QTimer::singleShot(1000, this, [this]() {
+                if (m_clientSockets > 0)
+                    return;
+                m_ipcServer.releaseOrphanSession();
+                if (Daemon *daemon = Daemon::instance())
+                    daemon->deactivate(false);
+            });
+        });
+        m_serverNode.addHostSideConnection(socket);
 
         if (!m_isRemotingEnabled) {
             m_isRemotingEnabled = true;

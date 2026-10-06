@@ -189,7 +189,7 @@
         <translation>Подключено</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="1110"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1109"/>
         <source>Preparing...</source>
         <translation>Подготовка...</translation>
     </message>
@@ -210,7 +210,7 @@
         <translation type="vanished">не удалось создать конфигурацию</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="1085"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1084"/>
         <source>Reconnecting...</source>
         <translation>Переподключение...</translation>
     </message>
@@ -222,14 +222,14 @@
         <location filename="../ui/controllers/connectionController.cpp" line="966"/>
         <location filename="../ui/controllers/connectionController.cpp" line="992"/>
         <location filename="../ui/controllers/connectionController.cpp" line="1032"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="1096"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="1115"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="1122"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1095"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1114"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1121"/>
         <source>Connect</source>
         <translation>Подключиться</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="1105"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1104"/>
         <source>Disconnecting...</source>
         <translation>Отключение...</translation>
     </message>
@@ -3538,9 +3538,8 @@ Already installed containers were found on the server. All installed containers 
         <translation>Вставьте ключ или конфиг WireGuard/Amnezia, добавьте файл или отсканируйте QR-код</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="242"/>
         <source>Key or config</source>
-        <translation>Ключ или конфиг</translation>
+        <translation type="vanished">Ключ или конфиг</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="243"/>
@@ -5653,32 +5652,32 @@ This means that AmneziaWG keeps the fast performance of the original while addin
 <context>
     <name>SystemTrayNotificationHandler</name>
     <message>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="34"/>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="76"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="35"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="79"/>
         <source>Show</source>
         <translation>Показать</translation>
     </message>
     <message>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="38"/>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="77"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="39"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="80"/>
         <source>Connect</source>
         <translation>Подключиться</translation>
     </message>
     <message>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="39"/>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="78"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="40"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="81"/>
         <source>Disconnect</source>
         <translation>Отключиться</translation>
     </message>
     <message>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="43"/>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="79"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="44"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="82"/>
         <source>Visit Website</source>
         <translation>Посетить сайт</translation>
     </message>
     <message>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="49"/>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="80"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="50"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="83"/>
         <source>Quit</source>
         <translation>Закрыть</translation>
     </message>
@@ -5686,7 +5685,7 @@ This means that AmneziaWG keeps the fast performance of the original while addin
 <context>
     <name>TextFieldWithHeaderType</name>
     <message>
-        <location filename="../ui/qml/Controls2/TextFieldWithHeaderType.qml" line="136"/>
+        <location filename="../ui/qml/Controls2/TextFieldWithHeaderType.qml" line="138"/>
         <source>The field can&apos;t be empty</source>
         <translation>Поле не может быть пустым</translation>
     </message>
@@ -5694,7 +5693,7 @@ This means that AmneziaWG keeps the fast performance of the original while addin
 <context>
     <name>VpnConnection</name>
     <message>
-        <location filename="../vpnconnection.cpp" line="784"/>
+        <location filename="../vpnconnection.cpp" line="786"/>
         <source>Mbps</source>
         <translation>Мбит/с</translation>
     </message>

@@ -92,7 +92,6 @@ jobs:
 # ------------------------------------------------------
 
   Build-Windows:
-    if: false
     runs-on: windows-latest
 
     env:
@@ -199,7 +198,6 @@ jobs:
 # ------------------------------------------------------
 
   Build-iOS:
-    if: false
     runs-on: macos-latest
 
     env:
@@ -301,7 +299,6 @@ jobs:
 # ------------------------------------------------------
 
   Build-MacOS-old:
-    if: false
     runs-on: macos-latest
 
     env:
@@ -380,7 +377,6 @@ jobs:
 # ------------------------------------------------------
 
   Build-MacOS:
-    if: false
     runs-on: macos-latest
 
     env:
@@ -470,7 +466,6 @@ jobs:
         retention-days: 1
 
   Build-MacOS-NE:
-    if: false
     runs-on: macos-latest
 
     env:
@@ -551,7 +546,6 @@ jobs:
 # ------------------------------------------------------
 
   Build-Android:
-    if: false
     runs-on: ubuntu-latest
 
     env:
@@ -727,7 +721,6 @@ jobs:
         retention-days: 1
 
   Extra:
-    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Search a corresponding PR

@@ -44,6 +44,7 @@ public:
     virtual bool restoreResolvers() override;
     virtual bool xrayStart(const QString& cfg) override;
     virtual bool xrayStop() override;
+    void releaseOrphanSession();
     virtual bool startNetworkCheck(const QString& serverIpv4Gateway, const QString& deviceIpv4Address) override;
     virtual bool stopNetworkCheck() override;
 
@@ -64,6 +65,7 @@ private:
 
     QMap<int, ProcessDescriptor> m_processes;
     PingHelper m_pingHelper;
+    QString m_tunDevice;
 };
 
 #endif // IPCSERVER_H

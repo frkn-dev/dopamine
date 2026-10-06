@@ -88,6 +88,7 @@ class Daemon : public QObject {
   QMap<InterfaceConfig::HopType, ConnectionState> m_connections;
   QHash<IPAddress, int> m_excludedAddrSet;
   QTimer m_handshakeTimer;
+  bool m_deactivating = false;
 };
 
 #endif  // DAEMON_H

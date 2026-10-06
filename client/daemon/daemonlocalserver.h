@@ -21,6 +21,7 @@ class DaemonLocalServer final : public QObject {
 
  private:
   QLocalServer m_server;
+  int m_clientSockets = 0;
 };
 
 #endif  // DAEMONLOCALSERVER_H
