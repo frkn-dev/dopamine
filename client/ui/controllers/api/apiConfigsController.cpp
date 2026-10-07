@@ -1726,7 +1726,7 @@ void ApiConfigsController::revokeShare(const QString &shareToken)
 void ApiConfigsController::refreshSubscriptionConfigs()
 {
     const qint64 now = QDateTime::currentSecsSinceEpoch();
-    if (now - m_settings->lastSubscriptionRefresh() < 6 * 60 * 60) {
+    if (now - m_settings->lastSubscriptionRefresh() < 3 * 60 * 60) {
         return;
     }
     if (resolveSubscriptionId().isEmpty()) {
@@ -2532,10 +2532,6 @@ void ApiConfigsController::reloadSubscriptionConfigs(bool silent)
                              + apiConfig.value(QStringLiteral("node_id")).toString());
         }
 
-        const qint64 now = QDateTime::currentSecsSinceEpoch();
-        constexpr qint64 absentRemoveAfterSecs = 6 * 60 * 60;
-        QVariantMap absentSince = m_settings->absentSubscriptionNodes();
-        QVariantMap absentNext;
         for (int i = m_serversModel->getServersCount() - 1; i >= 0; --i) {
             const QJsonObject serverConfig = m_serversModel->getServerConfig(i);
             const QJsonObject apiConfig = serverConfig.value(configKey::apiConfig).toObject();
@@ -2547,16 +2543,10 @@ void ApiConfigsController::reloadSubscriptionConfigs(bool silent)
             if (freshKeys.contains(key) || m_subscriptionConfigFailures.contains(key)) {
                 continue;
             }
-            const qint64 since = absentSince.value(key).toLongLong();
-            if (since <= 0 || now - since < absentRemoveAfterSecs) {
-                absentNext.insert(key, since > 0 ? since : now);
-                qDebug() << "[SUBSCRIPTION] node missing from subscription, keeping" << key;
-                continue;
-            }
-            qDebug() << "[SUBSCRIPTION] removing node absent for" << (now - since) << "s" << key;
+            qDebug() << "[SUBSCRIPTION] removing node missing from subscription" << key;
             m_serversModel->removeServer(i);
         }
-        m_settings->setAbsentSubscriptionNodes(absentNext);
+        m_settings->setAbsentSubscriptionNodes({});
 
         bool anyInstalled = false;
         for (int i = 0; i < m_subscriptionConfigs.size(); ++i) {
@@ -2660,18 +2650,29 @@ bool ApiConfigsController::installSubscriptionConfig(int index)
                 continue;
             }
             sameConnection = true;
-            if (!existingServer.value(config_key::nameOverriddenByUser).toBool() && !serverName.isEmpty()
-                && serverName != existingServer.value(config_key::name).toString()) {
-                existingServer.insert(config_key::name, serverName);
-                const QString freshDescription = serverConfig.value(config_key::description).toString();
-                if (!freshDescription.isEmpty()) {
-                    existingServer.insert(config_key::description, freshDescription);
-                }
-                m_serversModel->editServer(existingServer, i);
-                qDebug() << "[SUBSCRIPTION] renamed" << connectionUuid << nodeId << "to" << serverName;
+            const QString previousHost = existingServer.value(config_key::hostName).toString();
+            existingServer.insert(config_key::hostName, serverConfig.value(config_key::hostName));
+            existingServer.insert(config_key::dns1, serverConfig.value(config_key::dns1));
+            existingServer.insert(config_key::dns2, serverConfig.value(config_key::dns2));
+            existingServer.insert(config_key::containers, serverConfig.value(config_key::containers));
+            existingServer.insert(configKey::apiConfig, apiConfig);
+            existingServer.insert(configKey::authData, serverConfig.value(configKey::authData));
+            existingServer.insert(QStringLiteral("displayInfo"), serverConfig.value(QStringLiteral("displayInfo")));
+            if (serverConfig.contains(QStringLiteral("node_ips"))) {
+                existingServer.insert(QStringLiteral("node_ips"), serverConfig.value(QStringLiteral("node_ips")));
             } else {
-                qDebug() << "[SUBSCRIPTION] already installed:" << serverName << connectionUuid << nodeId;
+                existingServer.remove(QStringLiteral("node_ips"));
             }
+            const QString freshDescription = serverConfig.value(config_key::description).toString();
+            if (!freshDescription.isEmpty()) {
+                existingServer.insert(config_key::description, freshDescription);
+            }
+            if (!existingServer.value(config_key::nameOverriddenByUser).toBool() && !serverName.isEmpty()) {
+                existingServer.insert(config_key::name, serverName);
+            }
+            m_serversModel->editServer(existingServer, i);
+            qDebug() << "[SUBSCRIPTION] updated" << serverName << connectionUuid << nodeId
+                     << previousHost << "->" << existingServer.value(config_key::hostName).toString();
             break;
         }
     }

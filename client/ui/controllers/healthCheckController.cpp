@@ -15,9 +15,6 @@
 #include "core/api/apiUtils.h"
 
 #if defined(Q_OS_IOS) || defined(Q_OS_MACOS)
-// from libwg-go.a (api-probe.go): blocking WG/AWG handshake probe, returns RTT ms or -1
-extern "C" int WgProbeRTT(const char *host, int port, const char *clientPrivKeyB64, const char *serverPubKeyB64,
-                          const char *pskB64, const char *junkParamsJSON, int timeoutMs);
 // from libwg-go.a (api-xray.go): full-path probe — starts a real xray instance with
 // the given config and measures an HTTP request through it; returns C string
 // "delayMs:error" (empty error on success), caller frees
@@ -56,8 +53,7 @@ static QString libXrayPingAndroid(const QString &configPath, int timeoutSec, con
 }
 #endif
 
-// OpenSSL Noise_IK probe where libwg-go is unavailable (Android, Windows)
-#if defined(Q_OS_ANDROID) || defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+#if defined(Q_OS_IOS) || defined(Q_OS_MACOS) || defined(Q_OS_ANDROID) || defined(Q_OS_WIN) || defined(Q_OS_LINUX)
 #include "core/wgHandshakeProbe.h"
 #endif
 
@@ -197,8 +193,6 @@ void HealthCheckController::startProbe(bool force)
     }
 
 #if defined(Q_OS_IOS) || defined(Q_OS_MACOS) || defined(Q_OS_ANDROID) || defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-    // collect awg/wireguard targets: blocking handshake probe on worker threads
-    // (libwg-go on Apple platforms, core/wgHandshakeProbe on Android/Windows/Linux)
     for (int i = 0; i < count; ++i) {
         const QString protocol = m_serversModel->data(i, ServersModel::Roles::ServiceProtocolRole).toString();
         if (protocol != QStringLiteral("awg") && protocol != QStringLiteral("wireguard")) {
@@ -231,12 +225,48 @@ void HealthCheckController::startProbe(bool force)
             continue;
         }
 
-        // AWG junk params (plain WG has none -> "{}"): last_config keys are
-        // the short wg-quick names already (Jc, Jmin, ..., H1..H4, I1..I5)
+        auto jsonText = [](const QJsonValue &value) {
+            if (value.isString()) {
+                return value.toString().trimmed();
+            }
+            if (value.isDouble()) {
+                return QString::number(static_cast<qint64>(value.toDouble()));
+            }
+            return QString();
+        };
+        QJsonObject params = lastConfig;
+        const QList<QPair<QString, QString>> aliases = {
+            { QStringLiteral("junkPacketCount"), QStringLiteral("Jc") },
+            { QStringLiteral("junkPacketMinSize"), QStringLiteral("Jmin") },
+            { QStringLiteral("junkPacketMaxSize"), QStringLiteral("Jmax") },
+            { QStringLiteral("initPacketJunkSize"), QStringLiteral("S1") },
+            { QStringLiteral("responsePacketJunkSize"), QStringLiteral("S2") },
+            { QStringLiteral("cookieReplyPacketJunkSize"), QStringLiteral("S3") },
+            { QStringLiteral("transportPacketJunkSize"), QStringLiteral("S4") },
+            { QStringLiteral("initPacketMagicHeader"), QStringLiteral("H1") },
+            { QStringLiteral("responsePacketMagicHeader"), QStringLiteral("H2") },
+            { QStringLiteral("underloadPacketMagicHeader"), QStringLiteral("H3") },
+            { QStringLiteral("transportPacketMagicHeader"), QStringLiteral("H4") },
+            { QStringLiteral("specialJunk1"), QStringLiteral("I1") },
+            { QStringLiteral("specialJunk2"), QStringLiteral("I2") },
+            { QStringLiteral("specialJunk3"), QStringLiteral("I3") },
+            { QStringLiteral("specialJunk4"), QStringLiteral("I4") },
+            { QStringLiteral("specialJunk5"), QStringLiteral("I5") },
+            { QStringLiteral("headerProtectionKey"), QStringLiteral("HeaderProtectionKey") },
+        };
+        for (const auto &alias : aliases) {
+            if (!jsonText(params.value(alias.second)).isEmpty()) {
+                continue;
+            }
+            const QString value = jsonText(params.value(alias.first));
+            if (!value.isEmpty()) {
+                params.insert(alias.second, value);
+            }
+        }
         QJsonObject junk;
         for (const char *key : { "Jc", "Jmin", "Jmax", "S1", "S2", "S3", "S4", "H1", "H2", "H3", "H4",
                                  "I1", "I2", "I3", "I4", "I5", "HeaderProtectionKey" }) {
-            const QString value = lastConfig.value(QString::fromLatin1(key)).toString();
+            const QString value = jsonText(params.value(QString::fromLatin1(key)));
             if (!value.isEmpty()) {
                 junk.insert(QString::fromLatin1(key), value);
             }
@@ -575,19 +605,9 @@ void HealthCheckController::startNextWg()
         });
 
         watcher->setFuture(QtConcurrent::run([target]() -> int {
-#if defined(Q_OS_ANDROID) || defined(Q_OS_WIN) || defined(Q_OS_LINUX)
             const QJsonObject junk = QJsonDocument::fromJson(target.junkParamsJson.toUtf8()).object();
             return wgProbeHandshakeRTT(target.host, target.port, target.clientPrivKey, target.serverPubKey,
                                        target.psk, junk, kWgTimeoutMs);
-#else
-            const QByteArray host = target.host.toUtf8();
-            const QByteArray privKey = target.clientPrivKey.toUtf8();
-            const QByteArray pubKey = target.serverPubKey.toUtf8();
-            const QByteArray psk = target.psk.toUtf8();
-            const QByteArray junk = target.junkParamsJson.toUtf8();
-            return WgProbeRTT(host.constData(), static_cast<int>(target.port), privKey.constData(), pubKey.constData(),
-                              psk.constData(), junk.constData(), kWgTimeoutMs);
-#endif
         }));
     }
 #endif
