@@ -170,6 +170,21 @@ scp -i ~/.ssh/dopamine_win \
 Деплой сайта — отдельно, только после локальной проверки сборок. На сервер
 уходят обе страницы: `dopamine/index.html` и `dopamine/en/index.html`.
 
+Десктопный клиент сам проверяет `https://frkn.org/dopamine/updates.json`.
+Рядом с файлами положи манифест (sha256 считается от локальных пакетов,
+в url попадает только имя файла):
+
+```bash
+bash deploy/write_updates_json.sh 4.8.14.62 ~/c/f/frkn.org/dopamine/updates.json \
+  --windows Dopamine-4.8.14.62-win64.msi \
+  --macos-arm64 Dopamine-arm64-4.8.14.62.pkg \
+  --macos-x86_64 Dopamine-intel-4.8.14.62.pkg
+```
+
+Linux-пакет опционален: `--linux Dopamine-4.8.14.62-linux.bin`. Пока
+`updates.json` не задеплоен, тихая проверка при старте ничего не показывает,
+а кнопка «Проверить обновления» сообщит, что сервер недоступен.
+
 ## Типовые грабли
 
 - **iOS**: `Dopamine-Swift.h file not found` после правок в common/logger —

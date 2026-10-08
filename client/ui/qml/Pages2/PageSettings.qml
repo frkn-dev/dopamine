@@ -157,7 +157,10 @@ PageType {
         readonly property string leftImagePath: "qrc:/images/controls/app.svg"
         property bool isVisible: true
         readonly property var clickedHandler: function() {
-            Qt.openUrlExternally("https://frkn.org/dopamine")
+            if (AppUpdateController.supported)
+                PageController.goToPage(PageEnum.PageSettingsAbout)
+            else
+                Qt.openUrlExternally("https://frkn.org/dopamine")
         }
     }
 

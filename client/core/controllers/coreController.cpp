@@ -110,6 +110,9 @@ void CoreController::initControllers()
             new ConnectionController(m_serversModel, m_containersModel, m_vpnConnection, m_settings));
     m_engine->rootContext()->setContextProperty("ConnectionController", m_connectionController.get());
 
+    m_appUpdateController.reset(new AppUpdateController(m_connectionController.get(), m_languageModel.get()));
+    m_engine->rootContext()->setContextProperty("AppUpdateController", m_appUpdateController.get());
+
     m_pageController.reset(new PageController(m_serversModel, m_settings));
     m_engine->rootContext()->setContextProperty("PageController", m_pageController.get());
 

@@ -147,6 +147,13 @@ file(GLOB UI_CONTROLLERS_CPP CONFIGURE_DEPENDS
 # Ensure keyActivationController is always included (GLOB may miss it on some platforms)
 list(APPEND UI_CONTROLLERS_H ${CLIENT_ROOT_DIR}/ui/controllers/keyActivationController.h)
 list(APPEND UI_CONTROLLERS_CPP ${CLIENT_ROOT_DIR}/ui/controllers/keyActivationController.cpp)
+list(APPEND UI_CONTROLLERS_H ${CLIENT_ROOT_DIR}/ui/controllers/appUpdateController.h)
+list(APPEND UI_CONTROLLERS_CPP ${CLIENT_ROOT_DIR}/ui/controllers/appUpdateController.cpp)
+if(WIN32)
+    list(APPEND UI_CONTROLLERS_CPP ${CLIENT_ROOT_DIR}/ui/controllers/appUpdateWinTrust.cpp)
+endif()
+list(REMOVE_DUPLICATES UI_CONTROLLERS_H)
+list(REMOVE_DUPLICATES UI_CONTROLLERS_CPP)
 
 set(HEADERS ${HEADERS}
     ${COMMON_FILES_H}
