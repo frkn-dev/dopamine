@@ -21,6 +21,7 @@ public:
 
     ErrorCode start() override;
     void stop() override;
+    void requestStatus() override;
 
     ErrorCode startMzImpl();
     ErrorCode stopMzImpl();

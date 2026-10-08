@@ -317,6 +317,8 @@ void CoreController::initNotificationHandler()
             &NotificationHandler::setConnectionState);
 
     connect(m_notificationHandler.get(), &NotificationHandler::raiseRequested, m_pageController.get(), &PageController::raiseMainWindow);
+    connect(m_pageController.get(), &PageController::raiseMainWindow, m_vpnConnection.get(), &VpnConnection::refreshTunnel,
+            Qt::QueuedConnection);
     connect(m_notificationHandler.get(), &NotificationHandler::connectRequested, m_connectionController.get(),
             static_cast<void (ConnectionController::*)()>(&ConnectionController::openConnection));
     connect(m_notificationHandler.get(), &NotificationHandler::disconnectRequested, m_connectionController.get(),
