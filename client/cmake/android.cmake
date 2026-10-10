@@ -33,6 +33,7 @@ link_directories(${CMAKE_CURRENT_SOURCE_DIR}/platforms/android)
 set(HEADERS ${HEADERS}
     ${CMAKE_CURRENT_SOURCE_DIR}/platforms/android/android_controller.h
     ${CMAKE_CURRENT_SOURCE_DIR}/platforms/android/android_utils.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/platforms/android/meshBridgeWrapper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/protocols/android_vpnprotocol.h
     ${CMAKE_CURRENT_SOURCE_DIR}/core/installedAppsImageProvider.h
 )
@@ -40,6 +41,7 @@ set(HEADERS ${HEADERS}
 set(SOURCES ${SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/platforms/android/android_controller.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/platforms/android/android_utils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/platforms/android/meshBridgeWrapper.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/protocols/android_vpnprotocol.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/core/installedAppsImageProvider.cpp
 )

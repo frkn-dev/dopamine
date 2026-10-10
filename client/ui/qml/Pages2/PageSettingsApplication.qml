@@ -254,6 +254,24 @@ PageType {
             DividerType {}
 
             LabelWithButtonType {
+                id: labelWithButtonMeshChat
+
+                Layout.fillWidth: true
+
+                visible: SettingsController.isMeshChatEnabled
+
+                text: qsTr("Chat")
+                descriptionText: qsTr("Offline Bluetooth chat with nearby devices")
+                rightImageSource: "qrc:/images/controls/chevron-right.svg"
+
+                clickedFunction: function() {
+                    PageController.goToPage(PageEnum.PageMeshChat)
+                }
+            }
+
+            DividerType {}
+
+            LabelWithButtonType {
                 id: labelWithButtonReloadConfig
 
                 Layout.fillWidth: true

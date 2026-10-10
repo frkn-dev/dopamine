@@ -209,6 +209,19 @@ void CoreController::initControllers()
     m_healthCheckController.reset(new HealthCheckController(m_serversModel, this));
     m_engine->rootContext()->setContextProperty("HealthCheckController", m_healthCheckController.get());
     m_connectionController->setHealthCheckController(m_healthCheckController.get());
+    connect(m_apiConfigsController.get(), &ApiConfigsController::reloadSubscriptionConfigsFinished, this,
+            [this](bool success) {
+                if (!success || m_connectionController->isConnected() || m_connectionController->isConnectionInProgress()) {
+                    return;
+                }
+                m_healthCheckController->startProbe(true);
+            });
+
+    m_meshChatController.reset(new MeshChatController(m_settings, this));
+    m_meshChatController->setSubscriptionIdSource([this]() { return m_apiConfigsController->getSubscriptionId(); });
+    connect(m_apiConfigsController.get(), &ApiConfigsController::subscriptionIdChanged, m_meshChatController.get(),
+            &MeshChatController::onSubscriptionChanged);
+    m_engine->rootContext()->setContextProperty("MeshChatController", m_meshChatController.get());
 
     // probes are only meaningful with the VPN off — once a tunnel comes up, in-flight
     // probes die (their traffic routes into the tunnel) and stale "offline" badges

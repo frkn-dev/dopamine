@@ -517,6 +517,16 @@ Already installed containers were found on the server. All installed containers 
     </message>
 </context>
 <context>
+    <name>MeshChatController</name>
+    <message>
+        <location filename="../ui/controllers/meshChatController.cpp" line="709"/>
+        <location filename="../ui/controllers/meshChatController.cpp" line="895"/>
+        <location filename="../ui/controllers/meshChatController.cpp" line="899"/>
+        <source>me</source>
+        <translation>me</translation>
+    </message>
+</context>
+<context>
     <name>NotificationHandler</name>
     <message>
         <location filename="../ui/notificationhandler.cpp" line="57"/>
@@ -572,17 +582,17 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageHome</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="86"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="108"/>
         <source>Diagnostic Mode Enabled</source>
         <translation>Diagnostic Mode Enabled</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="114"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="136"/>
         <source>Dev gateway enabled</source>
         <translation>Dev gateway enabled</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="314"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="336"/>
         <source>Split tunneling</source>
         <translation>Split tunneling</translation>
     </message>
@@ -591,13 +601,191 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">VPN protocol</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="176"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="198"/>
         <source>Auto-select</source>
         <translation>Auto-select</translation>
     </message>
     <message>
         <source>Servers</source>
         <translation type="vanished">Servers</translation>
+    </message>
+</context>
+<context>
+    <name>PageMeshAbout</name>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshAbout.qml" line="32"/>
+        <source>Chat</source>
+        <translation>Chat</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshAbout.qml" line="56"/>
+        <source>Chat is the last-mile messenger inside Dopamine.</source>
+        <translation>Chat is the last-mile messenger inside Dopamine.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshAbout.qml" line="64"/>
+        <source>Your UIN is a numeric ID, like in ICQ. It is issued once on first launch. No phone number, no email, no name — just the number.</source>
+        <translation>Your UIN is a numeric ID, like in ICQ. It is issued once on first launch. No phone number, no email, no name — just the number.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshAbout.qml" line="72"/>
+        <source>Nearby: messages travel directly over Bluetooth — no internet needed.</source>
+        <translation>Nearby: messages travel directly over Bluetooth — no internet needed.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshAbout.qml" line="80"/>
+        <source>Far away: messages travel through the server end-to-end encrypted — the server sees only ciphertext and stores nothing after delivery.</source>
+        <translation>Far away: messages travel through the server end-to-end encrypted — the server sees only ciphertext and stores nothing after delivery.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshAbout.qml" line="88"/>
+        <source>Conversations are stored only on this device. A new device means a new UIN and an empty chat list — tell your contacts your new number.</source>
+        <translation>Conversations are stored only on this device. A new device means a new UIN and an empty chat list — tell your contacts your new number.</translation>
+    </message>
+</context>
+<context>
+    <name>PageMeshChat</name>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="27"/>
+        <source>No user with this UIN</source>
+        <translation>No user with this UIN</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="30"/>
+        <source>No internet connection — cannot look up the contact</source>
+        <translation>No internet connection — cannot look up the contact</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="62"/>
+        <source>Chat</source>
+        <translation>Chat</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="186"/>
+        <source>Nearby</source>
+        <translation>Nearby</translation>
+    </message>
+    <message>
+        <source>Bluetooth</source>
+        <translation type="vanished">Bluetooth</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="215"/>
+        <source>Add a contact by UIN or find someone nearby</source>
+        <translation>Add a contact by UIN or find someone nearby</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="90"/>
+        <source>My UIN</source>
+        <translation>My UIN</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="33"/>
+        <source>This device is already tied to another subscription</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="91"/>
+        <source>appears when online</source>
+        <translation>appears when online</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="97"/>
+        <source>UIN copied</source>
+        <translation>UIN copied</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="112"/>
+        <source>Your name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="164"/>
+        <source>Add</source>
+        <translation>Add</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="197"/>
+        <source>Bluetooth — tap to add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="234"/>
+        <source>Local name, only on this device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="255"/>
+        <source>Save</source>
+        <translation type="unfinished">Save</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="283"/>
+        <source>No messages yet</source>
+        <translation>No messages yet</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="63"/>
+        <source>No phone number, no email — just your UIN</source>
+        <translation>No phone number, no email — just your UIN</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="142"/>
+        <source>Contact UIN…</source>
+        <translation>Contact UIN…</translation>
+    </message>
+</context>
+<context>
+    <name>PageMeshConversation</name>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshConversation.qml" line="21"/>
+        <source>Peer is unreachable: not in Bluetooth range and no internet</source>
+        <translation>Peer is unreachable: not in Bluetooth range and no internet</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshConversation.qml" line="50"/>
+        <source>offline</source>
+        <translation>offline</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshConversation.qml" line="73"/>
+        <source>Local name, only on this device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshConversation.qml" line="91"/>
+        <source>Save</source>
+        <translation type="unfinished">Save</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshConversation.qml" line="124"/>
+        <source>me</source>
+        <translation>me</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshConversation.qml" line="126"/>
+        <source>not delivered</source>
+        <translation>not delivered</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshConversation.qml" line="152"/>
+        <source>Message</source>
+        <translation>Message</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshConversation.qml" line="173"/>
+        <source>Send</source>
+        <translation>Send</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshConversation.qml" line="48"/>
+        <source>via Bluetooth mesh</source>
+        <translation>via Bluetooth mesh</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshConversation.qml" line="49"/>
+        <source>online — via relay</source>
+        <translation>online — via relay</translation>
     </message>
 </context>
 <context>
@@ -2121,6 +2309,16 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageSettingsApplication</name>
     <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="263"/>
+        <source>Chat</source>
+        <translation>Chat</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="264"/>
+        <source>Offline Bluetooth chat with nearby devices</source>
+        <translation>Offline Bluetooth chat with nearby devices</translation>
+    </message>
+    <message>
         <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="71"/>
         <source>Application</source>
         <translation>Application</translation>
@@ -2209,58 +2407,58 @@ Already installed containers were found on the server. All installed containers 
         <translation>Disabled</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="293"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="311"/>
         <source>Reset settings and remove all data from the application</source>
         <translation>Reset settings and remove all data from the application</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="298"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="316"/>
         <source>Reset settings and remove all data from the application?</source>
         <translation>Reset settings and remove all data from the application?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="299"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="317"/>
         <source>All settings will be reset to default. All installed Dopamine services will still remain on the server.</source>
         <translation>All settings will be reset to default. All installed FRKN services will still remain on the server.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="300"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="318"/>
         <source>Continue</source>
         <translation>Continue</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="268"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="301"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="286"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="319"/>
         <source>Cancel</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="305"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="323"/>
         <source>Cannot reset settings during active connection</source>
         <translation>Cannot reset settings during active connection</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="261"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="279"/>
         <source>Reload all servers from subscription</source>
         <translation>Reload all servers from subscription</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="265"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="283"/>
         <source>Reload all servers from subscription?</source>
         <translation>Reload all servers from subscription?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="266"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="284"/>
         <source>All servers from the current subscription will be removed and downloaded again. Use this if servers stopped working after an update.</source>
         <translation>All servers from the current subscription will be removed and downloaded again. Use this if servers stopped working after an update.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="267"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="285"/>
         <source>Reload</source>
         <translation>Reload</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="272"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="290"/>
         <source>Cannot reload configuration during active connection</source>
         <translation>Cannot reload configuration during active connection</translation>
     </message>
@@ -5300,17 +5498,17 @@ For more detailed information, you can
 <context>
     <name>SettingsController</name>
     <message>
-        <location filename="../ui/controllers/settingsController.cpp" line="227"/>
+        <location filename="../ui/controllers/settingsController.cpp" line="238"/>
         <source>Can&apos;t open file: %1</source>
         <translation>Can&apos;t open file: %1</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/settingsController.cpp" line="290"/>
+        <location filename="../ui/controllers/settingsController.cpp" line="301"/>
         <source>Backup file is corrupted</source>
         <translation>Backup file is corrupted</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/settingsController.cpp" line="313"/>
+        <location filename="../ui/controllers/settingsController.cpp" line="324"/>
         <source>All settings have been reset to default values</source>
         <translation>All settings have been reset to default values</translation>
     </message>
@@ -5378,31 +5576,31 @@ For more detailed information, you can
     <name>SystemTrayNotificationHandler</name>
     <message>
         <location filename="../ui/systemtray_notificationhandler.cpp" line="35"/>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="79"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="101"/>
         <source>Show</source>
         <translation>Show</translation>
     </message>
     <message>
         <location filename="../ui/systemtray_notificationhandler.cpp" line="39"/>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="80"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="102"/>
         <source>Connect</source>
         <translation>Connect</translation>
     </message>
     <message>
         <location filename="../ui/systemtray_notificationhandler.cpp" line="40"/>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="81"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="103"/>
         <source>Disconnect</source>
         <translation>Disconnect</translation>
     </message>
     <message>
         <location filename="../ui/systemtray_notificationhandler.cpp" line="44"/>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="82"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="104"/>
         <source>Visit Website</source>
         <translation>Visit Website</translation>
     </message>
     <message>
         <location filename="../ui/systemtray_notificationhandler.cpp" line="50"/>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="83"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="105"/>
         <source>Quit</source>
         <translation>Quit</translation>
     </message>
@@ -5418,7 +5616,7 @@ For more detailed information, you can
 <context>
     <name>VpnConnection</name>
     <message>
-        <location filename="../vpnconnection.cpp" line="786"/>
+        <location filename="../vpnconnection.cpp" line="800"/>
         <source>Mbps</source>
         <translation>Mbps</translation>
     </message>

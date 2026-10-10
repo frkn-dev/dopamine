@@ -18,6 +18,7 @@ find_library(FW_STOREKIT StoreKit)
 find_library(FW_USERNOTIFICATIONS UserNotifications)
 find_library(FW_NETWORKEXTENSION NetworkExtension)
 find_library(FW_COREMOTION CoreMotion)
+find_library(FW_COREBLUETOOTH CoreBluetooth)
 find_library(FW_LIBRESOLV libresolv.9.tbd)
 
 set(LIBS ${LIBS}
@@ -29,6 +30,7 @@ set(LIBS ${LIBS}
     ${FW_USERNOTIFICATIONS}
     ${FW_NETWORKEXTENSION}
     ${FW_COREMOTION}
+    ${FW_COREBLUETOOTH}
     ${FW_LIBRESOLV}
 )
 
@@ -53,6 +55,7 @@ set(SOURCES ${SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/platforms/ios/QtAppDelegate.mm
     ${CMAKE_CURRENT_SOURCE_DIR}/platforms/ios/StoreKitController.mm
     ${CMAKE_CURRENT_SOURCE_DIR}/platforms/ios/AmneziaSceneDelegateHooks.mm
+    ${CMAKE_CURRENT_SOURCE_DIR}/platforms/ios/meshBridgeWrapper.mm
 )
 
 
@@ -102,6 +105,8 @@ set_target_properties(${PROJECT} PROPERTIES
     XCODE_ATTRIBUTE_SWIFT_PRECOMPILE_BRIDGING_HEADER "NO"
     XCODE_ATTRIBUTE_SWIFT_OBJC_INTERFACE_HEADER_NAME "Dopamine-Swift.h"
     XCODE_ATTRIBUTE_SWIFT_OBJC_INTEROP_MODE "objcxx"
+    # explicit module builds break UIKit.UIMainMenuSystem on the iOS 26 SDK
+    XCODE_ATTRIBUTE_SWIFT_ENABLE_EXPLICIT_MODULES "NO"
 )
 set_target_properties(${PROJECT} PROPERTIES
     XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "455SJ7P6J3"
@@ -122,7 +127,13 @@ target_sources(${PROJECT} PRIVATE
     ${CLIENT_ROOT_DIR}/platforms/ios/LogRecord.swift
     ${CLIENT_ROOT_DIR}/platforms/ios/ScreenProtection.swift
     ${CLIENT_ROOT_DIR}/platforms/ios/VPNCController.swift
+    ${CLIENT_ROOT_DIR}/platforms/ios/MeshBridge.swift
 )
+
+# BitChat BLE mesh core (vendored, upstream files kept intact — see
+# frkn-docs/mesh-messenger-plan.md; re-run cmake configure after adding files)
+file(GLOB_RECURSE MESH_SWIFT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/3rd/bitchat-ios/*.swift)
+target_sources(${PROJECT} PRIVATE ${MESH_SWIFT_SOURCES})
 
 target_sources(${PROJECT} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/ios/app/DopamineLaunchScreen.storyboard

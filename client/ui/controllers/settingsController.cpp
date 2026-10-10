@@ -150,6 +150,17 @@ void SettingsController::setServerPingTextVisible(bool visible)
     emit serverPingTextVisibleChanged();
 }
 
+bool SettingsController::isMeshChatEnabled()
+{
+    return m_settings->isMeshChatEnabled();
+}
+
+void SettingsController::setMeshChatEnabled(bool enabled)
+{
+    m_settings->setMeshChatEnabled(enabled);
+    emit meshChatEnabledChanged();
+}
+
 void SettingsController::toggleLogging(bool enable)
 {
     m_settings->setSaveLogs(enable);

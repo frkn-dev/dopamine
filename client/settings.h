@@ -218,6 +218,60 @@ public:
         m_settings.setValue("Conf/showServerPingText", visible);
     }
 
+    // BitChat mesh chat (MVP) — gated so it can be hidden from store builds
+    bool isMeshChatEnabled() const
+    {
+        return m_settings.value("Conf/meshChatEnabled", true).toBool();
+    }
+    void setMeshChatEnabled(bool enabled)
+    {
+        m_settings.setValue("Conf/meshChatEnabled", enabled);
+    }
+
+    // saved mesh contacts (ICQ-style UIN ids) as a compact JSON array
+    QString meshContacts() const
+    {
+        return m_settings.value("Conf/meshContacts", QString()).toString();
+    }
+    void setMeshContacts(const QString &contacts)
+    {
+        m_settings.setValue("Conf/meshContacts", contacts);
+    }
+
+    // relay-issued numeric id (ICQ-style). One UIN per subscription, shared by
+    // every device that registered under it.
+    QString meshUin() const
+    {
+        return m_settings.value("Conf/meshUin", QString()).toString();
+    }
+    void setMeshUin(const QString &uin)
+    {
+        m_settings.setValue("Conf/meshUin", uin);
+    }
+
+    QString meshApiBase() const
+    {
+        return m_settings.value("Conf/meshApiBase", QStringLiteral("https://mesh.frkn.app/v1/mesh")).toString();
+    }
+
+    QString meshSubscriptionId() const
+    {
+        return m_settings.value("Conf/meshSubscriptionId", QString()).toString();
+    }
+    void setMeshSubscriptionId(const QString &id)
+    {
+        m_settings.setValue("Conf/meshSubscriptionId", id);
+    }
+
+    QString meshDisplayName() const
+    {
+        return m_settings.value("Conf/meshDisplayName", QString()).toString();
+    }
+    void setMeshDisplayName(const QString &name)
+    {
+        m_settings.setValue("Conf/meshDisplayName", name);
+    }
+
     QString splitPresetsVersion() const
     {
         return m_settings.value("Conf/splitPresetsVersion", QString()).toString();

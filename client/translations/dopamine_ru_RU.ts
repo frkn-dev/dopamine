@@ -560,6 +560,16 @@ Already installed containers were found on the server. All installed containers 
     </message>
 </context>
 <context>
+    <name>MeshChatController</name>
+    <message>
+        <location filename="../ui/controllers/meshChatController.cpp" line="709"/>
+        <location filename="../ui/controllers/meshChatController.cpp" line="895"/>
+        <location filename="../ui/controllers/meshChatController.cpp" line="899"/>
+        <source>me</source>
+        <translation>я</translation>
+    </message>
+</context>
+<context>
     <name>NotificationHandler</name>
     <message>
         <location filename="../ui/notificationhandler.cpp" line="57"/>
@@ -615,17 +625,17 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageHome</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="86"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="108"/>
         <source>Diagnostic Mode Enabled</source>
         <translation>Режим диагностики включён</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="114"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="136"/>
         <source>Dev gateway enabled</source>
         <translation>Dev-шлюз включён</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="314"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="336"/>
         <source>Split tunneling</source>
         <translation>Раздельное туннелирование</translation>
     </message>
@@ -634,7 +644,7 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">VPN-протокол</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="176"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="198"/>
         <source>Auto-select</source>
         <translation>Автовыбор</translation>
     </message>
@@ -645,6 +655,184 @@ Already installed containers were found on the server. All installed containers 
     <message>
         <source>Unable change server while there is an active connection</source>
         <translation type="vanished">Невозможно изменить сервер во время активного соединения</translation>
+    </message>
+</context>
+<context>
+    <name>PageMeshAbout</name>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshAbout.qml" line="32"/>
+        <source>Chat</source>
+        <translation>Chat</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshAbout.qml" line="56"/>
+        <source>Chat is the last-mile messenger inside Dopamine.</source>
+        <translation>Chat — мессенджер последней мили внутри Dopamine.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshAbout.qml" line="64"/>
+        <source>Your UIN is a numeric ID, like in ICQ. It is issued once on first launch. No phone number, no email, no name — just the number.</source>
+        <translation>UIN — ваш числовой номер, как в ICQ. Выдаётся один раз при первом запуске. Никакого телефона, почты или имени — только номер.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshAbout.qml" line="72"/>
+        <source>Nearby: messages travel directly over Bluetooth — no internet needed.</source>
+        <translation>Рядом: сообщения идут по Bluetooth напрямую, интернет не нужен.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshAbout.qml" line="80"/>
+        <source>Far away: messages travel through the server end-to-end encrypted — the server sees only ciphertext and stores nothing after delivery.</source>
+        <translation>Далеко: сообщения идут через сервер в зашифрованном виде (E2E) — сервер видит только шифротекст и ничего не хранит после доставки.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshAbout.qml" line="88"/>
+        <source>Conversations are stored only on this device. A new device means a new UIN and an empty chat list — tell your contacts your new number.</source>
+        <translation>Переписки живут только на этом устройстве. Новое устройство — новый UIN и пустой список чатов: сообщите контактам новый номер.</translation>
+    </message>
+</context>
+<context>
+    <name>PageMeshChat</name>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="27"/>
+        <source>No user with this UIN</source>
+        <translation>Нет пользователя с таким UIN</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="30"/>
+        <source>No internet connection — cannot look up the contact</source>
+        <translation>Нет подключения к интернету — не удалось найти контакт</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="33"/>
+        <source>This device is already tied to another subscription</source>
+        <translation>Это устройство уже привязано к другой подписке</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="62"/>
+        <source>Chat</source>
+        <translation>Chat</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="63"/>
+        <source>No phone number, no email — just your UIN</source>
+        <translation>Ни номера телефона, ни почты — только ваш UIN</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="112"/>
+        <source>Your name</source>
+        <translation>Ваше имя</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="142"/>
+        <source>Contact UIN…</source>
+        <translation>UIN контакта…</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="186"/>
+        <source>Nearby</source>
+        <translation>Рядом</translation>
+    </message>
+    <message>
+        <source>Bluetooth</source>
+        <translation type="vanished">Bluetooth</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="215"/>
+        <source>Add a contact by UIN or find someone nearby</source>
+        <translation>Добавьте контакт по UIN или найдите кого-то рядом</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="234"/>
+        <source>Local name, only on this device</source>
+        <translation>Локальное имя, только на этом устройстве</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="255"/>
+        <source>Save</source>
+        <translation type="unfinished">Сохранить</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="283"/>
+        <source>No messages yet</source>
+        <translation>Пока нет сообщений</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="90"/>
+        <source>My UIN</source>
+        <translation>Мой UIN</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="91"/>
+        <source>appears when online</source>
+        <translation>появится, когда будет сеть</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="97"/>
+        <source>UIN copied</source>
+        <translation>UIN скопирован</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="164"/>
+        <source>Add</source>
+        <translation>Добавить</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshChat.qml" line="197"/>
+        <source>Bluetooth — tap to add</source>
+        <translation>Bluetooth — нажмите, чтобы добавить</translation>
+    </message>
+</context>
+<context>
+    <name>PageMeshConversation</name>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshConversation.qml" line="21"/>
+        <source>Peer is unreachable: not in Bluetooth range and no internet</source>
+        <translation>Пир недоступен: вне зоны Bluetooth и нет интернета</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshConversation.qml" line="48"/>
+        <source>via Bluetooth mesh</source>
+        <translation>через Bluetooth mesh</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshConversation.qml" line="49"/>
+        <source>online — via relay</source>
+        <translation>онлайн — через сервер</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshConversation.qml" line="50"/>
+        <source>offline</source>
+        <translation>офлайн</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshConversation.qml" line="73"/>
+        <source>Local name, only on this device</source>
+        <translation>Локальное имя, только на этом устройстве</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshConversation.qml" line="91"/>
+        <source>Save</source>
+        <translation type="unfinished">Сохранить</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshConversation.qml" line="124"/>
+        <source>me</source>
+        <translation>я</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshConversation.qml" line="126"/>
+        <source>not delivered</source>
+        <translation>не доставлено</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshConversation.qml" line="152"/>
+        <source>Message</source>
+        <translation>Сообщение</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageMeshConversation.qml" line="173"/>
+        <source>Send</source>
+        <translation>Отправить</translation>
     </message>
 </context>
 <context>
@@ -2251,6 +2439,16 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageSettingsApplication</name>
     <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="263"/>
+        <source>Chat</source>
+        <translation>Chat</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="264"/>
+        <source>Offline Bluetooth chat with nearby devices</source>
+        <translation>Офлайн-чат по Bluetooth с устройствами рядом</translation>
+    </message>
+    <message>
         <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="71"/>
         <source>Application</source>
         <translation>Приложение</translation>
@@ -2343,58 +2541,58 @@ Already installed containers were found on the server. All installed containers 
         <translation>Отключено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="293"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="311"/>
         <source>Reset settings and remove all data from the application</source>
         <translation>Сбросить настройки и удалить все данные из приложения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="298"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="316"/>
         <source>Reset settings and remove all data from the application?</source>
         <translation>Сбросить настройки и удалить все данные из приложения?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="299"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="317"/>
         <source>All settings will be reset to default. All installed Dopamine services will still remain on the server.</source>
         <translation>Все настройки будут сброшены до значений по умолчанию.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="300"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="318"/>
         <source>Continue</source>
         <translation>Продолжить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="268"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="301"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="286"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="319"/>
         <source>Cancel</source>
         <translation>Отменить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="305"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="323"/>
         <source>Cannot reset settings during active connection</source>
         <translation>Невозможно сбросить настройки во время активного соединения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="261"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="279"/>
         <source>Reload all servers from subscription</source>
         <translation>Перезагрузить все серверы из подписки</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="265"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="283"/>
         <source>Reload all servers from subscription?</source>
         <translation>Перезагрузить все серверы из подписки?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="266"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="284"/>
         <source>All servers from the current subscription will be removed and downloaded again. Use this if servers stopped working after an update.</source>
         <translation>Все серверы текущей подписки будут удалены и загружены заново. Используйте, если серверы перестали работать после обновления.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="267"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="285"/>
         <source>Reload</source>
         <translation>Перезагрузить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="272"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="290"/>
         <source>Cannot reload configuration during active connection</source>
         <translation>Нельзя перезагрузить конфигурацию при активном подключении</translation>
     </message>
@@ -5555,17 +5753,17 @@ This means that AmneziaWG keeps the fast performance of the original while addin
 <context>
     <name>SettingsController</name>
     <message>
-        <location filename="../ui/controllers/settingsController.cpp" line="227"/>
+        <location filename="../ui/controllers/settingsController.cpp" line="238"/>
         <source>Can&apos;t open file: %1</source>
         <translation>Невозможно открыть файл: %1</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/settingsController.cpp" line="313"/>
+        <location filename="../ui/controllers/settingsController.cpp" line="324"/>
         <source>All settings have been reset to default values</source>
         <translation>Все настройки сброшены до значений по умолчанию</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/settingsController.cpp" line="290"/>
+        <location filename="../ui/controllers/settingsController.cpp" line="301"/>
         <source>Backup file is corrupted</source>
         <translation>Файл резервной копии поврежден</translation>
     </message>
@@ -5653,31 +5851,31 @@ This means that AmneziaWG keeps the fast performance of the original while addin
     <name>SystemTrayNotificationHandler</name>
     <message>
         <location filename="../ui/systemtray_notificationhandler.cpp" line="35"/>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="79"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="101"/>
         <source>Show</source>
         <translation>Показать</translation>
     </message>
     <message>
         <location filename="../ui/systemtray_notificationhandler.cpp" line="39"/>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="80"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="102"/>
         <source>Connect</source>
         <translation>Подключиться</translation>
     </message>
     <message>
         <location filename="../ui/systemtray_notificationhandler.cpp" line="40"/>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="81"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="103"/>
         <source>Disconnect</source>
         <translation>Отключиться</translation>
     </message>
     <message>
         <location filename="../ui/systemtray_notificationhandler.cpp" line="44"/>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="82"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="104"/>
         <source>Visit Website</source>
         <translation>Посетить сайт</translation>
     </message>
     <message>
         <location filename="../ui/systemtray_notificationhandler.cpp" line="50"/>
-        <location filename="../ui/systemtray_notificationhandler.cpp" line="83"/>
+        <location filename="../ui/systemtray_notificationhandler.cpp" line="105"/>
         <source>Quit</source>
         <translation>Закрыть</translation>
     </message>
@@ -5693,7 +5891,7 @@ This means that AmneziaWG keeps the fast performance of the original while addin
 <context>
     <name>VpnConnection</name>
     <message>
-        <location filename="../vpnconnection.cpp" line="786"/>
+        <location filename="../vpnconnection.cpp" line="800"/>
         <source>Mbps</source>
         <translation>Мбит/с</translation>
     </message>

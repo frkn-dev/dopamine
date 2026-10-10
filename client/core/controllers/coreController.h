@@ -16,6 +16,7 @@
 #include "ui/controllers/connectionController.h"
 #include "ui/controllers/focusController.h"
 #include "ui/controllers/healthCheckController.h"
+#include "ui/controllers/meshChatController.h"
 #include "ui/controllers/importController.h"
 #include "ui/controllers/installController.h"
 #include "ui/controllers/keyActivationController.h"
@@ -112,6 +113,7 @@ private:
     QSharedPointer<SitesModel> m_sitesModel;
     QSharedPointer<SplitPresetsModel> m_splitPresetsModel;
     QSharedPointer<HealthCheckController> m_healthCheckController;
+    QSharedPointer<MeshChatController> m_meshChatController;
     QSharedPointer<AllowedDnsModel> m_allowedDnsModel;
     QSharedPointer<AppSplitTunnelingModel> m_appSplitTunnelingModel;
 

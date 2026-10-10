@@ -108,6 +108,7 @@ dependencies {
     implementation(project(":qt"))
     implementation(project(":utils"))
     implementation(project(":protocolApi"))
+    implementation(project(":mesh"))
     implementation(project(":wireguard"))
     implementation(project(":awg"))
     implementation(project(":xray"))

@@ -75,6 +75,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Dopamine needs access to the camera for reading QR-codes.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Dopamine uses Bluetooth for the offline mesh chat with nearby devices.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

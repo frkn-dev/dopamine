@@ -17,6 +17,7 @@ Item {
     property string descriptionText
 
     property var clickedFunction
+    property var heldFunction
 
     property string buttonImageSource
     property string rightImageSource
@@ -107,6 +108,12 @@ Item {
         onClicked: {
             if (clickedFunction && typeof clickedFunction === "function") {
                 clickedFunction()
+            }
+        }
+
+        onPressAndHold: {
+            if (heldFunction && typeof heldFunction === "function") {
+                heldFunction()
             }
         }
     }

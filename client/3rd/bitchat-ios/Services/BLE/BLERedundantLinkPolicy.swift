@@ -1,0 +1,137 @@
+import Foundation
+
+/// Decides which central-role connections (peripheral links we own) are
+/// redundant duplicates of a peer's live link.
+///
+/// One connection per role per peer is the normal dual-role topology (each
+/// device is both central and peripheral). After a BLE state-restoration
+/// relaunch, though, the same phone can reappear under a fresh peripheral
+/// UUID while the restored connection lives on — leaving several live
+/// central-role connections to one peer, each carrying every packet
+/// (field-verified: 2-3x airtime on all traffic). Only same-role duplicates
+/// are retired; the peer's central-role subscription on our peripheral
+/// manager is its own connection to manage, and it runs the same policy.
+enum BLERedundantLinkPolicy {
+    struct PeripheralLink: Equatable {
+        let uuid: String
+        let peerID: PeerID?
+        let isConnected: Bool
+        /// Whether the link has a discovered characteristic (is writable).
+        /// A link mid-service-rediscovery (didModifyServices cleared it)
+        /// must never be kept over a writable duplicate.
+        let hasCharacteristic: Bool
+        /// When didConnect last fired for this link in this process. Nil
+        /// for restored links, whose connect predates the relaunch.
+        let lastConnectedAt: Date?
+
+        init(
+            uuid: String,
+            peerID: PeerID?,
+            isConnected: Bool,
+            hasCharacteristic: Bool,
+            lastConnectedAt: Date? = nil
+        ) {
+            self.uuid = uuid
+            self.peerID = peerID
+            self.isConnected = isConnected
+            self.hasCharacteristic = hasCharacteristic
+            self.lastConnectedAt = lastConnectedAt
+        }
+    }
+
+    /// The link to keep when a peer has several connected bound peripheral
+    /// links, or nil when there is nothing to consolidate.
+    ///
+    /// Prefers the most recently CONNECTED candidate. Duplicates arise when
+    /// the peer reappears under a fresh BLE address (privacy address
+    /// rotation) while an older connection — typically state-restored —
+    /// lives on: only the newest connection sits on the address the peer
+    /// still advertises. Cancelling that one instead just gets it
+    /// rediscovered and reconnected, a retire↔reconnect oscillation at the
+    /// retirement cooldown (field-observed July 31); the older-address link
+    /// cannot return once cancelled, so consolidation converges immediately.
+    /// Physical connect recency is also a signal an announce replay cannot
+    /// nominate, unlike the previous ingress-link preference — announce
+    /// anchors (ingress, then most recently bound) now only break ties and
+    /// serve links with no connect timestamp at all. Link "health" signals
+    /// like RSSI are deliberately not inputs: they are transient and the
+    /// stale-address link often reads stronger; connect recency is the only
+    /// signal that tracks address currency.
+    ///
+    /// The survivor must be writable while any writable candidate exists:
+    /// keeping a characteristic-less link and cancelling the writable
+    /// duplicate would strand outbound traffic on the central link until
+    /// rediscovery finishes. But when the physically NEWEST connection is
+    /// the one that is not writable yet (service discovery still running),
+    /// consolidation defers entirely — selecting an older writable link
+    /// would cancel the freshly advertised connection and recreate the
+    /// oscillation. When no candidate is identifiable, consolidation waits
+    /// for a later announce rather than guessing.
+    static func keptPeripheralUUID(
+        ingressPeripheralUUID: String?,
+        mostRecentlyBoundUUID: String?,
+        links: [PeripheralLink],
+        peerID: PeerID
+    ) -> String? {
+        let bound = links.filter { $0.peerID == peerID && $0.isConnected }
+        guard bound.count > 1 else { return nil }
+
+        let writable = bound.filter(\.hasCharacteristic)
+        let candidates = writable.isEmpty ? bound : writable
+
+        // The newest connection is still mid-service-discovery while a
+        // writable (typically restored, stale-address) duplicate exists:
+        // defer to a later announce instead of keeping the older link and
+        // cancelling the one connection on the currently advertised address.
+        if !writable.isEmpty,
+           let newestBoundDate = bound.compactMap(\.lastConnectedAt).max(),
+           !writable.contains(where: { $0.lastConnectedAt == newestBoundDate }) {
+            return nil
+        }
+
+        if let newestDate = candidates.compactMap(\.lastConnectedAt).max() {
+            let newest = candidates.filter { $0.lastConnectedAt == newestDate }
+            if newest.count == 1 {
+                return newest[0].uuid
+            }
+            return anchoredChoice(
+                among: newest,
+                ingressPeripheralUUID: ingressPeripheralUUID,
+                mostRecentlyBoundUUID: mostRecentlyBoundUUID
+            ) ?? newest.map(\.uuid).min()
+        }
+
+        return anchoredChoice(
+            among: candidates,
+            ingressPeripheralUUID: ingressPeripheralUUID,
+            mostRecentlyBoundUUID: mostRecentlyBoundUUID
+        )
+    }
+
+    /// The pre-timestamp anchors: the verified announce's ingress link,
+    /// then the peer's most recently bound link.
+    private static func anchoredChoice(
+        among candidates: [PeripheralLink],
+        ingressPeripheralUUID: String?,
+        mostRecentlyBoundUUID: String?
+    ) -> String? {
+        if let ingressPeripheralUUID, candidates.contains(where: { $0.uuid == ingressPeripheralUUID }) {
+            return ingressPeripheralUUID
+        }
+        if let mostRecentlyBoundUUID, candidates.contains(where: { $0.uuid == mostRecentlyBoundUUID }) {
+            return mostRecentlyBoundUUID
+        }
+        return nil
+    }
+
+    /// Connected peripheral links bound to the peer other than the kept one.
+    static func peripheralUUIDsToRetire(
+        links: [PeripheralLink],
+        peerID: PeerID,
+        keeping keptUUID: String
+    ) -> [String] {
+        links
+            .filter { $0.peerID == peerID && $0.isConnected && $0.uuid != keptUUID }
+            .map(\.uuid)
+    }
+}

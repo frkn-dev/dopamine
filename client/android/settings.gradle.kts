@@ -32,6 +32,7 @@ rootProject.buildFileName = "build.gradle.kts"
 include(":qt")
 include(":utils")
 include(":protocolApi")
+include(":mesh")
 include(":wireguard")
 include(":awg")
 include(":xray")

@@ -24,6 +24,7 @@ public:
     Q_PROPERTY(QString secondaryDns READ getSecondaryDns WRITE setSecondaryDns NOTIFY secondaryDnsChanged)
     Q_PROPERTY(bool isLoggingEnabled READ isLoggingEnabled WRITE toggleLogging NOTIFY loggingStateChanged)
     Q_PROPERTY(bool isServerPingTextVisible READ isServerPingTextVisible WRITE setServerPingTextVisible NOTIFY serverPingTextVisibleChanged)
+    Q_PROPERTY(bool isMeshChatEnabled READ isMeshChatEnabled WRITE setMeshChatEnabled NOTIFY meshChatEnabledChanged)
     Q_PROPERTY(bool isNotificationPermissionGranted READ isNotificationPermissionGranted NOTIFY onNotificationStateChanged)
     Q_PROPERTY(bool isKillSwitchEnabled READ isKillSwitchEnabled WRITE toggleKillSwitch NOTIFY killSwitchEnabledChanged)
     Q_PROPERTY(bool isRouteLanThroughVpn READ isRouteLanThroughVpn WRITE toggleRouteLanThroughVpn NOTIFY routeLanThroughVpnChanged)
@@ -57,6 +58,9 @@ public slots:
 
     bool isServerPingTextVisible();
     void setServerPingTextVisible(bool visible);
+
+    bool isMeshChatEnabled();
+    void setMeshChatEnabled(bool enabled);
 
     bool isAutoServerSelection();
     void setAutoServerSelection(bool enabled);
@@ -137,6 +141,7 @@ signals:
     void secondaryDnsChanged();
     void loggingStateChanged();
     void serverPingTextVisibleChanged();
+    void meshChatEnabledChanged();
     void killSwitchEnabledChanged();
     void routeLanThroughVpnChanged();
     void strictKillSwitchEnabledChanged(bool enabled);

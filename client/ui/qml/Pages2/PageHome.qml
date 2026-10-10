@@ -22,6 +22,28 @@ PageType {
     id: root
 
     ImageButtonType {
+        id: meshChatButton
+        objectName: "meshChatButton"
+
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.topMargin: 12 + SettingsController.safeAreaTopMargin
+        anchors.leftMargin: 12
+
+        z: 10
+
+        implicitWidth: 48
+        implicitHeight: 48
+
+        visible: SettingsController.isMeshChatEnabled
+
+        image: "qrc:/images/controls/chat.svg"
+        imageColor: DopamineStyle.color.paleGray
+
+        onClicked: PageController.goToPage(PageEnum.PageMeshChat)
+    }
+
+    ImageButtonType {
         id: settingsButton
         objectName: "settingsButton"
 
