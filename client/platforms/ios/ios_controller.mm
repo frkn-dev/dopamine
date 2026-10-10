@@ -263,13 +263,18 @@ bool IosController::initialize()
             for (NETunnelProviderManager *manager in managers) {
                 qDebug() << "IosController::initialize : VPNC: " << manager.localizedDescription;
 
-                if (manager.connection.status == NEVPNStatusConnected) {
+                // accept transient states too, not just Connected: on relaunch during
+                // Reasserting/Connecting the tunnel was previously missed entirely and
+                // status polling (bitrate, stats) stayed dead until a manual reconnect
+                const NEVPNStatus status = manager.connection.status;
+                if (status == NEVPNStatusConnected || status == NEVPNStatusReasserting
+                    || status == NEVPNStatusConnecting) {
                     m_currentTunnel = manager;
-                    qDebug() << "IosController::initialize : VPN already connected with" << manager.localizedDescription;
-                    emit connectionStateChanged(Vpn::ConnectionState::Connected);
+                    qDebug() << "IosController::initialize : VPN tunnel present with" << manager.localizedDescription
+                             << "status" << (long)status;
+                    emit connectionStateChanged(status == NEVPNStatusConnecting ? Vpn::ConnectionState::Connecting
+                                                                                : Vpn::ConnectionState::Connected);
                     break;
-
-                    // TODO: show connected state
                 }
             }
         }

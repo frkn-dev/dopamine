@@ -56,6 +56,12 @@ VpnConnection::VpnConnection(std::shared_ptr<Settings> settings, QObject *parent
     m_checkTimer.setInterval(1000);
     connect(IosController::Instance(), &IosController::connectionStateChanged, this, &VpnConnection::setConnectionState);
     connect(IosController::Instance(), &IosController::bytesChanged, this, &VpnConnection::onBytesChanged);
+    // wire the poll once, here: previously it was connected in connectToVpn and
+    // disconnected in disconnectFromVpn, so after a process restart with an
+    // already-up tunnel (jetsam relaunch) the status poll never reconnected and
+    // the speed meter died until the next manual reconnect
+    connect(&m_checkTimer, &QTimer::timeout, IosController::Instance(), &IosController::checkStatus,
+            Qt::UniqueConnection);
 
     // iOS freezes timers while the app is suspended; if a transient state change
     // stopped the 1s NE status poll while backgrounded, it never restarts on its
@@ -66,6 +72,17 @@ VpnConnection::VpnConnection(std::shared_ptr<Settings> settings, QObject *parent
             return;
         }
         if (!IosController::Instance()->resumeStatusPolling()) {
+            // transient tunnel state right at resume (network switch on wake) — one retry
+            QTimer::singleShot(1000, this, [this]() {
+                if (!IosController::Instance()->resumeStatusPolling()) {
+                    return;
+                }
+                if (!m_checkTimer.isActive()) {
+                    m_checkTimer.start();
+                }
+                QMetaObject::invokeMethod(IosController::Instance(), []() { IosController::Instance()->checkStatus(); },
+                                          Qt::QueuedConnection);
+            });
             return;
         }
         if (!m_checkTimer.isActive()) {
@@ -429,9 +446,6 @@ void VpnConnection::connectToVpn(int serverIndex, const ServerCredentials &crede
 #elif defined Q_OS_IOS || defined(MACOS_NE)
     Proto proto = ContainerProps::defaultProtocol(container);
     IosController::Instance()->connectVpn(proto, m_vpnConfiguration);
-    // UniqueConnection avoids stacking another duplicate subscription on every retry
-    connect(&m_checkTimer, &QTimer::timeout, IosController::Instance(), &IosController::checkStatus,
-            Qt::UniqueConnection);
     return;
 #endif
 
@@ -812,7 +826,8 @@ void VpnConnection::disconnectFromVpn()
 #if defined(Q_OS_IOS) || defined(MACOS_NE)
     // iOS/macOS NE use IosController directly; m_vpnProtocol is not set there.
     IosController::Instance()->disconnectVpn();
-    disconnect(&m_checkTimer, &QTimer::timeout, IosController::Instance(), &IosController::checkStatus);
+    // the status poll stays wired (connected once in the constructor);
+    // checkStatus no-ops while the tunnel is down
 #endif
 
     if (m_vpnProtocol.isNull()) {
