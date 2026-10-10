@@ -9,6 +9,7 @@
 
 #include <QMenu>
 #include <QSystemTrayIcon>
+#include <QTimer>
 
 class SystemTrayNotificationHandler : public NotificationHandler {
     Q_OBJECT
@@ -35,7 +36,8 @@ private:
     void setTrayState(Vpn::ConnectionState state);
     void onTrayActivated(QSystemTrayIcon::ActivationReason reason);
 
-    void setTrayIcon(const QString &iconPath);
+    // templateIcon matters on macOS only: template renders monochrome, non-template keeps colors
+    void setTrayIcon(const QString &iconPath, bool templateIcon = true);
 
 private:
     QMenu m_menu;
@@ -51,9 +53,20 @@ private:
 
     QString m_serverName;
 
+    // tray icon states: on Windows colors show as-is; on macOS a template
+    // (mask) icon renders monochrome in the system theme, so "connected" is
+    // shown as the full-color blue icon instead (mask off), "disconnected"
+    // stays a monochrome template
     const QString ConnectedTrayIconName = "active.png";
     const QString DisconnectedTrayIconName = "default.png";
     const QString ErrorTrayIconName = "error.png";
+
+    // blink animation for transitional states (connecting/reconnecting/…)
+    QTimer m_blinkTimer;
+    bool m_blinkToggle = false;
+    void startBlink();
+    void stopBlink();
+
     QString  websiteUrl = "https://frkn.org";
 };
 
