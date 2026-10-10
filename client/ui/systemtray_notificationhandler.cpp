@@ -51,6 +51,14 @@ SystemTrayNotificationHandler::SystemTrayNotificationHandler(QObject* parent) :
                                        this,
                                        [&](){ qApp->quit(); });
 
+    m_blinkTimer.setInterval(500);
+    connect(&m_blinkTimer, &QTimer::timeout, this, [this]() {
+        m_blinkToggle = !m_blinkToggle;
+        // mono template ↔ colored blue pulse (colors ignored on non-mac anyway)
+        setTrayIcon(QStringLiteral(":/images/tray/%1").arg(m_blinkToggle ? ConnectedTrayIconName : DisconnectedTrayIconName),
+                    !m_blinkToggle);
+    });
+
 #ifndef Q_OS_MAC
     m_systemTrayIcon.setContextMenu(&m_menu);
 #endif
@@ -58,6 +66,20 @@ SystemTrayNotificationHandler::SystemTrayNotificationHandler(QObject* parent) :
 }
 
 SystemTrayNotificationHandler::~SystemTrayNotificationHandler() {
+    m_blinkTimer.stop();
+}
+
+void SystemTrayNotificationHandler::startBlink()
+{
+    if (!m_blinkTimer.isActive()) {
+        m_blinkToggle = false;
+        m_blinkTimer.start();
+    }
+}
+
+void SystemTrayNotificationHandler::stopBlink()
+{
+    m_blinkTimer.stop();
 }
 
 void SystemTrayNotificationHandler::setConnectionState(Vpn::ConnectionState state)
@@ -88,11 +110,13 @@ void SystemTrayNotificationHandler::updateWebsiteUrl(const QString &newWebsiteUr
     websiteUrl = newWebsiteUrl;
 }
 
-void SystemTrayNotificationHandler::setTrayIcon(const QString &iconPath)
+void SystemTrayNotificationHandler::setTrayIcon(const QString &iconPath, bool templateIcon)
 {
     QIcon trayIconMask(QPixmap(iconPath).scaled(128,128));
 #ifdef Q_OS_MAC
-    trayIconMask.setIsMask(true);
+    trayIconMask.setIsMask(templateIcon);
+#else
+    Q_UNUSED(templateIcon);
 #endif
     m_systemTrayIcon.setIcon(trayIconMask);
 }
@@ -115,23 +139,25 @@ void SystemTrayNotificationHandler::setTrayState(Vpn::ConnectionState state)
 
     switch (state) {
     case Vpn::ConnectionState::Disconnected:
+        stopBlink();
         setTrayIcon(QString(resourcesPath).arg(DisconnectedTrayIconName));
         m_trayActionConnect->setEnabled(true);
         m_trayActionDisconnect->setEnabled(false);
         m_statusLabel->setVisible(false);
         break;
     case Vpn::ConnectionState::Preparing:
-        setTrayIcon(QString(resourcesPath).arg(DisconnectedTrayIconName));
+        startBlink();
         m_trayActionConnect->setEnabled(false);
         m_trayActionDisconnect->setEnabled(true);
         break;
     case Vpn::ConnectionState::Connecting:
-        setTrayIcon(QString(resourcesPath).arg(DisconnectedTrayIconName));
+        startBlink();
         m_trayActionConnect->setEnabled(false);
         m_trayActionDisconnect->setEnabled(true);
         break;
     case Vpn::ConnectionState::Connected:
-        setTrayIcon(QString(resourcesPath).arg(ConnectedTrayIconName));
+        stopBlink();
+        setTrayIcon(QString(resourcesPath).arg(ConnectedTrayIconName), false);
         m_trayActionConnect->setEnabled(false);
         m_trayActionDisconnect->setEnabled(true);
         if (!m_serverName.isEmpty()) {
@@ -140,22 +166,24 @@ void SystemTrayNotificationHandler::setTrayState(Vpn::ConnectionState state)
         }
         break;
     case Vpn::ConnectionState::Disconnecting:
-        setTrayIcon(QString(resourcesPath).arg(DisconnectedTrayIconName));
+        startBlink();
         m_trayActionConnect->setEnabled(false);
         m_trayActionDisconnect->setEnabled(true);
         break;
     case Vpn::ConnectionState::Reconnecting:
-        setTrayIcon(QString(resourcesPath).arg(DisconnectedTrayIconName));
+        startBlink();
         m_trayActionConnect->setEnabled(false);
         m_trayActionDisconnect->setEnabled(true);
         break;
     case Vpn::ConnectionState::Error:
-        setTrayIcon(QString(resourcesPath).arg(ErrorTrayIconName));
+        stopBlink();
+        setTrayIcon(QString(resourcesPath).arg(ErrorTrayIconName), false);
         m_trayActionConnect->setEnabled(true);
         m_trayActionDisconnect->setEnabled(false);
         break;
     case Vpn::ConnectionState::Unknown:
     default:
+        stopBlink();
         m_trayActionConnect->setEnabled(false);
         m_trayActionDisconnect->setEnabled(true);
         setTrayIcon(QString(resourcesPath).arg(DisconnectedTrayIconName));
