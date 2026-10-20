@@ -1,5 +1,7 @@
 #include "servers_model.h"
 
+#include <QJsonObject>
+#include <QLocale>
 #include <QSet>
 
 #include "core/api/apiDefs.h"
@@ -51,6 +53,29 @@ namespace
             { QStringLiteral("TALLINN"), QStringLiteral("EE") },
         };
         return aliases.value(countryCode, countryCode);
+    }
+
+    // A stored server belongs to an FRKN subscription only when it came from the
+    // gateway. Share imports (share_token / "shared" marker) and hand-added configs
+    // are not subscriptions and must not show up in the subscription selector.
+    QString subscriptionIdOfServer(const QJsonObject &server)
+    {
+        const QJsonObject apiConfig = server.value(configKey::apiConfig).toObject();
+        if (apiConfig.value(QStringLiteral("shared")).toBool()) {
+            return QString();
+        }
+        QJsonObject authData = apiConfig.value(QStringLiteral("auth_data")).toObject();
+        if (authData.isEmpty()) {
+            authData = server.value(QStringLiteral("auth_data")).toObject();
+        }
+        if (authData.contains(QStringLiteral("share_token"))) {
+            return QString();
+        }
+        QString id = authData.value(apiDefs::key::apiKey).toString();
+        if (id.isEmpty()) {
+            id = authData.value(apiDefs::key::id).toString();
+        }
+        return id;
     }
 }
 
@@ -138,6 +163,18 @@ QVariant ServersModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case NameRole: {
         if (configVersion) {
+            // Pool-based localization is resolved on every read, so a UI
+            // language change only needs a dataChanged (no reload). A name the
+            // user set always wins and is never translated.
+            if (!server.value(config_key::nameOverriddenByUser).toBool()) {
+                const QJsonObject displayInfo = server.value(QStringLiteral("displayInfo")).toObject();
+                const QString localized = localizedPoolName(displayInfo.value(QStringLiteral("pool")).toString(),
+                                                            displayInfo.value(QStringLiteral("poolTranslation")).toObject(),
+                                                            m_settings->getAppLanguage());
+                if (!localized.isEmpty()) {
+                    return localized;
+                }
+            }
             return server.value(config_key::name).toString();
         }
         auto name = server.value(config_key::description).toString();
@@ -296,6 +333,7 @@ void ServersModel::resetModel()
     m_isAmneziaDnsEnabled = m_settings->useAmneziaDns();
     recomputeAvailableProtocols();
     recomputeAvailableEnvs();
+    recomputeAvailableSubscriptions();
     endResetModel();
     emit defaultServerIndexChanged(m_defaultServerIndex);
 }
@@ -514,6 +552,7 @@ void ServersModel::addServer(const QJsonObject &server)
     m_servers = m_settings->serversArray();
     recomputeAvailableProtocols();
     recomputeAvailableEnvs();
+    recomputeAvailableSubscriptions();
     endResetModel();
 }
 
@@ -524,6 +563,7 @@ void ServersModel::addServers(const QJsonArray &servers)
     m_servers = m_settings->serversArray();
     recomputeAvailableProtocols();
     recomputeAvailableEnvs();
+    recomputeAvailableSubscriptions();
     endResetModel();
 }
 
@@ -536,6 +576,7 @@ void ServersModel::removeAllServers()
     setDefaultServerIndex(-1);
     recomputeAvailableProtocols();
     recomputeAvailableEnvs();
+    recomputeAvailableSubscriptions();
     endResetModel();
 }
 
@@ -555,6 +596,7 @@ void ServersModel::editServer(const QJsonObject &server, const int serverIndex)
         emit defaultServerDefaultContainerChanged(defaultContainer);
         emit defaultServerNameChanged();
     }
+    recomputeAvailableSubscriptions();
 }
 
 void ServersModel::removeServer()
@@ -574,6 +616,7 @@ void ServersModel::removeServer()
         setDefaultServerIndex(-1);
     }
     setProcessedServerIndex(m_defaultServerIndex);
+    recomputeAvailableSubscriptions();
     endResetModel();
 }
 
@@ -594,6 +637,7 @@ void ServersModel::removeServer(const int serverIndex)
         setDefaultServerIndex(-1);
     }
     setProcessedServerIndex(m_defaultServerIndex);
+    recomputeAvailableSubscriptions();
     endResetModel();
 }
 
@@ -671,6 +715,46 @@ void ServersModel::updateDefaultServerContainersModel()
 QJsonObject ServersModel::getServerConfig(const int serverIndex) const
 {
     return m_servers.at(serverIndex).toObject();
+}
+
+QVariantMap ServersModel::getServerDisplayData(const int serverIndex) const
+{
+    if (serverIndex < 0 || serverIndex >= m_servers.size()) {
+        return {};
+    }
+
+    const QJsonObject server = m_servers.at(serverIndex).toObject();
+    const QJsonObject apiConfig = server.value(configKey::apiConfig).toObject();
+    const QJsonObject displayInfo = server.value(QStringLiteral("displayInfo")).toObject();
+    const QString pool = displayInfo.value(QStringLiteral("pool")).toString();
+    const QString localizedPool = localizedPoolName(pool, displayInfo.value(QStringLiteral("poolTranslation")).toObject(),
+                                                    m_settings->getAppLanguage());
+
+    QJsonObject authData = apiConfig.value(QStringLiteral("auth_data")).toObject();
+    if (authData.isEmpty()) {
+        authData = server.value(QStringLiteral("auth_data")).toObject();
+    }
+    QString subscriptionId = authData.value(apiDefs::key::apiKey).toString();
+    if (subscriptionId.isEmpty()) {
+        subscriptionId = authData.value(apiDefs::key::id).toString();
+    }
+
+    const QString name = data(serverIndex, NameRole).toString();
+    return {
+        { QStringLiteral("sourceIndex"), serverIndex },
+        { QStringLiteral("name"), name },
+        { QStringLiteral("groupName"), localizedPool.isEmpty() ? name : localizedPool },
+        { QStringLiteral("pool"), pool },
+        { QStringLiteral("subscriptionId"), subscriptionId },
+        { QStringLiteral("connectionUuid"), apiConfig.value(QStringLiteral("connection_uuid")).toString() },
+        { QStringLiteral("protocol"), data(serverIndex, ServiceProtocolFilterRole).toString() },
+        { QStringLiteral("env"), data(serverIndex, ConnectionEnvRole).toString() },
+        { QStringLiteral("countryCode"), data(serverIndex, CountryCodeRole).toString() },
+        { QStringLiteral("countryName"), data(serverIndex, CountryNameRole).toString() },
+        { QStringLiteral("healthLatency"), data(serverIndex, HealthLatencyRole).toInt() },
+        { QStringLiteral("isServerFromGatewayApi"), data(serverIndex, IsServerFromGatewayApiRole).toBool() },
+        { QStringLiteral("serverDescription"), data(serverIndex, ServerDescriptionRole).toString() },
+    };
 }
 
 void ServersModel::reloadDefaultServerContainerConfig()
@@ -858,15 +942,33 @@ bool ServersModel::isServerFromApiAlreadyExists(const quint16 crc)
     return false;
 }
 
-bool ServersModel::isServerFromApiAlreadyExists(const QString &userCountryCode, const QString &serviceType, const QString &serviceProtocol)
+bool ServersModel::isServerFromApiAlreadyExists(const QString &userCountryCode, const QString &serviceType, const QString &serviceProtocol,
+                                                const QString &subscriptionId)
 {
     for (const auto &server : std::as_const(m_servers)) {
-        const auto apiConfig = server.toObject().value(configKey::apiConfig).toObject();
-        if (apiConfig.value(configKey::userCountryCode).toString() == userCountryCode
-            && apiConfig.value(configKey::serviceType).toString() == serviceType
-            && apiConfig.value(configKey::serviceProtocol).toString() == serviceProtocol) {
-            return true;
+        const auto serverObject = server.toObject();
+        const auto apiConfig = serverObject.value(configKey::apiConfig).toObject();
+        if (apiConfig.value(configKey::userCountryCode).toString() != userCountryCode
+            || apiConfig.value(configKey::serviceType).toString() != serviceType
+            || apiConfig.value(configKey::serviceProtocol).toString() != serviceProtocol) {
+            continue;
         }
+        if (!subscriptionId.isEmpty()) {
+            // subscription-scoped: the same country/service/protocol in another
+            // subscription is a different server, not a duplicate
+            QJsonObject authData = apiConfig.value(QStringLiteral("auth_data")).toObject();
+            if (authData.isEmpty()) {
+                authData = serverObject.value(QStringLiteral("auth_data")).toObject();
+            }
+            QString existingId = authData.value(apiDefs::key::apiKey).toString();
+            if (existingId.isEmpty()) {
+                existingId = authData.value(apiDefs::key::id).toString();
+            }
+            if (existingId != subscriptionId) {
+                continue;
+            }
+        }
+        return true;
     }
     return false;
 }
@@ -993,6 +1095,36 @@ bool ServersModel::setProcessedServerData(const QString &roleString, const QVari
     }
 
     return false;
+}
+
+QString ServersModel::localizedPoolName(const QString &pool, const QJsonObject &translation, const QLocale &locale)
+{
+    QString code;
+    switch (locale.language()) {
+    case QLocale::Russian: code = QStringLiteral("ru"); break;
+    case QLocale::Ukrainian: code = QStringLiteral("uk"); break;
+    default: code = QStringLiteral("en"); break;
+    }
+
+    QString value = translation.value(code).toString().trimmed();
+    if (value.isEmpty() && code == QLatin1String("uk")) {
+        // `ua` is accepted as an alias of `uk`
+        value = translation.value(QStringLiteral("ua")).toString().trimmed();
+    }
+    if (!value.isEmpty()) {
+        return value;
+    }
+
+    return pool.trimmed();
+}
+
+void ServersModel::onTranslationsUpdated()
+{
+    if (m_servers.isEmpty()) {
+        return;
+    }
+    emit dataChanged(index(0), index(static_cast<int>(m_servers.size()) - 1));
+    emit defaultServerNameChanged();
 }
 
 bool ServersModel::isDefaultServerDefaultContainerHasSplitTunneling()
@@ -1178,6 +1310,11 @@ QStringList ServersModel::availableEnvs() const
     return m_availableEnvs;
 }
 
+QStringList ServersModel::availableSubscriptions() const
+{
+    return m_availableSubscriptions;
+}
+
 QStringList ServersModel::availableProtocolsForEnv(const QString &env) const
 {
     QSet<QString> protocols;
@@ -1236,6 +1373,23 @@ void ServersModel::recomputeAvailableEnvs()
     if (sorted != m_availableEnvs) {
         m_availableEnvs = sorted;
         emit availableEnvsChanged();
+    }
+}
+
+void ServersModel::recomputeAvailableSubscriptions()
+{
+    // first-seen order: the server list numbers subscriptions by their insertion
+    // order, so "Subscription 1" stays the first one the user added
+    QStringList ids;
+    for (int i = 0; i < m_servers.size(); ++i) {
+        const QString id = subscriptionIdOfServer(m_servers.at(i).toObject());
+        if (!id.isEmpty() && !ids.contains(id)) {
+            ids.append(id);
+        }
+    }
+    if (ids != m_availableSubscriptions) {
+        m_availableSubscriptions = ids;
+        emit availableSubscriptionsChanged();
     }
 }
 

@@ -1,4 +1,5 @@
 #include "networkUtilities.h"
+#include <QSet>
 #include <QtNetwork/qnetworkinterface.h>
 #include <cstddef>
 
@@ -173,6 +174,65 @@ bool NetworkUtilities::checkIpSubnetFormat(const QString &ip)
         return checkIPv4Format(parts.at(0));
     else
         return false;
+}
+
+// static
+QStringList NetworkUtilities::normalizeSubnetExclusions(const QStringList &raw, QStringList *rejected)
+{
+    QStringList normalized;
+    QSet<QString> seen;
+
+    auto reject = [rejected](const QString &entry) {
+        if (rejected) {
+            rejected->append(entry);
+        }
+    };
+
+    for (const QString &rawEntry : raw) {
+        const QString entry = rawEntry.trimmed();
+        if (entry.isEmpty()) {
+            continue;
+        }
+
+        // parseSubnet() understands "addr/prefix" for both families and
+        // reports a null address when the entry is not an address at all.
+        const QPair<QHostAddress, int> parsed = QHostAddress::parseSubnet(entry);
+        const QHostAddress address = parsed.first;
+        const bool isIpv4 = address.protocol() == QAbstractSocket::IPv4Protocol;
+        const bool isIpv6 = address.protocol() == QAbstractSocket::IPv6Protocol;
+        if (address.isNull() || (!isIpv4 && !isIpv6)) {
+            reject(entry);
+            continue;
+        }
+
+        const int maxPrefix = isIpv6 ? 128 : 32;
+        // A bare address already carries the host prefix (32/128); anything
+        // outside 1..maxPrefix is malformed (and /0 would mean "exclude the
+        // whole internet", which is not a local subnet).
+        const int prefix = parsed.second;
+        if (prefix < 1 || prefix > maxPrefix) {
+            reject(entry);
+            continue;
+        }
+
+        const QString canonical = address.toString() + QLatin1Char('/') + QString::number(prefix);
+        if (seen.contains(canonical.toLower())) {
+            // Duplicates are dropped silently: the list is normalized, not
+            // filtered by user intent.
+            continue;
+        }
+
+        seen.insert(canonical.toLower());
+        normalized.append(canonical);
+    }
+
+    return normalized;
+}
+
+// static
+bool NetworkUtilities::isValidSubnetExclusion(const QString &entry)
+{
+    return !normalizeSubnetExclusions(QStringList { entry }).isEmpty();
 }
 
 // static

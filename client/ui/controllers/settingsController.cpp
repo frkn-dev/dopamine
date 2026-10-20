@@ -112,6 +112,17 @@ void SettingsController::setServersEnvFilter(const QString &filter)
     emit serversEnvFilterChanged();
 }
 
+QString SettingsController::getServersSubscriptionFilter()
+{
+    return m_settings->serversSubscriptionFilter();
+}
+
+void SettingsController::setServersSubscriptionFilter(const QString &filter)
+{
+    m_settings->setServersSubscriptionFilter(filter);
+    emit serversSubscriptionFilterChanged();
+}
+
 bool SettingsController::isAutoServerSelection()
 {
     return m_settings->isAutoServerSelection();

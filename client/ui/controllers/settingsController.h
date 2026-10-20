@@ -41,6 +41,7 @@ public:
     Q_PROPERTY(int imeHeight READ getImeHeight NOTIFY imeHeightChanged)
     Q_PROPERTY(QString serversProtocolFilter READ getServersProtocolFilter WRITE setServersProtocolFilter NOTIFY serversProtocolFilterChanged)
     Q_PROPERTY(QString serversEnvFilter READ getServersEnvFilter WRITE setServersEnvFilter NOTIFY serversEnvFilterChanged)
+    Q_PROPERTY(QString serversSubscriptionFilter READ getServersSubscriptionFilter WRITE setServersSubscriptionFilter NOTIFY serversSubscriptionFilterChanged)
     Q_PROPERTY(bool autoServerSelection READ isAutoServerSelection WRITE setAutoServerSelection NOTIFY autoServerSelectionChanged)
 
 public slots:
@@ -136,6 +137,9 @@ public slots:
     QString getServersEnvFilter();
     void setServersEnvFilter(const QString &filter);
 
+    QString getServersSubscriptionFilter();
+    void setServersSubscriptionFilter(const QString &filter);
+
 signals:
     void primaryDnsChanged();
     void secondaryDnsChanged();
@@ -173,6 +177,7 @@ signals:
 
     void serversProtocolFilterChanged();
     void serversEnvFilterChanged();
+    void serversSubscriptionFilterChanged();
     void autoServerSelectionChanged();
 
 private:

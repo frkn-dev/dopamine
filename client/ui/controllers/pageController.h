@@ -49,7 +49,11 @@ namespace PageLoader
 
         PageSettingsRuAppsHelp,
 
-        PageDevMenu
+        PageDevMenu,
+
+        PageSettingsShare,
+
+        PageSettingsLocalSubnets
     };
     Q_ENUM_NS(PageEnum)
 

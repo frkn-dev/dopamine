@@ -117,6 +117,18 @@ PageType {
             Layout.fillWidth: true
             Layout.topMargin: 8
 
+            text: qsTr("Local subnets always bypassing the VPN")
+            rightImageSource: "qrc:/images/controls/chevron-right.svg"
+
+            clickedFunction: function() {
+                PageController.goToPage(PageEnum.PageSettingsLocalSubnets)
+            }
+        }
+
+        LabelWithButtonType {
+            Layout.fillWidth: true
+            Layout.topMargin: 8
+
             text: qsTr("Bank and marketplace apps don't work?")
             rightImageSource: "qrc:/images/controls/chevron-right.svg"
 

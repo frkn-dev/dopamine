@@ -201,6 +201,8 @@
         <file>ui/qml/Pages2/PageSettingsApiInstructions.qml</file>
         <file>ui/qml/Pages2/PageSettingsApiNativeConfigs.qml</file>
         <file>ui/qml/Pages2/PageSettingsApiDevices.qml</file>
+        <file>ui/qml/Pages2/PageSettingsShare.qml</file>
+        <file>ui/qml/Pages2/PageSettingsLocalSubnets.qml</file>
         <file>images/controls/monitor.svg</file>
         <file>ui/qml/Components/AwgTextField.qml</file>
         <file>ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml</file>

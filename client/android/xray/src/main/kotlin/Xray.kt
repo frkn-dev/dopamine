@@ -120,6 +120,7 @@ class Xray : Protocol() {
             socksConfig.getInt("port").let { setSocksPort(it) }
 
             configSplitTunneling(config)
+            configLocalSubnetExclusions(config)
             configAppSplitTunneling(config)
         }
     }

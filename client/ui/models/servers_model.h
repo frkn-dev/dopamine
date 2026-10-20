@@ -93,6 +93,7 @@ public:
     Q_PROPERTY(bool hasServersFromGatewayApi READ hasServersFromGatewayApi NOTIFY hasServersFromGatewayApiChanged)
     Q_PROPERTY(QStringList availableProtocols READ availableProtocols NOTIFY availableProtocolsChanged)
     Q_PROPERTY(QStringList availableEnvs READ availableEnvs NOTIFY availableEnvsChanged)
+    Q_PROPERTY(QStringList availableSubscriptions READ availableSubscriptions NOTIFY availableSubscriptionsChanged)
 
     Q_PROPERTY(int processedIndex READ getProcessedServerIndex WRITE setProcessedServerIndex NOTIFY processedServerIndexChanged)
     Q_PROPERTY(bool processedServerIsPremium READ processedServerIsPremium NOTIFY processedServerChanged)
@@ -120,6 +121,9 @@ public slots:
     // list filter never offers protocols the selected env doesn't have
     QStringList availableProtocolsForEnv(const QString &env) const;
     QStringList availableEnvs() const;
+    // distinct FRKN subscriptions present among stored servers, in first-seen
+    // order (the server list numbers them "Subscription 1/2/...")
+    QStringList availableSubscriptions() const;
 
     bool isProcessedServerHasWriteAccess();
     bool isDefaultServerHasWriteAccess();
@@ -148,6 +152,7 @@ public slots:
     void clearHealthResults();
 
     QJsonObject getServerConfig(const int serverIndex) const;
+    QVariantMap getServerDisplayData(const int serverIndex) const;
 
     void reloadDefaultServerContainerConfig();
     void updateContainerConfig(const int containerIndex, const QJsonObject config);
@@ -163,7 +168,8 @@ public slots:
     QPair<QString, QString> getDnsPair(const int serverIndex);
 
     bool isServerFromApiAlreadyExists(const quint16 crc);
-    bool isServerFromApiAlreadyExists(const QString &userCountryCode, const QString &serviceType, const QString &serviceProtocol);
+    bool isServerFromApiAlreadyExists(const QString &userCountryCode, const QString &serviceType, const QString &serviceProtocol,
+                                      const QString &subscriptionId = QString());
     bool isServerFromApiAlreadyExists(const QString &connectionUuid);
     bool isServerFromApiAlreadyExists(const QString &name, const QString &description) const;
     bool hasServerWithVpnKey(const QString &vpnKey) const;
@@ -177,6 +183,16 @@ public slots:
 
     QVariant getProcessedServerData(const QString roleString);
     bool setProcessedServerData(const QString &roleString, const QVariant &value);
+
+    // Localized title for a node pool/group: current UI language translation
+    // -> raw pool -> "" (so the caller keeps the old name). A missing
+    // translation falls back to the pool itself; `ua` is accepted as `uk`.
+    // `pool`/`translation` come from /v1/services (`pool`, `pool_translation`).
+    static QString localizedPoolName(const QString &pool, const QJsonObject &translation, const QLocale &locale);
+
+    // Re-reads pool-based names after a UI language change. NameRole is computed
+    // dynamically, so this only needs to notify the views; user renames are kept.
+    void onTranslationsUpdated();
 
     bool isDefaultServerDefaultContainerHasSplitTunneling();
 
@@ -211,6 +227,7 @@ signals:
     void gatewayStacksExpanded();
     void availableProtocolsChanged();
     void availableEnvsChanged();
+    void availableSubscriptionsChanged();
 
 private:
     ServerCredentials serverCredentials(int index) const;
@@ -228,6 +245,7 @@ private:
     void recomputeAvailableProtocols();
 
     void recomputeAvailableEnvs();
+    void recomputeAvailableSubscriptions();
 
     QJsonArray m_servers;
 
@@ -244,6 +262,8 @@ private:
     QStringList m_availableProtocols;
 
     QStringList m_availableEnvs;
+
+    QStringList m_availableSubscriptions;
 
     QHash<int, int> m_healthResults;
 };

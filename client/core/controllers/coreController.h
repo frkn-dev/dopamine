@@ -13,6 +13,7 @@
 #include "ui/controllers/api/apiSettingsController.h"
 #include "ui/controllers/appSplitTunnelingController.h"
 #include "ui/controllers/allowedDnsController.h"
+#include "ui/controllers/localSubnetExclusionsController.h"
 #include "ui/controllers/connectionController.h"
 #include "ui/controllers/focusController.h"
 #include "ui/controllers/healthCheckController.h"
@@ -100,6 +101,7 @@ private:
     QScopedPointer<SystemController> m_systemController;
     QScopedPointer<AppSplitTunnelingController> m_appSplitTunnelingController;
     QScopedPointer<AllowedDnsController> m_allowedDnsController;
+    QScopedPointer<LocalSubnetExclusionsController> m_localSubnetExclusionsController;
 
     QScopedPointer<ApiSettingsController> m_apiSettingsController;
     QScopedPointer<ApiConfigsController> m_apiConfigsController;
@@ -113,6 +115,7 @@ private:
     QSharedPointer<SplitPresetsModel> m_splitPresetsModel;
     QSharedPointer<HealthCheckController> m_healthCheckController;
     QSharedPointer<AllowedDnsModel> m_allowedDnsModel;
+    QSharedPointer<LocalSubnetExclusionsModel> m_localSubnetExclusionsModel;
     QSharedPointer<AppSplitTunnelingModel> m_appSplitTunnelingModel;
 
     QSharedPointer<ApiServicesModel> m_apiServicesModel;

@@ -25,6 +25,9 @@ struct WGConfig: Decodable {
   let splitTunnelSites: [String]
   let splitTunnelIncludeSites: [String]?
   let splitTunnelExcludeSites: [String]?
+  /// Subnets that always bypass the tunnel, whatever the split tunneling mode
+  /// (Settings -> Local subnets).
+  let localSubnetExclusions: [String]?
 
   enum CodingKeys: String, CodingKey {
     case initPacketMagicHeader = "H1", responsePacketMagicHeader = "H2"
@@ -51,6 +54,7 @@ struct WGConfig: Decodable {
     case splitTunnelSites
     case splitTunnelIncludeSites
     case splitTunnelExcludeSites
+    case localSubnetExclusions
   }
 
   // The AWG backend sends port as a number, the plain-WG backend as a string —
@@ -103,6 +107,7 @@ struct WGConfig: Decodable {
     splitTunnelSites = try c.decode([String].self, forKey: .splitTunnelSites)
     splitTunnelIncludeSites = try c.decodeIfPresent([String].self, forKey: .splitTunnelIncludeSites)
     splitTunnelExcludeSites = try c.decodeIfPresent([String].self, forKey: .splitTunnelExcludeSites)
+    localSubnetExclusions = try c.decodeIfPresent([String].self, forKey: .localSubnetExclusions)
   }
 
   var settings: String {

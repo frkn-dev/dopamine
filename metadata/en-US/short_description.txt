@@ -1,1 +1,1 @@
-A multi-protocol, open-source VPN client that offers the option to set up your own server.
+Open-source VPN client with modern protocols and optional self-hosted servers.

@@ -205,6 +205,17 @@ bool WireguardUtilsLinux::addInterface(const InterfaceConfig& config) {
                     params.blockAddrs.append(net.toString());
                 }
             }
+
+            // Local subnet exclusions bypass the tunnel on every connection:
+            // route them out of the physical interface and let them through
+            // the kill switch regardless of the allowed-IPs mode above.
+            foreach (auto net, config.m_excludedAddresses) {
+                const IPAddress addr(net);
+                if (addr.address().isNull()) {
+                    continue;
+                }
+                params.excludedSubnets.append(addr.toString());
+            }
             applyFirewallRules(params);
         }
     }
@@ -510,8 +521,19 @@ void WireguardUtilsLinux::applyFirewallRules(FirewallParams& params)
 
     LinuxFirewall::setAnchorEnabled(LinuxFirewall::Both, QStringLiteral("000.allowLoopback"), true);
     LinuxFirewall::setAnchorEnabled(LinuxFirewall::Both, QStringLiteral("100.blockAll"), params.blockAll);
-    LinuxFirewall::setAnchorEnabled(LinuxFirewall::IPv4, QStringLiteral("110.allowNets"), params.allowNets);
-    LinuxFirewall::updateAllowNets(params.allowAddrs);
+
+    // Local subnet exclusions must win over 120.blockNets: an explicitly
+    // excluded subnet keeps working even when it overlaps the tunnel ranges.
+    // The list is merged into the allow anchor (both families).
+    QStringList allowAddrs = params.allowAddrs;
+    for (const QString& subnet : params.excludedSubnets) {
+        if (!allowAddrs.contains(subnet)) {
+            allowAddrs.append(subnet);
+        }
+    }
+    const bool allowNets = params.allowNets || !params.excludedSubnets.isEmpty();
+    LinuxFirewall::setAnchorEnabled(LinuxFirewall::Both, QStringLiteral("110.allowNets"), allowNets);
+    LinuxFirewall::updateAllowNets(allowAddrs);
     LinuxFirewall::setAnchorEnabled(LinuxFirewall::IPv4, QStringLiteral("120.blockNets"), params.blockNets);
     LinuxFirewall::updateBlockNets(params.blockAddrs);
     LinuxFirewall::setAnchorEnabled(LinuxFirewall::IPv4, QStringLiteral("200.allowVPN"), true);

@@ -182,6 +182,21 @@ private:
 
     void fetchSubscriptionConfigsAsync(const QString &subscriptionId, const std::function<void(bool)> &callback,
                                        bool reportErrors = true);
+    // fetches /v1/services + /v1/config for one subscription and hands the raw
+    // result to the caller without touching m_subscriptionConfigs — the
+    // multi-subscription reload runs these sequentially, one subscription at a time
+    void fetchSubscriptionFeed(const QString &subscriptionId,
+                               const std::function<void(bool, const QJsonArray &, const QStringList &)> &callback,
+                               bool reportErrors);
+    // removes only the records of one subscription that disappeared from its own
+    // response, then installs the freshly fetched configs
+    void reconcileSubscription(const QString &subscriptionId, const QJsonArray &configs, const QStringList &failures);
+    // every distinct FRKN subscription id found on the stored servers
+    // (api_config.auth_data.api_key, legacy .id); foreign/share records skipped
+    QStringList collectSubscriptionIds() const;
+    // matching + install of one fetched config, scoped by subscription_id +
+    // connection_uuid + node_id
+    bool installSubscriptionConfigObject(const QJsonObject &serverConfig);
     // duplicate-label numbering + protocol sort of m_subscriptionConfigs, emits
     // subscriptionConfigsChanged — the local tail of the async fetch chain
     void finalizeSubscriptionConfigs();

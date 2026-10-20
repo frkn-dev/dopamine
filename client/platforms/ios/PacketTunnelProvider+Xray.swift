@@ -1,5 +1,6 @@
 import Darwin
 import Foundation
+import Network
 import NetworkExtension
 
 enum XrayErrors: Error {
@@ -117,6 +118,30 @@ extension PacketTunnelProvider {
         }
     }
 
+    /// Local subnet exclusions: subnets that keep going out of the physical
+    /// interface instead of the tunnel, whatever the site split tunneling says
+    /// (Settings -> Local subnets). Applied after
+    /// `applyXraySplitTunnel()` so the mode-specific assignment of
+    /// excludedRoutes cannot drop them. IPv6 is not tunneled on this path
+    /// (ipv6Enabled = false), so only IPv4 entries are mapped.
+    private func applyXrayLocalSubnetExclusions(_ xrayConfig: XrayConfig,
+                                                settings: NEPacketTunnelNetworkSettings) {
+        guard let exclusions = xrayConfig.localSubnetExclusions, !exclusions.isEmpty else {
+            return
+        }
+
+        var excludedRoutes = settings.ipv4Settings?.excludedRoutes ?? []
+        for exclusion in exclusions {
+            guard let range = IPAddressRange(from: exclusion),
+                  range.address is IPv4Address else {
+                continue
+            }
+            excludedRoutes.append(NEIPv4Route(destinationAddress: "\(range.address)",
+                                              subnetMask: "\(range.subnetMask())"))
+        }
+        settings.ipv4Settings?.excludedRoutes = excludedRoutes
+    }
+
     func startXray(completionHandler: @escaping (Error?) -> Void) {
 
         // Xray configuration
@@ -169,6 +194,7 @@ extension PacketTunnelProvider {
             ? NEDNSSettings(servers: dnsArray)
             : NEDNSSettings(servers: ["1.1.1.1"])
             applyXraySplitTunnel(xrayConfig, settings: settings)
+            applyXrayLocalSubnetExclusions(xrayConfig, settings: settings)
 
             let xrayConfigData = xrayConfig.config.data(using: .utf8)
 

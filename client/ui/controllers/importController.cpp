@@ -1039,6 +1039,9 @@ void ImportController::importSubscriptionConfigs(bool replaceExisting)
         m_serversModel->removeAllServers();
     }
     m_serversModel->addServers(m_subscriptionConfigs);
+    // a subscription filter left over from before would hide the freshly added
+    // servers, so always fall back to "all"
+    m_settings->setServersSubscriptionFilter(QStringLiteral("all"));
     m_subscriptionConfigs = QJsonArray();
     emit importFinished();
 }

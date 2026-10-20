@@ -15,6 +15,7 @@ class Awg : Wireguard() {
             configExtensionParameters(configData)
             configWireguard(config, configData)
             configSplitTunneling(config)
+            configLocalSubnetExclusions(config)
             configAppSplitTunneling(config)
         }
     }

@@ -33,7 +33,8 @@ VPN-клиент (форк AmneziaVPN): Qt6/QML, C++20. Платформы: macO
 
 - macOS: `deploy/build_macos_local.sh` (arm64/intel через `deploy/build-macos-local-*`), упаковка `deploy/package_macos_pkg.sh <build-dir>`
 - Windows: по SSH на вин-машину (`Happy@192.168.0.127`, ключ `~/.ssh/dopamine_win`), `deploy/build_windows_local.bat` → MSI в `deploy/build_64/Dopamine-*-win64.msi`. Туннель (`tunnel.dll`) пересобирать **не нужно** — только при смене AWG (`deploy/build_tunnel_dll_windows.bat`)
-- Android: `deploy/build_android.sh` → APK
+- Android: `deploy/build_android.sh` → APK. На macOS нужен GNU getopt (`brew install gnu-getopt`, `PATH=/opt/homebrew/opt/gnu-getopt/bin:$PATH`), иначе скрипт молча печатает usage и выходит. 64-bit: `-a arm64-v8a`, 32-bit (ТВ/старые Android): `-a armeabi-v7a`.
+  Env: `QT_HOST_PATH=/Users/2pizza/c/6.10.1/6.10.1/macos`, `ANDROID_NDK_ROOT=$HOME/Library/Android/sdk/ndk/26.1.10909125`, `ANDROID_KEYSTORE_PATH=$HOME/frkn-release-key.jks`, alias/пароль ключа — локально (не в репе). Нужен JDK 17 (`JAVA_HOME=$(/usr/libexec/java_home -v 17)`): на Java 25 Gradle 8.10 падает. Без `CI=1`/`-m` готовый APK остаётся в `deploy/build/client/android-build/build/outputs/apk/release/FRKN-<abi>-release.apk`.
 - iOS: юзер собирает через Xcode из `build-ios-upload/`
 
 **Правила:**
@@ -43,11 +44,15 @@ VPN-клиент (форк AmneziaVPN): Qt6/QML, C++20. Платформы: macO
 
 ## Деплой релиза
 
-1. Бинарники → `~/c/f/frkn.org/dopamine/` (в гите сайта pkg/apk/dmg заигнорены, MSI коммитить не надо)
-2. Бамп ссылок и бейджа версии в `dopamine/index.html` (и `en/index.html`)
+Живой сайт — **frkn.app**, а не frkn.org: nginx отдаёт `/opt/frkn.app/dopamine/index.html` как `https://frkn.app/`, а `dopamine/en/index.html` — как `https://frkn.app/en/`. Точные page-URL (`/dopamine/`, `/dopamine/en/`) и `frkn.org/dopamine/*` редиректят туда; файлы по `/dopamine/*.pkg|apk|bin` отдаются из `/opt/frkn.app/dopamine/`.
+
+1. Бинарники → `~/c/f/frkn.org/dopamine/` (в гите сайта pkg/apk/bin заигнорены, MSI коммитить не надо)
+2. Бамп ссылок и бейджа версии в `dopamine/index.html` и `dopamine/en/index.html`
 3. Коммит в `frkn.org` (ветка feature/*, правила мёржа — в `~/c/f/frkn.org/AGENTS.md`)
-4. Деплой: `RSYNC_RSH="ssh -i ~/.ssh/ed25519_frkn -o IdentitiesOnly=yes" ./deploy-site.sh` — rsync на `root@141.133.173.16:/opt/frkn.org`
-5. Проверка: `curl -sI https://frkn.org/dopamine/<файл>` — 200 и Content-Length = локальному размеру
+4. Деплой: `./deploy-app.sh` (весь tree) или точечно, чтобы не выкатить чужие правки:
+   `RSYNC_RSH="ssh -i ~/.ssh/ed25519_frkn -o IdentitiesOnly=yes" rsync -av --chmod=F644 dopamine/index.html root@141.133.173.16:/opt/frkn.app/dopamine/`
+   (+ `dopamine/en/index.html` → `/opt/frkn.app/dopamine/en/`, новые бинарники → `/opt/frkn.app/dopamine/`)
+5. Проверка: `curl -s https://frkn.app/ | grep -o 'v4\.8\.14\.[0-9]*'` (и `/en/`), `curl -sI https://frkn.app/dopamine/<файл>` — 200 и Content-Length = локальному. `/opt/frkn.org` — легаси-копия, frkn.app её не отдаёт.
 
 ## Git
 

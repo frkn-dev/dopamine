@@ -583,3 +583,17 @@ void Settings::setAllowedDnsServers(const QStringList &servers)
 {
     m_settings.setValue("Conf/allowedDnsServers", servers);
 }
+
+QStringList Settings::localSubnetExclusions() const
+{
+    // Normalize on read as well: a config hand-edited or written by an older
+    // build must never push a malformed entry (or a `/0`) into the tunnel.
+    return NetworkUtilities::normalizeSubnetExclusions(
+            m_settings.value("Conf/localSubnetExclusions").toStringList());
+}
+
+void Settings::setLocalSubnetExclusions(const QStringList &subnets)
+{
+    m_settings.setValue("Conf/localSubnetExclusions",
+                        NetworkUtilities::normalizeSubnetExclusions(subnets));
+}

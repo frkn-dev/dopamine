@@ -11,8 +11,8 @@ add English localization as well (and optionally Ukrainian).
 ## Name / Subtitle
 
 - **Name:** Dopamine by FRKN
-- **Subtitle (RU, ≤30):** Быстрый и приватный VPN
-- **Subtitle (EN, ≤30):** Fast & private VPN
+- **Subtitle (RU, ≤30):** Приватный и безопасный VPN
+- **Subtitle (EN, ≤30):** Private & secure connection
 
 ---
 
@@ -20,12 +20,12 @@ add English localization as well (and optionally Ukrainian).
 
 **EN:**
 ```
-Connect in one tap. Free servers, modern anti-censorship protocols, and full control over your privacy — no registration needed.
+Connect in one tap. Modern protocols, free servers, and full control over your privacy — no registration needed.
 ```
 
 **RU:**
 ```
-Подключение в один тап. Бесплатные серверы, современные протоколы против блокировок и полный контроль над приватностью.
+Подключение в один тап. Современные протоколы, бесплатные серверы и полный контроль над приватностью.
 ```
 
 ---
@@ -40,7 +40,7 @@ Connect in one tap. Enter your subscription key and you're online in seconds.
 
 WHY DOPAMINE
 
-• Modern anti-censorship protocols: AmneziaWG, WireGuard, OpenVPN with Cloak, XRay with REALITY — designed to work even where VPNs are blocked
+• Modern protocols: AmneziaWG, WireGuard, and Xray — fast and reliable
 • Free and premium servers around the world
 • Split tunneling — choose which apps and sites use the VPN
 • KillSwitch — your traffic never leaks if the connection drops
@@ -65,7 +65,7 @@ Dopamine — бесплатный VPN с открытым исходным ко�
 
 ПОЧЕМУ DOPAMINE
 
-• Современные протоколы против блокировок: AmneziaWG, WireGuard, OpenVPN с Cloak, XRay с REALITY — работают даже там, где VPN блокируют
+• Современные протоколы: AmneziaWG, WireGuard и Xray — быстро и надёжно
 • Бесплатные и премиум-серверы по всему миру
 • Раздельное туннелирование — выбирайте, какие приложения и сайты идут через VPN
 • KillSwitch — трафик не утечёт, даже если соединение оборвётся
@@ -88,15 +88,13 @@ Dopamine — бесплатный VPN с открытым исходным ко�
 
 **EN:**
 ```
-vpn,wireguard,openvpn,proxy,privacy,secure,proxy server,free vpn,vpn client
+vpn,wireguard,privacy,secure,network,private network,vpn client
 ```
-(75 chars)
 
 **RU:**
 ```
-vpn,впн,прокси,wireguard,openvpn,приватность,безопасность,бесплатный впн
+vpn,впн,wireguard,приватность,безопасность,сеть,vpn клиент
 ```
-(70 chars)
 
 ---
 
@@ -138,21 +136,49 @@ Tracking: **No** — приложение не трекерит, рекламы 
 
 **EN:**
 ```
-Dopamine is a VPN client. On the setup screen tap "VPN by FRKN" and enter the
-subscription ID provided to App Review.
-To test premium: use the sandbox Apple ID — tap the premium service, choose a
-plan and tap "Subscribe Now". Purchases in the review environment are not charged.
+There is no traditional username/password login.
+
+Access to our managed VPN service uses a subscription ID on the setup screen
+("VPN by FRKN"), or the deep link below.
+
+Demo credentials for App Review:
+- Username (ASC field): 8g32-k1z1-9f
+- Password / subscription ID: 9c10b6ef-6df7-44f9-b68f-ba5800b0a3a0
+- Deep link: frkn://sub/9c10b6ef-6df7-44f9-b68f-ba5800b0a3a0
+
+Steps:
+1. Open the app
+2. On the setup screen tap "VPN by FRKN"
+3. Paste the subscription ID: 9c10b6ef-6df7-44f9-b68f-ba5800b0a3a0
+   (or open the deep link above)
+4. Allow the iOS VPN configuration prompt
+5. Connect
+
+Premium / IAP can also be tested with a Sandbox Apple ID (purchases are not charged).
+Self-hosted / imported configs do not require an account.
+
 The app uses NetworkExtension (packet-tunnel) to provide the VPN connection.
+
+VPN data: the tunnel does not log browsing history, destination IPs, DNS queries,
+or traffic contents. Limited account/service data (subscription id, status/quota,
+device/app/OS version, App Store transaction ids) is processed only to run the
+service. Privacy policy: https://frkn.org/privacy-policy/
 ```
 
-**RU-перевод для себя:** ревьюеру нужен готовый ID подписки на экране «VPN by FRKN»;
-премиум проверяется через sandbox; приложение использует NetworkExtension.
+**ASC Demo Account fields:**
+- Sign-in required: Yes
+- User name: `8g32-k1z1-9f`
+- Password: `9c10b6ef-6df7-44f9-b68f-ba5800b0a3a0`
+
+**RU-перевод для себя:** ревьюеру — ID `9c10b6ef-6df7-44f9-b68f-ba5800b0a3a0`
+(или deep link `frkn://sub/...`); код `8g32-k1z1-9f` в Username;
+премиум — sandbox; VPN-трафик не логируется.
 
 ---
 
 ## Что приложить к версии при сабмите
 
-- Build 4.8.14 (6) или новее
+- Свежий iOS build (CFBundleVersion = tweak из DOPAMINE_VERSION)
 - 4 IAP-продукта (`frkn_premium_1/3/6/12_month`) — секция In-App Purchases версии
 - Скриншоты 6.5" iPhone (и iPad 12.9", т.к. family = 1,2)
-- Контакт для ревью + этот Review Notes
+- Контакт для ревью + этот Review Notes с живым demo UUID

@@ -31,13 +31,24 @@ PageType {
     }
 
     property var processedServer
+    property bool isSharedConnection: false
+    property bool canShareServer: false
+
+    // getCurrentServerClientIp() / getCurrentServerMtu() read the per-server config,
+    // which gateway servers install lazily on (re)connect. Bump this so those rows
+    // re-evaluate instead of being computed once when the page opens.
+    property int configRevision: 0
 
     Component.onCompleted: {
         // shared connections (frkn://conn) have no subscription account behind
         // them — asking the API for account info errors out, so skip both the
         // refresh and the status row for them
         var apiConfig = ServersModel.getProcessedServerData("apiConfig")
+        if (apiConfig && apiConfig.connection_uuid && apiConfig.node_id && apiConfig.shared !== true) {
+            root.canShareServer = true
+        }
         if (apiConfig && apiConfig.shared === true) {
+            root.isSharedConnection = true
             labelsModel = []
             return
         }
@@ -87,6 +98,23 @@ PageType {
 
         function onProcessedServerChanged() {
             root.processedServer = proxyServersModel.get(0)
+            root.configRevision++
+        }
+    }
+
+    Connections {
+        target: ConnectionController
+
+        function onConnectionStateChanged() {
+            root.configRevision++
+        }
+    }
+
+    Connections {
+        target: ApiConfigsController
+
+        function onReloadSubscriptionConfigsFinished(success) {
+            root.configRevision++
         }
     }
 
@@ -220,7 +248,10 @@ PageType {
 
                 imageSource: "qrc:/images/controls/settings.svg"
                 leftText: qsTr("MTU")
-                rightText: ApiConfigsController.getCurrentServerMtu()
+                rightText: {
+                    var revision = root.configRevision
+                    return ApiConfigsController.getCurrentServerMtu()
+                }
                 visible: rightText !== ""
             }
 
@@ -230,7 +261,10 @@ PageType {
 
                 imageSource: "qrc:/images/controls/server.svg"
                 leftText: qsTr("Tunnel IP")
-                rightText: ApiConfigsController.getCurrentServerClientIp()
+                rightText: {
+                    var revision = root.configRevision
+                    return ApiConfigsController.getCurrentServerClientIp()
+                }
                 visible: rightText !== ""
             }
 
@@ -379,6 +413,25 @@ PageType {
 
             DividerType {
                 visible: footer.isVisibleForAmneziaFree
+            }
+
+            LabelWithButtonType {
+                Layout.fillWidth: true
+
+                visible: root.canShareServer
+
+                text: qsTr("Share connection")
+
+                descriptionText: qsTr("A link for this server only, not the whole subscription")
+                rightImageSource: "qrc:/images/controls/chevron-right.svg"
+
+                clickedFunction: function() {
+                    PageController.goToPage(PageEnum.PageSettingsShare)
+                }
+            }
+
+            DividerType {
+                visible: root.canShareServer
             }
 
             LabelWithButtonType {

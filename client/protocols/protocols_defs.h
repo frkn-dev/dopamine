@@ -141,6 +141,12 @@ namespace amnezia
 
         constexpr char allowedDnsServers[] = "allowedDnsServers";
 
+        // Local subnets that must keep going out of the physical interface
+        // instead of the tunnel, whatever the site/preset split tunneling says
+        // (see Settings::localSubnetExclusions). Always applied, on every
+        // platform that can route around the tunnel.
+        constexpr char localSubnetExclusions[] = "localSubnetExclusions";
+
         constexpr char killSwitchOption[] = "killSwitchOption";
 
         constexpr char routeLanThroughVpn[] = "routeLanThroughVpn";

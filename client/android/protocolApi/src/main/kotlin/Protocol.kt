@@ -10,6 +10,8 @@ import androidx.annotation.RequiresApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.amnezia.vpn.util.Log
 import org.amnezia.vpn.util.net.InetNetwork
+import org.amnezia.vpn.util.net.IpRange
+import org.amnezia.vpn.util.net.IpRangeSet
 import org.json.JSONObject
 
 private const val TAG = "Protocol"
@@ -19,6 +21,9 @@ const val VPN_SESSION_NAME = "FRKN"
 private const val SPLIT_TUNNEL_DISABLE = 0
 private const val SPLIT_TUNNEL_INCLUDE = 1
 private const val SPLIT_TUNNEL_EXCLUDE = 2
+
+/** JSON key of the local subnet exclusions, see `configLocalSubnetExclusions`. */
+private const val LOCAL_SUBNET_EXCLUSIONS_KEY = "localSubnetExclusions"
 
 abstract class Protocol {
 
@@ -69,6 +74,63 @@ abstract class Protocol {
             val address = InetNetwork.parse(splitTunnelSites.getString(i))
             addressHandlerFunc(address)
         }
+    }
+
+    /**
+     * Local subnet exclusions (Settings -> Local subnets): subnets that keep
+     * going out of the physical interface instead of the tunnel.
+     *
+     * Unlike [configSplitTunneling] this is applied on every connection: it is
+     * not a split-tunneling direction, so it works with split tunneling off and
+     * wins over a preset that sends the same subnet "via VPN".
+     */
+    protected fun ProtocolConfig.Builder.configLocalSubnetExclusions(config: JSONObject) {
+        val exclusions = mutableSetOf<InetNetwork>()
+        val rawExclusions = config.optJSONArray(LOCAL_SUBNET_EXCLUSIONS_KEY) ?: return
+        for (i in 0 until rawExclusions.length()) {
+            val entry = rawExclusions.optString(i).trim()
+            if (entry.isEmpty()) continue
+            runCatching { InetNetwork.parse(entry) }.getOrNull()?.let { exclusions += it }
+        }
+        if (exclusions.isEmpty()) return
+
+        if (includedAddresses.isNotEmpty()) {
+            // Inclusive split tunneling cannot coexist with an exclude list
+            // (see processSplitTunneling()), so the exclusions are cut out of
+            // the include list instead: they never enter the tunnel.
+            val includes = includedAddresses.toSet()
+            includedAddresses.clear()
+            includedAddresses += subtract(exclusions, includes)
+            return
+        }
+
+        if (!allowSplitTunneling) {
+            // The tunnel scope comes from the protocol config (non-default
+            // AllowedIPs): cutting the exclusions out of those routes keeps
+            // the config untouched instead of widening the tunnel to
+            // 0.0.0.0/0.
+            val includes = routes.filter { it.include }.map { it.inetNetwork }.toSet()
+            val keep = routes.filterNot { it.include }
+            routes.clear()
+            routes += keep
+            routes += subtract(exclusions, includes).map { Route(it, true) }
+            return
+        }
+
+        excludeAddresses(exclusions)
+    }
+
+    /**
+     * Removes `exclusions` from `source` and returns the remaining prefixes.
+     */
+    private fun subtract(
+        exclusions: Set<InetNetwork>,
+        source: Set<InetNetwork>
+    ): List<InetNetwork> {
+        val ranges = IpRangeSet()
+        source.forEach { ranges.add(IpRange(it)) }
+        exclusions.forEach { ranges.remove(IpRange(it)) }
+        return ranges.subnets()
     }
 
     protected fun ProtocolConfig.Builder.configAppSplitTunneling(config: JSONObject) {

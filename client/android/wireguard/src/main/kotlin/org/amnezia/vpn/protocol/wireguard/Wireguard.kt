@@ -71,6 +71,7 @@ open class Wireguard : Protocol() {
         return WireguardConfig.build {
             configWireguard(config, configData)
             configSplitTunneling(config)
+            configLocalSubnetExclusions(config)
             configAppSplitTunneling(config)
         }
     }

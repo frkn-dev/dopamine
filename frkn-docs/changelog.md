@@ -1,5 +1,54 @@
 # Changelog
 
+## 2026-10-19 — список серверов: All и группировка по локациям
+
+- В фильтр протоколов добавлен вариант **All**: EU и RU отображаются одновременно;
+  выбор пользователя больше не сбрасывается принудительно на `awg-mobile`.
+- Серверы группируются по `subscription_id + pool` с fallback на имя/страну. Одна
+  локация представлена одной группой, а не отдельными карточками для каждого протокола.
+- В свёрнутом виде показывается предпочтительный вариант (`awg-mobile` → `awg` →
+  `hysteria2` → `vless` → `wireguard`), по раскрытию — все варианты. Выбор
+  конкретного `connection_uuid + node_id`, health, server info и reconnect работают
+  как раньше; записи разных подписок не объединяются.
+- `ServersModel::getServerDisplayData()` отдаёт QML исходный index и отображаемые
+  поля, поэтому хранение и VPN-логика не меняются.
+
+## 2026-10-17 — локализация имён пулов (pool / pool_translation)
+
+- `ApiConfigsController::decorate()` выбирает имя сервера по приоритету: перевод
+  пула для текущего языка UI (`en`/`ru`/`uk`, `ua` — алиас `uk`) → `pool` →
+  старое имя из `connection_label`. Бэкенд-контракт `pool` /
+  `pool_translation` — `ffcore/docs/node-pool.md`.
+- `ServersModel::localizedPoolName()` — общий выбор имени; `NameRole` считает его
+  динамически из `displayInfo.pool` / `displayInfo.poolTranslation`.
+- Смена языка не требует перезапуска: `translationsUpdated` →
+  `ServersModel::onTranslationsUpdated()` рассылает `dataChanged` и
+  `defaultServerNameChanged` (список/дома/детали/трей).
+- Пользовательское переименование (`nameOverriddenByUser`) всегда приоритетно и
+  не переводится; при отсутствии перевода используется старое имя; VPN-конфиг и
+  ключи не меняются. Подробности — `frkn-docs/pool-localization.md`.
+
+## 2026-10-17 — подписка: обновление нескольких подписок за раз
+
+- `reloadSubscriptionConfigs()` больше не берёт одну подписку
+  (`resolveSubscriptionId()`) и не удаляет «лишние» серверы глобально: он собирает
+  все FRKN subscription id из сохранённых серверов (`api_config.auth_data.api_key`,
+  fallback — legacy `.id`) и обновляет их последовательно и независимо.
+  Подробности — `frkn-docs/subscription-multi-refresh.md`.
+- Ключ сопоставления/удаления — `subscription_id + connection_uuid + node_id`:
+  одинаковые `connection_uuid`/`node_id` в разных подписках больше не перезаписывают
+  друг друга.
+- При рефреше подписки A удаляются только её записи, реально исчезнувшие из ответа;
+  ошибка или пустой ответ одной подписки не удаляет и не блокирует остальные.
+- Non-FRKN/foreign, share-записи и записи без известного владельца полностью
+  пропускаются (не обновляются и не удаляются).
+- Fetch вынесен в `fetchSubscriptionFeed` с локальными буферами — общие поля
+  контроллера (`m_subscriptionConfigs`/`m_subscriptionConfigFailures`) больше не
+  смешивают результаты разных подписок (они остались только для одиночного импорта).
+- Дедуп при импорте страны (`ServersModel::isServerFromApiAlreadyExists`) теперь
+  учитывает subscription id: одинаковые country/service/protocol в другой подписке
+  больше не считаются дубликатом.
+
 ## 2026-09-26 — split presets: named builtins + API union
 
 - Builtin каталог сервисов с теми же id, что API: `youtube`, `instagram`,

@@ -1,6 +1,14 @@
-Dopamine by FRKN — VPN for Free people
+Dopamine by FRKN — a free, open-source VPN client.
 
-We support freedom of speech and oppose all forms of censorship. We are developing a decentralized VPN that does not collect or store user data.
+Connect in one tap. Modern protocols, free and premium servers, and full control over your privacy.
 
-• https://frkn.org - project website
-• https://t.me/frkn_support - Telegram support channel
+• Modern protocols: AmneziaWG, WireGuard, and Xray
+• Free and premium servers around the world
+• Split tunneling and KillSwitch
+• Import configs: QR code, key, or file — including self-hosted setups
+• Open source on GitHub
+
+No ads, no trackers.
+
+• https://frkn.org — project website
+• https://t.me/frkn_support — Telegram support

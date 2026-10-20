@@ -235,6 +235,18 @@ void LocalSocketController::activate(const QJsonObject &rawConfig) {
       }
   }
 
+  // Local subnet exclusions are not a split-tunneling direction: they are
+  // routed around the tunnel (and through the kill switch) on every
+  // connection, whatever the site/app split tunneling says, so they are
+  // appended here unconditionally. The daemon normalizes/validates them
+  // again before touching the routing table.
+  for (auto v : rawConfig.value(amnezia::config_key::localSubnetExclusions).toArray()) {
+    const QString subnet = v.toString();
+    if (!subnet.isEmpty()) {
+      jsExcludedAddresses.append(subnet);
+    }
+  }
+
   json.insert("excludedAddresses", jsExcludedAddresses);
 
   // Desktop daemons (Windows WFP split-tunnel driver) support app EXCLUSIONS

@@ -179,6 +179,15 @@ public:
         m_settings.setValue("Conf/serversEnvFilter", filter);
     }
 
+    QString serversSubscriptionFilter() const
+    {
+        return m_settings.value("Conf/serversSubscriptionFilter", QString()).toString();
+    }
+    void setServersSubscriptionFilter(const QString &filter)
+    {
+        m_settings.setValue("Conf/serversSubscriptionFilter", filter);
+    }
+
     qint64 lastSubscriptionRefresh() const
     {
         return m_settings.value("Conf/lastSubscriptionRefresh", 0).toLongLong();
@@ -351,6 +360,17 @@ public:
     
     QStringList allowedDnsServers() const;
     void setAllowedDnsServers(const QStringList &servers);
+
+    /// Local subnets that must bypass the tunnel ("Conf/localSubnetExclusions").
+    ///
+    /// Stored normalized (see NetworkUtilities::normalizeSubnetExclusions):
+    /// CIDR entries of both families, no duplicates, no `/0`, bare addresses
+    /// widened to /32 or /128. An empty list means "no local exceptions".
+    /// These entries always win over the site/preset split tunneling "via VPN"
+    /// choice — they are not a split-tunneling direction, they are a route
+    /// around the tunnel.
+    QStringList localSubnetExclusions() const;
+    void setLocalSubnetExclusions(const QStringList &subnets);
 
     bool frknDarkMode() const { return m_settings.value("FRKN/darkMode", true).toBool(); }
     void setFrknDarkMode(bool enabled) { m_settings.setValue("FRKN/darkMode", enabled); }

@@ -87,6 +87,22 @@ extension PacketTunnelProvider {
                 }
             }
 
+            // Local subnet exclusions bypass the tunnel on every connection:
+            // they are not a split-tunneling direction, so they apply whatever
+            // the mode above did (and win over a preset that sends the same
+            // subnet "via VPN"). They are appended to the peers' excludeIPs,
+            // which the settings generator turns into excludedRoutes.
+            if let localSubnetExclusions = wgConfig.localSubnetExclusions,
+               !localSubnetExclusions.isEmpty {
+                let excludeIPs = localSubnetExclusions.compactMap { IPAddressRange(from: $0) }
+                if !excludeIPs.isEmpty {
+                    for index in tunnelConfiguration.peers.indices {
+                        tunnelConfiguration.peers[index].excludeIPs
+                            .append(contentsOf: excludeIPs)
+                    }
+                }
+            }
+
             wg_log(.info, message: "Starting tunnel from the " +
                    (activationAttemptId == nil ? "OS directly, rather than the app" : "app"))
 

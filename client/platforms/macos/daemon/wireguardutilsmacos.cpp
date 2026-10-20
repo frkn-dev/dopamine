@@ -205,6 +205,19 @@ bool WireguardUtilsMacos::addInterface(const InterfaceConfig& config) {
               params.blockAddrs.append(net.toString());
           }
       }
+
+      // Local subnet exclusions bypass the tunnel on every connection: route
+      // them out of the physical interface and let them through the kill
+      // switch regardless of the allowed-IPs mode above. Entries that are not
+      // an address (the server host name also travels in
+      // m_excludedAddresses) are skipped — a PF table can only take addresses.
+      foreach (auto net, config.m_excludedAddresses) {
+          const IPAddress addr(net);
+          if (addr.address().isNull()) {
+              continue;
+          }
+          params.excludedSubnets.append(addr.toString());
+      }
       applyFirewallRules(params);
     }
   }
@@ -533,6 +546,15 @@ void WireguardUtilsMacos::applyFirewallRules(FirewallParams& params)
 
   MacOSFirewall::setAnchorEnabled(QStringLiteral("200.allowVPN"), true);
   MacOSFirewall::setAnchorEnabled(QStringLiteral("250.blockIPv6"), true);
+
+  // Local subnet exclusions pass after 120.blockNets/250.blockIPv6, so an
+  // explicitly excluded subnet (IPv4 or IPv6) is reachable through the
+  // physical interface even though the kill switch blocks everything else.
+  const bool allowExcludedSubnets = !params.excludedSubnets.isEmpty();
+  MacOSFirewall::setAnchorEnabled(QStringLiteral("260.allowExcludedSubnets"), allowExcludedSubnets);
+  MacOSFirewall::setAnchorTable(QStringLiteral("260.allowExcludedSubnets"), allowExcludedSubnets,
+                                QStringLiteral("excludedsubnets"), params.excludedSubnets);
+
   MacOSFirewall::setAnchorEnabled(QStringLiteral("290.allowDHCP"), true);
   MacOSFirewall::setAnchorEnabled(QStringLiteral("300.allowLAN"), true);
   MacOSFirewall::setAnchorEnabled(QStringLiteral("310.blockDNS"), true);

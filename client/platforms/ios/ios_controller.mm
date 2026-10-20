@@ -780,6 +780,12 @@ bool IosController::setupWireGuard()
     }
     wgConfig.insert(config_key::splitTunnelExcludeSites, splitTunnelExcludeSites);
 
+    // Local subnets that always bypass the tunnel (Settings -> Local subnets):
+    // the entries are already normalized upstream, so they are forwarded as
+    // they are and applied whatever the split tunneling mode says.
+    wgConfig.insert(config_key::localSubnetExclusions,
+                    m_rawConfig[config_key::localSubnetExclusions].toArray());
+
     if (config.contains(config_key::allowed_ips) && config[config_key::allowed_ips].isArray()) {
         wgConfig.insert(config_key::allowed_ips, config[config_key::allowed_ips]);
     } else {
@@ -877,6 +883,10 @@ bool IosController::setupXray()
         splitTunnelExcludeSites[index] = splitTunnelExcludeSites[index].toString().remove(" ");
     }
     finalConfig.insert(config_key::splitTunnelExcludeSites, splitTunnelExcludeSites);
+
+    // Local subnets that always bypass the tunnel (Settings -> Local subnets).
+    finalConfig.insert(config_key::localSubnetExclusions,
+                       m_rawConfig[config_key::localSubnetExclusions].toArray());
 
     finalConfig.insert(config_key::config, xrayConfigStr);
 
@@ -1043,6 +1053,11 @@ bool IosController::setupAwg()
         splitTunnelExcludeSites[index] = splitTunnelExcludeSites[index].toString().remove(" ");
     }
     wgConfig.insert(config_key::splitTunnelExcludeSites, splitTunnelExcludeSites);
+
+    // Local subnets that always bypass the tunnel (Settings -> Local subnets),
+    // see IosController::setupWireGuard().
+    wgConfig.insert(config_key::localSubnetExclusions,
+                    m_rawConfig[config_key::localSubnetExclusions].toArray());
 
     // IPv4-only tunnel: without an IPv6 interface address, v6 allowed IPs
     // (::/0 in the API INI) only blackhole IPv6-preferred apps — drop them

@@ -743,6 +743,23 @@ void VpnConnection::appendSplitTunnelingConfig()
     m_vpnConfiguration.insert(config_key::splitTunnelIncludeSites, includeSitesJsonArray);
     m_vpnConfiguration.insert(config_key::splitTunnelExcludeSites, excludeSitesJsonArray);
 
+    // Local subnet exclusions: subnets the user wants to keep on the physical
+    // interface. They are independent of the site/preset split tunneling (they
+    // apply even when site split tunneling is off) and always win over a
+    // preset's "via VPN": every platform routes them around the tunnel.
+    QJsonArray localSubnetExclusionsJsonArray;
+    {
+        const QStringList exclusions = m_settings->localSubnetExclusions();
+        for (const QString &subnet : exclusions) {
+            localSubnetExclusionsJsonArray.append(subnet);
+        }
+    }
+    m_vpnConfiguration.insert(config_key::localSubnetExclusions, localSubnetExclusionsJsonArray);
+
+    if (!localSubnetExclusionsJsonArray.isEmpty()) {
+        qDebug() << "Local subnet exclusions:" << localSubnetExclusionsJsonArray;
+    }
+
     Settings::AppsRouteMode appsRouteMode = Settings::AppsRouteMode::VpnAllApps;
     QJsonArray appsJsonArray;
     if (m_settings->isAppsSplitTunnelingEnabled()) {

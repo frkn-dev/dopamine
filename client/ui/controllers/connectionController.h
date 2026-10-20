@@ -83,12 +83,20 @@ private:
     // same node/keys/ports — only the entry address differs). Every connect starts
     // from a random address of a freshly shuffled pool; a hard failure or a
     // traffic-less "Connected" retries the next address from the pool.
+    // A pool may span several servers (N servers × M addresses) — the retry walks
+    // all (row, ip) pairs in random order to spread load across the pool.
     bool retryWithNextIp();
     void resetIpPool();
+    // row of the pool entry currently being attempted (-1 when no pool is active)
+    int currentPoolRow() const;
 
-    QStringList m_ipPool;
-    int m_ipPoolPos = 0;
-    int m_ipPoolRow = -1;
+    struct PoolEntry
+    {
+        int row;
+        QString ip; // empty = dial the row's own hostName (CDN front / single address)
+    };
+    QList<PoolEntry> m_ipPool;
+    int m_ipPoolPos = -1;
     QString m_currentEndpoint; // entry address actually used by the running/last attempt
     bool m_connectionSwitching = false; // teardown states between (re)connects are not failures
     QTimer *m_ipTrafficTimer = nullptr;

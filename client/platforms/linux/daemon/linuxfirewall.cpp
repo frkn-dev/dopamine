@@ -32,6 +32,7 @@
 
 #include "linuxfirewall.h"
 #include "logger.h"
+#include <QHostAddress>
 #include <QProcess>
 
 #define BRAND_CODE "frk"
@@ -284,7 +285,7 @@ void LinuxFirewall::install()
 
     installAnchor(IPv4, QStringLiteral("120.blockNets"), {});
 
-    installAnchor(IPv4, QStringLiteral("110.allowNets"), {});
+    installAnchor(Both, QStringLiteral("110.allowNets"), {});
 
     installAnchor(Both, QStringLiteral("100.blockAll"), {
                                                             QStringLiteral("-j REJECT"),
@@ -358,7 +359,7 @@ void LinuxFirewall::uninstall()
     uninstallAnchor(IPv6, QStringLiteral("250.blockIPv6"));
     uninstallAnchor(Both, QStringLiteral("200.allowVPN"));
     uninstallAnchor(IPv4, QStringLiteral("120.blockNets"));
-    uninstallAnchor(IPv4, QStringLiteral("110.allowNets"));
+    uninstallAnchor(Both, QStringLiteral("110.allowNets"));
     uninstallAnchor(Both, QStringLiteral("100.blockAll"));
 
     // Remove Nat anchors
@@ -455,9 +456,27 @@ void LinuxFirewall::updateDNSServers(const QStringList& servers)
 
 void LinuxFirewall::updateAllowNets(const QStringList& servers)
 {
+    // The anchor exists for both families (a local subnet exclusion can be
+    // IPv4 or IPv6), so each family's chain only gets the entries it can
+    // parse: an IPv6 CIDR in iptables (or the other way round) is an error.
+    QStringList ipv4Rules;
+    QStringList ipv6Rules;
+    for (const QString& server : servers) {
+        const QHostAddress address(server.split('/').first().trimmed());
+        if (address.protocol() == QAbstractSocket::IPv6Protocol) {
+            ipv6Rules << QStringLiteral("-d %1 -j ACCEPT").arg(server);
+        } else {
+            ipv4Rules << QStringLiteral("-d %1 -j ACCEPT").arg(server);
+        }
+    }
+
     execute(QStringLiteral("iptables -F %1.110.allowNets").arg(kAnchorName));
-    for (const QString& rule : getAllowRule(servers))
+    for (const QString& rule : ipv4Rules)
         execute(QStringLiteral("iptables -A %1.110.allowNets %2").arg(kAnchorName, rule));
+
+    execute(QStringLiteral("ip6tables -F %1.110.allowNets").arg(kAnchorName));
+    for (const QString& rule : ipv6Rules)
+        execute(QStringLiteral("ip6tables -A %1.110.allowNets %2").arg(kAnchorName, rule));
 }
 
 void LinuxFirewall::updateBlockNets(const QStringList& servers)

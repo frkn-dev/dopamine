@@ -14,11 +14,15 @@ WireguardProtocol::WireguardProtocol(const QJsonObject &configuration, QObject *
     m_impl.reset(new LocalSocketController());
     connect(m_impl.get(), &ControllerImpl::connected, this,
             [this](const QString &pubkey, const QDateTime &connectionTimestamp) {
-                setConnectionState(Vpn::ConnectionState::Connected);
                 // fresh tunnel = fresh uapi counters, reset the delta baseline
                 m_lastRxBytes = 0;
                 m_lastTxBytes = 0;
                 m_statsTimer.start();
+                // State change last: a connection-state handler may start a new
+                // connect, which replaces (deletes) this protocol while we are
+                // still on its stack — touching members afterwards is a
+                // use-after-free (QTimer::start crash, 2026-10-19 01:43 report).
+                setConnectionState(Vpn::ConnectionState::Connected);
             });
     connect(m_impl.get(), &ControllerImpl::statusUpdated, this,
             [this](const QString& serverIpv4Gateway,

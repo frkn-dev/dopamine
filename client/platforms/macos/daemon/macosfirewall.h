@@ -46,6 +46,11 @@ struct FirewallParams
     QStringList allowAddrs;
     QStringList blockAddrs;
 
+    // Local subnet exclusions: subnets that always bypass the tunnel, so the
+    // kill switch must let them through even when every other rule blocks.
+    // Unlike allowAddrs these are filled independently of blockAll/blockNets.
+    QStringList excludedSubnets;
+
     // The follow flags indicate which general rulesets are needed. Note that
     // this is after some sanity filtering, i.e. an allow rule may be listed
     // as not needed if there were no block rules preceding it. The rulesets

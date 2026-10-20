@@ -584,7 +584,10 @@ bool Daemon::switchServer(const InterfaceConfig& config) {
 
   // Remove routing entries for the old peer.
   for (const QString& i : lastConfig.m_excludedAddresses) {
-    delExclusionRoute(QHostAddress(i));
+    // IPAddress(const QString&) keeps the CIDR prefix (`10.0.0.0/8`); going
+    // through QHostAddress would silently widen it to a /32 (or /128) host
+    // route, leaving the subnet route behind forever.
+    delExclusionRoute(IPAddress(i));
   }
   for (const IPAddress& ip : lastConfig.m_allowedIPAddressRanges) {
     if (!config.m_allowedIPAddressRanges.contains(ip)) {

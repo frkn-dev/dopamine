@@ -7,6 +7,7 @@
 #include <QJsonObject>
 #include <QRandomGenerator>
 #include <QRegularExpression>
+#include <QSet>
 #include <QTcpSocket>
 
 #include <algorithm>
@@ -206,7 +207,7 @@ ConnectionController::ConnectionController(const QSharedPointer<ServersModel> &s
             return;
         }
         m_ipAwaitingTraffic = false;
-        qDebug() << "[IPPOOL] connected but no traffic on row" << m_ipPoolRow << ", trying next address";
+        qDebug() << "[IPPOOL] connected but no traffic on row" << currentPoolRow() << ", trying next address";
         if (!retryWithNextIp()) {
             resetIpPool();
             emit disconnectFromVpn();
@@ -217,7 +218,7 @@ ConnectionController::ConnectionController(const QSharedPointer<ServersModel> &s
     m_manualConnectTimer = new QTimer(this);
     m_manualConnectTimer->setSingleShot(true);
     connect(m_manualConnectTimer, &QTimer::timeout, this, [this]() {
-        qDebug() << "[CONNECT] manual attempt timed out, row" << m_ipPoolRow;
+        qDebug() << "[CONNECT] manual attempt timed out, row" << currentPoolRow();
         if (retryWithNextIp()) {
             return; // connectToServerIndexWithIp restarts the watchdog
         }
@@ -289,7 +290,7 @@ ConnectionController::ConnectionController(const QSharedPointer<ServersModel> &s
         }
         if (m_autoPhase == AutoPhase::None && m_ipAwaitingTraffic) {
             if (receivedBytes > 0) {
-                qDebug() << "[IPPOOL] traffic confirmed on row" << m_ipPoolRow;
+                qDebug() << "[IPPOOL] traffic confirmed on row" << currentPoolRow();
                 resetIpPool(); // success — the next connect starts from a fresh random pool
             }
         }
@@ -441,29 +442,93 @@ void ConnectionController::openConnection()
 
 void ConnectionController::connectToServerIndex(int serverIndex)
 {
-    // multi-IP nodes: build a freshly shuffled address pool per connect — each
-    // attempt starts from a random entry address, retries walk the rest
-    const QJsonArray nodeIps = m_serversModel->getServerConfig(serverIndex).value(QStringLiteral("node_ips")).toArray();
-    QStringList ips;
-    for (const QJsonValue &v : nodeIps) {
-        const QString ip = v.toString();
-        if (!ip.isEmpty()) {
-            ips.append(ip);
+    // multi-IP / multi-node failover: build a freshly shuffled pool of (row, ip)
+    // pairs. A pooled API row already carries every pool address in node_ips, but
+    // older/pinned gateways expose one node per row — so addresses are also
+    // gathered from the sibling rows of the same pool. Every entry keeps its own
+    // row: keys/ports must come from the row that owns the address.
+    const auto subscriptionIdOf = [](const QJsonObject &config) {
+        QJsonObject authData = config.value(QStringLiteral("api_config")).toObject().value(QStringLiteral("auth_data")).toObject();
+        if (authData.isEmpty()) {
+            authData = config.value(QStringLiteral("auth_data")).toObject();
+        }
+        const QString apiKey = authData.value(QStringLiteral("api_key")).toString();
+        return apiKey.isEmpty() ? authData.value(QStringLiteral("id")).toString() : apiKey;
+    };
+
+    const QJsonObject serverConfig = m_serversModel->getServerConfig(serverIndex);
+    const QString targetPool =
+            serverConfig.value(QStringLiteral("displayInfo")).toObject().value(QStringLiteral("pool")).toString();
+    const QString targetProtocol = m_serversModel->data(serverIndex, ServersModel::Roles::ServiceProtocolFilterRole).toString();
+    const QString targetEnv = m_serversModel->data(serverIndex, ServersModel::Roles::ConnectionEnvRole).toString();
+    const QString targetSubscription = subscriptionIdOf(serverConfig);
+    const bool targetIsVlessCdn = isVlessCdnRow(serverIndex);
+
+    QList<PoolEntry> pool;
+    QSet<QString> seenIps; // the same pool address may repeat across collapsed rows
+
+    const int serverCount = m_serversModel->getServersCount();
+    const int firstRow = targetPool.isEmpty() ? serverIndex : 0;
+    const int lastRow = targetPool.isEmpty() ? serverIndex : serverCount - 1;
+    for (int row = firstRow; row <= lastRow; ++row) {
+        const QJsonObject config = row == serverIndex ? serverConfig : m_serversModel->getServerConfig(row);
+
+        if (!targetPool.isEmpty()) {
+            // stay within one protocol/env/subscription: a pool may list the same
+            // node under several protocol variants, but keys/ports differ
+            const QString poolName =
+                    config.value(QStringLiteral("displayInfo")).toObject().value(QStringLiteral("pool")).toString();
+            if (poolName != targetPool
+                || m_serversModel->data(row, ServersModel::Roles::ServiceProtocolFilterRole).toString() != targetProtocol
+                || m_serversModel->data(row, ServersModel::Roles::ConnectionEnvRole).toString() != targetEnv
+                || subscriptionIdOf(config) != targetSubscription || isVlessCdnRow(row) != targetIsVlessCdn) {
+                continue;
+            }
+            // gateway rows may not have their container config installed yet —
+            // there is nothing to connect with, so such a sibling is not a fallback
+            if (!m_serversModel->serverHasUsableConfig(row)) {
+                qDebug() << "[IPPOOL] skipping row" << row << "(no usable config yet)";
+                continue;
+            }
+        }
+
+        // CDN-fronted VLESS (xhttp over plain TLS) dials the CDN hostname, not a
+        // node IP — node_ips must not be patched into its config
+        if (targetIsVlessCdn) {
+            pool.append({row, QString()});
+            continue;
+        }
+
+        const QJsonArray nodeIps = config.value(QStringLiteral("node_ips")).toArray();
+        bool rowHasIps = false;
+        for (const QJsonValue &v : nodeIps) {
+            const QString ip = v.toString();
+            if (ip.isEmpty()) {
+                continue;
+            }
+            rowHasIps = true;
+            if (seenIps.contains(ip)) {
+                continue; // already covered by an earlier row of the pool
+            }
+            seenIps.insert(ip);
+            pool.append({row, ip});
+        }
+        // no entry addresses at all — this row is still reachable by its hostName
+        if (!rowHasIps) {
+            pool.append({row, QString()});
         }
     }
-    ips.removeDuplicates();
 
-    // CDN-fronted VLESS (xhttp over plain TLS): the dial address is the CDN front,
-    // not the node — swapping in node IPs would break the connect, so no pool
-    if (ips.size() > 1 && !isVlessCdnRow(serverIndex)) {
-        m_ipPool = ips;
-        for (int i = m_ipPool.size() - 1; i > 0; --i) {
-            m_ipPool.swapItemsAt(i, QRandomGenerator::global()->bounded(i + 1));
-        }
+    // shuffle for load distribution across the pool
+    for (int i = pool.size() - 1; i > 0; --i) {
+        pool.swapItemsAt(i, QRandomGenerator::global()->bounded(i + 1));
+    }
+
+    if (pool.size() > 1) {
+        m_ipPool = pool;
         m_ipPoolPos = 0;
-        m_ipPoolRow = serverIndex;
-        qDebug() << "[IPPOOL] row" << serverIndex << "address pool:" << m_ipPool;
-        connectToServerIndexWithIp(serverIndex, m_ipPool.first());
+        qDebug() << "[IPPOOL] created pool with" << m_ipPool.size() << "entries for row" << serverIndex;
+        connectToServerIndexWithIp(m_ipPool[0].row, m_ipPool[0].ip);
         return;
     }
 
@@ -532,11 +597,15 @@ void ConnectionController::connectToServerIndexWithIp(int serverIndex, const QSt
     emit connectToVpn(serverIndex, credentials, container, vpnConfiguration);
 }
 
+int ConnectionController::currentPoolRow() const
+{
+    return (m_ipPoolPos >= 0 && m_ipPoolPos < m_ipPool.size()) ? m_ipPool.at(m_ipPoolPos).row : -1;
+}
+
 void ConnectionController::resetIpPool()
 {
     m_ipPool.clear();
-    m_ipPoolPos = 0;
-    m_ipPoolRow = -1;
+    m_ipPoolPos = -1;
     m_ipAwaitingTraffic = false;
     if (m_ipTrafficTimer) {
         m_ipTrafficTimer->stop();
@@ -545,14 +614,16 @@ void ConnectionController::resetIpPool()
 
 bool ConnectionController::retryWithNextIp()
 {
-    if (m_ipPoolRow < 0 || m_ipPoolPos + 1 >= m_ipPool.size()) {
+    if (m_ipPoolPos < 0 || m_ipPoolPos + 1 >= m_ipPool.size()) {
         return false;
     }
     m_ipPoolPos++;
-    qDebug() << "[IPPOOL] row" << m_ipPoolRow << "failed, trying next address" << m_ipPool.at(m_ipPoolPos);
+    const PoolEntry &entry = m_ipPool.at(m_ipPoolPos);
+    qDebug() << "[IPPOOL] entry" << (m_ipPoolPos + 1) << "/" << m_ipPool.size()
+             << "row" << entry.row << "ip" << entry.ip;
     m_ipAwaitingTraffic = false;
     m_ipTrafficTimer->stop();
-    connectToServerIndexWithIp(m_ipPoolRow, m_ipPool.at(m_ipPoolPos));
+    connectToServerIndexWithIp(entry.row, entry.ip);
     if (m_autoPhase == AutoPhase::Connecting) {
         // Connected cleared m_autoAdvancing — re-arm it, otherwise the old
         // tunnel's teardown Disconnected is misread as this attempt failing
@@ -995,18 +1066,22 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
             emit connectionStateChanged();
             return;
         }
-    } else if (m_ipPoolRow >= 0) {
+    } else if (m_ipPoolPos >= 0) {
         // manual connect to a multi-IP server
         if (state == Vpn::ConnectionState::Connected) {
-#if defined(Q_OS_IOS) || defined(MACOS_NE) || defined(Q_OS_ANDROID) || defined(Q_OS_LINUX) || defined(Q_OS_WIN)
+#if defined(Q_OS_IOS) || defined(MACOS_NE) || defined(Q_OS_MACOS) || defined(Q_OS_ANDROID) || defined(Q_OS_LINUX) || defined(Q_OS_WIN)
             // WG/AWG "Connected" here is handshake-gated (see the Connected case
             // below) — the entry address already proved itself, so waiting for
-            // idle-tunnel bytes on top would false-negative the same way
+            // idle-tunnel bytes on top would false-negative the same way.
+            // Q_OS_MACOS: the legacy macOS build talks to the daemon, which also
+            // emits connected only after lastHandshake — without it a working
+            // pool address was dropped after 8s and the pool ran out into an
+            // error instead of switching.
             const DockerContainer container = qvariant_cast<DockerContainer>(
-                    m_serversModel->data(m_ipPoolRow, ServersModel::Roles::DefaultContainerRole));
+                    m_serversModel->data(m_ipPool.at(m_ipPoolPos).row, ServersModel::Roles::DefaultContainerRole));
             if (container == DockerContainer::Awg || container == DockerContainer::Awg2
                 || container == DockerContainer::WireGuard) {
-                qDebug() << "[IPPOOL] handshake-confirmed connect on row" << m_ipPoolRow;
+                qDebug() << "[IPPOOL] handshake-confirmed connect on row" << m_ipPool.at(m_ipPoolPos).row;
                 resetIpPool(); // success — the next connect starts from a fresh random pool
                 // fall through to the common Connected handling in the switch below
             } else {
@@ -1014,7 +1089,7 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
             // a blocked entry address can still bring the tunnel up — require real bytes
             m_ipAwaitingTraffic = true;
             m_ipTrafficTimer->start(kIpTrafficTimeoutMs);
-#if defined(Q_OS_IOS) || defined(MACOS_NE) || defined(Q_OS_ANDROID) || defined(Q_OS_LINUX) || defined(Q_OS_WIN)
+#if defined(Q_OS_IOS) || defined(MACOS_NE) || defined(Q_OS_MACOS) || defined(Q_OS_ANDROID) || defined(Q_OS_LINUX) || defined(Q_OS_WIN)
             }
 #endif
         } else if (state == Vpn::ConnectionState::Reconnecting) {
@@ -1054,7 +1129,7 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
         m_isConnected = true;
         m_connectionStateText = tr("Connected");
         m_manualConnectTimer->stop(); // the traffic watchdogs take it from here
-#if defined(Q_OS_IOS) || defined(MACOS_NE) || defined(Q_OS_ANDROID) || defined(Q_OS_LINUX) || defined(Q_OS_WIN)
+#if defined(Q_OS_IOS) || defined(MACOS_NE) || defined(Q_OS_MACOS) || defined(Q_OS_ANDROID) || defined(Q_OS_LINUX) || defined(Q_OS_WIN)
         if (m_autoPhase == AutoPhase::Connecting && m_autoAwaitingTraffic
             && m_autoCandidatePos < m_autoCandidates.size()) {
             // WG/AWG "Connected" is emitted only after a verified handshake
@@ -1085,7 +1160,7 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
         // a wedged self-reconnect emits no further events — keep a watchdog
         // running so a manual connect fails loudly instead of spinning forever
         // (auto selection handles Reconnecting in the auto branch above)
-        if (m_autoPhase == AutoPhase::None && m_ipPoolRow < 0 && !m_manualConnectTimer->isActive()) {
+        if (m_autoPhase == AutoPhase::None && m_ipPoolPos < 0 && !m_manualConnectTimer->isActive()) {
             m_manualConnectTimer->start(kManualConnectTimeoutMs);
         }
         break;

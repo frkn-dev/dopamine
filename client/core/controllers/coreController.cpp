@@ -88,6 +88,9 @@ void CoreController::initModels()
     m_allowedDnsModel.reset(new AllowedDnsModel(m_settings, this));
     m_engine->rootContext()->setContextProperty("AllowedDnsModel", m_allowedDnsModel.get());
 
+    m_localSubnetExclusionsModel.reset(new LocalSubnetExclusionsModel(m_settings, this));
+    m_engine->rootContext()->setContextProperty("LocalSubnetExclusionsModel", m_localSubnetExclusionsModel.get());
+
     m_appSplitTunnelingModel.reset(new AppSplitTunnelingModel(m_settings, this));
     m_engine->rootContext()->setContextProperty("AppSplitTunnelingModel", m_appSplitTunnelingModel.get());
 
@@ -131,6 +134,11 @@ void CoreController::initControllers()
 
     m_allowedDnsController.reset(new AllowedDnsController(m_settings, m_allowedDnsModel));
     m_engine->rootContext()->setContextProperty("AllowedDnsController", m_allowedDnsController.get());
+
+    m_localSubnetExclusionsController.reset(
+        new LocalSubnetExclusionsController(m_settings, m_localSubnetExclusionsModel));
+    m_engine->rootContext()->setContextProperty("LocalSubnetExclusionsController",
+                                                m_localSubnetExclusionsController.get());
 
     m_appSplitTunnelingController.reset(new AppSplitTunnelingController(m_settings, m_appSplitTunnelingModel));
     m_engine->rootContext()->setContextProperty("AppSplitTunnelingController", m_appSplitTunnelingController.get());
@@ -440,6 +448,8 @@ void CoreController::initTranslationsUpdatedHandler()
     connect(m_languageModel.get(), &LanguageModel::updateTranslations, this, &CoreController::updateTranslator);
     connect(this, &CoreController::translationsUpdated, m_languageModel.get(), &LanguageModel::translationsUpdated);
     connect(this, &CoreController::translationsUpdated, m_connectionController.get(), &ConnectionController::onTranslationsUpdated);
+    // re-read pool-based server names (NameRole) after a UI language change
+    connect(this, &CoreController::translationsUpdated, m_serversModel.get(), &ServersModel::onTranslationsUpdated);
 }
 
 void CoreController::initAutoConnectHandler()
