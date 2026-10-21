@@ -102,6 +102,17 @@ bool Daemon::activate(const InterfaceConfig& config) {
       return false;
     }
 
+    // deactivate() returns early (true) when another deactivation is already in
+    // progress and leaves m_connections untouched. Recursing into activate() in
+    // that case spins forever: a second IPC "activate" arriving while the first
+    // deactivation is still running used to blow the stack (~3000 frames) and
+    // take the whole daemon down with SIGSEGV. Bail out instead — the app gets
+    // activationFailure and the in-flight deactivation finishes normally.
+    if (m_connections.contains(config.m_hopType)) {
+      logger.warning() << "Deactivation in progress, skipping activation";
+      return false;
+    }
+
     Q_ASSERT(!m_connections.contains(config.m_hopType));
     if (activate(config)) {
       emit_failure_guard.dismiss();
