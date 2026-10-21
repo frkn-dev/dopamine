@@ -178,6 +178,23 @@ bool ImportController::extractConfigFromData(QString data)
     {
         QString urlCandidate = config.trimmed();
 
+        // frkn://sub/shared/<uuid> — a region shared as a subscription: the
+        // recipient imports every server of that env+protocol
+        if (urlCandidate.startsWith("frkn://sub/shared/")) {
+            QString shareToken = urlCandidate.mid(18);
+            shareToken.remove(QRegularExpression(QStringLiteral("[\\s]")));
+            shareToken = shareToken.toLower();
+            static const QRegularExpression sharedSubRegex(
+                    QStringLiteral("^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$"));
+            if (sharedSubRegex.match(shareToken).hasMatch()) {
+                emit frknSharedSubLinkDetected(shareToken);
+            } else {
+                qWarning() << "[FRKN] malformed shared subscription token:" << shareToken;
+                emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+            }
+            return false;
+        }
+
         // frkn://sub/UUID — new AGW flow with protocol selection
         if (urlCandidate.startsWith("frkn://sub/")) {
             QString subscriptionId = urlCandidate.mid(11);

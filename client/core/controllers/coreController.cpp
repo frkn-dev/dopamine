@@ -159,7 +159,7 @@ void CoreController::initControllers()
 
     // shared tail of the subscription-id flows (entered UUID, frkn://sub/, activation key):
     // busy on, fetch the configs, import them ALL (no protocol selection screen), go home
-    auto fetchSubscriptionConfigs = [this](const QString &subscriptionId) {
+    auto fetchSubscriptionConfigs = [this](const QString &subscriptionId, bool shared = false) {
         m_pageController->showBusyIndicator(true);
         // the fetch is async now: navigate when it reports completion
         // (one-shot connection — reloadSubscriptionConfigs has its own signal)
@@ -177,13 +177,21 @@ void CoreController::initControllers()
                                       emit m_pageController->goToPageHome();
                                   }
                               });
-        m_apiConfigsController->fetchSubscriptionConfigs(subscriptionId);
+        m_apiConfigsController->fetchSubscriptionConfigs(subscriptionId, shared);
     };
 
     connect(m_importController.get(), &ImportController::frknSubscriptionLinkDetected, this,
             [this, fetchSubscriptionConfigs](const QString &subscriptionId) {
                 qDebug() << "[CORE] frkn subscription link detected:" << subscriptionId;
                 fetchSubscriptionConfigs(subscriptionId);
+            });
+
+    // frkn://sub/shared/<uuid> — the same import flow, authenticating by the
+    // share token: /v1/services returns every server of the shared region.
+    connect(m_importController.get(), &ImportController::frknSharedSubLinkDetected, this,
+            [fetchSubscriptionConfigs](const QString &shareToken) {
+                qDebug() << "[CORE] frkn shared subscription link detected";
+                fetchSubscriptionConfigs(shareToken, true);
             });
 
     connect(m_importController.get(), &ImportController::frknActivationKeyDetected, this,

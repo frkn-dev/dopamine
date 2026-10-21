@@ -89,7 +89,10 @@ public slots:
     Q_INVOKABLE QString getCurrentServerDns();
     Q_INVOKABLE QString getCurrentServerClientIp();
 
-    Q_INVOKABLE void fetchSubscriptionConfigs(const QString &subscriptionId);
+    // `shared` = the id is a shared-subscription token (frkn://sub/shared/<uuid>):
+    // /v1/services and /v1/config authenticate by share_token instead of the
+    // subscription uuid, and the recipient gets every server of the shared region.
+    Q_INVOKABLE void fetchSubscriptionConfigs(const QString &subscriptionId, bool shared = false);
     Q_INVOKABLE bool installSubscriptionConfig(int index);
     // installs every fetched subscription config at once (we no longer show the
     // protocol selection screen — users were confused by it); returns the count
@@ -181,13 +184,13 @@ private:
     bool finishGatewayConfigUpdate(const GatewayConfigUpdate &update, ErrorCode errorCode, const QByteArray &responseBody);
 
     void fetchSubscriptionConfigsAsync(const QString &subscriptionId, const std::function<void(bool)> &callback,
-                                       bool reportErrors = true);
+                                       bool reportErrors = true, bool shared = false);
     // fetches /v1/services + /v1/config for one subscription and hands the raw
     // result to the caller without touching m_subscriptionConfigs — the
     // multi-subscription reload runs these sequentially, one subscription at a time
     void fetchSubscriptionFeed(const QString &subscriptionId,
                                const std::function<void(bool, const QJsonArray &, const QStringList &)> &callback,
-                               bool reportErrors);
+                               bool reportErrors, bool shared = false);
     // removes only the records of one subscription that disappeared from its own
     // response, then installs the freshly fetched configs
     void reconcileSubscription(const QString &subscriptionId, const QJsonArray &configs, const QStringList &failures);

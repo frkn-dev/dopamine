@@ -2393,18 +2393,18 @@ QString ApiConfigsController::getCurrentServerClientIp()
     return "";
 }
 
-void ApiConfigsController::fetchSubscriptionConfigs(const QString &subscriptionId)
+void ApiConfigsController::fetchSubscriptionConfigs(const QString &subscriptionId, bool shared)
 {
     if (QThread::currentThread() != this->thread()) {
-        QMetaObject::invokeMethod(this, [this, subscriptionId]() { fetchSubscriptionConfigs(subscriptionId); }, Qt::QueuedConnection);
+        QMetaObject::invokeMethod(this, [this, subscriptionId, shared]() { fetchSubscriptionConfigs(subscriptionId, shared); }, Qt::QueuedConnection);
         return;
     }
 
-    fetchSubscriptionConfigsAsync(subscriptionId, [this](bool success) { emit fetchSubscriptionConfigsFinished(success); });
+    fetchSubscriptionConfigsAsync(subscriptionId, [this](bool success) { emit fetchSubscriptionConfigsFinished(success); }, true, shared);
 }
 
 void ApiConfigsController::fetchSubscriptionConfigsAsync(const QString &subscriptionId, const std::function<void(bool)> &callback,
-                                                          bool reportErrors)
+                                                          bool reportErrors, bool shared)
 {
     m_subscriptionConfigs = QJsonArray();
     m_subscriptionConfigFailures.clear();
@@ -2417,12 +2417,12 @@ void ApiConfigsController::fetchSubscriptionConfigsAsync(const QString &subscrip
         qDebug() << "[SUBSCRIPTION] fetch done, success:" << success << "configs:" << m_subscriptionConfigs.size()
                  << "failed:" << m_subscriptionConfigFailures.size();
         callback(success);
-    }, reportErrors);
+    }, reportErrors, shared);
 }
 
 void ApiConfigsController::fetchSubscriptionFeed(const QString &subscriptionId,
                                                  const std::function<void(bool, const QJsonArray &, const QStringList &)> &callback,
-                                                 bool reportErrors)
+                                                 bool reportErrors, bool shared)
 {
     qDebug() << "[SUBSCRIPTION] fetching configs for" << subscriptionId;
 
@@ -2430,9 +2430,15 @@ void ApiConfigsController::fetchSubscriptionFeed(const QString &subscriptionId,
     // failure of one can neither corrupt nor block the others
     auto outFailures = QSharedPointer<QStringList>::create();
 
+    // A shared subscription authenticates by its share token; the backend then
+    // scopes /v1/services to the shared region and returns one entry per server.
     QJsonObject authData;
-    authData[apiDefs::key::apiKey] = subscriptionId;
-    authData[apiDefs::key::id] = subscriptionId;
+    if (shared) {
+        authData[QStringLiteral("share_token")] = subscriptionId;
+    } else {
+        authData[apiDefs::key::apiKey] = subscriptionId;
+        authData[apiDefs::key::id] = subscriptionId;
+    }
 
     QJsonObject servicesPayload;
     servicesPayload[configKey::osVersion] = QSysInfo::productType();
@@ -2443,7 +2449,7 @@ void ApiConfigsController::fetchSubscriptionFeed(const QString &subscriptionId,
                                                                        apiDefs::requestTimeoutMsecs, false, nullptr,
                                                                        m_settings->getGatewayEndpointFallback());
     auto servicesFuture = gatewayController->postAsync(QString("%1v1/services"), servicesPayload);
-    servicesFuture.then(this, [this, gatewayController, authData, subscriptionId, outFailures, callback, reportErrors](QPair<ErrorCode, QByteArray> servicesResult) {
+    servicesFuture.then(this, [this, gatewayController, authData, subscriptionId, outFailures, callback, reportErrors, shared](QPair<ErrorCode, QByteArray> servicesResult) {
         const auto [errorCode, servicesResponse] = servicesResult;
         if (errorCode != ErrorCode::NoError) {
             qWarning() << "[SUBSCRIPTION] failed to fetch services:" << static_cast<int>(errorCode);
@@ -2503,7 +2509,9 @@ void ApiConfigsController::fetchSubscriptionFeed(const QString &subscriptionId,
         QHash<QString, QJsonObject> storedByKey;
         for (int i = 0; i < m_serversModel->getServersCount(); ++i) {
             const QJsonObject server = m_serversModel->getServerConfig(i);
-            if (subscriptionIdForServer(server) != subscriptionId) {
+            // Shared subscriptions are keyed by a token, not by a subscription
+            // uuid: skip the rev-reuse cache and always fetch fresh configs.
+            if (shared || subscriptionIdForServer(server) != subscriptionId) {
                 continue;
             }
             const QJsonObject apiConfig = server.value(configKey::apiConfig).toObject();
