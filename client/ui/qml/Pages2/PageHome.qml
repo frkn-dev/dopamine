@@ -150,8 +150,52 @@ PageType {
                 implicitHeight: ConnectionController.isConnected ? 112 : 96
                 radius: 20
 
-                color: serverCardMouse.containsPress ? DopamineStyle.color.sheerWhite
-                                                     : DopamineStyle.color.translucentWhite
+                color: DopamineStyle.color.transparent
+
+                // accent-blue underlight behind the glass: its source sits low in the
+                // card, so it tints the lower part of the panel and spills out under
+                // it, while the top of the card stays clean
+                RadialGradient {
+                    id: serverCardGlow
+
+                    anchors.centerIn: parent
+                    width: parent.width + 48
+                    height: parent.height + 200
+
+                    horizontalRadius: width / 2
+                    verticalRadius: 78
+                    verticalOffset: parent.height / 2 - 35
+
+                    gradient: Gradient {
+                        GradientStop { position: 0.00; color: Qt.rgba(39/255, 87/255, 1.0, 0.46) }
+                        GradientStop { position: 0.20; color: Qt.rgba(39/255, 87/255, 1.0, 0.35) }
+                        GradientStop { position: 0.45; color: Qt.rgba(39/255, 87/255, 1.0, 0.20) }
+                        GradientStop { position: 0.70; color: Qt.rgba(39/255, 87/255, 1.0, 0.07) }
+                        GradientStop { position: 1.00; color: Qt.rgba(39/255, 87/255, 1.0, 0.00) }
+                    }
+                }
+
+                // the card's fill — same colour as before, the light shows through it
+                Rectangle {
+                    id: serverCardBackground
+
+                    anchors.fill: parent
+                    radius: parent.radius
+
+                    color: serverCardMouse.containsPress ? DopamineStyle.color.sheerWhite
+                                                         : DopamineStyle.color.translucentWhite
+                }
+
+                // subtle cool glass highlight along the top, like on the mockup
+                Rectangle {
+                    anchors.fill: parent
+                    radius: parent.radius
+
+                    gradient: Gradient {
+                        GradientStop { position: 0.0; color: Qt.rgba(0.80, 0.91, 0.96, 0.07) }
+                        GradientStop { position: 0.5; color: Qt.rgba(0.80, 0.91, 0.96, 0.0) }
+                    }
+                }
 
                 RowLayout {
                     anchors.fill: parent

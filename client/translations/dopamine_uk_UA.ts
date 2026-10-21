@@ -380,7 +380,7 @@ Can&apos;t be disabled for current server</source>
 <context>
     <name>ImportController</name>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="824"/>
+        <location filename="../ui/controllers/importController.cpp" line="841"/>
         <source>Scanned %1 of %2.</source>
         <translation>Відскановано %1 з %2.</translation>
     </message>
@@ -393,18 +393,18 @@ Can&apos;t be disabled for current server</source>
         <translation type="vanished">&lt;br&gt;В імпортованій конфігурації виявлено потенційно небезпечні рядки:</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="934"/>
+        <location filename="../ui/controllers/importController.cpp" line="951"/>
         <source>No valid configurations found at the provided URL</source>
         <translation>За вказаним URL не знайдено дійсних конфігурацій</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="985"/>
-        <location filename="../ui/controllers/importController.cpp" line="1008"/>
+        <location filename="../ui/controllers/importController.cpp" line="1002"/>
+        <location filename="../ui/controllers/importController.cpp" line="1025"/>
         <source>Failed to fetch configurations: %1</source>
         <translation>Не вдалося отримати конфігурації: %1</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="1014"/>
+        <location filename="../ui/controllers/importController.cpp" line="1031"/>
         <source>Empty response from server</source>
         <translation>Порожня відповідь від сервера</translation>
     </message>
@@ -631,7 +631,7 @@ Already installed containers were found on the server. All installed containers 
         <translation>Dev-шлюз увімкнено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="314"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="358"/>
         <source>Split tunneling</source>
         <translation>Роздільне тунелювання</translation>
     </message>
@@ -640,7 +640,7 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">VPN протокол</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="176"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="220"/>
         <source>Auto-select</source>
         <translation>Автовибір</translation>
     </message>

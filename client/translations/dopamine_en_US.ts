@@ -363,7 +363,7 @@ Can&apos;t be disabled for current server</translation>
 <context>
     <name>ImportController</name>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="824"/>
+        <location filename="../ui/controllers/importController.cpp" line="841"/>
         <source>Scanned %1 of %2.</source>
         <translation>Scanned %1 of %2.</translation>
     </message>
@@ -376,18 +376,18 @@ Can&apos;t be disabled for current server</translation>
         <translation type="vanished">&lt;br&gt;In the imported configuration, potentially dangerous lines were found:</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="934"/>
+        <location filename="../ui/controllers/importController.cpp" line="951"/>
         <source>No valid configurations found at the provided URL</source>
         <translation>No valid configurations found at the provided URL</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="985"/>
-        <location filename="../ui/controllers/importController.cpp" line="1008"/>
+        <location filename="../ui/controllers/importController.cpp" line="1002"/>
+        <location filename="../ui/controllers/importController.cpp" line="1025"/>
         <source>Failed to fetch configurations: %1</source>
         <translation>Failed to fetch configurations: %1</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="1014"/>
+        <location filename="../ui/controllers/importController.cpp" line="1031"/>
         <source>Empty response from server</source>
         <translation>Empty response from server</translation>
     </message>
@@ -615,7 +615,7 @@ Already installed containers were found on the server. All installed containers 
         <translation>Dev gateway enabled</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="314"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="358"/>
         <source>Split tunneling</source>
         <translation>Split tunneling</translation>
     </message>
@@ -624,7 +624,7 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">VPN protocol</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="176"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="220"/>
         <source>Auto-select</source>
         <translation>Auto-select</translation>
     </message>
