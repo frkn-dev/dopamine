@@ -173,3 +173,15 @@ logs/
 photo_*.jpg
 *.log
 fetch_*.py
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
