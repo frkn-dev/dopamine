@@ -16,14 +16,18 @@
 #include "platforms/windows/windowsutils.h"
 #include "windowsfirewall.h"
 
+#pragma comment(lib, "iphlpapi.lib")
+
 #define PSAPI_VERSION 2
 #include <Windows.h>
+#include <iphlpapi.h>
 #include <psapi.h>
 
 #include <QCoreApplication>
 #include <QFileInfo>
 #include <QNetworkInterface>
 #include <QScopeGuard>
+#include <QUrl>
 
 #pragma region
 
@@ -129,6 +133,164 @@ constexpr static const auto MV_SERVICE_NAME = L"MullvadVPN";
 namespace {
 Logger logger("WindowsSplitTunnel");
 
+QString ipv4ToString(const IN_ADDR& address) {
+  char buffer[INET_ADDRSTRLEN] = {0};
+  InetNtopA(AF_INET, &address, buffer, sizeof(buffer));
+  return QString::fromLatin1(buffer);
+}
+
+QString ipv6ToString(const IN6_ADDR& address) {
+  char buffer[INET6_ADDRSTRLEN] = {0};
+  InetNtopA(AF_INET6, &address, buffer, sizeof(buffer));
+  return QString::fromLatin1(buffer);
+}
+
+// IPv4 interface index of an adapter, or 0 when it has no IPv4 address.
+//
+// IP_ADAPTER_ADDRESSES only carries the *IPv6* index (IfIndex / Ipv6IfIndex) -
+// there is no Ipv4IfIndex member in the struct at all. The IPv4 index lives in
+// the IP address table, keyed by the adapter's IPv4 address, and the two index
+// namespaces are not interchangeable: GetBestRoute()/MIB_IPFORWARDROW report the
+// IPv4 index while Qt reports the IPv6 one. On a machine where the adapter has
+// IPv6 disabled they differ, and handing the driver the wrong one binds every
+// excluded app to an address that routes nowhere (Amnezia issue #3306).
+ULONG ipv4IfIndexFor(const IN_ADDR& ipv4) {
+  if (ipv4.S_un.S_addr == 0) {
+    return 0;
+  }
+  DWORD size = 0;
+  if (GetIpAddrTable(nullptr, &size, FALSE) != ERROR_INSUFFICIENT_BUFFER) {
+    return 0;
+  }
+  std::vector<BYTE> buffer(size);
+  auto table = reinterpret_cast<MIB_IPADDRTABLE*>(buffer.data());
+  if (GetIpAddrTable(table, &size, FALSE) != NO_ERROR) {
+    return 0;
+  }
+  for (DWORD i = 0; i < table->dwNumEntries; ++i) {
+    if (table->table[i].dwAddr == ipv4.S_un.S_addr) {
+      return table->table[i].dwIndex;
+    }
+  }
+  return 0;
+}
+
+// Look up the addresses of the adapter identified by `index`.
+//
+// Never resolve the index through QNetworkInterface: the index spaces differ.
+// GetBestRoute()/MIB_IPFORWARDROW::dwForwardIfIndex use the **IPv4** interface
+// index, while Qt (and IP_ADAPTER_ADDRESSES::IfIndex) use the IPv6 one.
+bool collectAdapterAddresses(IP_ADAPTER_ADDRESSES* adapter, IN_ADDR* out_ipv4,
+                             IN6_ADDR* out_ipv6) {
+  std::memset(out_ipv4, 0, sizeof(IN_ADDR));
+  std::memset(out_ipv6, 0, sizeof(IN6_ADDR));
+
+  bool haveIpv4 = false;
+  bool haveGlobalIpv6 = false;
+  for (auto unicast = adapter->FirstUnicastAddress; unicast != nullptr;
+       unicast = unicast->Next) {
+    if (unicast->Address.lpSockaddr == nullptr) {
+      continue;
+    }
+    if (unicast->Address.lpSockaddr->sa_family == AF_INET) {
+      if (!haveIpv4) {
+        *out_ipv4 = reinterpret_cast<sockaddr_in*>(unicast->Address.lpSockaddr)->sin_addr;
+        haveIpv4 = true;
+      }
+    } else if (unicast->Address.lpSockaddr->sa_family == AF_INET6 && !haveGlobalIpv6) {
+      const auto candidate =
+          reinterpret_cast<sockaddr_in6*>(unicast->Address.lpSockaddr)->sin6_addr;
+      // A link-local (fe80::/10) address is not an internet address: the driver
+      // would treat its presence as "IPv6 internet available".
+      if (IN6_IS_ADDR_LINKLOCAL(&candidate)) {
+        continue;
+      }
+      *out_ipv6 = candidate;
+      haveGlobalIpv6 = true;
+    }
+  }
+  return haveIpv4;
+}
+
+// One line per adapter actually used, with both index namespaces - that is what
+// makes a "wrong adapter" report diagnosable from the service log.
+void logAdapter(IP_ADAPTER_ADDRESSES* adapter) {
+  IN_ADDR ipv4{};
+  IN6_ADDR ipv6{};
+  collectAdapterAddresses(adapter, &ipv4, &ipv6);
+  logger.debug() << "Adapter" << QString::fromWCharArray(adapter->FriendlyName)
+                 << "ifIndex:" << adapter->IfIndex
+                 << "ipv6IfIndex:" << adapter->Ipv6IfIndex
+                 << "ipv4IfIndex:" << ipv4IfIndexFor(ipv4)
+                 << "ipv4:" << ipv4ToString(ipv4);
+}
+
+class AdapterEnumerator {
+ public:
+  AdapterEnumerator() {
+    const ULONG flags =
+        GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER;
+    ULONG bufferSize = 15000;
+    m_buffer.resize(bufferSize);
+    m_addresses = reinterpret_cast<IP_ADAPTER_ADDRESSES*>(m_buffer.data());
+    auto result = GetAdaptersAddresses(AF_UNSPEC, flags, nullptr, m_addresses, &bufferSize);
+    if (result == ERROR_BUFFER_OVERFLOW) {
+      m_buffer.resize(bufferSize);
+      m_addresses = reinterpret_cast<IP_ADAPTER_ADDRESSES*>(m_buffer.data());
+      result = GetAdaptersAddresses(AF_UNSPEC, flags, nullptr, m_addresses, &bufferSize);
+    }
+    if (result != NO_ERROR) {
+      logger.warning() << "GetAdaptersAddresses failed:" << result;
+      m_addresses = nullptr;
+    }
+  }
+
+  // Matches both index namespaces: the caller may hand us the IPv4 index (route
+  // table) or the IPv6 one (Qt).
+  bool byIndex(int index, IN_ADDR* out_ipv4, IN6_ADDR* out_ipv6) {
+    const auto wanted = static_cast<ULONG>(index);
+    for (auto adapter = m_addresses; adapter != nullptr; adapter = adapter->Next) {
+      if (adapter->IfIndex == wanted || adapter->Ipv6IfIndex == wanted) {
+        logAdapter(adapter);
+        return collectAdapterAddresses(adapter, out_ipv4, out_ipv6);
+      }
+    }
+    // Not an IPv6-space index: compare against each adapter's IPv4 index, which
+    // has to be read from the IP address table (see ipv4IfIndexFor).
+    for (auto adapter = m_addresses; adapter != nullptr; adapter = adapter->Next) {
+      IN_ADDR ipv4{};
+      IN6_ADDR ipv6{};
+      if (!collectAdapterAddresses(adapter, &ipv4, &ipv6)) {
+        continue;
+      }
+      if (ipv4IfIndexFor(ipv4) == wanted) {
+        logAdapter(adapter);
+        *out_ipv4 = ipv4;
+        *out_ipv6 = ipv6;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Used for the tunnel adapter: its IPv4-only nature can leave the Qt index at
+  // 0, but the adapter is always there under its friendly name.
+  bool byName(const QString& friendlyName, IN_ADDR* out_ipv4, IN6_ADDR* out_ipv6) {
+    for (auto adapter = m_addresses; adapter != nullptr; adapter = adapter->Next) {
+      if (QString::fromWCharArray(adapter->FriendlyName)
+              .compare(friendlyName, Qt::CaseInsensitive)
+          == 0) {
+        return collectAdapterAddresses(adapter, out_ipv4, out_ipv6);
+      }
+    }
+    return false;
+  }
+
+ private:
+  std::vector<uint8_t> m_buffer;
+  IP_ADAPTER_ADDRESSES* m_addresses = nullptr;
+};
+
 ProcessInfo getProcessInfo(HANDLE process, const PROCESSENTRY32W& processMeta) {
   ProcessInfo pi;
   pi.ParentProcessId = processMeta.th32ParentProcessID;
@@ -207,10 +369,20 @@ std::unique_ptr<WindowsSplitTunnel> WindowsSplitTunnel::create(
     };
   }
   // 03: Open the Driver Symlink
-  auto driverFile = CreateFileW(DRIVER_SYMLINK, GENERIC_READ | GENERIC_WRITE, 0,
-                                nullptr, OPEN_EXISTING, 0, nullptr);
-  ;
+  //
+  // The device is opened for exclusive use unless the caller says otherwise: a
+  // handle taken with dwShareMode=0 makes every later CreateFileW on
+  // \\.\DopamineSplitTunnel fail with ERROR_ACCESS_DENIED, even if the second
+  // caller passes FILE_SHARE_* (verified on hardware 2026-10-23). The daemon is
+  // restarted on every activation while the previous instance may still hold its
+  // handle, so the exclusive open turned a restart into "split tunnel never
+  // engages". Always share.
+  auto driverFile =
+      CreateFileW(DRIVER_SYMLINK, GENERIC_READ | GENERIC_WRITE,
+                  FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0,
+                  nullptr);
   if (driverFile == INVALID_HANDLE_VALUE) {
+    logger.error() << "Failed to open the driver device, err=" << GetLastError();
     WindowsUtils::windowsLog("Failed to open Driver: ");
     // Only once, if the opening did not work. Try to reboot it. #
     logger.info()
@@ -225,10 +397,11 @@ std::unique_ptr<WindowsSplitTunnel> WindowsSplitTunnel::create(
       return nullptr;
     };
     logger.info() << "Opening again.";
-    driverFile = CreateFileW(DRIVER_SYMLINK, GENERIC_READ | GENERIC_WRITE, 0,
-                             nullptr, OPEN_EXISTING, 0, nullptr);
+    driverFile = CreateFileW(DRIVER_SYMLINK, GENERIC_READ | GENERIC_WRITE,
+                             FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
+                             OPEN_EXISTING, 0, nullptr);
     if (driverFile == INVALID_HANDLE_VALUE) {
-      logger.error() << "Opening Failed again, sorry!";
+      logger.error() << "Opening Failed again, sorry! err=" << GetLastError();
       return nullptr;
     }
   }
@@ -292,12 +465,20 @@ bool WindowsSplitTunnel::excludeApps(const QStringList& appPaths) {
                      << state;
     return false;
   }
+  return pushAppConfiguration(appPaths);
+}
 
-  logger.debug() << "Pushing new Ruleset for Split-Tunnel " << state;
+bool WindowsSplitTunnel::pushAppConfiguration(const QStringList& appPaths) {
+  logger.debug() << "Pushing new Ruleset for Split-Tunnel " << stateString();
   auto config = generateAppConfiguration(appPaths);
+  if (config.empty()) {
+    logger.error() << "No valid application paths for the split-tunnel driver:"
+                   << appPaths;
+    return false;
+  }
 
   DWORD bytesReturned;
-  auto ok = DeviceIoControl(m_driver, IOCTL_SET_CONFIGURATION, &config[0],
+  auto ok = DeviceIoControl(m_driver, IOCTL_SET_CONFIGURATION, config.data(),
                             (DWORD)config.size(), nullptr, 0, &bytesReturned,
                             nullptr);
   if (!ok) {
@@ -310,7 +491,8 @@ bool WindowsSplitTunnel::excludeApps(const QStringList& appPaths) {
   return true;
 }
 
-bool WindowsSplitTunnel::start(int inetAdapterIndex, int vpnAdapterIndex) {
+bool WindowsSplitTunnel::start(int inetAdapterIndex, int vpnAdapterIndex,
+                               const QStringList& excludedApps) {
   // To Start we need to send 2 things:
   // Network info (what is vpn what is network)
   logger.debug() << "Starting SplitTunnel";
@@ -331,7 +513,11 @@ bool WindowsSplitTunnel::start(int inetAdapterIndex, int vpnAdapterIndex) {
   if (getState() == STATE_INITIALIZED) {
     logger.debug() << "State is Init, requires process config";
     auto config = generateProcessBlob();
-    auto ok = DeviceIoControl(m_driver, IOCTL_REGISTER_PROCESSES, &config[0],
+    if (config.empty()) {
+      logger.error() << "Failed to build a process snapshot for the driver";
+      return false;
+    }
+    auto ok = DeviceIoControl(m_driver, IOCTL_REGISTER_PROCESSES, config.data(),
                               (DWORD)config.size(), nullptr, 0, &bytesReturned,
                               nullptr);
     if (!ok) {
@@ -347,12 +533,33 @@ bool WindowsSplitTunnel::start(int inetAdapterIndex, int vpnAdapterIndex) {
   }
   logger.debug() << "Driver is  ready || new State:" << stateString();
 
+  // Push the exclusion list while the driver is still idle. Registering the IP
+  // addresses below moves it to ENGAGED, i.e. it starts enforcing; an app that
+  // is only classified after that point keeps its sockets authorized inside the
+  // tunnel, and the driver then blocks those flows instead of redirecting them
+  // — a running game loses its UDP session and never comes back. Pushing the
+  // list first means the driver already knows the app when it engages.
+  if (!excludedApps.isEmpty() && !pushAppConfiguration(excludedApps)) {
+    logger.error() << "Failed to push the app exclusions, not engaging the driver";
+    return false;
+  }
+
   auto config = generateIPConfiguration(inetAdapterIndex, vpnAdapterIndex);
-  auto ok = DeviceIoControl(m_driver, IOCTL_REGISTER_IP_ADDRESSES, &config[0],
+  if (config.empty()) {
+    // Leave the driver in READY (nothing is enforced) rather than engaging it
+    // with a bogus/zero address: with a half-checked configuration the driver
+    // binds the excluded apps to an address that cannot route, which is worse
+    // than not excluding them at all.
+    logger.error() << "Failed to resolve adapter addresses; internet adapter:"
+                   << inetAdapterIndex << "vpn adapter:" << vpnAdapterIndex;
+    return false;
+  }
+  auto ok = DeviceIoControl(m_driver, IOCTL_REGISTER_IP_ADDRESSES, config.data(),
                             (DWORD)config.size(), nullptr, 0, &bytesReturned,
                             nullptr);
   if (!ok) {
-    logger.error() << "Failed to set Network Config";
+    logger.error() << "Failed to set Network Config, error:" << GetLastError()
+                   << "state:" << stateString();
     return false;
   }
   logger.debug() << "New Network Config Applied || new State:" << stateString();
@@ -413,12 +620,25 @@ std::vector<uint8_t> WindowsSplitTunnel::generateAppConfiguration(
   QStringList dosPaths;
   for (auto const& path : appPaths) {
     auto dosPath = convertPath(path);
+    if (dosPath.isEmpty()) {
+      // A path that does not convert becomes an empty entry in the driver's
+      // image list, i.e. it silently excludes nothing. Drop it instead of
+      // pushing garbage: a game left in the tunnel is exactly the "exclusions
+      // don't work" report we get from Windows users.
+      logger.error() << "Dropping split-tunnel app path, not convertible to a"
+                        " device path:"
+                     << path;
+      continue;
+    }
     dosPaths.append(dosPath);
     cummulated_string_size += dosPath.toStdWString().size() * sizeof(wchar_t);
     logger.debug() << dosPath;
   }
+  if (dosPaths.isEmpty()) {
+    return {};
+  }
   size_t bufferSize = sizeof(CONFIGURATION_HEADER) +
-                      (sizeof(CONFIGURATION_ENTRY) * appPaths.size()) +
+                      (sizeof(CONFIGURATION_ENTRY) * dosPaths.size()) +
                       cummulated_string_size;
   std::vector<uint8_t> outBuffer(bufferSize);
 
@@ -426,7 +646,7 @@ std::vector<uint8_t> WindowsSplitTunnel::generateAppConfiguration(
   auto entry = (CONFIGURATION_ENTRY*)(header + 1);
 
   auto stringDest = &outBuffer[0] + sizeof(CONFIGURATION_HEADER) +
-                    (sizeof(CONFIGURATION_ENTRY) * appPaths.size());
+                    (sizeof(CONFIGURATION_ENTRY) * dosPaths.size());
 
   SIZE_T stringOffset = 0;
 
@@ -445,7 +665,7 @@ std::vector<uint8_t> WindowsSplitTunnel::generateAppConfiguration(
     stringOffset += stringLength;
   }
 
-  header->NumEntries = appPaths.length();
+  header->NumEntries = dosPaths.length();
   header->TotalLength = bufferSize;
 
   return outBuffer;
@@ -457,53 +677,72 @@ std::vector<std::byte> WindowsSplitTunnel::generateIPConfiguration(
 
   auto config = reinterpret_cast<IP_ADDRESSES_CONFIG*>(&out[0]);
 
-  auto ifaces = QNetworkInterface::allInterfaces();
-
-    if (vpnAdapterIndex == 0) {
+  if (vpnAdapterIndex == 0) {
     vpnAdapterIndex = WindowsCommons::VPNAdapterIndex();
   }
-  // Always the VPN
-  if (!getAddress(vpnAdapterIndex, &config->TunnelIpv4,
-                  &config->TunnelIpv6)) {
+
+  AdapterEnumerator adapters;
+  bool tunnelResolved =
+      vpnAdapterIndex > 0
+      && adapters.byIndex(vpnAdapterIndex, &config->TunnelIpv4, &config->TunnelIpv6);
+  if (!tunnelResolved) {
+    // The tunnel adapter is IPv4-only, and Qt can report its index as 0 when the
+    // adapter has no IPv6 index; fall back to its friendly name.
+    for (const auto& iface : QNetworkInterface::allInterfaces()) {
+      const QString name = iface.humanReadableName();
+      if (!name.contains("Dopamine", Qt::CaseInsensitive)) {
+        continue;
+      }
+      if (adapters.byName(name, &config->TunnelIpv4, &config->TunnelIpv6)) {
+        tunnelResolved = true;
+        break;
+      }
+    }
+  }
+  if (!tunnelResolved) {
+    logger.error() << "Could not resolve the tunnel adapter (index"
+                   << vpnAdapterIndex << "), split tunnel stays passive";
     return {};
   }
   // 2nd best route is usually the internet adapter
   if (!getAddress(inetAdapterIndex, &config->InternetIpv4,
                   &config->InternetIpv6)) {
+    logger.error() << "Could not resolve the internet adapter (index"
+                   << inetAdapterIndex << "), split tunnel stays passive";
     return {};
-  };
+  }
+  // Never mix these up: Tunnel is the WG adapter, Internet the physical one.
+  // Swapping them (or passing the tunnel address as "internet") makes the
+  // driver bind every excluded app to an address the app cannot use.
+  logger.info() << "Split tunnel addresses - tunnel:" << ipv4ToString(config->TunnelIpv4)
+                << ipv6ToString(config->TunnelIpv6)
+                << "internet:" << ipv4ToString(config->InternetIpv4)
+                << ipv6ToString(config->InternetIpv6);
+
+  if (inetAdapterIndex == vpnAdapterIndex
+      || config->TunnelIpv4.s_addr == config->InternetIpv4.s_addr) {
+    // Happens when the "route to the server" lookup runs while the tunnel is
+    // already the default route (reconnect / server switch): the physical
+    // adapter then resolves to the tunnel itself. The driver forbids excluded
+    // apps to bind to the tunnel interface and blocks them, i.e. the excluded
+    // app loses all connectivity. Refuse the configuration instead.
+    logger.error() << "Refusing split-tunnel config: internet adapter resolves"
+                      " to the tunnel adapter"
+                   << inetAdapterIndex;
+    return {};
+  }
   return out;
 }
 bool WindowsSplitTunnel::getAddress(int adapterIndex, IN_ADDR* out_ipv4,
                                     IN6_ADDR* out_ipv6) {
-  QNetworkInterface target =
-      QNetworkInterface::interfaceFromIndex(adapterIndex);
-  logger.debug() << "Getting adapter info for:" << target.humanReadableName();
-
-  auto get = [&target](QAbstractSocket::NetworkLayerProtocol protocol) {
-    for (auto address : target.addressEntries()) {
-      if (address.ip().protocol() != protocol) {
-        continue;
-      }
-      return address.ip().toString().toStdWString();
-    }
-    return std::wstring{};
-  };
-  auto ipv4 = get(QAbstractSocket::IPv4Protocol);
-  auto ipv6 = get(QAbstractSocket::IPv6Protocol);
-
-  if (InetPtonW(AF_INET, ipv4.c_str(), out_ipv4) != 1) {
-    logger.debug() << "Ipv4 Conversation error" << WSAGetLastError();
+  if (adapterIndex <= 0) {
+    logger.warning() << "Invalid adapter index for split-tunnel:" << adapterIndex;
+    std::memset(out_ipv4, 0, sizeof(IN_ADDR));
+    std::memset(out_ipv6, 0, sizeof(IN6_ADDR));
     return false;
   }
-  if (ipv6.empty()) {
-    std::memset(out_ipv6, 0x00, sizeof(IN6_ADDR));
-    return true;
-  }
-  if (InetPtonW(AF_INET6, ipv6.c_str(), out_ipv6) != 1) {
-    logger.debug() << "Ipv6 Conversation error" << WSAGetLastError();
-  }
-  return true;
+  AdapterEnumerator adapters;
+  return adapters.byIndex(adapterIndex, out_ipv4, out_ipv6);
 }
 
 std::vector<uint8_t> WindowsSplitTunnel::generateProcessBlob() {
@@ -666,10 +905,28 @@ void WindowsSplitTunnel::removeLegacyDriverService() {
 }
 
 QString WindowsSplitTunnel::convertPath(const QString& path) {
-  auto parts = path.split("/");
+  // Accept what the UI and the settings file can hand us: a file:// URL from
+  // the QML file dialog, a native "C:\Program Files\..." path or the Qt-flavoured
+  // "C:/Program Files/..." one. Splitting on "/" only (the old behaviour) turned
+  // every backslash path into an empty device path, i.e. the app was silently
+  // never excluded.
+  QString normalized = path.trimmed();
+  if (normalized.startsWith("file:", Qt::CaseInsensitive)) {
+    const QString localPath = QUrl(normalized).toLocalFile();
+    if (!localPath.isEmpty()) {
+      normalized = localPath;
+    }
+  }
+  normalized.replace('/', '\\');
+
+  auto parts = normalized.split('\\', Qt::SkipEmptyParts);
+  if (parts.size() < 2) {
+    return "";
+  }
   QString driveLetter = parts.takeFirst();
-  if (!driveLetter.contains(":") || parts.size() == 0) {
-    // device should contain : for e.g C:
+  if (driveLetter.size() != 2 || driveLetter.at(1) != ':') {
+    // Only drive-letter paths have a stable \Device\HarddiskVolumeN mapping;
+    // UNC paths would need a different (volume GUID) conversion.
     return "";
   }
   QByteArray buffer(2048, 0xFFu);

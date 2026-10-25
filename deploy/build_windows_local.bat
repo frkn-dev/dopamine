@@ -17,7 +17,11 @@ if errorlevel 1 exit /b 1
 where ninja >nul 2>nul
 if errorlevel 1 goto noninja
 
-if "%QT_ROOT_DIR%"=="" set QT_ROOT_DIR=C:\Users\Happy\Desktop\Qt
+REM QT_ROOT_DIR is set machine-wide by deploy\setup_windows_build.ps1; the
+REM fallbacks cover the default install dir and the legacy build box.
+if "%QT_ROOT_DIR%"=="" if exist "C:\Qt\6.10.1\msvc2022_64\bin\qt-cmake.bat" set QT_ROOT_DIR=C:\Qt
+if "%QT_ROOT_DIR%"=="" if exist "C:\Users\Happy\Desktop\Qt\6.10.1\msvc2022_64\bin\qt-cmake.bat" set QT_ROOT_DIR=C:\Users\Happy\Desktop\Qt
+if "%QT_ROOT_DIR%"=="" goto noqt
 
 set CMAKE_GENERATOR=Ninja
 set BUILD_ARCH=64
@@ -40,4 +44,9 @@ exit /b 1
 
 :noninja
 echo ninja not found in PATH - install it: winget install Ninja-build.Ninja
+exit /b 1
+
+:noqt
+echo Qt not found: expected %%QT_ROOT_DIR%%\6.10.1\msvc2022_64\bin\qt-cmake.bat
+echo Set QT_ROOT_DIR (e.g. set QT_ROOT_DIR=C:\Qt) and retry.
 exit /b 1

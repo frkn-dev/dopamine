@@ -113,9 +113,84 @@ xcrun devicectl install app build-ios-upload/client/Debug-iphoneos/Dopamine.app
 
 ## 4. Windows MSI (ssh на вин-ноут, ~20–30 мин)
 
+### 4.0 Первичная настройка вин-хоста (один раз на машине)
+
+Свежая винда не соберёт клиент «из коробки». Настройка разбита на два скрипта,
+потому что ssh-сессия на Windows **никогда** не бывает elevated, а UAC удалённо
+не подтвердить:
+
+| Скрипт | Что делает | От кого |
+|---|---|---|
+| `deploy\setup_windows_admin.ps1` | VS 2022 Build Tools (MSVC x64 + Windows SDK), OpenSSH-сервер (служба, firewall, `DefaultShell=cmd.exe`), high-performance power plan, исключения Defender | админ |
+| `deploy\setup_windows_build.ps1` | CMake, Ninja, PortableGit, Python, .NET SDK, WiX 4 CLI, Qt 6.10.1 msvc2022_64 (`-m all`), Qt IFW 4.7, клон репо с сабмодулями, zlib-пребилд | обычный пользователь |
+
+Админскую часть можно запустить двумя способами:
+
+```powershell
+# 1) локально, из PowerShell от администратора
+cd <repo>\deploy; .\setup_windows_admin.ps1 -Root C:\build -QtRoot C:\Qt
+
+# 2) удалённо, без UAC — как SYSTEM через планировщик (это делает мак по ssh)
+ssh -i ~/.ssh/dopamine_win <user>@<ip> ^
+  "powershell -NoProfile -ExecutionPolicy Bypass -File C:\build\dopamine\deploy\run_windows_admin_task.ps1"
+```
+
+`run_windows_admin_task.ps1` создаёт задачу `DopamineWinAdminSetup` (`/ru SYSTEM
+/rl HIGHEST`), ждёт её, печатает лог и возвращает её exit code. VS Build Tools
+ставится официальным бутстраппером `vs_BuildTools.exe`, а не через winget: winget
+в SYSTEM-контексте (без профиля пользователя) ломается.
+
+Основная часть — от пользователя (в том числе по ssh, elevation не нужна):
+
+```powershell
+cd <repo>\deploy
+.\setup_windows_build.ps1 -Root C:\build -QtRoot C:\Qt -SkipVs -SkipAdmin `
+    -CloneUrl git@github.com:frkn-dev/dopamine.git `
+    -GitHubKeyPath C:\setup\dopamine_win_build
+```
+
+Что важно знать до запуска:
+
+- Всё в `setup_windows_build.ps1` ставится в `C:\tools` (cmake/ninja/PortableGit)
+  и в профиль пользователя (Python, .NET SDK, `wix` через `dotnet tool`), пути
+  дописываются в **user** PATH — `build_windows_local.bat` найдёт их в
+  следующих ssh-сессиях.
+- `-GitHubKeyPath` — приватный ключ с доступом к `frkn-dev/*` (сабмодули
+  `client/3rd-prebuilt` 1.4 ГБ и `amneziawg-apple` приватные). Скрипт кладёт его
+  в `%USERPROFILE%\.ssh\id_github` и прописывает
+  `Host github.com → ssh.github.com:443` в `~/.ssh/config` + `known_hosts`
+  (порт 22 у GitHub часто режется).
+- `-AuthorizedKey` — содержимое `~/.ssh/dopamine_win.pub` с мака. Для аккаунта из
+  Administrators Windows OpenSSH читает
+  `C:\ProgramData\ssh\administrators_authorized_keys`, не пользовательский файл.
+- `QT_ROOT_DIR` пишется в машинные переменные (если есть elevation), иначе в
+  user-scope; отдельный `set` перед сборкой не нужен.
+- Первый прогон — 40–60 мин (VS Build Tools ~15 мин, Qt ~10, сабмодуль 1.4 ГБ).
+  Повторные: `-SkipVs -SkipTools -SkipQt -SkipAdmin`.
+- В конце печатается чек-лист (vcvars64, qt-cmake, windeployqt, binarycreator,
+  wix, signtool, cmake, ninja, git, zlib, пребилды, сертификат) — всё должно быть
+  `[ok]`. `signtool` берётся из Windows SDK, он есть только внутри vcvars64 —
+  это нормально.
+- Подписи пока нет: без сертификата «Privacy Technologies OU» в
+  `Cert:\CurrentUser\My` `signtool` в `build_windows.bat` ругается, но сборка
+  продолжается и MSI получается неподписанным.
+
+Проверка с мака (IP печатает сам скрипт в блоке `Next`):
+
 ```bash
-ssh -i ~/.ssh/dopamine_win Happy@192.168.0.127 \
-  "cd C:\Users\Happy\Desktop\CODE\dopamine && git checkout -- client\translations 2>nul & git pull origin dev && call deploy\build_windows_local.bat > build_481454.log 2>&1"
+ssh -i ~/.ssh/dopamine_win Happy@<ip> "cd C:\\build\\dopamine && git status --short && call deploy\\build_windows_local.bat > build.log 2>&1"
+```
+
+Если ключ доступа к репо новый, добавь его в GitHub (Settings → SSH keys) и
+убедись, что у аккаунта есть доступ к приватным репам `frkn-dev/*`.
+
+
+```bash
+export WIN=Happy@<ip-вин-хоста>            # старый бокс был Happy@192.168.0.127
+export WIN_REPO='C:\build\dopamine'        # = -Root в setup_windows_build.ps1 + \dopamine
+
+ssh -i ~/.ssh/dopamine_win $WIN \
+  "cd $WIN_REPO && git checkout -- client\\translations 2>nul & git pull origin dev && call deploy\\build_windows_local.bat > build_481454.log 2>&1"
 ```
 
 Имя лога меняй под версию. Если сразу прилетает «Процесс не может получить
@@ -129,18 +204,61 @@ ssh -i ~/.ssh/dopamine_win Happy@192.168.0.127 "tasklist | findstr /I \"cmd.exe\
 # taskkill /PID <pid> /F
 ```
 
-Результат: `C:\Users\Happy\Desktop\CODE\dopamine\deploy\build_64\Dopamine-*-win64.msi`.
+Результат: `C:\build\dopamine\deploy\build_64\Dopamine-*-win64.msi`.
 Забрать на мак:
 
 ```bash
-scp -i ~/.ssh/dopamine_win \
-  "Happy@192.168.0.127:Desktop/CODE/dopamine/deploy/build_64/Dopamine-*-win64.msi" .
+scp -i ~/.ssh/dopamine_win "$WIN:build_64/Dopamine-*-win64.msi" .
 ```
+
+(если `-Root` другой — путь `deploy\build_64` относительно него)
 
 Если туннельная либа менялась (раз в релиз не нужно): сначала на винде
 `deploy\build_tunnel_dll_windows.bat` (качает Go + llvm-mingw, долго в первый
 раз). `go.zip doesn't look like tar archive` — удали каталог
 `%TEMP%\amneziawg-windows` и перезапусти.
+
+### 4.1 Сборка из рабочего дерева, без коммита
+
+Вин-клон берётся из GitHub, поэтому по умолчанию в MSI попадает только
+закоммиченный код. Чтобы проверить правку, которую ещё рано коммитить, есть
+`~/Desktop/dopamine-win-bootstrap/sync_src.sh`:
+
+```bash
+# 1. патч из рабочего дерева + untracked-исходники (артефакты отфильтрованы)
+cd /Users/2pizza/c/f/dopamine
+git diff --binary --no-color > /tmp/tracked.patch
+git ls-files --others --exclude-standard | grep -Ev '<артефакты>' > /tmp/untracked.txt
+tar -cf /tmp/untracked.tar -T /tmp/untracked.txt
+
+# 2. сбросить клон на винде к HEAD и накатить патч
+scp -i ~/.ssh/dopamine_win /tmp/tracked.patch /tmp/untracked.tar <user>@<ip>:C:/build/dopamine/.sync/
+ssh -i ~/.ssh/dopamine_win <user>@<ip> \
+  "cd /d C:\build\dopamine && git checkout -- . && git apply --whitespace=nowarn .sync\tracked.patch && tar -xf .sync\untracked.tar"
+
+# 3. ПРОВЕРИТЬ, что исходники совпадают (иначе сборка бессмысленна)
+git diff --binary --no-color | git hash-object --stdin          # на маке
+ssh -i ~/.ssh/dopamine_win <user>@<ip> \
+  "cd /d C:\build\dopamine && git diff --binary --no-color | git hash-object --stdin"
+```
+
+Хеши обязаны совпасть — это единственное доказательство, что MSI собран из тех
+же исходников, а не «примерно из тех». Весь цикл одной командой:
+
+```bash
+~/Desktop/dopamine-win-bootstrap/build_win.sh            # sync + сборка + MSI на мак
+~/Desktop/dopamine-win-bootstrap/build_win.sh --no-sync  # собрать то, что уже на боксе
+```
+
+Почему не «просто scp изменённых файлов»: новый файл, переименование или
+удаление в такой схеме теряются молча, и проверить потом, что именно
+скомпилировалось, нечем.
+
+`C:\setup\run_build.bat` на боксе выставляет окружение этого хоста —
+`QT_ROOT_DIR=C:\Qt`, `DOTNET_ROOT`, ASCII-`HOME=C:\home` (профиль пользователя
+кириллический, на нём ломаются ssh и git), PATH с `C:\tools` — и запускает
+`deploy\build_windows_local.bat`, дописывая лог в `C:\setup\build_msi.log`.
+Запускать через `schtasks`, иначе сборка умрёт вместе с ssh-сессией.
 
 ## 5. Раскладка на сайт
 

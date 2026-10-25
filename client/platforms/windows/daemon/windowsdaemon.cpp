@@ -62,12 +62,31 @@ void WindowsDaemon::prepareActivation(const InterfaceConfig& config, int inetAda
 }
 
 void WindowsDaemon::activateSplitTunnel(const InterfaceConfig& config, int vpnAdapterIndex) {
-    if (m_splitTunnelManager == nullptr)
+    if (m_splitTunnelManager == nullptr) {
+        if (!config.m_vpnDisabledApps.isEmpty()) {
+            logger.error() << "Split tunnel manager is not initialized";
+            emit backendFailure(DaemonError::ERROR_SPLIT_TUNNEL_INIT_FAILURE);
+        }
         return;
+    }
 
   if (config.m_vpnDisabledApps.length() > 0) {
-      m_splitTunnelManager->start(m_inetAdapterIndex, vpnAdapterIndex);
-      m_splitTunnelManager->excludeApps(config.m_vpnDisabledApps);
+      if (!m_splitTunnelManager->start(m_inetAdapterIndex, vpnAdapterIndex,
+                                       config.m_vpnDisabledApps)) {
+          logger.error() << "Failed to start split tunnel for"
+                         << config.m_vpnDisabledApps;
+          // Never leave the driver half configured: an engaged driver with a
+          // stale/wrong address blocks the excluded apps entirely instead of
+          // letting them out. Back to passive, the apps keep working inside
+          // the tunnel and the user sees a report instead of a dead game.
+          m_splitTunnelManager->stop();
+          emit backendFailure(DaemonError::ERROR_SPLIT_TUNNEL_START_FAILURE);
+          return;
+      }
+      if (!m_splitTunnelManager->isRunning()) {
+          logger.error() << "Split tunnel did not reach running state";
+          emit backendFailure(DaemonError::ERROR_SPLIT_TUNNEL_START_FAILURE);
+      }
   } else {
       m_splitTunnelManager->stop();
   }
@@ -89,14 +108,19 @@ bool WindowsDaemon::run(Op op, const InterfaceConfig& config) {
     return true;
   }
   if (config.m_vpnDisabledApps.length() > 0) {
-    if (!m_splitTunnelManager->start(m_inetAdapterIndex)) {
+    if (!m_splitTunnelManager->start(m_inetAdapterIndex, 0,
+                                     config.m_vpnDisabledApps)) {
+      // Same fail-safe as above: an engaged driver with a wrong address kills
+      // the connectivity of the excluded apps, a passive one leaves them in the
+      // tunnel. Keep the VPN up, report the failure.
+      logger.error() << "Split tunnel start failed for" << config.m_vpnDisabledApps;
+      m_splitTunnelManager->stop();
       emit backendFailure(DaemonError::ERROR_SPLIT_TUNNEL_START_FAILURE);
-    };
-    if (!m_splitTunnelManager->excludeApps(config.m_vpnDisabledApps)) {
-      emit backendFailure(DaemonError::ERROR_SPLIT_TUNNEL_EXCLUDE_FAILURE);
+      return true;
     };
     // Now the driver should be running (State == 4)
     if (!m_splitTunnelManager->isRunning()) {
+      logger.error() << "Split tunnel did not reach running state";
       emit backendFailure(DaemonError::ERROR_SPLIT_TUNNEL_START_FAILURE);
     }
     return true;

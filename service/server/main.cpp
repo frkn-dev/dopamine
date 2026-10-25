@@ -30,8 +30,17 @@ int runApplication(int argc, char** argv)
         }
 
         if (!tokens.empty() && tokens[0] == "tunneldaemon") {
-            WindowsDaemonTunnel *daemon = new WindowsDaemonTunnel();
-            daemon->run(tokens);
+            // The tunnel process is a per-connection worker for tunnel.dll, not
+            // a daemon host. Falling through to LocalServer below gave it its
+            // own WindowsDaemon - a second firewall engine, a second listener on
+            // \\.\pipe\frkn and, worse, a second opener of the split-tunnel
+            // device: initDriver() sees an initialized driver, resets it and
+            // wipes the rules the real service had just pushed, and from then on
+            // the two processes fight over the device, which only one may hold.
+            // That is the "Failed to open Driver: access denied" that left
+            // split tunneling dead.
+            WindowsDaemonTunnel daemon;
+            return daemon.run(tokens);
         }
     }
 #endif

@@ -52,7 +52,7 @@ VPN-клиент (форк AmneziaVPN): Qt6/QML, C++20. Платформы: macO
 ## Билды
 
 - macOS: `deploy/build_macos_local.sh` (arm64/intel через `deploy/build-macos-local-*`), упаковка `deploy/package_macos_pkg.sh <build-dir>`
-- Windows: по SSH на вин-машину (`Happy@192.168.0.127`, ключ `~/.ssh/dopamine_win`), `deploy/build_windows_local.bat` → MSI в `deploy/build_64/Dopamine-*-win64.msi`. Туннель (`tunnel.dll`) пересобирать **не нужно** — только при смене AWG (`deploy/build_tunnel_dll_windows.bat`)
+- Windows: по SSH на вин-машину (ключ `~/.ssh/dopamine_win`; адрес/юзер — по факту текущего бокса, старый `Happy@192.168.0.127` офлайн), `deploy/build_windows_local.bat` → MSI в `deploy/build_64/Dopamine-*-win64.msi`. Первичная настройка свежей винды (MSVC, Qt 6.10.1, IFW 4.7, WiX 4, OpenSSH, пребилды) — `deploy/setup_windows_build.ps1` от админа на самой машине, см. `deploy/BUILD_RELEASE.md` §4.0. Туннель (`tunnel.dll`) пересобирать **не нужно** — только при смене AWG (`deploy/build_tunnel_dll_windows.bat`)
 - Android: `deploy/build_android.sh` → APK. На macOS нужен GNU getopt (`brew install gnu-getopt`, `PATH=/opt/homebrew/opt/gnu-getopt/bin:$PATH`), иначе скрипт молча печатает usage и выходит. 64-bit: `-a arm64-v8a`, 32-bit (ТВ/старые Android): `-a armeabi-v7a`.
   Env: `QT_HOST_PATH=/Users/2pizza/c/6.10.1/6.10.1/macos`, `ANDROID_NDK_ROOT=$HOME/Library/Android/sdk/ndk/26.1.10909125`, `ANDROID_KEYSTORE_PATH=$HOME/frkn-release-key.jks`, alias/пароль ключа — локально (не в репе). Нужен JDK 17 (`JAVA_HOME=$(/usr/libexec/java_home -v 17)`): на Java 25 Gradle 8.10 падает. Без `CI=1`/`-m` готовый APK остаётся в `deploy/build/client/android-build/build/outputs/apk/release/FRKN-<abi>-release.apk`.
 - iOS: юзер собирает через Xcode из `build-ios-upload/`

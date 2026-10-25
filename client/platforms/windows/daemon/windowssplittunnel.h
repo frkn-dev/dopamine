@@ -48,8 +48,13 @@ class WindowsSplitTunnel final {
   // Excludes an Application from the VPN
   bool excludeApps(const QStringList& appPaths);
 
-  // Fetches and Pushed needed info to move to engaged mode
-  bool start(int inetAdapterIndex, int vpnAdapterIndex = 0);
+  // Fetches and Pushed needed info to move to engaged mode.
+  // The exclusion list is pushed BEFORE the IP addresses: the driver starts
+  // enforcing the moment the addresses are registered, and an app that is only
+  // classified afterwards keeps its already-authorized sockets, which the
+  // driver then has to block (it cannot move an established flow).
+  bool start(int inetAdapterIndex, int vpnAdapterIndex = 0,
+             const QStringList& excludedApps = {});
   // Deletes Rules and puts the driver into passive mode
   void stop();
 
@@ -86,6 +91,8 @@ class WindowsSplitTunnel final {
 
   // Generates a Configuration for Each APP
   std::vector<uint8_t> generateAppConfiguration(const QStringList& appPaths);
+  // Sends an already generated application ruleset to the driver
+  bool pushAppConfiguration(const QStringList& appPaths);
   // Generates a Configuration which IP's are VPN and which network
   std::vector<std::byte> generateIPConfiguration(int inetAdapterIndex, int vpnAdapterIndex = 0);
   std::vector<uint8_t> generateProcessBlob();
