@@ -24,19 +24,37 @@ PageType {
     // Server card and the two shortcut buttons above it move together.
     property int serverCardLift: 90
 
+    readonly property bool isTv: SettingsController.isOnTv()
+
+    enableTimer: !isTv
+
+    StackView.onActivated: {
+        if (root.isTv) {
+            Qt.callLater(focusConnectButton)
+        }
+    }
+
+    function focusConnectButton() {
+        if (StackView.status === StackView.Active) {
+            FocusController.resetRootObject()
+            FocusController.setFocusItem(connectButton)
+        }
+    }
+
     ImageButtonType {
         id: settingsButton
         objectName: "settingsButton"
 
         anchors.top: parent.top
         anchors.right: parent.right
-        anchors.topMargin: 12 + SettingsController.safeAreaTopMargin
-        anchors.rightMargin: 12
+        anchors.topMargin: (root.isTv ? 24 : 12) + SettingsController.safeAreaTopMargin
+        anchors.rightMargin: root.isTv ? 32 : 12
 
         z: 10
 
-        implicitWidth: 48
-        implicitHeight: 48
+        implicitWidth: root.isTv ? 56 : 48
+        implicitHeight: root.isTv ? 56 : 48
+        borderFocusedWidth: root.isTv ? 3 : 1
 
         image: "qrc:/images/controls/settings.svg"
         imageColor: DopamineStyle.color.paleGray
@@ -53,8 +71,10 @@ PageType {
             objectName: "homeColumnLayout"
 
             anchors.fill: parent
-            anchors.topMargin: 12 + SettingsController.safeAreaTopMargin
-            anchors.bottomMargin: 16
+            anchors.leftMargin: root.isTv ? Math.max(32, (parent.width - 540) / 2) : 0
+            anchors.rightMargin: anchors.leftMargin
+            anchors.topMargin: (root.isTv ? 24 : 12) + SettingsController.safeAreaTopMargin
+            anchors.bottomMargin: root.isTv ? 24 + SettingsController.safeAreaBottomMargin : 16
 
             BasicButtonType {
                 id: loggingButton
@@ -138,8 +158,8 @@ PageType {
                 objectName: "serverCard"
 
                 Layout.fillWidth: true
-                Layout.leftMargin: 16
-                Layout.rightMargin: 16
+                Layout.leftMargin: root.isTv ? 0 : 16
+                Layout.rightMargin: root.isTv ? 0 : 16
                 Layout.bottomMargin: 8
 
                 implicitHeight: ConnectionController.isConnected ? 112 : 96
@@ -233,7 +253,7 @@ PageType {
                                 maximumLineCount: 1
                                 elide: Text.ElideRight
                                 wrapMode: Text.NoWrap
-                                font.pixelSize: 24
+                                font.pixelSize: root.isTv ? 26 : 24
                                 font.weight: 600
 
                                 text: SettingsController.autoServerSelection && !ConnectionController.isConnected
@@ -247,7 +267,7 @@ PageType {
 
                             visible: text !== ""
                             color: DopamineStyle.color.mutedGray
-                            font.pixelSize: 14
+                            font.pixelSize: root.isTv ? 18 : 14
                             maximumLineCount: 1
                             elide: Text.ElideRight
                             wrapMode: Text.NoWrap
@@ -311,13 +331,28 @@ PageType {
                 MouseArea {
                     id: serverCardMouse
 
+                    readonly property bool isFocusable: root.isTv
+
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
+                    Keys.enabled: root.isTv
 
                     // The card has always been the shortcut to the server list;
                     // keep that habit. The info button opens the server card.
                     onClicked: PageController.goToPage(PageEnum.PageSettingsServersList)
+
+                    Keys.onEnterPressed: PageController.goToPage(PageEnum.PageSettingsServersList)
+                    Keys.onReturnPressed: PageController.goToPage(PageEnum.PageSettingsServersList)
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: serverCard.radius
+                        color: DopamineStyle.color.transparent
+                        border.color: DopamineStyle.color.paleGray
+                        border.width: 3
+                        visible: root.isTv && serverCardMouse.activeFocus
+                    }
                 }
 
                 ImageButtonType {
@@ -361,8 +396,9 @@ PageType {
 
                     z: 2
 
-                    implicitWidth: 48
-                    implicitHeight: 48
+                    implicitWidth: root.isTv ? 56 : 48
+                    implicitHeight: root.isTv ? 56 : 48
+                    borderFocusedWidth: root.isTv ? 3 : 1
 
                     image: "qrc:/images/controls/info.svg"
                     imageColor: DopamineStyle.color.paleGray

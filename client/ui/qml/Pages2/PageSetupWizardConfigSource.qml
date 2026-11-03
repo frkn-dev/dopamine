@@ -16,6 +16,24 @@ import "../Config"
 PageType {
     id: root
 
+    readonly property bool tvLayout: SettingsController.isOnTv()
+
+    enableTimer: !tvLayout
+
+    function restoreTvFocus() {
+        if (tvLayout && visible && StackView.status === StackView.Active && listView.headerItem &&
+                !listView.headerItem.moreActionsOpened && !subscriptionDrawer.isOpened && !keyActivationDrawer.isOpened) {
+            FocusController.resetRootObject()
+            FocusController.focusListViewHeaderItem(listView, listView.headerItem.linkEditor)
+        }
+    }
+
+    StackView.onActivated: {
+        if (tvLayout) {
+            Qt.callLater(restoreTvFocus)
+        }
+    }
+
     Component.onCompleted: {
         if (ImportController.hasPendingSubscription) {
             subscriptionDrawer.configCount = ImportController.subscriptionConfigsCount()
@@ -91,9 +109,15 @@ PageType {
     ListViewType {
         id: listView
 
-        anchors.fill: parent
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: root.tvLayout ? Math.min(720, parent.width - 80) : parent.width
 
         header: ColumnLayout {
+            readonly property Item linkEditor: textKey.editor
+            readonly property bool moreActionsOpened: moreActionsDrawer.isOpened
+
             width: listView.width
 
             RowLayout {
@@ -131,6 +155,8 @@ PageType {
 
                     anchors.fill: parent
                     expandedHeight: root.height * 0.5
+
+                    onClosed: Qt.callLater(root.restoreTvFocus)
 
                     expandedStateContent: ColumnLayout {
                         anchors.top: parent.top
@@ -229,7 +255,8 @@ PageType {
                 Layout.leftMargin: 16
                 Layout.bottomMargin: 24
 
-                text: qsTr("Insert a key or a WireGuard/Amnezia config, add a file, or scan the QR-code")
+                text: root.tvLayout ? qsTr("Press OK to type a frkn:// link or an activation key")
+                                    : qsTr("Insert a key or a WireGuard/Amnezia config, add a file, or scan the QR-code")
             }
 
             TextFieldWithHeaderType {
@@ -239,9 +266,11 @@ PageType {
                 Layout.rightMargin: 16
                 Layout.leftMargin: 16
 
-                placeholderText: qsTr("Insert key")
-                buttonText: qsTr("Insert")
+                placeholderText: root.tvLayout ? "frkn://" : qsTr("Insert key")
+                buttonText: root.tvLayout ? qsTr("Paste") : qsTr("Insert")
                 multiline: true
+                tvInput: root.tvLayout
+                borderFocusedColor: root.tvLayout ? DopamineStyle.color.goldenApricot : DopamineStyle.color.paleGray
 
                 clickedFunc: function() {
                     textKey.insertFromClipboard()
@@ -259,11 +288,17 @@ PageType {
                 // input looked like a missing element.
                 Layout.preferredHeight: Math.max(56, textKey.height)
 
-                visible: textKey.inputText !== ""
+                visible: root.tvLayout || textKey.inputText !== ""
+                enabled: !root.tvLayout || textKey.inputText.trim() !== ""
+                borderFocusedWidth: root.tvLayout ? 3 : 1
+                borderFocusedColor: root.tvLayout ? DopamineStyle.color.goldenApricot : DopamineStyle.color.paleGray
 
                 text: qsTr("Continue")
 
                 clickedFunc: function() {
+                    if (root.tvLayout) {
+                        Qt.inputMethod.hide()
+                    }
                     var inputText = textKey.inputText.trim()
                     if (ImportController.extractConfigFromData(inputText)) {
                         ImportController.queueConfigForConfirmation()
@@ -466,6 +501,8 @@ PageType {
         parent: root
         anchors.fill: parent
 
+        onClosed: Qt.callLater(root.restoreTvFocus)
+
         expandedStateContent: ColumnLayout {
             id: subscriptionContent
 
@@ -474,8 +511,22 @@ PageType {
             anchors.right: parent.right
             spacing: 0
 
+            function focusTvContent() {
+                if (root.tvLayout && subscriptionDrawer.isOpened) {
+                    FocusController.setFocusItem(addSubscriptionButton)
+                }
+            }
+
+            Connections {
+                target: subscriptionDrawer
+                function onOpened() { Qt.callLater(subscriptionContent.focusTvContent) }
+            }
+
             Component.onCompleted: {
                 subscriptionDrawer.expandedHeight = subscriptionContent.implicitHeight + 32
+                if (subscriptionDrawer.isOpened) {
+                    Qt.callLater(focusTvContent)
+                }
             }
 
             Header2Type {
@@ -510,6 +561,8 @@ PageType {
             }
 
             BasicButtonType {
+                id: addSubscriptionButton
+
                 Layout.fillWidth: true
                 Layout.rightMargin: 16
                 Layout.leftMargin: 16
@@ -558,6 +611,8 @@ PageType {
         parent: root
         anchors.fill: parent
 
+        onClosed: Qt.callLater(root.restoreTvFocus)
+
         expandedStateContent: ColumnLayout {
             id: keyActivationContent
 
@@ -566,8 +621,22 @@ PageType {
             anchors.right: parent.right
             spacing: 0
 
+            function focusTvContent() {
+                if (root.tvLayout && keyActivationDrawer.isOpened) {
+                    FocusController.setFocusItem(emailTextField.visible ? emailTextField.editor : activateButton)
+                }
+            }
+
+            Connections {
+                target: keyActivationDrawer
+                function onOpened() { Qt.callLater(keyActivationContent.focusTvContent) }
+            }
+
             Component.onCompleted: {
                 keyActivationDrawer.expandedHeight = keyActivationContent.implicitHeight + 32
+                if (keyActivationDrawer.isOpened) {
+                    Qt.callLater(focusTvContent)
+                }
             }
 
             Header2Type {
@@ -600,11 +669,14 @@ PageType {
                 Layout.bottomMargin: 16
 
                 visible: keyActivationDrawer.emailVisible
+                tvInput: root.tvLayout
 
                 headerText: qsTr("Email")
             }
 
             BasicButtonType {
+                id: activateButton
+
                 Layout.fillWidth: true
                 Layout.rightMargin: 16
                 Layout.leftMargin: 16

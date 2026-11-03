@@ -27,7 +27,11 @@ FocusController::FocusController(QQmlApplicationEngine *engine, QObject *parent)
     });
 
     QObject::connect(this, &FocusController::focusedItemChanged, this,
-                     [this]() { m_focusedItem->forceActiveFocus(Qt::TabFocusReason); });
+                     [this]() {
+                         if (m_focusedItem) {
+                             m_focusedItem->forceActiveFocus(Qt::TabFocusReason);
+                         }
+                     });
 }
 
 void FocusController::nextKeyTabItem()
@@ -62,6 +66,7 @@ void FocusController::nextKeyRightItem()
 
 void FocusController::setFocusItem(QQuickItem *item)
 {
+    dropListView();
     if (m_focusedItem != item) {
         m_focusedItem = item;
     }
@@ -71,6 +76,21 @@ void FocusController::setFocusItem(QQuickItem *item)
 void FocusController::setFocusOnDefaultItem()
 {
     setFocusItem(m_defaultFocusItem);
+}
+
+void FocusController::focusListViewHeaderItem(QQuickItem *listView, QQuickItem *item)
+{
+    if (!listView || !item) {
+        return;
+    }
+
+    dropListView();
+    m_lvfc = new ListViewFocusController(listView, this);
+    if (m_lvfc->focusHeaderItem(item)) {
+        m_focusedItem = listView;
+    } else {
+        dropListView();
+    }
 }
 
 void FocusController::pushRootObject(QObject *object)
@@ -130,7 +150,7 @@ void FocusController::nextItem(Direction direction)
 {
     reload(direction);
 
-    if (m_lvfc && FocusControl::isListView(m_focusedItem)) {
+    if (m_lvfc && m_focusedItem && FocusControl::isListView(m_focusedItem)) {
         direction == Direction::Forward ? focusNextListViewItem() : focusPreviousListViewItem();
 
         return;
@@ -142,7 +162,7 @@ void FocusController::nextItem(Direction direction)
         return;
     }
 
-    auto focusedItemIndex = m_focusChain.indexOf(m_focusedItem);
+    auto focusedItemIndex = m_focusChain.indexOf(m_focusedItem.data());
 
     if (focusedItemIndex == -1) {
         focusedItemIndex = 0;
@@ -161,6 +181,7 @@ void FocusController::nextItem(Direction direction)
     }
 
     if (FocusControl::isListView(focusedItem)) {
+        dropListView();
         m_lvfc = new ListViewFocusController(focusedItem, this);
         m_focusedItem = focusedItem;
         if (direction == Direction::Forward) {

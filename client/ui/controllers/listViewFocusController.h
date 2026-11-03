@@ -27,6 +27,7 @@ public:
     void decrementIndex();
     void focusNextItem();
     void focusPreviousItem();
+    bool focusHeaderItem(QQuickItem *item);
     void resetFocusChain();
     void reloadFocusChain();
     bool isFirstFocusItemInListView() const;
