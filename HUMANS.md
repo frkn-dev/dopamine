@@ -4,7 +4,7 @@
 - **Repo:** dopamine
 - **Branch:** `dev`
 - **Task:** релиз 4.8.14.81 (Android 2158) — сборка всех платформ, Linux, заливка на frkn.app
-- **Status:** релиз собран и выложен. iOS TestFlight upload succeeded (`4.8.14` build `81`); macOS arm64/intel PKG подписаны и нотаризованы; Windows MSI установлен на winbuild (`DisplayVersion 4.8.81`, service Running); Android arm64 + armeabi-v7a собраны и подписаны, установка на устройство не проверена — нет подключённого `adb`-устройства; Linux x64 собран на `141.133.173.16`. Сайт RU/EN обновлён на `v4.8.14.81`, все шесть артефактов отдаются 200 с совпадающими размерами. `ffcore/target` удалён по разрешению (12 ГБ). В git сайта не коммитил: ветка `feature/home-v2` содержит чужие незакоммиченные правки.
+- **Status:** релиз собран и выложен. iOS TestFlight upload succeeded (`4.8.14` build `81`); macOS arm64/intel PKG подписаны и нотаризованы; Windows MSI установлен на winbuild (`DisplayVersion 4.8.81`, service Running); Android arm64 установлен на `SM-G9860` (Android 13, `versionName 4.8.14.81`, `versionCode 2158`, приложение запущено), armeabi-v7a собран/подписан; Linux x64 собран на `141.133.173.16`. Сайт RU/EN обновлён на `v4.8.14.81`, все шесть артефактов отдаются 200 с совпадающими размерами. `ffcore/target` удалён по разрешению (12 ГБ). В git сайта не коммитил: ветка `feature/home-v2` содержит чужие незакоммиченные правки.
 - **Updated:** 2026-11-07
 
 ## Done
