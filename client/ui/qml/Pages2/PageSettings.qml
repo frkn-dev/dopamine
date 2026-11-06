@@ -108,21 +108,33 @@ PageType {
     }
 
     property list<QtObject> settingsEntries: [
-        servers,
-        connection,
         application,
+        connection,
+        splitTunneling,
+        support,
         about,
         devConsole
     ]
 
     QtObject {
-        id: servers
+        id: splitTunneling
 
-        property string title: qsTr("Connections")
-        readonly property string leftImagePath: "qrc:/images/controls/server.svg"
+        property string title: qsTr("Split tunneling")
+        readonly property string leftImagePath: "qrc:/images/controls/split-tunneling.svg"
         property bool isVisible: true
         readonly property var clickedHandler: function() {
-            PageController.goToPage(PageEnum.PageSettingsServersList)
+            PageController.goToPage(PageEnum.PageSettingsSplitTunnelingOverview)
+        }
+    }
+
+    QtObject {
+        id: support
+
+        property string title: qsTr("Support")
+        readonly property string leftImagePath: "qrc:/images/controls/info.svg"
+        property bool isVisible: true
+        readonly property var clickedHandler: function() {
+            PageController.goToPage(PageEnum.PageSettingsApiSupport)
         }
     }
 
@@ -131,9 +143,9 @@ PageType {
 
         property string title: qsTr("Connection")
         readonly property string leftImagePath: "qrc:/images/controls/radio.svg"
-        // the page is empty on iOS: LAN routing and KillSwitch are desktop-only,
-        // app split tunneling is Windows/Android — hide the entry there
-        property bool isVisible: GC.isDesktop() || Qt.platform.os === "android"
+        // DNS override lives here on every platform; LAN routing and KillSwitch
+        // stay desktop-only, app split tunneling is Windows/Android-only.
+        property bool isVisible: true
         readonly property var clickedHandler: function() {
             PageController.goToPage(PageEnum.PageSettingsConnection)
         }

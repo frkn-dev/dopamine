@@ -55,6 +55,8 @@ PageType {
                 }
             }
 
+            DividerType {}
+
             VerticalRadioButton {
                 id: softKillSwitch
                 Layout.fillWidth: true

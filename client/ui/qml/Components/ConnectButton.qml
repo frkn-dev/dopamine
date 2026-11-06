@@ -199,18 +199,25 @@ Button {
         }
     }
 
-    contentItem: Text {
-        height: 24
+    contentItem: Item {
+        Text {
+            readonly property bool multiLine: text.indexOf("\n") >= 0
 
-        font.family: "IBM Plex Mono"
-        font.weight: 700
-        font.pixelSize: 20
+            anchors.centerIn: parent
+            width: Math.min(180, root.width - 16)
+            height: implicitHeight
 
-        color: ConnectionController.isConnected ? connectedTextColor : DopamineStyle.color.paleGray
-        text: root.text
+            font.family: "IBM Plex Mono"
+            font.weight: 700
+            font.pixelSize: multiLine ? 16 : 20
 
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
+            color: ConnectionController.isConnected ? connectedTextColor : DopamineStyle.color.paleGray
+            text: root.text
+
+            wrapMode: multiLine ? Text.WrapAtWordBoundaryOrAnywhere : Text.NoWrap
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+        }
     }
 
     onClicked: {

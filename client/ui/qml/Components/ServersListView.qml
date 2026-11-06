@@ -31,15 +31,13 @@ ListViewType {
     }
 
     Component.onCompleted: {
-        const saved = SettingsController.serversProtocolFilter
-        if (saved !== "" && saved !== "all") {
-            root.protocolFilterTouched = true
-            root.protocolFilter = saved
-        }
-        const savedEnv = SettingsController.serversEnvFilter
-        if (savedEnv !== "" && savedEnv !== "all") {
-            root.envFilter = savedEnv
-        }
+        // env/protocol filters always start at All: the stored selection used to
+        // survive restarts and hid freshly fetched servers behind an old filter.
+        root.protocolFilter = ""
+        root.protocolFilterTouched = false
+        root.envFilter = ""
+        SettingsController.serversProtocolFilter = "all"
+        SettingsController.serversEnvFilter = "all"
         const savedSub = SettingsController.serversSubscriptionFilter
         if (savedSub !== "" && savedSub !== "all") {
             root.subscriptionFilter = savedSub
@@ -60,6 +58,17 @@ ListViewType {
             "EST": "EE", "TLL": "EE", "EESTI": "EE", "ESTONIA": "EE", "TALLINN": "EE"
         }
         return aliases[cc] !== undefined ? aliases[cc] : cc
+    }
+
+    function isElephant(variant) {
+        if (variant.protocol === "vlessxhttpcdn") {
+            return true
+        }
+        const haystack = ((variant.name || "") + " " + (variant.groupName || "") + " " + (variant.pool || "")).toLowerCase()
+        return haystack.indexOf("belyslon") >= 0
+                || haystack.indexOf("bely slon") >= 0
+                || haystack.indexOf("белый слон") >= 0
+                || haystack.indexOf("білий слон") >= 0
     }
 
     function protocolLabel(proto) {
@@ -205,9 +214,13 @@ ListViewType {
                 byKey[key] = {
                     key: key,
                     title: title,
+                    isPool: pool !== "",
                     variants: [],
                     expanded: expanded[key] === true
                 }
+            }
+            if (pool !== "") {
+                byKey[key].isPool = true
             }
             byKey[key].variants.push(variant)
         }
@@ -228,7 +241,12 @@ ListViewType {
             groups.push(group)
         }
 
+        // Pool-карточки всегда первыми: это то, с чего пользователь начинает выбор,
+        // а внутри группы и остальные — по алфавиту.
         groups.sort(function(a, b) {
+            if (a.isPool !== b.isPool) {
+                return a.isPool ? -1 : 1
+            }
             return a.title.localeCompare(b.title) || a.key.localeCompare(b.key)
         })
 
@@ -343,6 +361,11 @@ ListViewType {
                     implicitWidth: 48
                     implicitHeight: 48
 
+                    // while a tunnel is up every probe goes through the VPN exit,
+                    // so the numbers describe the tunnel path, not the server
+                    visible: !ConnectionController.isConnected
+                    enabled: !ConnectionController.isConnected
+
                     image: "qrc:/images/controls/gauge.svg"
                     imageColor: DopamineStyle.color.paleGray
 
@@ -360,6 +383,8 @@ ListViewType {
 
                 text: qsTr("Auto-select")
                 descriptionText: qsTr("Fastest available server")
+                leadingImageSource: "qrc:/countriesFlags/images/flagKit/PIRATE.svg"
+                leadingImageSize: 32
 
                 checked: SettingsController.autoServerSelection
                 checkable: true
@@ -385,12 +410,15 @@ ListViewType {
         target: ApiConfigsController
         function onReloadSubscriptionConfigsFinished(success) {
             if (!success) return
-            const savedEnv = SettingsController.serversEnvFilter
-            root.envFilter = savedEnv === "" || savedEnv === "all" ? "" : savedEnv
+            // After a server-list update the filters go back to All: the list
+            // has just changed, and keeping the previous env/protocol selection
+            // hid the freshly fetched servers behind an old filter.
+            root.envFilter = ""
+            root.protocolFilter = ""
+            root.protocolFilterTouched = false
+            SettingsController.serversEnvFilter = "all"
+            SettingsController.serversProtocolFilter = "all"
             root.rebuildEnvsModel()
-            const savedProto = SettingsController.serversProtocolFilter
-            root.protocolFilterTouched = savedProto !== "" && savedProto !== "all"
-            root.protocolFilter = root.protocolFilterTouched ? savedProto : ""
             root.rebuildProtocolsModel()
             const savedSub = SettingsController.serversSubscriptionFilter
             root.subscriptionFilter = savedSub === "" || savedSub === "all" ? "" : savedSub
@@ -482,17 +510,19 @@ ListViewType {
                                 id: serverCountryFlag
 
                                 Layout.alignment: Qt.AlignVCenter
-                                Layout.preferredWidth: 24
-                                Layout.preferredHeight: 24
+                                Layout.preferredWidth: root.isElephant(variant) ? 32 : 24
+                                Layout.preferredHeight: root.isElephant(variant) ? 32 : 24
 
                                 sourceSize.width: 48
                                 sourceSize.height: 48
                                 fillMode: Image.PreserveAspectFit
 
-                                source: variant.countryCode !== ""
-                                        ? "qrc:/countriesFlags/images/flagKit/" + root.flagCountryCode(variant.countryCode) + ".svg"
-                                        : ""
-                                visible: variant.countryCode !== "" && status !== Image.Error
+                                source: root.isElephant(variant)
+                                        ? "qrc:/countriesFlags/images/flagKit/ELEPHANT.svg"
+                                        : (variant.countryCode !== ""
+                                           ? "qrc:/countriesFlags/images/flagKit/" + root.flagCountryCode(variant.countryCode) + ".svg"
+                                           : "")
+                                visible: (root.isElephant(variant) || variant.countryCode !== "") && status !== Image.Error
 
                                 layer.enabled: true
                                 layer.effect: OpacityMask {

@@ -47,6 +47,22 @@ Settings::Settings(QObject *parent) : QObject(parent), m_settings(ORGANIZATION_N
         }
     }
 
+    // Адреса пула. В тестовых сборках 4.8.14.79 тумблеры успевали записать
+    // состояние в Conf/poolDisabled/* при неверной логике, и адреса выглядели
+    // выключенными «по умолчанию». Семантика: включено = адрес используется,
+    // выключено = адрес пропускается. Один раз чистим накопленный мусор.
+    if (!m_settings.value("Conf/poolDisabledMigrated", false).toBool()) {
+        m_settings.remove("Conf/poolDisabled");
+        m_settings.setValue("Conf/poolDisabledMigrated", true);
+    }
+
+    // Endpoint toggles were shipped on by mistake; the intended default is off.
+    // Apply it once to installs that already stored the old default.
+    if (!m_settings.value("Conf/endpointTogglesDefaultOff", false).toBool()) {
+        m_settings.setValue("Conf/endpointTogglesAllowed", false);
+        m_settings.setValue("Conf/endpointTogglesDefaultOff", true);
+    }
+
     m_gatewayEndpoint = gatewayEndpoint;
 }
 

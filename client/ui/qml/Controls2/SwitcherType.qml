@@ -36,6 +36,8 @@ Switch {
     property string defaultIndicatorBackgroundColor: DopamineStyle.color.transparent
 
     property bool isFocusable: true
+    // структура строки одна и та же; сам тумблер можно спрятать (настройка выкл)
+    property bool showIndicator: true
 
     Keys.onTabPressed: {
         FocusController.nextKeyTabItem()
@@ -66,6 +68,8 @@ Switch {
 
     indicator: Rectangle {
         id: switcher
+
+        visible: root.showIndicator
 
         anchors.right: parent.right
         anchors.verticalCenter: parent.verticalCenter
@@ -137,6 +141,9 @@ Switch {
             rightPadding: indicator.width
 
             color: root.enabled ? root.descriptionTextColor : root.descriptionTextDisabledColor
+
+            // цветные точки статуса задаются разметкой (<font color=…>)
+            textFormat: text.indexOf("<") >= 0 ? Text.RichText : Text.PlainText
 
             visible: text !== ""
         }

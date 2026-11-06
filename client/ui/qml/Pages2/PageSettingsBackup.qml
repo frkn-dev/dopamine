@@ -17,6 +17,14 @@ import "../Controls2/TextTypes"
 PageType {
     id: root
 
+    // Скролл сбрасываем при открытии страницы, а не по фокусу кнопки «назад»:
+    // фокус переезжает во время обычных свайпов, и список возвращало наверх.
+    onVisibleChanged: {
+        if (visible) {
+            listView.positionViewAtBeginning()
+        }
+    }
+
     Connections {
         target: SettingsController
 
@@ -42,11 +50,6 @@ PageType {
         anchors.right: parent.right
         anchors.topMargin: 20 + SettingsController.safeAreaTopMargin
 
-        onActiveFocusChanged: {
-            if(backButton.enabled && backButton.activeFocus) {
-                listView.positionViewAtBeginning()
-            }
-        }
     }
 
     ListViewType {

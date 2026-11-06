@@ -80,73 +80,14 @@ PageType {
         }
     }
 
-    ColumnLayout {
-        id: header
-
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-
-        anchors.topMargin: 20 + SettingsController.safeAreaTopMargin
-
-        BackButtonType {
-            id: backButton
-        }
-
-        BaseHeaderType {
-            Layout.fillWidth: true
-            Layout.leftMargin: 16
-            Layout.rightMargin: 16
-
-            headerText: qsTr("Site-based split tunneling")
-            descriptionText: root.routeModesModel[root.getRouteModesModelIndex()].name
-        }
-
-        CaptionTextType {
-            Layout.fillWidth: true
-            Layout.topMargin: 8
-            Layout.leftMargin: 16
-            Layout.rightMargin: 16
-
-            visible: ConnectionController.isConnected
-            color: DopamineStyle.color.mutedGray
-            text: qsTr("VPN is connected — changes will apply on the next connection")
-        }
-
-        LabelWithButtonType {
-            Layout.fillWidth: true
-            Layout.topMargin: 8
-
-            text: qsTr("Local subnets always bypassing the VPN")
-            rightImageSource: "qrc:/images/controls/chevron-right.svg"
-
-            clickedFunction: function() {
-                PageController.goToPage(PageEnum.PageSettingsLocalSubnets)
-            }
-        }
-
-        LabelWithButtonType {
-            Layout.fillWidth: true
-            Layout.topMargin: 8
-
-            text: qsTr("Bank and marketplace apps don't work?")
-            rightImageSource: "qrc:/images/controls/chevron-right.svg"
-
-            clickedFunction: function() {
-                PageController.goToPage(PageEnum.PageSettingsRuAppsHelp)
-            }
-        }
-    }
-
     ListViewType {
         id: listView
 
         ScrollBar.vertical: ScrollBarType { policy: ScrollBar.AlwaysOn }
 
-        anchors.top: header.bottom
-        anchors.topMargin: 16
+        anchors.top: parent.top
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: addSiteButton.implicitHeight + 48 + (searchField.textField.activeFocus ? 0 : SettingsController.imeHeight)
+        anchors.bottomMargin: addSiteButton.implicitHeight + 48 + SettingsController.safeAreaBottomMargin + (searchField.textField.activeFocus ? 0 : SettingsController.imeHeight)
 
         width: parent.width
 
@@ -155,6 +96,56 @@ PageType {
 
         header: ColumnLayout {
             width: listView.width
+
+            BackButtonType {
+                id: backButton
+
+                Layout.topMargin: 20 + SettingsController.safeAreaTopMargin
+            }
+
+            BaseHeaderType {
+                Layout.fillWidth: true
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+
+                headerText: qsTr("Site-based split tunneling")
+                descriptionText: root.routeModesModel[root.getRouteModesModelIndex()].name
+            }
+
+            CaptionTextType {
+                Layout.fillWidth: true
+                Layout.topMargin: 8
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+
+                visible: ConnectionController.isConnected
+                color: DopamineStyle.color.mutedGray
+                text: qsTr("VPN is connected — changes will apply on the next connection")
+            }
+
+            LabelWithButtonType {
+                Layout.fillWidth: true
+                Layout.topMargin: 8
+
+                text: qsTr("Local subnets always bypassing the VPN")
+                rightImageSource: "qrc:/images/controls/chevron-right.svg"
+
+                clickedFunction: function() {
+                    PageController.goToPage(PageEnum.PageSettingsLocalSubnets)
+                }
+            }
+
+            LabelWithButtonType {
+                Layout.fillWidth: true
+                Layout.topMargin: 8
+
+                text: qsTr("Bank and marketplace apps don't work?")
+                rightImageSource: "qrc:/images/controls/chevron-right.svg"
+
+                clickedFunction: function() {
+                    PageController.goToPage(PageEnum.PageSettingsRuAppsHelp)
+                }
+            }
 
             Header2Type {
                 Layout.fillWidth: true

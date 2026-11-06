@@ -94,6 +94,10 @@ public:
     Q_PROPERTY(QStringList availableProtocols READ availableProtocols NOTIFY availableProtocolsChanged)
     Q_PROPERTY(QStringList availableEnvs READ availableEnvs NOTIFY availableEnvsChanged)
     Q_PROPERTY(QStringList availableSubscriptions READ availableSubscriptions NOTIFY availableSubscriptionsChanged)
+    // Счётчик обновлений замеров адресов: QML-биндинг должен пересчитаться,
+    // когда пришли новые результаты или восстановился кэш (иначе карточка
+    // держит старое «not checked», хотя замер уже есть).
+    Q_PROPERTY(int endpointHealthRevision READ endpointHealthRevision NOTIFY endpointHealthRevisionChanged)
 
     Q_PROPERTY(int processedIndex READ getProcessedServerIndex WRITE setProcessedServerIndex NOTIFY processedServerIndexChanged)
     Q_PROPERTY(bool processedServerIsPremium READ processedServerIsPremium NOTIFY processedServerChanged)
@@ -151,6 +155,57 @@ public slots:
     void setHealthResult(int serverIndex, int latencyMs);
     void clearHealthResults();
 
+    // Per-address probe results (key = "host:port"). Needed to pick the address
+    // inside a node and to show the number next to each address.
+    // latencyMs: >= 0 real handshake RTT, -1 no handshake (unreachable).
+    void setEndpointHealthResult(const QString &host, const int port, int latencyMs, int attempts = 1);
+    // Перезапуск приложения не должен обнулять замеры: свежие результаты
+    // (< 1 мин) берём из диска, а не меряем заново.
+    void loadEndpointHealthCache();
+    // Свежесть последнего прогона проб (для «не дрочить проверку»)
+    bool probeIsFresh() const;
+    void markProbeRun();
+    void saveEndpointHealthCache();
+    void clearEndpointHealthResults();
+
+    // { rtt: int, state: "ok"|"unreachable"|"unknown", ageSec: int }
+    Q_INVOKABLE QVariantMap endpointHealth(const QString &host, const int port) const;
+    Q_INVOKABLE void clearEndpointHealth(const QString &host, const int port);
+    // порт текущего сервера (для ключа проб по адресам)
+    Q_INVOKABLE int getProcessedServerPort();
+    Q_INVOKABLE int getProcessedNodePort(const QString &ip);
+
+    // Замер по адресу текущей строки: пробуем порт адреса, затем порт строки.
+    // Проба и карточка считают порт из разных мест (контейнер vs node_ports),
+    // и без этого второго шанса цифры не находились — в карточке был прочерк.
+    Q_INVOKABLE QVariantMap processedEndpointHealth(const QString &ip);
+    // Тот же health, но для конкретной строки: карточка может показывать строку,
+    // которая не совпадает с processedIndex, и тогда порты берутся чужие —
+    // адрес находится «неизмеренным», хотя замер есть.
+    Q_INVOKABLE QVariantMap endpointHealthFor(const int serverIndex, const QString &ip);
+    // Порт, на котором этот IP реально отвечал (по кэшу замеров). Нужен, когда
+    // конфиг не несёт node_ports и порт протокола угадывается неверно.
+    int livePortForIp(const QString &ip, int currentPort) const;
+
+    // Порт конкретного адреса пула: node_ports[ip], иначе порт протокола.
+    // Общий для коннекта, проб и отчёта — иначе карточка и подключение
+    // разойдутся по портам.
+    static int portForNodeIp(const QJsonObject &serverConfig, const QString &ip, int fallbackPort);
+    // Вес адреса из node_weights (карта ip → вес). Дефолт 100; 0/отрицательное
+    // считается «не задан» → 100 (так ведёт себя старая нода, присылающая 0).
+    static int weightForNodeIp(const QJsonObject &serverConfig, const QString &ip);
+    // тот же вес, но для текущей обрабатываемой строки (карточка/коннект)
+    int endpointWeight(const QString &ip) const;
+    int endpointHealthRevision() const { return m_endpointHealthRevision; }
+    // Подписка строки истекла? Читаем api_config.subscription.end_date (ISO).
+    bool isSubscriptionExpired(int index) const;
+    // Порт протокола для строки: верхнеуровневый port, иначе порт контейнера
+    // (у серверов из API верхнего порта нет вообще).
+    int serverPort(int index) const;
+    Q_INVOKABLE bool isEndpointUsable(const QString &host, const int port) const;
+    // true while a fresh (<= 5 min) handshake failure is recorded
+    Q_INVOKABLE bool isEndpointUnreachable(const QString &host, const int port) const;
+
     QJsonObject getServerConfig(const int serverIndex) const;
     QVariantMap getServerDisplayData(const int serverIndex) const;
 
@@ -182,6 +237,7 @@ public slots:
     QVariant getDefaultServerData(const QString roleString);
 
     QVariant getProcessedServerData(const QString roleString);
+    QVariant getServerData(const int serverIndex, const QString roleString);
     bool setProcessedServerData(const QString &roleString, const QVariant &value);
 
     // Localized title for a node pool/group: current UI language translation
@@ -208,6 +264,7 @@ protected:
     QHash<int, QByteArray> roleNames() const override;
 
 signals:
+    void endpointHealthRevisionChanged();
     void processedServerIndexChanged(const int index);
     // emitted when the processed server index or processed server data is changed
     void processedServerChanged();
@@ -251,8 +308,8 @@ private:
 
     std::shared_ptr<Settings> m_settings;
 
-    int m_defaultServerIndex;
-    int m_processedServerIndex;
+    int m_defaultServerIndex = -1;
+    int m_processedServerIndex = -1;
 
     bool m_isAmneziaDnsEnabled = m_settings->useAmneziaDns();
 
@@ -266,6 +323,21 @@ private:
     QStringList m_availableSubscriptions;
 
     QHash<int, int> m_healthResults;
+
+    static constexpr qint64 kEndpointHealthTtlMs = 5 * 60 * 1000;
+
+    struct EndpointHealth
+    {
+        int rttMs = -1;
+        qint64 atMs = 0;
+        int attempts = 1; // сколько раз стучались (1 = с первой попытки)
+    };
+    QHash<QString, EndpointHealth> m_endpointHealth;
+    int m_endpointHealthRevision = 0;
+    static QString endpointKey(const QString &host, const int port)
+    {
+        return host + QLatin1Char(':') + QString::number(port);
+    }
 };
 
 #endif // SERVERSMODEL_H

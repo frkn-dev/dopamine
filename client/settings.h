@@ -102,6 +102,389 @@ public:
     }
     void setSaveLogs(bool enabled);
 
+    // Клиентский override MTU для WG/AWG. 0 = брать значение из конфига сервера.
+    int mtuOverride() const
+    {
+        return m_settings.value("Conf/mtuOverride", 0).toInt();
+    }
+    void setMtuOverride(int mtu)
+    {
+        m_settings.setValue("Conf/mtuOverride", mtu);
+        emit mtuOverrideChanged(mtu);
+    }
+
+    // Адреса пула, которые пользователь выключил (ключ пула -> список IP).
+    // Отключённые пользователем адреса узлов — просто список IP. Раньше хранили
+    // "<подписка>|<ip>", и после обновления конфига ключ не совпадал: выключенные
+    // адреса «включались» сами. IP — единственное, что стабильно между коннектами.
+    QStringList poolDisabledEndpoints() const
+    {
+        const QStringList raw = m_settings.value("Conf/poolDisabledEndpoints", QStringList()).toStringList();
+        QStringList ips;
+        for (const QString &entry : raw) {
+            // старые записи вида "subscription|ip" — берём только IP
+            const int sep = entry.lastIndexOf(QLatin1Char('|'));
+            const QString ip = (sep >= 0) ? entry.mid(sep + 1) : entry;
+            if (!ip.isEmpty() && !ips.contains(ip)) {
+                ips.append(ip);
+            }
+        }
+        return ips;
+    }
+    void setPoolDisabledEndpoints(const QStringList &entries)
+    {
+        m_settings.setValue("Conf/poolDisabledEndpoints", entries);
+        m_settings.sync();
+        emit poolDisabledIpsChanged();
+    }
+
+    // Диагностическая трасса (кольцевой буфер в настройках приложения).
+    // Пишем через ТОТ ЖЕ экземпляр настроек, что и всё приложение: отдельный
+    // QSettings на тот же plist затирал записи при следующем sync.
+    void appendDiagTrace(const QString &line)
+    {
+        QStringList trace = m_settings.value("Conf/diagTrace").toStringList();
+        trace.append(QTime::currentTime().toString("HH:mm:ss") + QLatin1Char(' ') + line);
+        while (trace.size() > 40) {
+            trace.removeFirst();
+        }
+        m_settings.setValue("Conf/diagTrace", trace);
+        m_settings.sync();
+    }
+
+    void clearDiagTrace()
+    {
+        m_settings.remove("Conf/diagTrace");
+        m_settings.sync();
+    }
+
+    QString diagBuild() const
+    {
+        return m_settings.value("Conf/diagBuild").toString();
+    }
+
+    void setDiagBuildMarker(const QString &value)
+    {
+        m_settings.setValue("Conf/diagBuild", value);
+        m_settings.sync();
+    }
+
+    // Бесконечные попытки подключения: если сеть пропала, приложение не сдаётся
+    // с ошибкой, а ждёт и переподключается само, пока пользователь не нажмёт «Отмена».
+    // Время последнего автоотчёта (при провале подключения) — для троттлинга.
+    QString lastAutoReportAt() const
+    {
+        return m_settings.value("Conf/lastAutoReportAt", QString()).toString();
+    }
+    void setLastAutoReportAt(const QString &iso)
+    {
+        m_settings.setValue("Conf/lastAutoReportAt", iso);
+    }
+
+    // Разрешить юзеру выключать отдельные адреса пула. По умолчанию нет:
+    // в карточке сервера тумблеры эндпойнтов не показываем.
+    bool isEndpointTogglesAllowed() const
+    {
+        return m_settings.value("Conf/endpointTogglesAllowed", false).toBool();
+    }
+    void setEndpointTogglesAllowed(bool allowed)
+    {
+        if (isEndpointTogglesAllowed() != allowed) {
+            m_settings.setValue("Conf/endpointTogglesAllowed", allowed);
+            emit endpointTogglesAllowedChanged();
+        }
+    }
+
+    // MTU, с которым реально подняли туннель в последний раз (для диагностики).
+    int lastAppliedMtu() const
+    {
+        return m_settings.value("Conf/lastAppliedMtu", 0).toInt();
+    }
+
+    // Адрес ноды, к которому реально подключились в последний раз. Нужен отчёту,
+    // чтобы пометить в пуле «in use» и не путать с выключенным юзером.
+    QString lastConnectedEndpoint() const
+    {
+        return m_settings.value("Conf/lastConnectedEndpoint").toString();
+    }
+    // Кэш замеров адресов: переживает перезапуск приложения, чтобы свежая
+    // (< 1 мин) проверка не запускалась заново при каждом открытии.
+    QString endpointHealthCache() const
+    {
+        return m_settings.value("Conf.endpointHealthCache").toString();
+    }
+    void setEndpointHealthCache(const QString &json)
+    {
+        m_settings.setValue("Conf.endpointHealthCache", json);
+        // QSettings пишет лениво: без sync кэш не доживал до перезапуска,
+        // и приложение снова меряло всё заново.
+        m_settings.sync();
+    }
+    qint64 lastProbeRunMs() const
+    {
+        return m_settings.value("Conf.lastProbeRunMs", 0).toLongLong();
+    }
+    void setLastProbeRunMs(qint64 ms)
+    {
+        m_settings.setValue("Conf.lastProbeRunMs", ms);
+        m_settings.sync();
+    }
+
+    // Строка, которую юзер выбрал в списке последней раз (не «по умолчанию»).
+    // Восстанавливается при запуске: экран не должен прыгать на дефолтный сервер.
+    int selectedServerIndex() const
+    {
+        return m_settings.value("Conf/selectedServerIndex", -1).toInt();
+    }
+    void setSelectedServerIndex(int index)
+    {
+        if (index >= 0) {
+            m_settings.setValue("Conf/selectedServerIndex", index);
+        }
+    }
+
+    // Идентичность выбранной строки: пара uuid соединения + id ноды. Индекс
+    // «плывёт» при обновлении подписки, пара — нет.
+    QString selectedConnectionUuid() const
+    {
+        return m_settings.value("Conf/selectedConnectionUuid").toString();
+    }
+    QString selectedNodeId() const
+    {
+        return m_settings.value("Conf/selectedNodeId").toString();
+    }
+    // Пул — отдельная идентичность: у строк пула представительная нода
+    // меняется между обновлениями подписки, а страна у членов разная (EU:
+    // at/ee/fr/pl). Поэтому для пула ключ — имя пула + протокол.
+    QString selectedPool() const
+    {
+        return m_settings.value("Conf/selectedPool").toString();
+    }
+    QString selectedProtocol() const
+    {
+        return m_settings.value("Conf/selectedProtocol").toString();
+    }
+    void setSelectedIdentity(const QString &connectionUuid, const QString &nodeId,
+                             const QString &pool = QString(), const QString &protocol = QString())
+    {
+        m_settings.setValue("Conf/selectedConnectionUuid", connectionUuid);
+        m_settings.setValue("Conf/selectedNodeId", nodeId);
+        m_settings.setValue("Conf/selectedPool", pool);
+        m_settings.setValue("Conf/selectedProtocol", protocol);
+    }
+
+    // Строка, к которой реально подключены (для показа в UI после перезапуска:
+    // иначе главный экран показывает выбранный сервер, а туннель живёт на другом).
+    int lastConnectedServerIndex() const
+    {
+        return m_settings.value("Conf/lastConnectedServerIndex", -1).toInt();
+    }
+    void setLastConnectedServerIndex(int index)
+    {
+        m_settings.setValue("Conf/lastConnectedServerIndex", index);
+    }
+
+    void setLastConnectedEndpoint(const QString &ip)
+    {
+        m_settings.setValue("Conf/lastConnectedEndpoint", ip);
+    }
+
+    // Порт того адреса (у пула у каждого IP свой порт): без него «быстрый путь»
+    // на реконнекте тыкал бы в дефолтный порт и падал.
+    int lastConnectedPort() const
+    {
+        return m_settings.value("Conf/lastConnectedPort", 0).toInt();
+    }
+    void setLastConnectedPort(int port)
+    {
+        m_settings.setValue("Conf/lastConnectedPort", port);
+    }
+
+    // Фидбек, который не ушёл из-за отсутствия сети: копим и отправляем позже,
+    // иначе юзер пишет в пустоту и думает, что мы его игнорируем.
+    QJsonArray pendingFeedback() const
+    {
+        return QJsonDocument::fromJson(m_settings.value("Conf/pendingFeedback").toString().toUtf8()).array();
+    }
+    void setPendingFeedback(const QJsonArray &items)
+    {
+        m_settings.setValue("Conf/pendingFeedback",
+                            QString::fromUtf8(QJsonDocument(items).toJson(QJsonDocument::Compact)));
+    }
+
+    // История попыток подключения (последние 20): время, адрес, порт, итог.
+    // Нужна отчёту — по ней видно, что юзер шесть раз тыкал в разные ноды,
+    // а не «просто не работает».
+    QJsonArray connectAttempts() const
+    {
+        return QJsonDocument::fromJson(m_settings.value("Conf/connectAttempts").toString().toUtf8()).array();
+    }
+    void addConnectAttempt(const QJsonObject &entry)
+    {
+        QJsonArray attempts = connectAttempts();
+        attempts.append(entry);
+        while (attempts.size() > 20) {
+            attempts.removeFirst();
+        }
+        m_settings.setValue("Conf/connectAttempts",
+                            QString::fromUtf8(QJsonDocument(attempts).toJson(QJsonDocument::Compact)));
+    }
+    void setLastAppliedMtu(int mtu)
+    {
+        if (lastAppliedMtu() != mtu) {
+            m_settings.setValue("Conf/lastAppliedMtu", mtu);
+            emit lastAppliedMtuChanged();
+        }
+    }
+
+    bool isReconnectUntilCancelled() const
+    {
+        return m_settings.value("Conf/reconnectUntilCancelled", true).toBool();
+    }
+    void setReconnectUntilCancelled(bool enabled)
+    {
+        m_settings.setValue("Conf/reconnectUntilCancelled", enabled);
+        emit reconnectUntilCancelledChanged(enabled);
+    }
+
+    // Проверка «интернет реально идёт» сразу после подключения: DNS-запрос через
+    // туннель. По умолчанию включена — именно она ловит односторонний трафик,
+    // когда handshake прошёл, а данные не ходят.
+    bool isPostConnectCheckEnabled() const
+    {
+        return m_settings.value("Conf/postConnectCheck", true).toBool();
+    }
+    void setPostConnectCheckEnabled(bool enabled)
+    {
+        m_settings.setValue("Conf/postConnectCheck", enabled);
+        emit postConnectCheckChanged(enabled);
+    }
+
+    // Последний случай «подключено, но данные не идут» (адрес, причина, время) —
+    // для отчёта: иначе в поддержке видно только «соединено».
+    QString lastNoDataInfo() const
+    {
+        return m_settings.value("Conf/lastNoData").toString();
+    }
+    void setLastNoDataInfo(const QString &info)
+    {
+        m_settings.setValue("Conf/lastNoData", info);
+    }
+
+    // Телеметрия блокировок (отчёт по серверу / скан всех адресов / автосбор сессии).
+    // По умолчанию выключена: это исходящие данные о сети пользователя.
+    // Живые счётчики трафика текущей сессии: только в памяти, в отчёт попадают
+    // как tunnel.transport_bytes. Пишутся из ConnectionController на bytesChanged.
+    void setLiveTraffic(qint64 rx, qint64 tx)
+    {
+        m_liveRxBytes = rx;
+        m_liveTxBytes = tx;
+    }
+    qint64 liveRxBytes() const { return m_liveRxBytes; }
+    qint64 liveTxBytes() const { return m_liveTxBytes; }
+
+    // Сводка прошлой сессии (пишется при разрыве, читается в отчёте как prev_session)
+    void setPrevSession(const QJsonObject &session)
+    {
+        m_settings.setValue("Conf.prevSession", QString::fromUtf8(QJsonDocument(session).toJson(QJsonDocument::Compact)));
+        m_settings.sync();
+    }
+    QJsonObject prevSession() const
+    {
+        const QString raw = m_settings.value("Conf.prevSession").toString();
+        return raw.isEmpty() ? QJsonObject() : QJsonDocument::fromJson(raw.toUtf8()).object();
+    }
+
+    // Экспериментальные фичи (сейчас — сплит-туннель по сервисам): по умолчанию
+    // выключены, включаются тумблером в «Диагностике».
+    void clearLastGoodEndpointFor(const QString &key)
+    {
+        if (key.isEmpty()) {
+            return;
+        }
+        QJsonObject all = lastGoodEndpoints();
+        if (!all.contains(key)) {
+            return;
+        }
+        all.remove(key);
+        m_settings.setValue("Conf.lastGoodEndpoints",
+                            QString::fromUtf8(QJsonDocument(all).toJson(QJsonDocument::Compact)));
+        m_settings.sync();
+    }
+
+    QString debugTimeline() const
+    {
+        return m_settings.value("Conf.dbgTimeline").toString();
+    }
+    void setDebugTimeline(const QString &value)
+    {
+        m_settings.setValue("Conf.dbgTimeline", value);
+        m_settings.sync();
+    }
+
+    void setDebugDial(const QString &value)
+    {
+        m_settings.setValue("Conf.dbgDial", value);
+        m_settings.sync();
+    }
+
+    // Память «где строка успешно поднималась» — по идентичности строки
+    // (connection_uuid), а не глобально: иначе при переключении RU↔EU память
+    // терялась и каждый коннект шёл полным алгоритмом.
+    QJsonObject lastGoodEndpoints() const
+    {
+        return QJsonDocument::fromJson(m_settings.value("Conf.lastGoodEndpoints").toString().toUtf8()).object();
+    }
+    QJsonObject lastGoodEndpointFor(const QString &key) const
+    {
+        return lastGoodEndpoints().value(key).toObject();
+    }
+    void setLastGoodEndpointFor(const QString &key, const QString &ip, int port)
+    {
+        if (key.isEmpty() || ip.isEmpty()) {
+            return;
+        }
+        QJsonObject all = lastGoodEndpoints();
+        QJsonObject entry;
+        entry.insert("ip", ip);
+        entry.insert("port", port);
+        all.insert(key, entry);
+        m_settings.setValue("Conf.lastGoodEndpoints",
+                            QString::fromUtf8(QJsonDocument(all).toJson(QJsonDocument::Compact)));
+        m_settings.sync();
+    }
+
+    bool isExperimentalFeaturesEnabled() const
+    {
+        return m_settings.value("Conf.experimentalFeatures", false).toBool();
+    }
+    void setExperimentalFeaturesEnabled(bool enabled)
+    {
+        m_settings.setValue("Conf.experimentalFeatures", enabled);
+        m_settings.sync();
+    }
+
+    // Одноразовый вопрос про телеметрию после первого успешного подключения.
+    bool isTelemetryPromptShown() const
+    {
+        return m_settings.value("Conf/telemetryPromptShown", false).toBool();
+    }
+    void setTelemetryPromptShown(bool shown)
+    {
+        m_settings.setValue("Conf/telemetryPromptShown", shown);
+        m_settings.sync();
+    }
+
+    bool isTelemetryEnabled() const
+    {
+        return m_settings.value("Conf/telemetryEnabled", false).toBool();
+    }
+    void setTelemetryEnabled(bool enabled)
+    {
+        m_settings.setValue("Conf/telemetryEnabled", enabled);
+        emit telemetryEnabledChanged(enabled);
+    }
+
     QDateTime getLogEnableDate();
     void setLogEnableDate(QDateTime date);
 
@@ -148,6 +531,19 @@ public:
 
     QString primaryDns() const;
     QString secondaryDns() const;
+
+    // When enabled, these client-side DNS servers replace the values sent by
+    // every server. When disabled, the same values remain the fallback for
+    // configs that do not carry valid DNS servers of their own.
+    bool isDnsOverrideEnabled() const
+    {
+        return m_settings.value("Conf/dnsOverrideEnabled", false).toBool();
+    }
+    void setDnsOverrideEnabled(bool enabled)
+    {
+        m_settings.setValue("Conf/dnsOverrideEnabled", enabled);
+        m_settings.sync();
+    }
 
     // QString primaryDns() const { return m_primaryDns; }
     void setPrimaryDns(const QString &primaryDns)
@@ -304,7 +700,9 @@ public:
 
     bool isScreenshotsEnabled() const
     {
-        return m_settings.value("Conf/screenshotsEnabled", true).toBool();
+        // Always on: the setting was removed from the UI, and old installs may
+        // still carry Conf/screenshotsEnabled=false.
+        return true;
     }
     void setScreenshotsEnabled(bool enabled)
     {
@@ -375,9 +773,21 @@ public:
     bool frknDarkMode() const { return m_settings.value("FRKN/darkMode", true).toBool(); }
     void setFrknDarkMode(bool enabled) { m_settings.setValue("FRKN/darkMode", enabled); }
 
+private:
+    qint64 m_liveRxBytes = 0;
+    qint64 m_liveTxBytes = 0;
+
 signals:
     void saveLogsChanged(bool enabled);
     void screenshotsEnabledChanged(bool enabled);
+
+    void telemetryEnabledChanged(bool enabled);
+    void reconnectUntilCancelledChanged(bool enabled);
+    void postConnectCheckChanged(bool enabled);
+    void mtuOverrideChanged(int mtu);
+    void poolDisabledIpsChanged();
+    void lastAppliedMtuChanged();
+    void endpointTogglesAllowedChanged();
     void serverRemoved(int serverIndex);
     void settingsCleared();
 

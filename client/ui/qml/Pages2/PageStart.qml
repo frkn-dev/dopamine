@@ -171,6 +171,37 @@ PageType {
         }
     }
 
+    // Одноразовый вопрос про диагностику: показываем ПОСЛЕ первого успешного
+    // подключения (когда человек уже увидел, что клиент работает), не блокируя
+    // экран. Никакой телеметрии до явного «включить» не уходит.
+    Timer {
+        id: telemetryPromptTimer
+        interval: 1500
+        repeat: false
+        onTriggered: {
+            if (SettingsController.isTelemetryPromptShown || SettingsController.isTelemetryEnabled) {
+                return
+            }
+            SettingsController.isTelemetryPromptShown = true
+            showQuestionDrawer(qsTr("Help us fix connection problems?"),
+                               qsTr("Send technical reports when a connection fails: which server, port and protocol were used, error codes and timings. No traffic, no domains, no account data."),
+                               qsTr("Send diagnostics"),
+                               qsTr("Not now"),
+                               function() { SettingsController.isTelemetryEnabled = true },
+                               function() {})
+        }
+    }
+
+    Connections {
+        target: ConnectionController
+
+        function onConnectionStateChanged() {
+            if (ConnectionController.isConnected && !SettingsController.isTelemetryPromptShown) {
+                telemetryPromptTimer.restart()
+            }
+        }
+    }
+
     Connections {
         target: ApiConfigsController
 
@@ -223,7 +254,9 @@ PageType {
                 pagePath = PageController.getPagePath(PageEnum.PageSetupWizardStart)
             } else {
                 pagePath = PageController.getPagePath(PageEnum.PageHome)
-                ServersModel.processedIndex = ServersModel.defaultIndex
+                // НЕ перетираем processedIndex сервером по умолчанию: он
+                // восстановлен из Conf.selectedServerIndex (пара uuid+node),
+                // иначе при запуске на экране оказывался дефолтный сервер (FK).
             }
 
             tabBarStackView.push(pagePath, { "objectName" : pagePath })

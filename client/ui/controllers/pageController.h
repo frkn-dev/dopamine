@@ -25,6 +25,7 @@ namespace PageLoader
         PageSettingsAbout,
         PageSettingsLogging,
         PageSettingsSplitTunneling,
+        PageSettingsSplitTunnelingOverview,
         PageSettingsSplitPresets,
         PageSettingsAppSplitTunneling,
         PageSettingsKillSwitch,

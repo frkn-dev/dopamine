@@ -187,6 +187,7 @@
         <file>ui/qml/Pages2/PageSettingsServerInfo.qml</file>
         <file>ui/qml/Pages2/PageSettingsServersList.qml</file>
         <file>ui/qml/Pages2/PageSettingsSplitTunneling.qml</file>
+        <file>ui/qml/Pages2/PageSettingsSplitTunnelingOverview.qml</file>
         <file>ui/qml/Pages2/PageSettingsRuAppsHelp.qml</file>
         <file>ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml</file>
         <file>ui/qml/Pages2/PageSetupWizardApiServicesList.qml</file>
@@ -391,6 +392,8 @@
         <file>images/flagKit/FJ.svg</file>
         <file>images/flagKit/FI.svg</file>
         <file>images/flagKit/EU.svg</file>
+        <file>images/flagKit/PIRATE.svg</file>
+        <file>images/flagKit/ELEPHANT.svg</file>
         <file>images/flagKit/ET.svg</file>
         <file>images/flagKit/ES.svg</file>
         <file>images/flagKit/ER.svg</file>

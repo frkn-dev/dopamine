@@ -255,6 +255,9 @@ PageType {
                 Layout.topMargin: 16
                 Layout.rightMargin: 16
                 Layout.leftMargin: 16
+                // Tall as the key field above: a 56px button under a multi-line
+                // input looked like a missing element.
+                Layout.preferredHeight: Math.max(56, textKey.height)
 
                 visible: textKey.inputText !== ""
 

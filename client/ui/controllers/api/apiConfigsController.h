@@ -37,6 +37,14 @@ public:
     Q_PROPERTY(int selectedPlanIndex READ selectedPlanIndex WRITE setSelectedPlanIndex NOTIFY selectedPlanIndexChanged)
     Q_PROPERTY(QString shortCode READ getShortCode NOTIFY shortCodeChanged)
 
+
+    // Скоринг загрузки ноды (POST /v1/nodes/load). Данные живут 60 с и никогда не
+    // блокируют коннект: нет ответа — работаем по весам, как раньше.
+    void refreshNodeLoad(int serverIndex);
+    double nodeLoadFor(const QString &nodeId) const; // -1 = неизвестно/протухло
+
+    // Событие успешного подключения: какой адрес/порт реально набрали (см. notifyConnected).
+    void notifyConnected(const int serverIndex, const QString &endpoint, const int port);
 public slots:
     bool exportNativeConfig(const QString &serverCountryCode, const QString &fileName);
     bool revokeNativeConfig(const QString &serverCountryCode);
@@ -142,6 +150,12 @@ signals:
     void shortCodeChanged();
 
 private:
+    // Кэш скоринга загрузки нод: node_id -> 0..1, живёт kNodeLoadTtlMs.
+    QHash<QString, double> m_nodeLoad;
+    qint64 m_nodeLoadAtMs = 0;
+    bool m_nodeLoadInFlight = false;
+    static constexpr qint64 kNodeLoadTtlMs = 60000;
+
     QList<QString> getQrCodes();
     int getQrCodesCount();
     QString getVpnKey();
@@ -163,6 +177,8 @@ private:
     void updateServiceFromGatewayAsync(const int serverIndex, const QString &newCountryCode, const QString &newCountryName,
                                        bool reloadServiceConfig, bool silent, const std::function<void(bool)> &callback);
 
+
+
     struct GatewayConfigUpdate
     {
         int serverIndex = -1;
@@ -178,6 +194,9 @@ private:
         QJsonObject authData;
         QJsonObject apiPayload;
     };
+
+    QString m_connectEventEndpoint;
+    int m_connectEventPort = 0;
 
     void prepareGatewayConfigUpdate(const int serverIndex, const QString &newCountryCode, const QString &newCountryName,
                                     bool reloadServiceConfig, bool silent, GatewayConfigUpdate &update);

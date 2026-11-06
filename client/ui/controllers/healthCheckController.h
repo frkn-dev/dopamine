@@ -25,15 +25,26 @@ public:
     explicit HealthCheckController(const QSharedPointer<ServersModel> &serversModel, QObject *parent = nullptr);
 
     Q_INVOKABLE void startProbe(bool force = false);
+
+    // Пока туннель поднят, пробы бессмысленны: трафик идёт внутрь VPN, и вердикт
+    // «нода недоступна» получается ложным (ровно это ловил юзер: на туннеле
+    // 80% нод «no handshake», после отключения — доступны).
+    void setTunnelActive(bool active) { m_tunnelActive = active; }
     Q_INVOKABLE void stopProbe();
+
+    // диагностика: убедиться, что handshake-проба меряет именно handshake
+    Q_INVOKABLE void runProbeSelfTest();
 
     // true while a probe run has unfinished targets; probingFinished fires once
     // when the last target of the run resolves (also on an external stopProbe)
     bool isProbing() const { return m_probeActive; }
+    bool m_tunnelActive = false;
+    Q_PROPERTY(bool probing READ isProbing NOTIFY probingChanged)
     qint64 lastProbeMsecs() const { return m_lastRunMsecs; }
 
 signals:
     void probingFinished();
+    void probingChanged();
 
 private:
     struct Target

@@ -1,6 +1,7 @@
 #include "vpnConfigurationController.h"
 
 #include <QJsonArray>
+#include <QRegularExpression>
 #include <QTcpServer>
 
 #include "core/api/apiUtils.h"
@@ -112,6 +113,36 @@ QJsonObject VpnConfigurationsController::createVpnConfiguration(const QPair<QStr
                 vpnConfigData[config_key::mtu] =
                         ContainerProps::isAwgContainer(container) ? protocols::awg::defaultMtu :
                         protocols::wireguard::defaultMtu;
+            }
+
+            // Клиентский override MTU (Настройки → Соединение). 0 = как на сервере.
+            // Перекрываем и JSON-ключ, и INI: iOS и часть платформ читают MTU из INI.
+            if (m_settings && m_settings->mtuOverride() > 0) {
+                const QString mtuValue = QString::number(m_settings->mtuOverride());
+                const QString serverMtu = vpnConfigData.value(config_key::mtu).toString();
+                qDebug().noquote() << "[MTU] override" << mtuValue << "server" << serverMtu;
+                m_settings->setLastAppliedMtu(m_settings->mtuOverride());
+                vpnConfigData[config_key::mtu] = mtuValue;
+
+                QString ini = vpnConfigData.value(config_key::config).toString();
+                if (!ini.isEmpty()) {
+                    static const QRegularExpression mtuRe(QStringLiteral("(?m)^[ \\t]*MTU[ \\t]*=.*$"));
+                    if (ini.contains(mtuRe)) {
+                        ini.replace(mtuRe, QStringLiteral("MTU = ") + mtuValue);
+                    } else if (ini.contains(QStringLiteral("[Interface]"))) {
+                        ini.replace(QStringLiteral("[Interface]"),
+                                    QStringLiteral("[Interface]\nMTU = ") + mtuValue);
+                    }
+                    vpnConfigData[config_key::config] = ini;
+                }
+            }
+
+            if (m_settings && m_settings->mtuOverride() == 0) {
+                bool ok = false;
+                const int serverMtu = vpnConfigData.value(config_key::mtu).toString().toInt(&ok);
+                if (ok && serverMtu > 0) {
+                    m_settings->setLastAppliedMtu(serverMtu);
+                }
             }
 
             // Android (Wireguard.kt) hard-requires client_ip and allowed_ips, but

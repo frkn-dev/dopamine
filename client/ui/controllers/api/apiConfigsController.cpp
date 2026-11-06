@@ -1530,6 +1530,18 @@ void ApiConfigsController::prepareGatewayConfigUpdate(const int serverIndex, con
 
     if (isConnectEvent) {
         apiPayload.insert(configKey::isConnectEvent, true);
+        // Адрес, который реально набрали (у пула он выбран уже после запроса),
+        // и support_tag — чтобы ивент склеивался с отчётами этой установки.
+        if (!m_connectEventEndpoint.isEmpty()) {
+            apiPayload.insert(QStringLiteral("endpoint"), m_connectEventEndpoint);
+            if (m_connectEventPort > 0) {
+                apiPayload.insert(QStringLiteral("endpoint_port"), m_connectEventPort);
+            }
+        }
+        const QString supportTag = m_settings ? m_settings->getInstallationUuid(false) : QString();
+        if (!supportTag.isEmpty()) {
+            apiPayload.insert(QStringLiteral("support_tag"), supportTag);
+        }
     }
 
     update.isTestPurchase = apiConfig.value(apiDefs::key::isTestPurchase).toBool(false);
@@ -1652,6 +1664,89 @@ bool ApiConfigsController::finishGatewayConfigUpdate(const GatewayConfigUpdate &
         }
         return false;
     }
+}
+
+void ApiConfigsController::refreshNodeLoad(const int serverIndex)
+{
+    if (m_nodeLoadInFlight || serverIndex < 0 || !m_serversModel) {
+        return;
+    }
+    // Не чаще раза в минуту: коннект никогда не ждёт этот запрос.
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    if (m_nodeLoadAtMs != 0 && now - m_nodeLoadAtMs < kNodeLoadTtlMs) {
+        return;
+    }
+
+    const QJsonObject serverConfig = m_serversModel->getServerConfig(serverIndex);
+    const QJsonObject apiConfig = serverConfig.value(configKey::apiConfig).toObject();
+    QJsonObject authData = apiConfig.value(configKey::authData).toObject();
+    if (authData.isEmpty()) {
+        authData = serverConfig.value(configKey::authData).toObject();
+    }
+    if (authData.isEmpty()) {
+        return;
+    }
+    if (!authData.contains(apiDefs::key::apiKey) && authData.contains(apiDefs::key::id)) {
+        authData[apiDefs::key::apiKey] = authData.value(apiDefs::key::id);
+    }
+
+    const QString nodeId = apiConfig.value(QStringLiteral("node_id")).toString();
+    if (nodeId.isEmpty()) {
+        return; // без node_id нечего спрашивать
+    }
+
+    QJsonObject payload;
+    payload.insert(configKey::authData, authData);
+    payload.insert(QStringLiteral("node_ids"), QJsonArray { nodeId });
+    payload.insert(QStringLiteral("app_version"), QString(APP_VERSION));
+    payload.insert(QStringLiteral("installation_uuid"), m_settings->getInstallationUuid(false));
+
+    m_nodeLoadInFlight = true;
+    executeRequestAsync(QStringLiteral("%1v1/nodes/load"), payload, false,
+                        [this](ErrorCode errorCode, const QByteArray &responseBody) {
+        m_nodeLoadInFlight = false;
+        if (errorCode != ErrorCode::NoError) {
+            qDebug() << "[LOAD] node load request failed:" << static_cast<int>(errorCode);
+            return; // работаем по весам
+        }
+        const QJsonObject root = QJsonDocument::fromJson(responseBody).object();
+        const QJsonObject load = root.value(QStringLiteral("load")).toObject();
+        if (load.isEmpty()) {
+            return;
+        }
+        m_nodeLoad.clear();
+        for (auto it = load.constBegin(); it != load.constEnd(); ++it) {
+            m_nodeLoad.insert(it.key(), qBound(0.0, it.value().toDouble(), 1.0));
+        }
+        m_nodeLoadAtMs = QDateTime::currentMSecsSinceEpoch();
+        qDebug().noquote() << "[LOAD] node load:" << QString::fromUtf8(
+                QJsonDocument(load).toJson(QJsonDocument::Compact));
+    });
+}
+
+double ApiConfigsController::nodeLoadFor(const QString &nodeId) const
+{
+    if (nodeId.isEmpty() || m_nodeLoadAtMs == 0) {
+        return -1.0;
+    }
+    if (QDateTime::currentMSecsSinceEpoch() - m_nodeLoadAtMs > kNodeLoadTtlMs) {
+        return -1.0;
+    }
+    return m_nodeLoad.value(nodeId, -1.0);
+}
+
+void ApiConfigsController::notifyConnected(const int serverIndex, const QString &endpoint, const int port)
+{
+    // serverIndex < 0 — на коннекте индекс мог ещё не устояться; без строки
+    // пиннинг ноды невозможен, поэтому просто не шлём
+    if (serverIndex < 0 || endpoint.isEmpty()) {
+        return;
+    }
+    m_connectEventEndpoint = endpoint;
+    m_connectEventPort = port;
+    updateServiceFromGatewayAsync(serverIndex, QString(), QString(), false, true, [](bool) {});
+    m_connectEventEndpoint.clear();
+    m_connectEventPort = 0;
 }
 
 bool ApiConfigsController::updateServiceFromGateway(const int serverIndex, const QString &newCountryCode, const QString &newCountryName,
@@ -2363,9 +2458,16 @@ QString ApiConfigsController::getCurrentServerMtu()
 
 QString ApiConfigsController::getCurrentServerDns()
 {
-    auto serverConfig = m_serversModel->getServerConfig(m_serversModel->getProcessedServerIndex());
-    QString dns1 = serverConfig.value(config_key::dns1).toString();
-    QString dns2 = serverConfig.value(config_key::dns2).toString();
+    QString dns1;
+    QString dns2;
+    if (m_settings->isDnsOverrideEnabled()) {
+        dns1 = m_settings->primaryDns();
+        dns2 = m_settings->secondaryDns();
+    } else {
+        const auto serverConfig = m_serversModel->getServerConfig(m_serversModel->getProcessedServerIndex());
+        dns1 = serverConfig.value(config_key::dns1).toString();
+        dns2 = serverConfig.value(config_key::dns2).toString();
+    }
     if (dns1.isEmpty() && dns2.isEmpty()) {
         return "";
     }
@@ -2813,37 +2915,107 @@ void ApiConfigsController::reloadSubscriptionConfigs(bool silent)
     // legacy self-hosted setup wizard on the next connect attempt).
     QString prevConnectionUuid;
     QString prevNodeId;
+    QString prevPool;
+    QString prevProtocol;
+    QString prevCountry;
     const int prevDefaultIndex = m_serversModel->getDefaultServerIndex();
     if (prevDefaultIndex >= 0 && prevDefaultIndex < m_serversModel->getServersCount()) {
-        const QJsonObject prevApiConfig = m_serversModel->getServerConfig(prevDefaultIndex)
-                                                  .value(configKey::apiConfig).toObject();
+        const QJsonObject prevConfig = m_serversModel->getServerConfig(prevDefaultIndex);
+        const QJsonObject prevApiConfig = prevConfig.value(configKey::apiConfig).toObject();
         prevConnectionUuid = prevApiConfig.value(QStringLiteral("connection_uuid")).toString();
         prevNodeId = prevApiConfig.value(QStringLiteral("node_id")).toString();
+        prevPool = prevConfig.value(QStringLiteral("displayInfo")).toObject()
+                              .value(QStringLiteral("pool")).toString();
+        prevProtocol = prevApiConfig.value(QStringLiteral("service_protocol")).toString();
+        prevCountry = prevApiConfig.value(QStringLiteral("user_country_code")).toString();
     }
 
     auto remaining = QSharedPointer<QStringList>::create(subscriptionIds);
     auto anyFetched = QSharedPointer<bool>::create(false);
     auto step = QSharedPointer<std::function<void()>>::create();
 
-    *step = [this, remaining, anyFetched, step, prevConnectionUuid, prevNodeId]() {
+    *step = [this, remaining, anyFetched, step, prevConnectionUuid, prevNodeId,
+             prevPool, prevProtocol, prevCountry, prevDefaultIndex]() {
         if (remaining->isEmpty()) {
-            // Restore the selection: the same connection if it still exists, otherwise
-            // the first server in the list.
+            // Restore the selection. Раньше совпадение искалось только по паре
+            // connection_uuid + node_id, и если бэкенд пересобрал ноду, выбор
+            // молча падал на индекс 0 — юзер видел «само переключилось» на
+            // другой сервер (BelySlon/FK). Теперь идём по убыванию точности
+            // и в последнюю очередь сохраняем прежнюю позицию.
             int newDefaultIndex = -1;
-            if (!prevConnectionUuid.isEmpty()) {
-                for (int i = 0; i < m_serversModel->getServersCount(); ++i) {
-                    const QJsonObject apiConfig = m_serversModel->getServerConfig(i).value(configKey::apiConfig).toObject();
-                    if (apiConfig.value(QStringLiteral("connection_uuid")).toString() == prevConnectionUuid
-                        && apiConfig.value(QStringLiteral("node_id")).toString() == prevNodeId) {
-                        newDefaultIndex = i;
-                        break;
-                    }
+            int bestScore = 0;
+
+            // Источник истины — СОХРАНЁННЫЙ ВЫБОР ЮЗЕРА, а не прежний default:
+            // default мог быть пересчитан прошлым обновлением, и тогда строка
+            // «прыгала» (EST1 → FK) при каждом рефреше подписки.
+            const QString selUuid = m_settings ? m_settings->selectedConnectionUuid() : QString();
+            const QString selNode = m_settings ? m_settings->selectedNodeId() : QString();
+            const QString selPool = m_settings ? m_settings->selectedPool() : QString();
+            const QString selProto = m_settings ? m_settings->selectedProtocol() : QString();
+
+            auto rowMatches = [this](const int i, const QString &uuid, const QString &node,
+                                     const QString &pool, const QString &proto) {
+                const QJsonObject config = m_serversModel->getServerConfig(i);
+                const QJsonObject apiConfig = config.value(configKey::apiConfig).toObject();
+                if (!uuid.isEmpty() && apiConfig.value(QStringLiteral("connection_uuid")).toString() != uuid) {
+                    return false;
                 }
+                if (!node.isEmpty() && apiConfig.value(QStringLiteral("node_id")).toString() != node) {
+                    return false;
+                }
+                if (!pool.isEmpty() && apiConfig.value(QStringLiteral("pool")).toString() != pool) {
+                    return false;
+                }
+                if (!proto.isEmpty()
+                    && apiConfig.value(QStringLiteral("service_protocol")).toString() != proto) {
+                    return false;
+                }
+                return true;
+            };
+
+            for (int i = 0; i < m_serversModel->getServersCount() && newDefaultIndex < 0; ++i) {
+                // 1) та же строка: соединение + нода
+                if (!selUuid.isEmpty() && !selNode.isEmpty()
+                    && rowMatches(i, selUuid, selNode, QString(), QString())) {
+                    newDefaultIndex = i;
+                    bestScore = 100;
+                }
+            }
+            for (int i = 0; i < m_serversModel->getServersCount() && newDefaultIndex < 0; ++i) {
+                // 2) пул: uuid стабилен, представительная нода меняется
+                if (!selUuid.isEmpty() && !selPool.isEmpty()
+                    && rowMatches(i, selUuid, QString(), selPool, selProto)) {
+                    newDefaultIndex = i;
+                    bestScore = 90;
+                }
+            }
+            for (int i = 0; i < m_serversModel->getServersCount() && newDefaultIndex < 0; ++i) {
+                // 3) подписку переимпортировали — uuid новый, пул и протокол те же
+                if (!selPool.isEmpty() && rowMatches(i, QString(), QString(), selPool, selProto)) {
+                    newDefaultIndex = i;
+                    bestScore = 70;
+                }
+            }
+            for (int i = 0; i < m_serversModel->getServersCount() && newDefaultIndex < 0; ++i) {
+                // 4) сохранённого выбора нет — ведём себя как раньше, по прежнему default
+                if (!prevConnectionUuid.isEmpty() && !prevNodeId.isEmpty()
+                    && rowMatches(i, prevConnectionUuid, prevNodeId, QString(), QString())) {
+                    newDefaultIndex = i;
+                    bestScore = 50;
+                }
+            }
+            if (newDefaultIndex < 0 && prevDefaultIndex >= 0
+                && prevDefaultIndex < m_serversModel->getServersCount()) {
+                newDefaultIndex = prevDefaultIndex;
             }
             if (newDefaultIndex < 0 && m_serversModel->getServersCount() > 0) {
                 newDefaultIndex = 0;
             }
             if (newDefaultIndex >= 0) {
+                if (newDefaultIndex != prevDefaultIndex) {
+                    qDebug() << "[SUBSCRIPTION] selection restored by score" << bestScore
+                             << "old" << prevDefaultIndex << "new" << newDefaultIndex;
+                }
                 m_serversModel->setDefaultServerIndex(newDefaultIndex);
             }
 

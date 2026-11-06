@@ -27,6 +27,7 @@ public:
     Q_PROPERTY(QString downloadSpeed READ downloadSpeed NOTIFY speedChanged)
     Q_PROPERTY(QString uploadSpeed READ uploadSpeed NOTIFY speedChanged)
     Q_PROPERTY(QString ping READ ping NOTIFY pingChanged)
+    Q_PROPERTY(bool isWaitingForNetwork READ isWaitingForNetwork NOTIFY connectionStateChanged)
 
     explicit ConnectionController(const QSharedPointer<ServersModel> &serversModel, const QSharedPointer<ContainersModel> &containersModel,
                                   const QSharedPointer<VpnConnection> &vpnConnection, const std::shared_ptr<Settings> &settings,
@@ -44,9 +45,16 @@ public:
     bool isConnectionInProgress() const;
     QString connectionStateText() const;
     QString currentEndpoint() const { return m_currentEndpoint; }
+    // байты, прошедшие через туннель в этой сессии (для отчёта)
+    qint64 sessionRxBytes() const { return m_rxSinceConnect; }
+    qint64 sessionTxBytes() const { return m_txSinceConnect; }
+    // порт, на который реально шли (для карточки: «Port in use»)
+    int currentPort() const { return m_currentPort; }
     QString downloadSpeed() const { return m_downloadSpeed; }
     QString uploadSpeed() const { return m_uploadSpeed; }
     QString ping() const { return m_ping; }
+    // true пока мы в цикле «сеть пропала — ждём и переподключаемся сами»
+    bool isWaitingForNetwork() const { return m_waitingForNetwork; }
 
 public slots:
     void toggleConnection();
@@ -59,9 +67,13 @@ public slots:
 
     void onTranslationsUpdated();
 
+    // true = последний разрыв туннеля был нашим действием по кнопке юзера
+    bool userDisconnectRequested() const { return m_userDisconnectRequested; }
+
 signals:
     void connectToVpn(int serverIndex, const ServerCredentials &credentials, DockerContainer container, const QJsonObject &vpnConfiguration);
     void disconnectFromVpn();
+
     void connectionStateChanged();
 
     void connectionErrorOccurred(ErrorCode errorCode);
@@ -76,7 +88,54 @@ private:
     Vpn::ConnectionState getCurrentConnectionState();
 
     void connectToServerIndex(int serverIndex);
-    void connectToServerIndexWithIp(int serverIndex, const QString &ip);
+    void connectToServerIndexWithIp(int serverIndex, const QString &ip, int port = 0);
+
+    // --- выбор адресов пула (пользователь может выключить отдельные IP) ---
+    Q_INVOKABLE QStringList poolAddresses();
+    // адреса текущего пула, которые пользователь выключил (для биндинга тумблеров)
+    Q_INVOKABLE QStringList poolDisabledAddresses();
+    Q_INVOKABLE bool isPoolAddressEnabled(const QString &ip);
+    Q_INVOKABLE void setPoolAddressEnabled(const QString &ip, bool enabled);
+    // то же, но с явным индексом строки сервера: карточка знает, какой сервер
+    // показывает, а processedIndex к моменту создания страницы может быть ещё -1
+    Q_INVOKABLE QStringList poolDisabledAddressesFor(const int serverIndex);
+    Q_INVOKABLE void setPoolAddressEnabledFor(const int serverIndex, const QString &ip, bool enabled);
+    // диагностический лог тумблеров: пишем в файл, его можно забрать с устройства
+    Q_INVOKABLE void logEndpointEvent(const QString &message);
+    QString poolKeyForRow(int row) const;
+
+    // --- ожидание сети / бесконечный реконнект ---
+    // Пока m_waitingForNetwork, приложение не показывает ошибку: держит кнопку в
+    // состоянии «Отмена» и повторяет попытки с бэкоффом, пока сеть не вернётся.
+    void beginWaitingForNetwork();
+    void retryConnectionNow();
+    // Единая точка сбоя коннекта: при включённом «переподключаться до отмены»
+    // уводит в цикл ожидания сети вместо показа ошибки.
+    void failOrRetry(ErrorCode code);
+    void resetRetryState();
+    void recordAttempt(const QString &outcome, const QString &detail = QString());
+    // Быстрый фейл старта туннеля (<1.5 c) — это гонка с остановкой прошлой
+    // сессии, а не мёртвый адрес: повторяем тот же адрес, а не перебираем пул.
+    bool retrySameAddressAfterFastFail();
+
+    // «Подключено, но данные не идут»: пассивный триггер (tx есть, rx нет)
+    // + активная проверка DNS через туннель сразу после Connected.
+    void startPostConnectCheck();
+    void handleNoData(const QString &reason);
+    QString m_fastFailAddress;
+    bool m_postCheckPending = false;
+    bool m_tunnelConfirmed = false; // данные реально пошли (байты/DNS)
+    void confirmTunnel();
+    bool m_noDataReported = false;
+    qint64 m_rxSinceConnect = 0;
+    qint64 m_txSinceConnect = 0;
+    QTimer *m_postCheckTimer = nullptr;
+    int retryDelayMs() const;
+
+    QTimer *m_retryTimer = nullptr;
+    int m_retryAttempt = 0;
+    bool m_waitingForNetwork = false;
+    int m_retryServerIndex = -1;
 
     // --- multi-IP failover (node_ips) ---
     // a server may carry several equivalent entry addresses (node_ips from the API,
@@ -94,10 +153,22 @@ private:
     {
         int row;
         QString ip; // empty = dial the row's own hostName (CDN front / single address)
+        int port = 0; // 0 = порт протокола; иначе node_ports[ip]
+        int weight = 100; // node_weights[ip]; дефолт 100, 0/минус → 100
     };
     QList<PoolEntry> m_ipPool;
     int m_ipPoolPos = -1;
+    // Адреса, отброшенные пробой/фильтром. Их пробуем ВТОРЫМ кругом: вердикт
+    // пробы может быть ошибочным (не тот порт, устаревший кэш), а живой адрес
+    // юзеру нужнее, чем наша уверенность.
+    QList<PoolEntry> m_ipFallbackPool;
+    int m_ipFallbackPos = -1;
     QString m_currentEndpoint; // entry address actually used by the running/last attempt
+    int m_currentPort = 0; // порт, на который реально шли (0 = не знаем)
+    // ВРЕМЕННО: таймлайн попытки для разбора «долгого коннекта» по логам с устройства.
+    QElapsedTimer m_dbgClock;
+    void dbgMark(const QString &what);
+    QElapsedTimer m_attemptElapsed; // сколько шла текущая попытка
     bool m_connectionSwitching = false; // teardown states between (re)connects are not failures
     QTimer *m_ipTrafficTimer = nullptr;
     bool m_ipAwaitingTraffic = false; // connected to a multi-IP server, waiting for bytes
@@ -112,6 +183,7 @@ private:
     void startLivePing();
     void stopLivePing();
     void probeLivePing();
+    void onLivePingFailed();
     void finishLivePing(QTcpSocket *socket, bool ok);
 
     QString m_ping;
@@ -121,7 +193,16 @@ private:
     int m_pingHostIndex = 0;
     static constexpr int kLivePingIntervalMs = 3000;
     static constexpr int kLivePingTimeoutMs = 4000;
+    // Туннель «поднят», но данные не идут: считаем подряд идущие неудачные
+    // пробы (по 3 с) и через ~30 с либо перезапускаем, либо честно пишем,
+    // что через VPN интернета нет.
+    static constexpr int kLivePingFailThreshold = 9;
+    static constexpr int kAutoRestartWindowMs = 10 * 60 * 1000;
+    static constexpr int kAutoRestartMax = 3;
     static constexpr int kIpTrafficTimeoutMs = 8000;
+    // iOS/Android: NE отдаёт Connected до рукопожатия, а AWG keepalive — раз в 25 с.
+    // Окно должно быть больше keepalive, иначе живой адрес сочтут мёртвым.
+    static constexpr int kNeTrafficTimeoutMs = 30000;
     // ---
 
     // --- manual-connect watchdog ---
@@ -130,6 +211,17 @@ private:
     // expiry: try the next pool address, otherwise fail loudly.
     QTimer *m_manualConnectTimer = nullptr;
     static constexpr int kManualConnectTimeoutMs = 20000;
+    // «Preparing» дольше этого = валидация конфига зависла (плохая сеть):
+    // не ждём api, идём по сохранённому конфигу и перебираем адреса.
+    static constexpr int kPrepareWatchdogMs = 7000;
+    // в этом режиме на адрес даём меньше времени, чтобы успеть перебрать пул
+    static constexpr int kBypassAttemptTimeoutMs = 8000;
+    // Быстрый путь: не ответил за 6 с — уходим в алгоритм, не держим 20 с.
+    static constexpr int kFastPathAttemptTimeoutMs = 6000;
+    // Пинг — только вето: адрес живой, но хуже лучшего на 150 мс и при этом
+    // медленнее 200 мс — не участвует в выборе (веса его не спасают).
+    static constexpr int kPingVetoDeltaMs = 150;
+    static constexpr int kPingVetoAbsoluteMs = 200;
     // ---
 
     // --- auto server selection (Settings::isAutoServerSelection) ---
@@ -165,6 +257,14 @@ private:
     int pickAutoCandidate(const QList<AutoCandidate> &candidates) const;
 
     HealthCheckController *m_healthCheckController = nullptr;
+    // Перед первым коннектом по строке без замеров — быстрый прогон проб,
+    // чтобы не уходить случайным адресом в мёртвый (первый коннект чуть медленнее,
+    // зато не 30 секунд до переключения).
+    bool m_awaitConnectProbe = false;
+    int m_awaitConnectRow = -1;
+    QTimer *m_connectProbeGuard = nullptr;
+    QMetaObject::Connection m_connectProbeConn;
+    bool connectNeedsProbe(int serverIndex);
     ApiConfigsController *m_apiConfigsController = nullptr;
     AutoPhase m_autoPhase = AutoPhase::None;
     QList<AutoCandidate> m_autoCandidates;
@@ -190,9 +290,46 @@ private:
 
     std::shared_ptr<Settings> m_settings;
 
+    // true = туннель снимаем мы сами по действию юзера, а не из-за сбоя:
+    // нужно, чтобы автоотчёт не уходил на нормальное «выключил VPN».
+    bool m_userDisconnectRequested = false;
+    QTimer *m_prepareWatchdog = nullptr;
+    // Если за 7 с после тапа Connect не подключились — бросаем пробы и
+    // автовыбор, идём по адресам по очереди (плохая сеть = вечный probing).
+    QTimer *m_connectWatchdog = nullptr;
+    bool m_connectWatchdogFired = false;
+    bool m_prepareBypass = false; // готовимся по кэшу, без запросов к api
+    // последний connect-event: не спамим при реконнектах одного и того же адреса
+    qint64 m_lastConnectEventMs = 0;
+    QString m_lastConnectEventKey;
     bool m_isConnected = false;
     bool m_isConnectionInProgress = false;
     QString m_connectionStateText = tr("Connect");
+    int m_livePingFails = 0;
+    int m_autoRestarts = 0;
+    qint64 m_autoRestartWindowStart = 0;
+    bool m_tunnelFlaggedDead = false;
+    // Быстрый путь: сначала пробуем адрес, на котором в прошлый раз поднялось
+    // соединение; алгоритм (пробы + веса) включается только если он не ожил.
+    bool m_fastPathTried = false;
+    bool m_fastPathConsumed = false;
+    // Именно «сейчас идёт дозвон быстрого пути»: пока он жив, таймаут попытки
+    // короткий (6 с), иначе мёртвый адрес держал юзера все 20 секунд.
+    bool m_fastPathDialActive = false;
+    // Смена карточки на живом туннеле: гасим старый туннель и только потом
+    // дозваниваемся в новый — иначе iOS рисует Connecting → Disconnecting →
+    // Connecting, и юзер не понимает, что происходит.
+    int m_pendingSwitchRow = -1;
+    bool m_switchWaiting = false;
+    // Идентичность строки, на которой мы реально поднялись в этой сессии.
+    // Быстрый путь имеет смысл только для неё: при смене карточки юзер должен
+    // видеть «Calculating best options…», а не непонятный дозвон в пустоту.
+    QString m_lastConnectedRowKey;
+    QString m_fastPathEndpoint;
+    int m_fastPathPort = 0;
+    bool tryAlgorithmAfterFastPath();
+    // Идентичность строки для «памяти успешного адреса» (uuid → pool|proto).
+    QString rowMemoryKey(int serverIndex) const;
 
     Vpn::ConnectionState m_state;
 };

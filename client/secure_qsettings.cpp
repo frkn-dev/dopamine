@@ -116,6 +116,13 @@ void SecureQSettings::remove(const QString &key)
     m_cache.remove(key);
 }
 
+void SecureQSettings::sync()
+{
+    QMutexLocker locker(&m_mutex);
+
+    m_settings.sync();
+}
+
 QByteArray SecureQSettings::backupAppConfig() const
 {
     QMutexLocker locker(&m_mutex);

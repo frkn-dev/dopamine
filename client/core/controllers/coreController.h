@@ -14,6 +14,7 @@
 #include "ui/controllers/appSplitTunnelingController.h"
 #include "ui/controllers/allowedDnsController.h"
 #include "ui/controllers/localSubnetExclusionsController.h"
+#include "connectionReportController.h"
 #include "ui/controllers/connectionController.h"
 #include "ui/controllers/focusController.h"
 #include "ui/controllers/healthCheckController.h"
@@ -106,6 +107,7 @@ private:
     QScopedPointer<ApiSettingsController> m_apiSettingsController;
     QScopedPointer<ApiConfigsController> m_apiConfigsController;
     QScopedPointer<KeyActivationController> m_keyActivationController;
+    QScopedPointer<ConnectionReportController> m_connectionReportController;
 
     QSharedPointer<ContainersModel> m_containersModel;
     QSharedPointer<ContainersModel> m_defaultServerContainersModel;

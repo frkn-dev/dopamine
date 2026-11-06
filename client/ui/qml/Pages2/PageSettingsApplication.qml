@@ -14,6 +14,14 @@ import "../Components"
 PageType {
     id: root
 
+    // Скролл сбрасываем при открытии страницы, а не по фокусу кнопки «назад»:
+    // фокус переезжает во время обычных свайпов, и список возвращало наверх.
+    onVisibleChanged: {
+        if (visible) {
+            listView.positionViewAtBeginning()
+        }
+    }
+
     // set when the reload below was started from this page — the completion signal
     // is global, only the initiator shows the result notification
     property bool subscriptionReloadStartedHere: false
@@ -26,11 +34,6 @@ PageType {
         anchors.right: parent.right
         anchors.topMargin: 20 + SettingsController.safeAreaTopMargin
 
-        onActiveFocusChanged: {
-            if(backButton.enabled && backButton.activeFocus) {
-                listView.positionViewAtBeginning()
-            }
-        }
     }
 
     Connections {
@@ -78,27 +81,141 @@ PageType {
 
             width: listView.width
 
-            SwitcherType {
-                id: switcherAllowScreenshots
+            LabelWithButtonType {
+                Layout.fillWidth: true
+                Layout.topMargin: 8
 
-                visible: GC.isMobile()
+                text: qsTr("Subscription ID")
+                descriptionText: ApiConfigsController.subscriptionId !== "" ? ApiConfigsController.subscriptionId : qsTr("not set")
+                rightImageSource: "qrc:/images/controls/copy.svg"
+
+                clickedFunction: function() {
+                    ApiConfigsController.copySubscriptionIdToClipboard()
+                    PageController.showNotificationMessage(qsTr("Subscription ID copied"))
+                }
+            }
+
+            DividerType {}
+
+            LabelWithButtonType {
+                id: labelWithButtonLogging
 
                 Layout.fillWidth: true
-                Layout.margins: 16
 
-                text: qsTr("Allow application screenshots")
+                text: qsTr("Diagnostics")
+                descriptionText: SettingsController.isLoggingEnabled ? qsTr("Enabled") : qsTr("Disabled")
+                rightImageSource: "qrc:/images/controls/chevron-right.svg"
 
-                checked: SettingsController.isScreenshotsEnabled()
+                clickedFunction: function() {
+                    PageController.goToPage(PageEnum.PageSettingsLogging)
+                }
+            }
+
+            DividerType {}
+
+            SwitcherType {
+                id: switcherAutoServerListUpdate
+
+                Layout.fillWidth: true
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+
+                text: qsTr("Auto-update server list")
+                descriptionText: qsTr("Periodically checks the server catalog version and refreshes the list only when it changed on the server.")
+
+                checked: SettingsController.autoServerListUpdateEnabled
+
                 onToggled: function() {
-                    if (checked !== SettingsController.isScreenshotsEnabled()) {
-                        SettingsController.toggleScreenshotsEnabled(checked)
+                    if (checked !== SettingsController.autoServerListUpdateEnabled) {
+                        SettingsController.autoServerListUpdateEnabled = checked
                     }
                 }
             }
 
-            DividerType {
-                visible: GC.isMobile()
+            DividerType {}
+
+            SwitcherType {
+                id: experimentalSwitcher
+
+                Layout.fillWidth: true
+                Layout.margins: 16
+
+                text: qsTr("Experimental features")
+                descriptionText: qsTr("Experimental features list. Currently one item: service-based split tunneling. May work poorly — enable at your own risk.")
+
+                checked: SettingsController.isExperimentalFeaturesEnabled
+
+                onToggled: function() {
+                    if (checked !== SettingsController.isExperimentalFeaturesEnabled) {
+                        SettingsController.isExperimentalFeaturesEnabled = checked
+                    }
+                }
             }
+
+            DividerType {}
+
+            SwitcherType {
+                id: endpointTogglesSwitcher
+
+                Layout.fillWidth: true
+                Layout.margins: 16
+
+                text: qsTr("Allow switch off endpoints")
+                descriptionText: qsTr("Adds a per-address switch to the server card, so an address your operator blocks can be turned off. On by default.")
+
+                checked: SettingsController.isEndpointTogglesAllowed
+
+                onToggled: function() {
+                    if (checked !== SettingsController.isEndpointTogglesAllowed) {
+                        SettingsController.isEndpointTogglesAllowed = checked
+                    }
+                }
+            }
+
+            DividerType {}
+
+            SwitcherType {
+                id: postConnectCheckSwitcher
+
+                Layout.fillWidth: true
+                Layout.margins: 16
+
+                text: qsTr("Check the tunnel after connecting")
+                descriptionText: qsTr("Right after a connection is up, resolves a name through the tunnel. " +
+                                      "Catches the case where the handshake succeeded but data does not flow. On by default.")
+
+                checked: SettingsController.isPostConnectCheckEnabled
+
+                onToggled: function() {
+                    if (checked !== SettingsController.isPostConnectCheckEnabled) {
+                        SettingsController.isPostConnectCheckEnabled = checked
+                    }
+                }
+            }
+
+            DividerType {}
+
+            SwitcherType {
+                id: reconnectSwitcher
+
+                Layout.fillWidth: true
+                Layout.margins: 16
+
+                text: qsTr("Keep reconnecting")
+                descriptionText: qsTr("If the connection fails or the internet disappears, keep retrying with a growing " +
+                                      "delay until you press Cancel — the app reconnects by itself when the network is back. " +
+                                      "On by default; when disabled, a failed attempt stops with an error.")
+
+                checked: SettingsController.isReconnectUntilCancelled
+
+                onToggled: function() {
+                    if (checked !== SettingsController.isReconnectUntilCancelled) {
+                        SettingsController.isReconnectUntilCancelled = checked
+                    }
+                }
+            }
+
+            DividerType {}
 
             LabelWithButtonType {
                 id: labelWithButtonNotification
@@ -231,43 +348,6 @@ PageType {
                         DopamineStyle.color = DopamineStyle.darkColorPalette
                     } else {
                         DopamineStyle.color = DopamineStyle.regularColorPalette
-                    }
-                }
-            }
-
-            DividerType {}
-
-            LabelWithButtonType {
-                id: labelWithButtonLogging
-
-                Layout.fillWidth: true
-
-                text: qsTr("Diagnostics")
-                descriptionText: SettingsController.isLoggingEnabled ? qsTr("Enabled") : qsTr("Disabled")
-                rightImageSource: "qrc:/images/controls/chevron-right.svg"
-
-                clickedFunction: function() {
-                    PageController.goToPage(PageEnum.PageSettingsLogging)
-                }
-            }
-
-            DividerType {}
-
-            SwitcherType {
-                id: switcherAutoServerListUpdate
-
-                Layout.fillWidth: true
-                Layout.leftMargin: 16
-                Layout.rightMargin: 16
-
-                text: qsTr("Auto-update server list")
-                descriptionText: qsTr("Periodically checks the server catalog version and refreshes the list only when it changed on the server.")
-
-                checked: SettingsController.autoServerListUpdateEnabled
-
-                onToggled: function() {
-                    if (checked !== SettingsController.autoServerListUpdateEnabled) {
-                        SettingsController.autoServerListUpdateEnabled = checked
                     }
                 }
             }

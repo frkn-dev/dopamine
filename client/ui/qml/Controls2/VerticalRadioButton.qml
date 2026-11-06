@@ -32,6 +32,10 @@ RadioButton {
     property string imageSource
     property bool showImage
 
+    // optional flag shown left of the title (auto-select)
+    property string leadingImageSource
+    property int leadingImageSize: 24
+
     property bool isFocusable: true
 
     
@@ -145,44 +149,69 @@ RadioButton {
 
         implicitHeight: content.implicitHeight
 
-        ColumnLayout {
+        RowLayout {
             id: content
 
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
 
-            spacing: 4
+            spacing: 8
 
-            ListItemTitleType {
-                text: root.text
-                maximumLineCount: root.textMaximumLineCount
-                elide: root.textElide
+            Image {
+                Layout.alignment: Qt.AlignVCenter
+                Layout.preferredWidth: root.leadingImageSize
+                Layout.preferredHeight: root.leadingImageSize
 
-                color: {
-                    if (root.enabled) {
-                        return root.checked ? selectedTextColor : textColor
-                    } else {
-                        return root.checked ? selectedTextDisabledColor : textDisabledColor
+                visible: root.leadingImageSource !== ""
+                source: root.leadingImageSource
+                fillMode: Image.PreserveAspectFit
+
+                layer.enabled: true
+                layer.effect: OpacityMask {
+                    maskSource: Rectangle {
+                        width: root.leadingImageSize
+                        height: root.leadingImageSize
+                        radius: 5
                     }
-                }
-
-                Layout.fillWidth: true
-
-                Behavior on color {
-                    PropertyAnimation { duration: 200 }
                 }
             }
 
-            CaptionTextType {
-                id: description
-
-                color: root.enabled ? root.descriptionColor : root.descriptionDisabledColor
-                text: root.descriptionText
-
-                visible: root.descriptionText !== ""
-
+            ColumnLayout {
                 Layout.fillWidth: true
+
+                spacing: 4
+
+                ListItemTitleType {
+                    text: root.text
+                    maximumLineCount: root.textMaximumLineCount
+                    elide: root.textElide
+
+                    color: {
+                        if (root.enabled) {
+                            return root.checked ? selectedTextColor : textColor
+                        } else {
+                            return root.checked ? selectedTextDisabledColor : textDisabledColor
+                        }
+                    }
+
+                    Layout.fillWidth: true
+
+                    Behavior on color {
+                        PropertyAnimation { duration: 200 }
+                    }
+                }
+
+                CaptionTextType {
+                    id: description
+
+                    color: root.enabled ? root.descriptionColor : root.descriptionDisabledColor
+                    text: root.descriptionText
+
+                    visible: root.descriptionText !== ""
+
+                    Layout.fillWidth: true
+                }
             }
         }
     }

@@ -48,157 +48,172 @@ DrawerType2 {
         }
     }
 
-    expandedStateContent: ColumnLayout {
-        id: content
+    expandedStateContent: Flickable {
+        id: contentFlickable
 
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        spacing: 0
+        width: root.width
+        height: root.expandedHeight
+        contentWidth: width
+        contentHeight: content.implicitHeight
+        flickableDirection: Flickable.VerticalFlick
+        boundsBehavior: Flickable.StopAtBounds
+        clip: true
 
-        Header2Type {
-            Layout.fillWidth: true
-            Layout.topMargin: 24
-            Layout.rightMargin: 16
-            Layout.leftMargin: 16
-            Layout.bottomMargin: 16
+        ScrollBar.vertical: ScrollBarType { policy: ScrollBar.AsNeeded }
 
-            headerText: qsTr("Split tunneling")
-            descriptionText:  qsTr("Allows you to connect to some sites or applications through a VPN connection and bypass others")
-        }
+        ColumnLayout {
+            id: content
 
-        LabelWithButtonType {
-            id: splitTunnelingSwitch
-            Layout.fillWidth: true
-            Layout.topMargin: 16
+            width: contentFlickable.width
+            spacing: 0
 
-            visible: ServersModel.isDefaultServerDefaultContainerHasSplitTunneling
+            Header2Type {
+                Layout.fillWidth: true
+                Layout.topMargin: 24
+                Layout.rightMargin: 16
+                Layout.leftMargin: 16
+                Layout.bottomMargin: 16
 
-            text: qsTr("Split tunneling on the server")
-            descriptionText: qsTr("Enabled \nCan't be disabled for current server")
-            rightImageSource: "qrc:/images/controls/chevron-right.svg"
-
-            clickedFunction: function() {
-                PageController.goToPage(PageEnum.PageSettingsSplitTunneling)
-                root.closeTriggered()
+                headerText: qsTr("Split tunneling")
+                descriptionText:  qsTr("Allows you to connect to some sites or applications through a VPN connection and bypass others")
             }
-        }
 
-        DividerType {
-            visible: ServersModel.isDefaultServerDefaultContainerHasSplitTunneling
-        }
+            LabelWithButtonType {
+                id: splitTunnelingSwitch
+                Layout.fillWidth: true
+                Layout.topMargin: 16
 
-        // --- sites & services: one switch, one direction (presets are
-        // exceptions to the sites mode), separate lists ---
+                visible: ServersModel.isDefaultServerDefaultContainerHasSplitTunneling
 
-        ToggleCard {
-            id: sitesToggle
+                text: qsTr("Split tunneling on the server")
+                descriptionText: qsTr("Enabled \nCan't be disabled for current server")
+                rightImageSource: "qrc:/images/controls/chevron-right.svg"
 
-            text: qsTr("Site and service split tunneling")
-            checked: SitesModel.isTunnelingEnabled
-
-            onToggled: function(checked) {
-                SitesModel.toggleSplitTunneling(checked)
+                clickedFunction: function() {
+                    PageController.goToPage(PageEnum.PageSettingsSplitTunneling)
+                    root.closeTriggered()
+                }
             }
-        }
 
-        FilterDropDown {
-            Layout.fillWidth: true
-            Layout.topMargin: 4
-            Layout.leftMargin: 16
-            Layout.rightMargin: 16
-
-            visible: SitesModel.isTunnelingEnabled
-
-            filterModel: sitesRouteModeModel
-            currentValue: SitesModel.routeMode === 2 ? "bypass" : "via"
-
-            onSelected: function(value) {
-                SitesModel.routeMode = value === "bypass" ? 2 : 1
+            DividerType {
+                visible: ServersModel.isDefaultServerDefaultContainerHasSplitTunneling
             }
-        }
 
-        LabelWithButtonType {
-            Layout.fillWidth: true
-            Layout.topMargin: 4
+            // --- sites & services: one switch, one direction (presets are
+            // exceptions to the sites mode), separate lists ---
 
-            text: qsTr("Manage the site list")
-            rightImageSource: "qrc:/images/controls/chevron-right.svg"
+            ToggleCard {
+                id: sitesToggle
 
-            clickedFunction: function() {
-                PageController.goToPage(PageEnum.PageSettingsSplitTunneling)
-                root.closeTriggered()
+                text: qsTr("Site and service split tunneling")
+                checked: SitesModel.isTunnelingEnabled
+
+                onToggled: function(checked) {
+                    SitesModel.toggleSplitTunneling(checked)
+                }
             }
-        }
 
-        LabelWithButtonType {
-            Layout.fillWidth: true
+            FilterDropDown {
+                Layout.fillWidth: true
+                Layout.topMargin: 4
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
 
-            text: qsTr("Manage the service list")
-            descriptionText: SplitPresetsModel.enabledCount > 0 ? qsTr("Enabled") : qsTr("Disabled")
-            rightImageSource: "qrc:/images/controls/chevron-right.svg"
+                visible: SitesModel.isTunnelingEnabled
 
-            clickedFunction: function() {
-                PageController.goToPage(PageEnum.PageSettingsSplitPresets)
-                root.closeTriggered()
+                filterModel: sitesRouteModeModel
+                currentValue: SitesModel.routeMode === 2 ? "bypass" : "via"
+
+                onSelected: function(value) {
+                    SitesModel.routeMode = value === "bypass" ? 2 : 1
+                }
             }
-        }
 
-        DividerType {
-        }
+            LabelWithButtonType {
+                Layout.fillWidth: true
+                Layout.topMargin: 4
 
-        // --- apps: own switch + own direction ---
+                text: qsTr("Manage the site list")
+                rightImageSource: "qrc:/images/controls/chevron-right.svg"
 
-        ToggleCard {
-            id: appsToggle
-
-            visible: isAppSplitTinnelingEnabled
-
-            text: qsTr("App-based split tunneling")
-            checked: AppSplitTunnelingModel.isTunnelingEnabled
-
-            onToggled: function(checked) {
-                AppSplitTunnelingModel.toggleSplitTunneling(checked)
+                clickedFunction: function() {
+                    PageController.goToPage(PageEnum.PageSettingsSplitTunneling)
+                    root.closeTriggered()
+                }
             }
-        }
 
-        FilterDropDown {
-            Layout.fillWidth: true
-            Layout.topMargin: 4
-            Layout.leftMargin: 16
-            Layout.rightMargin: 16
+            LabelWithButtonType {
+                Layout.fillWidth: true
 
-            // Windows supports app exclusions only (WFP driver); both
-            // directions work on Android
-            visible: isAppSplitTinnelingEnabled && AppSplitTunnelingModel.isTunnelingEnabled
-                     && Qt.platform.os === "android"
+                // сервисные списки — экспериментальная фича: без неё строки нет
+                visible: SettingsController.isExperimentalFeaturesEnabled
 
-            filterModel: appsRouteModeModel
-            currentValue: AppSplitTunnelingModel.routeMode === 2 ? "bypass" : "via"
+                text: qsTr("Manage the service list")
+                descriptionText: SplitPresetsModel.enabledCount > 0 ? qsTr("Enabled") : qsTr("Disabled")
+                rightImageSource: "qrc:/images/controls/chevron-right.svg"
 
-            onSelected: function(value) {
-                AppSplitTunnelingModel.routeMode = value === "bypass" ? 2 : 1
+                clickedFunction: function() {
+                    PageController.goToPage(PageEnum.PageSettingsSplitPresets)
+                    root.closeTriggered()
+                }
             }
-        }
 
-        LabelWithButtonType {
-            id: appSplitTunnelingSwitch
-            visible: isAppSplitTinnelingEnabled
-
-            Layout.fillWidth: true
-            Layout.topMargin: 4
-
-            text: qsTr("Manage the app list")
-            rightImageSource: "qrc:/images/controls/chevron-right.svg"
-
-            clickedFunction: function() {
-                PageController.goToPage(PageEnum.PageSettingsAppSplitTunneling)
-                root.closeTriggered()
+            DividerType {
             }
-        }
 
-        DividerType {
-            visible: isAppSplitTinnelingEnabled
+            // --- apps: own switch + own direction ---
+
+            ToggleCard {
+                id: appsToggle
+
+                visible: isAppSplitTinnelingEnabled
+
+                text: qsTr("App-based split tunneling")
+                checked: AppSplitTunnelingModel.isTunnelingEnabled
+
+                onToggled: function(checked) {
+                    AppSplitTunnelingModel.toggleSplitTunneling(checked)
+                }
+            }
+
+            FilterDropDown {
+                Layout.fillWidth: true
+                Layout.topMargin: 4
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+
+                // Windows supports app exclusions only (WFP driver); both
+                // directions work on Android
+                visible: isAppSplitTinnelingEnabled && AppSplitTunnelingModel.isTunnelingEnabled
+                         && Qt.platform.os === "android"
+
+                filterModel: appsRouteModeModel
+                currentValue: AppSplitTunnelingModel.routeMode === 2 ? "bypass" : "via"
+
+                onSelected: function(value) {
+                    AppSplitTunnelingModel.routeMode = value === "bypass" ? 2 : 1
+                }
+            }
+
+            LabelWithButtonType {
+                id: appSplitTunnelingSwitch
+                visible: isAppSplitTinnelingEnabled
+
+                Layout.fillWidth: true
+                Layout.topMargin: 4
+
+                text: qsTr("Manage the app list")
+                rightImageSource: "qrc:/images/controls/chevron-right.svg"
+
+                clickedFunction: function() {
+                    PageController.goToPage(PageEnum.PageSettingsAppSplitTunneling)
+                    root.closeTriggered()
+                }
+            }
+
+            DividerType {
+                visible: isAppSplitTinnelingEnabled
+            }
         }
     }
 

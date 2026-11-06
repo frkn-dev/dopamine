@@ -142,6 +142,45 @@ extension PacketTunnelProvider {
         settings.ipv4Settings?.excludedRoutes = excludedRoutes
     }
 
+    /// Wi‑Fi → LTE changes the physical interface index. Existing Xray outbound
+    /// sockets stay bound to the old interface, and the previous implementation
+    /// called `startTunnel` again without stopping the old core — the second
+    /// `LibXrayRunXray` failed and the tunnel silently stopped passing traffic.
+    /// Stop both processes and start them again on the new path.
+    func restartXrayAfterNetworkChange() {
+        guard protoType == .xray, !xrayRestartInFlight else { return }
+        guard Date().timeIntervalSince(lastXrayRestartAt) > 5 else { return }
+
+        pendingXrayRestart?.cancel()
+        let item = DispatchWorkItem { [weak self] in
+            guard let self, self.protoType == .xray else { return }
+            self.xrayRestartInFlight = true
+            self.lastXrayRestartAt = Date()
+            xrayLog(.info, message: "Network change: restarting Xray on the new path")
+
+            self.stopXray {
+                // LibXrayStopXray/Socks5Tunnel.quit need a moment to release
+                // their listeners before the new core binds the same resources.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                    self.startXray { error in
+                        DispatchQueue.main.async {
+                            self.xrayRestartInFlight = false
+                            if let error {
+                                xrayLog(.error, message: "Network change: Xray restart failed: \(error.localizedDescription)")
+                            } else {
+                                xrayLog(.info, message: "Network change: Xray restarted")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        pendingXrayRestart = item
+        // Debounce the burst of path updates produced by the handover.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8, execute: item)
+    }
+
     func startXray(completionHandler: @escaping (Error?) -> Void) {
 
         // Xray configuration

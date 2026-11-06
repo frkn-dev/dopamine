@@ -331,7 +331,11 @@ QFuture<QPair<ErrorCode, QByteArray>> GatewayController::postAsync(const QString
                     || replyError == QNetworkReply::RemoteHostClosedError || replyError == QNetworkReply::UnknownNetworkError
                     || replyError == QNetworkReply::TemporaryNetworkFailureError || replyError == QNetworkReply::NetworkSessionFailedError
                     || replyError == QNetworkReply::SslHandshakeFailedError;
-            if (unreachable && !m_fallbackEndpoint.isEmpty() && m_gatewayEndpoint != m_fallbackEndpoint) {
+            // 5xx — живой хост с упавшим бэкендом: фолбэк тоже нужен, иначе
+            // клиент не пробует второй хост и просто показывает ошибку.
+            // В синхронном post() это уже было, в async — нет.
+            const bool serverSideFailure = httpStatusCode >= 500;
+            if ((unreachable || serverSideFailure) && !m_fallbackEndpoint.isEmpty() && m_gatewayEndpoint != m_fallbackEndpoint) {
                 qWarning() << "[AGW] primary endpoint failed with" << replyError << "— retrying via fallback endpoint" << m_fallbackEndpoint;
                 const QString fallback = m_fallbackEndpoint;
                 QMetaObject::invokeMethod(this, [this, promise, endpoint, apiPayload, fallback]() {

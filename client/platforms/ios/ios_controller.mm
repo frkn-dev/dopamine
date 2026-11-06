@@ -164,9 +164,12 @@ Vpn::ConnectionState iosStatusToState(NEVPNStatus status) {
 }
 
 namespace {
-constexpr int kHandshakeTimeoutMs = 12000;
+constexpr int kHandshakeTimeoutMs = 3000;
 constexpr int kStatusRequestTimeoutMs = 5000;
-constexpr uint64_t kHandshakeRxThreshold = 4096;
+// Подтверждением рукопожатия достаточно первых принятых байт: ответ WG/AWG —
+// ~148 байт. Прежний порог 4096 ждал «настоящего» трафика, из-за чего UI висел
+// в Connecting ещё 5-6 секунд после того, как туннель уже работал.
+constexpr uint64_t kHandshakeRxThreshold = 64;
 bool isWireGuardBasedProto(amnezia::Proto proto) {
     return proto == amnezia::Proto::WireGuard || proto == amnezia::Proto::Awg;
 }
@@ -213,7 +216,15 @@ IosController* s_instance = nullptr;
 IosController::IosController() : QObject()
 {
     s_instance = this;
-    m_iosControllerWrapper = [[IosControllerWrapper alloc] initWithCppController:this];
+    // Диагностический маркер: по нему видно, что на устройстве запущен именно
+    // этот билд (временная отладка долгих коннектов).
+    [[NSUserDefaults standardUserDefaults] setObject:@"dbg-2" forKey:@"DbgBuild"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    // __bridge_retained: в заголовке поле хранится как void*, поэтому ARC его
+    // не удерживает. Без retain обёртка освобождалась, а асинхронный блок в
+    // connectVpn() продолжал слать ей сообщения (removeObserver/addObserver) —
+    // отсюда SIGSEGV в objc_msgSend при быстром переключении серверов.
+    m_iosControllerWrapper = (__bridge_retained void *)[[IosControllerWrapper alloc] initWithCppController:this];
 
     // Initialize StoreKitController early to start observing the payment queue
     [StoreKitController sharedInstance];
@@ -694,6 +705,11 @@ void IosController::vpnStatusDidChange(void *pNotification)
 
         Vpn::ConnectionState nextState = iosStatusToState(session.status);
         if (session.status == NEVPNStatusConnected && isWireGuardBasedProto(m_proto)) {
+            // NE «Connected» значит «процесс туннеля запущен», а не «данные ходят»:
+            // на LTE без рукопожатия мы показывали Connected при нулевом трафике.
+            // Подтверждаем Connected рукопожатием (rx>0 или last_handshake), но
+            // ждём коротко — 3 с: не пришло, значит адрес мёртв, и клиент быстро
+            // переходит к следующему.
             if (!m_handshakeConfirmed) {
                 nextState = Vpn::ConnectionState::Connecting;
                 if (!m_handshakeAwaiting) {
@@ -1183,42 +1199,67 @@ void IosController::startTunnel()
         && m_currentTunnel.connection.status != NEVPNStatusInvalid) {
         qDebug() << "IosController::startTunnel: tunnel is active, restarting with the new config";
 
+        // Ждём Disconnected ДВУМЯ способами: уведомлением и опросом статуса.
+        // Раньше ждали только уведомление, и если туннель в этот момент уже был
+        // в Disconnecting (событие пришло до регистрации наблюдателя), оно не
+        // приходило вовсе — через 5 с отдавалась ошибка, и переключение на другой
+        // сервер «не с первого раза». Пользователю приходилось вручную
+        // Disconnect → Connect.
         __block BOOL restartStarted = NO;
+
+        void (^startWhenStopped)(void) = ^{
+            if (restartStarted) {
+                return;
+            }
+            restartStarted = YES;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                saveAndStartTunnel();
+            });
+        };
+
         __block id observer = [[NSNotificationCenter defaultCenter]
                 addObserverForName:NEVPNStatusDidChangeNotification
                             object:m_currentTunnel.connection
                              queue:nil
                         usingBlock:^(NSNotification *note) {
+            Q_UNUSED(note);
             if (restartStarted) {
                 return;
             }
-            if (m_currentTunnel.connection.status == NEVPNStatusDisconnected) {
-                restartStarted = YES;
+            const NEVPNStatus status = m_currentTunnel.connection.status;
+            if (status == NEVPNStatusDisconnected || status == NEVPNStatusInvalid) {
                 [[NSNotificationCenter defaultCenter] removeObserver:observer];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    saveAndStartTunnel();
-                });
+                startWhenStopped();
             }
         }];
 
-        // If Disconnected never comes, do NOT force-start (that would create a
-        // second provider instance) — surface an error instead.
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-            if (restartStarted) {
-                return;
-            }
-            restartStarted = YES;
-            [[NSNotificationCenter defaultCenter] removeObserver:observer];
-            if (m_currentTunnel.connection.status == NEVPNStatusDisconnected
-                || m_currentTunnel.connection.status == NEVPNStatusInvalid) {
-                saveAndStartTunnel();
-                return;
-            }
-            qWarning() << "IosController::startTunnel: old tunnel did not stop in time, aborting restart";
-            emit connectionStateChanged(Vpn::ConnectionState::Error);
-        });
-
         [m_currentTunnel.connection stopVPNTunnel];
+
+        // Опрос — страховка от пропущенного уведомления. Ждём до 15 с, дальше
+        // честно отдаём ошибку, а не стартуем вторым инстансом.
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            const qint64 deadline = QDateTime::currentMSecsSinceEpoch() + 15000;
+            while (QDateTime::currentMSecsSinceEpoch() < deadline) {
+                if (restartStarted) {
+                    return;
+                }
+                const NEVPNStatus status = m_currentTunnel.connection.status;
+                if (status == NEVPNStatusDisconnected || status == NEVPNStatusInvalid) {
+                    [[NSNotificationCenter defaultCenter] removeObserver:observer];
+                    startWhenStopped();
+                    return;
+                }
+                [NSThread sleepForTimeInterval:0.1];
+            }
+            if (!restartStarted) {
+                restartStarted = YES;
+                [[NSNotificationCenter defaultCenter] removeObserver:observer];
+                qWarning() << "IosController::startTunnel: old tunnel did not stop in time, aborting restart";
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    emit connectionStateChanged(Vpn::ConnectionState::Error);
+                });
+            }
+        });
         return;
     }
 

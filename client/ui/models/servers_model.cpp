@@ -1,3 +1,4 @@
+#include <QDateTime>
 #include "servers_model.h"
 
 #include <QJsonObject>
@@ -260,12 +261,18 @@ QVariant ServersModel::data(const QModelIndex &index, int role) const
         return env;
     }
     case CountryCodeRole: {
+        // Флаг = страна ноды. Поля пула (pool_country_code) не используем:
+        // лишний слой, который ломался на каждой смене представительной ноды.
         auto countryCode = apiConfig.value(configKey::serverCountryCode).toString();
         if (countryCode.isEmpty()) {
             countryCode = apiConfig.value(configKey::userCountryCode).toString();
         }
         if (countryCode.isEmpty()) {
-            countryCode = server.value(QStringLiteral("displayInfo")).toObject().value(QStringLiteral("countryCode")).toString();
+            countryCode = apiConfig.value(QStringLiteral("country_code")).toString();
+        }
+        if (countryCode.isEmpty()) {
+            countryCode = server.value(QStringLiteral("displayInfo")).toObject()
+                                .value(QStringLiteral("countryCode")).toString();
         }
         return flagCountryCode(countryCode);
     }
@@ -274,7 +281,11 @@ QVariant ServersModel::data(const QModelIndex &index, int role) const
         // shows it under the name while the protocol lives in the filter dropdown
         auto countryName = apiConfig.value(configKey::serverCountryName).toString();
         if (countryName.isEmpty()) {
-            countryName = server.value(QStringLiteral("displayInfo")).toObject().value(QStringLiteral("countryName")).toString();
+            countryName = apiConfig.value(QStringLiteral("country_name")).toString();
+        }
+        if (countryName.isEmpty()) {
+            countryName = server.value(QStringLiteral("displayInfo")).toObject()
+                                 .value(QStringLiteral("countryName")).toString();
         }
         return countryName;
     }
@@ -325,11 +336,98 @@ QVariant ServersModel::data(const int index, int role) const
 
 void ServersModel::resetModel()
 {
+    // Открытая карточка не должна «переезжать» на сервер по умолчанию при
+    // каждом обновлении подписки: держим ту же строку, если она ещё существует.
+    const int previousProcessed = m_processedServerIndex;
     beginResetModel();
     m_healthResults.clear();
+    loadEndpointHealthCache();
     m_servers = m_settings->serversArray();
     m_defaultServerIndex = m_settings->defaultServerIndex();
-    m_processedServerIndex = m_defaultServerIndex;
+    // Восстанавливаем выбор юзера: сначала по идентичности (uuid+node),
+    // индекс — только запасной вариант, он «плывёт» при обновлении подписки.
+    int restoredSelected = -1;
+    if (m_settings) {
+        const QString selUuid = m_settings->selectedConnectionUuid();
+        const QString selNode = m_settings->selectedNodeId();
+        if (!selUuid.isEmpty() && !selNode.isEmpty()) {
+            for (int i = 0; i < m_servers.size(); ++i) {
+                const QJsonObject apiConfig = m_servers.at(i).toObject()
+                                                      .value(QStringLiteral("api_config")).toObject();
+                if (apiConfig.value(QStringLiteral("connection_uuid")).toString() == selUuid
+                    && apiConfig.value(QStringLiteral("node_id")).toString() == selNode) {
+                    restoredSelected = i;
+                    break;
+                }
+            }
+        }
+        // Пул: connection_uuid стабилен (это conn_id из БД), а node_id — нет:
+        // в строке пула стоит представительная нода, и она меняется, когда
+        // меняется порядок обхода нод. Поэтому для пула пара uuid+node рвётся,
+        // хотя само соединение то же — сверяем uuid + пул + протокол.
+        if (restoredSelected < 0) {
+            const QString selUuid2 = m_settings->selectedConnectionUuid();
+            const QString selPool2 = m_settings->selectedPool();
+            const QString selProto2 = m_settings->selectedProtocol();
+            if (!selUuid2.isEmpty() && !selPool2.isEmpty()) {
+                for (int i = 0; i < m_servers.size(); ++i) {
+                    const QJsonObject apiConfig = m_servers.at(i).toObject()
+                                                          .value(QStringLiteral("api_config")).toObject();
+                    if (apiConfig.value(QStringLiteral("connection_uuid")).toString() == selUuid2
+                        && apiConfig.value(QStringLiteral("pool")).toString() == selPool2
+                        && (selProto2.isEmpty()
+                            || apiConfig.value(QStringLiteral("service_protocol")).toString() == selProto2)) {
+                        restoredSelected = i;
+                        break;
+                    }
+                }
+            }
+        }
+        // Последний шанс для пула: uuid мог быть перевыпущен (переимпорт
+        // подписки), но имя пула и протокол те же.
+        if (restoredSelected < 0) {
+            const QString selPool = m_settings->selectedPool();
+            const QString selProto = m_settings->selectedProtocol();
+            if (!selPool.isEmpty()) {
+                for (int i = 0; i < m_servers.size(); ++i) {
+                    const QJsonObject apiConfig = m_servers.at(i).toObject()
+                                                          .value(QStringLiteral("api_config")).toObject();
+                    if (apiConfig.value(QStringLiteral("pool")).toString() == selPool
+                        && (selProto.isEmpty()
+                            || apiConfig.value(QStringLiteral("service_protocol")).toString() == selProto)) {
+                        restoredSelected = i;
+                        break;
+                    }
+                }
+            }
+        }
+        if (restoredSelected < 0) {
+            const int selected = m_settings->selectedServerIndex();
+            if (selected >= 0 && selected < m_servers.size()) {
+                restoredSelected = selected;
+            }
+        }
+    }
+    if (restoredSelected >= 0) {
+        m_processedServerIndex = restoredSelected;
+    } else if (previousProcessed >= 0 && previousProcessed < m_servers.size()) {
+        m_processedServerIndex = previousProcessed;
+    } else {
+        m_processedServerIndex = m_defaultServerIndex;
+    }
+
+    // One-time migration from builds that kept the default row on index 0 while
+    // the real selection lived in selectedServerIndex. Without this the first
+    // frame shows FK and the subscription refresh later rewrites it to EU.
+    const int lastConnected = m_settings->lastConnectedServerIndex();
+    if (restoredSelected >= 0 && restoredSelected == lastConnected
+        && m_defaultServerIndex != restoredSelected) {
+        qDebug() << "[SELECTION] default reconciled on startup:"
+                 << m_defaultServerIndex << "->" << restoredSelected;
+        m_defaultServerIndex = restoredSelected;
+        m_settings->setDefaultServer(restoredSelected);
+    }
+
     m_isAmneziaDnsEnabled = m_settings->useAmneziaDns();
     recomputeAvailableProtocols();
     recomputeAvailableEnvs();
@@ -343,6 +441,16 @@ void ServersModel::setDefaultServerIndex(const int index)
     m_settings->setDefaultServer(index);
     m_defaultServerIndex = m_settings->defaultServerIndex();
     emit defaultServerIndexChanged(m_defaultServerIndex);
+
+    // Тап по строке в списке серверов идёт через defaultIndex, а не через
+    // processedIndex. Раньше из-за этого «выбранный сервер» запоминался только
+    // у карточки, и после перезапуска поднималась старая идентичность —
+    // на экране оказывался случайный сервер (FK / EST1). Пишем выбор и здесь.
+    if (index >= 0 && index < m_servers.size()) {
+        if (index != m_processedServerIndex) {
+            setProcessedServerIndex(index);
+        }
+    }
 }
 
 const int ServersModel::getDefaultServerIndex()
@@ -360,6 +468,10 @@ const QString ServersModel::getDefaultServerName()
 // and falls back to the container name for self-hosted configs
 const QString ServersModel::getDefaultServerProtocolName()
 {
+    if (m_defaultServerIndex < 0 || m_defaultServerIndex >= m_servers.size()) {
+        return {};
+    }
+
     const QJsonObject serverConfig = m_servers.at(m_defaultServerIndex).toObject();
     const auto configVersion = serverConfig.value(config_key::configVersion).toInt();
 
@@ -498,6 +610,15 @@ bool ServersModel::hasServerWithWriteAccess()
 
 void ServersModel::setProcessedServerIndex(const int index)
 {
+    if (index >= 0 && m_settings) {
+        m_settings->setSelectedServerIndex(index); // запоминаем выбор юзера
+        // и его идентичность: индекс меняется, пара uuid+node — нет
+        const QJsonObject apiConfig = getServerConfig(index).value(QStringLiteral("api_config")).toObject();
+        m_settings->setSelectedIdentity(apiConfig.value(QStringLiteral("connection_uuid")).toString(),
+                                        apiConfig.value(QStringLiteral("node_id")).toString(),
+                                        apiConfig.value(QStringLiteral("pool")).toString(),
+                                        apiConfig.value(QStringLiteral("service_protocol")).toString());
+    }
     m_processedServerIndex = index;
     updateContainersModel();
     if (data(index, IsServerFromGatewayApiRole).toBool()) {
@@ -868,8 +989,22 @@ bool ServersModel::isAmneziaDnsContainerInstalled(const int serverIndex) const
 QPair<QString, QString> ServersModel::getDnsPair(int serverIndex)
 {
     QPair<QString, QString> dns;
+    if (serverIndex < 0 || serverIndex >= m_servers.size()) {
+        return dns;
+    }
 
-    const QJsonObject &server = m_servers.at(m_processedServerIndex).toObject();
+    if (m_settings->isDnsOverrideEnabled()) {
+        const QString primary = m_settings->primaryDns();
+        const QString secondary = m_settings->secondaryDns();
+        if (NetworkUtilities::checkIPv4Format(primary) && NetworkUtilities::checkIPv4Format(secondary)) {
+            qDebug() << "VpnConfigurator::getDnsForConfig using client override" << primary << secondary;
+            return { primary, secondary };
+        }
+        qWarning() << "VpnConfigurator::getDnsForConfig ignoring invalid client override";
+    }
+
+    // Use the row being connected, not whichever card happens to be processed.
+    const QJsonObject &server = m_servers.at(serverIndex).toObject();
     const auto containers = server.value(config_key::containers).toArray();
     bool isDnsContainerInstalled = false;
     for (const QJsonValue &container : containers) {
@@ -1082,6 +1217,17 @@ QVariant ServersModel::getProcessedServerData(const QString roleString)
         }
     }
 
+    return {};
+}
+
+QVariant ServersModel::getServerData(const int serverIndex, const QString roleString)
+{
+    const auto roles = roleNames();
+    for (auto it = roles.begin(); it != roles.end(); it++) {
+        if (QString(it.value()) == roleString) {
+            return data(serverIndex, it.key());
+        }
+    }
     return {};
 }
 
@@ -1346,6 +1492,423 @@ void ServersModel::setHealthResult(int serverIndex, int latencyMs)
     m_healthResults.insert(serverIndex, latencyMs);
     const QModelIndex modelIndex = index(serverIndex);
     emit dataChanged(modelIndex, modelIndex, { HealthLatencyRole });
+}
+
+bool ServersModel::probeIsFresh() const
+{
+    if (!m_settings) {
+        return false;
+    }
+    const qint64 last = m_settings->lastProbeRunMs();
+    return last > 0 && QDateTime::currentMSecsSinceEpoch() - last < 60 * 1000;
+}
+
+void ServersModel::markProbeRun()
+{
+    if (m_settings) {
+        m_settings->setLastProbeRunMs(QDateTime::currentMSecsSinceEpoch());
+    }
+}
+
+void ServersModel::loadEndpointHealthCache()
+{
+    if (!m_settings) {
+        return;
+    }
+    const QJsonObject cache = QJsonDocument::fromJson(m_settings->endpointHealthCache().toUtf8()).object();
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    for (auto it = cache.begin(); it != cache.end(); ++it) {
+        const QJsonObject entry = it.value().toObject();
+        const qint64 atMs = static_cast<qint64>(entry.value(QStringLiteral("at")).toDouble());
+        if (atMs <= 0 || now - atMs > kEndpointHealthTtlMs) {
+            continue; // старьё не тащим
+        }
+        EndpointHealth health;
+        health.rttMs = entry.value(QStringLiteral("rtt")).toInt(-1);
+        health.atMs = atMs;
+        m_endpointHealth.insert(it.key(), health);
+    }
+    ++m_endpointHealthRevision;
+    emit endpointHealthRevisionChanged();
+    qDebug() << "[HEALTH] restored" << m_endpointHealth.size() << "cached results";
+}
+
+void ServersModel::saveEndpointHealthCache()
+{
+    if (!m_settings) {
+        return;
+    }
+    QJsonObject cache;
+    for (auto it = m_endpointHealth.constBegin(); it != m_endpointHealth.constEnd(); ++it) {
+        QJsonObject entry;
+        entry.insert(QStringLiteral("rtt"), it->rttMs);
+        entry.insert(QStringLiteral("at"), static_cast<double>(it->atMs));
+        cache.insert(it.key(), entry);
+    }
+    m_settings->setEndpointHealthCache(QString::fromUtf8(QJsonDocument(cache).toJson(QJsonDocument::Compact)));
+}
+
+void ServersModel::setEndpointHealthResult(const QString &host, const int port, int latencyMs, int attempts)
+{
+    if (host.isEmpty() || port <= 0) {
+        return;
+    }
+    EndpointHealth entry;
+    entry.rttMs = latencyMs;
+    entry.atMs = QDateTime::currentMSecsSinceEpoch();
+    entry.attempts = qMax(1, attempts);
+    m_endpointHealth.insert(endpointKey(host, port), entry);
+    ++m_endpointHealthRevision;
+    emit endpointHealthRevisionChanged();
+}
+
+void ServersModel::clearEndpointHealthResults()
+{
+    m_endpointHealth.clear();
+}
+
+QVariantMap ServersModel::endpointHealth(const QString &host, const int port) const
+{
+    QVariantMap result;
+    const auto it = m_endpointHealth.constFind(endpointKey(host, port));
+    if (it == m_endpointHealth.constEnd()) {
+        result.insert(QStringLiteral("rtt"), -2);
+        result.insert(QStringLiteral("state"), QStringLiteral("unknown"));
+        result.insert(QStringLiteral("ageSec"), -1);
+        return result;
+    }
+
+    const qint64 ageMs = QDateTime::currentMSecsSinceEpoch() - it->atMs;
+    const bool fresh = ageMs <= kEndpointHealthTtlMs;
+
+    // результат старше TTL не считаем фактом: сеть меняется, а «мёртвый» адрес
+    // не должен оставаться мёртвым навсегда
+    QString state = QStringLiteral("unknown");
+    if (fresh) {
+        state = it->rttMs >= 0 ? QStringLiteral("ok") : QStringLiteral("unreachable");
+    }
+
+    result.insert(QStringLiteral("rttLast"), it->rttMs);
+    result.insert(QStringLiteral("rtt"), fresh ? it->rttMs : -2);
+    result.insert(QStringLiteral("state"), state);
+    result.insert(QStringLiteral("ageSec"), static_cast<int>(ageMs / 1000));
+    result.insert(QStringLiteral("attempts"), it->attempts);
+    return result;
+}
+
+void ServersModel::clearEndpointHealth(const QString &host, const int port)
+{
+    if (m_endpointHealth.remove(endpointKey(host, port)) > 0) {
+        qDebug() << "[HEALTH] endpoint verdict cleared by user:" << host << port;
+    }
+}
+
+int ServersModel::serverPort(int index) const
+{
+    if (index < 0 || index >= m_servers.size()) {
+        return 0;
+    }
+    const QJsonObject config = getServerConfig(index);
+    const int port = config.value(QStringLiteral("port")).toInt();
+    if (port > 0) {
+        return port;
+    }
+    // у серверов из API верхнеуровневого port нет — он живёт в контейнере.
+    // Порядок важен: last_config.port — это порт, которым реально поднимается
+    // туннель и по которому строятся ключи проб; если взять другой, карточка
+    // будет спрашивать здоровье адреса по несуществующему ключу.
+    for (const QJsonValue &containerValue : config.value(QStringLiteral("containers")).toArray()) {
+        const QJsonObject container = containerValue.toObject();
+        // Сначала контейнер, который реально используется этой строкой
+        // (defaultContainer), и только потом остальные ключи. Иначе первый
+        // попавшийся ключ контейнера отдавал чужой порт (например 8443 вместо
+        // 51820), и туннель падал на старте с InternalError.
+        const auto rowContainer = ContainerProps::containerFromString(
+                config.value(config_key::defaultContainer).toString());
+        const QString preferredKey = ContainerProps::containerTypeToString(rowContainer);
+        if (!preferredKey.isEmpty()) {
+            const QJsonObject preferred = container.value(preferredKey).toObject();
+            if (!preferred.isEmpty()) {
+                const QJsonObject lastConfig = QJsonDocument::fromJson(
+                        preferred.value(QStringLiteral("last_config")).toString().toUtf8()).object();
+                const QJsonValue portValue = lastConfig.value(QStringLiteral("port"));
+                const int lastPort = portValue.isString() ? portValue.toString().toInt() : portValue.toInt();
+                if (lastPort > 0) {
+                    return lastPort;
+                }
+                const int direct = preferred.value(QStringLiteral("port")).toInt();
+                if (direct > 0) {
+                    return direct;
+                }
+            }
+        }
+
+        for (auto it = container.constBegin(); it != container.constEnd(); ++it) {
+            const QString &name = it.key();
+            const QJsonObject protocolConfig = it.value().toObject();
+            if (protocolConfig.isEmpty() || name == QStringLiteral("container")) {
+                continue;
+            }
+            const QJsonObject lastConfig = QJsonDocument::fromJson(protocolConfig
+                                                                   .value(QStringLiteral("last_config"))
+                                                                   .toString().toUtf8()).object();
+            const QJsonValue portValue = lastConfig.value(QStringLiteral("port"));
+            const int lastPort = portValue.isString() ? portValue.toString().toInt() : portValue.toInt();
+            if (lastPort > 0) {
+                return lastPort;
+            }
+            const int directPort = protocolConfig.value(QStringLiteral("port")).toInt();
+            if (directPort > 0) {
+                return directPort;
+            }
+        }
+    }
+
+    // VLESS/SS: порт лежит в outbound'ах xray-контейнера
+    for (const QJsonValue &containerValue : config.value(QStringLiteral("containers")).toArray()) {
+        const QJsonObject container = containerValue.toObject();
+        const QJsonObject xray = container.value(QStringLiteral("xray")).toObject();
+        if (xray.isEmpty()) {
+            continue;
+        }
+        const QJsonObject root = QJsonDocument::fromJson(xray.value(QStringLiteral("config"))
+                                                         .toString().toUtf8()).object();
+        const QJsonArray outbounds = root.value(QStringLiteral("outbounds")).toArray();
+        for (const QJsonValue &outboundValue : outbounds) {
+            const QJsonObject outbound = outboundValue.toObject();
+            const QJsonArray vnext = outbound.value(QStringLiteral("settings")).toObject()
+                                            .value(QStringLiteral("vnext")).toArray();
+            for (const QJsonValue &vnextValue : vnext) {
+                const int port = vnextValue.toObject().value(QStringLiteral("port")).toInt();
+                if (port > 0) {
+                    return port;
+                }
+            }
+            const int serverPortValue = outbound.value(QStringLiteral("settings")).toObject()
+                                               .value(QStringLiteral("port")).toInt();
+            if (serverPortValue > 0) {
+                return serverPortValue;
+            }
+        }
+    }
+    return 0;
+}
+
+int ServersModel::getProcessedServerPort()
+{
+    return serverPort(m_processedServerIndex);
+}
+
+// node_ports[ip] — порт конкретного адреса пула. Нет записи (или поле не
+// пришло) → порт протокола, то есть прежнее поведение.
+int ServersModel::portForNodeIp(const QJsonObject &serverConfig, const QString &ip, int fallbackPort)
+{
+    const QJsonValue raw = serverConfig.value(QStringLiteral("node_ports"));
+
+    // Форма 1 (канон): карта "ip": port. Самодостаточна: не зависит от порядка.
+    if (raw.isObject()) {
+        const QJsonValue value = raw.toObject().value(ip);
+        if (!value.isUndefined() && !value.isNull()) {
+            const int port = value.isString() ? value.toString().toInt() : value.toInt();
+            if (port > 0 && port <= 65535) {
+                return port;
+            }
+        }
+        return fallbackPort;
+    }
+
+    // Форма 2 (компактная): массив портов, выровненный по node_ips.
+    // Принимаем и её, чтобы бэкенд мог отдавать без дублирования адресов.
+    if (raw.isArray()) {
+        const QJsonArray ports = raw.toArray();
+        const QJsonArray ips = serverConfig.value(QStringLiteral("node_ips")).toArray();
+        const int index = [&]() {
+            for (int i = 0; i < ips.size(); ++i) {
+                if (ips.at(i).toString() == ip) {
+                    return i;
+                }
+            }
+            return -1;
+        }();
+        if (index >= 0 && index < ports.size()) {
+            const QJsonValue value = ports.at(index);
+            const int port = value.isString() ? value.toString().toInt() : value.toInt();
+            if (port > 0 && port <= 65535) {
+                return port;
+            }
+        }
+    }
+    return fallbackPort;
+}
+
+int ServersModel::livePortForIp(const QString &ip, int currentPort) const
+{
+    if (ip.isEmpty()) {
+        return 0;
+    }
+    // Если для текущего порта есть свежий положительный замер — он и правильный.
+    if (currentPort > 0) {
+        const auto cur = m_endpointHealth.constFind(endpointKey(ip, currentPort));
+        if (cur != m_endpointHealth.constEnd() && cur->rttMs >= 0) {
+            return 0;
+        }
+    }
+    int bestPort = 0;
+    int bestRtt = INT_MAX;
+    const QString prefix = ip + QLatin1Char(':');
+    for (auto it = m_endpointHealth.constBegin(); it != m_endpointHealth.constEnd(); ++it) {
+        if (!it.key().startsWith(prefix)) {
+            continue;
+        }
+        const bool ok = it->rttMs >= 0;
+        const int port = it.key().mid(prefix.size()).toInt();
+        if (ok && port > 0 && it->rttMs < bestRtt) {
+            bestRtt = it->rttMs;
+            bestPort = port;
+        }
+    }
+    return bestPort;
+}
+
+QVariantMap ServersModel::endpointHealthFor(const int serverIndex, const QString &ip)
+{
+    const QJsonObject serverConfig = getServerConfig(serverIndex);
+    const int port = portForNodeIp(serverConfig, ip, serverPort(serverIndex));
+    QVariantMap health = endpointHealth(ip, port);
+    if (health.value(QStringLiteral("ageSec")).toInt() < 0) {
+        const QVariantMap byRowPort = endpointHealth(ip, serverPort(serverIndex));
+        if (byRowPort.value(QStringLiteral("ageSec")).toInt() >= 0) {
+            return byRowPort;
+        }
+    }
+    if (health.value(QStringLiteral("ageSec")).toInt() >= 0) {
+        return health;
+    }
+
+    // Последний шанс: у этого IP мог быть замер на другом порту (нода сменила
+    // порт, строка переехала на другой коннект). Показывать «not measured»,
+    // когда вердикт для адреса есть, — враньё; берём самый свежий из кэша.
+    const QString prefix = ip + QStringLiteral(":");
+    QString bestKey;
+    qint64 bestAt = -1;
+    for (auto it = m_endpointHealth.constBegin(); it != m_endpointHealth.constEnd(); ++it) {
+        if (!it.key().startsWith(prefix)) {
+            continue;
+        }
+        if (it->atMs > bestAt) {
+            bestAt = it->atMs;
+            bestKey = it.key();
+        }
+    }
+    if (!bestKey.isEmpty()) {
+        const EndpointHealth entry = m_endpointHealth.value(bestKey);
+        const qint64 ageMs = QDateTime::currentMSecsSinceEpoch() - entry.atMs;
+        const bool fresh = ageMs <= kEndpointHealthTtlMs;
+        QVariantMap fallback;
+        fallback.insert(QStringLiteral("rttLast"), entry.rttMs);
+        fallback.insert(QStringLiteral("rtt"), fresh ? entry.rttMs : -2);
+        fallback.insert(QStringLiteral("state"),
+                        fresh ? (entry.rttMs >= 0 ? QStringLiteral("ok") : QStringLiteral("unreachable"))
+                              : QStringLiteral("unknown"));
+        fallback.insert(QStringLiteral("ageSec"), static_cast<int>(ageMs / 1000));
+        fallback.insert(QStringLiteral("attempts"), entry.attempts);
+        return fallback;
+    }
+    return health;
+}
+
+QVariantMap ServersModel::processedEndpointHealth(const QString &ip)
+{
+    QVariantMap health = endpointHealth(ip, getProcessedNodePort(ip));
+    if (health.value(QStringLiteral("ageSec")).toInt() < 0) {
+        const QVariantMap byRowPort = endpointHealth(ip, getProcessedServerPort());
+        if (byRowPort.value(QStringLiteral("ageSec")).toInt() >= 0) {
+            return byRowPort;
+        }
+    }
+    return health;
+}
+
+int ServersModel::getProcessedNodePort(const QString &ip)
+{
+    const int fallback = serverPort(m_processedServerIndex);
+    if (m_processedServerIndex < 0) {
+        return fallback;
+    }
+    return portForNodeIp(getServerConfig(m_processedServerIndex), ip, fallback);
+}
+
+int ServersModel::weightForNodeIp(const QJsonObject &serverConfig, const QString &ip)
+{
+    const QJsonValue raw = serverConfig.value(QStringLiteral("node_weights"));
+
+    auto normalize = [](const QJsonValue &value) -> int {
+        int weight = value.isString() ? value.toString().toInt() : value.toInt();
+        // 0 и отрицательные = «вес не задан»: именно так ведёт себя нода старой
+        // сборки, которая присылает 0 вместо отсутствия поля.
+        return weight > 0 ? weight : 100;
+    };
+
+    if (raw.isObject()) {
+        const QJsonValue value = raw.toObject().value(ip);
+        if (!value.isUndefined() && !value.isNull()) {
+            return normalize(value);
+        }
+        return 100;
+    }
+    // компактная форма: массив весов, выровненный по node_ips (как у node_ports)
+    if (raw.isArray()) {
+        const QJsonArray ips = serverConfig.value(QStringLiteral("node_ips")).toArray();
+        const QJsonArray weights = raw.toArray();
+        for (int i = 0; i < ips.size() && i < weights.size(); ++i) {
+            if (ips.at(i).toString() == ip) {
+                return normalize(weights.at(i));
+            }
+        }
+        return 100;
+    }
+    return 100;
+}
+
+bool ServersModel::isSubscriptionExpired(int index) const
+{
+    if (index < 0 || index >= m_servers.size()) {
+        return false;
+    }
+    const QJsonObject apiConfig = getServerConfig(index).value(QStringLiteral("api_config")).toObject();
+    const QString endDate = apiConfig.value(QStringLiteral("subscription")).toObject()
+                                     .value(QStringLiteral("end_date")).toString();
+    if (endDate.isEmpty()) {
+        return false;
+    }
+    QDateTime end = QDateTime::fromString(endDate, Qt::ISODate);
+    if (!end.isValid()) {
+        end = QDateTime::fromString(endDate, QStringLiteral("yyyy-MM-dd"));
+    }
+    if (!end.isValid()) {
+        return false;
+    }
+    // дата в подписке — «до конца дня»: добавляем сутки, чтобы не блокировать
+    // подключение в последний оплаченный день
+    return end.addDays(1) < QDateTime::currentDateTimeUtc();
+}
+
+int ServersModel::endpointWeight(const QString &ip) const
+{
+    return weightForNodeIp(getServerConfig(m_processedServerIndex), ip);
+}
+
+bool ServersModel::isEndpointUnreachable(const QString &host, const int port) const
+{
+    return endpointHealth(host, port).value(QStringLiteral("state")).toString()
+           == QStringLiteral("unreachable");
+}
+
+bool ServersModel::isEndpointUsable(const QString &host, const int port) const
+{
+    // всё, что не «свежий провал», считаем пригодным: непроверенный адрес
+    // надо пробовать, иначе пул схлопнется в ноль при первом же сбое
+    return !isEndpointUnreachable(host, port);
 }
 
 void ServersModel::clearHealthResults()

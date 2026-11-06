@@ -14,6 +14,14 @@ import "../Components"
 PageType {
     id: root
 
+    // Скролл сбрасываем при открытии страницы, а не по фокусу кнопки «назад»:
+    // фокус переезжает во время обычных свайпов, и список возвращало наверх.
+    onVisibleChanged: {
+        if (visible) {
+            listView.positionViewAtBeginning()
+        }
+    }
+
     BackButtonType {
         id: backButton
 
@@ -22,11 +30,6 @@ PageType {
         anchors.right: parent.right
         anchors.topMargin: 20 + SettingsController.safeAreaTopMargin
 
-        onActiveFocusChanged: {
-            if(backButton.enabled && backButton.activeFocus) {
-                listView.positionViewAtBeginning()
-            }
-        }
     }
 
     ListViewType {
@@ -190,7 +193,7 @@ PageType {
         readonly property string description: qsTr("To discuss features")
         readonly property string imageSource: "qrc:/images/controls/telegram.svg"
         readonly property var handler: function() {
-            Qt.openUrlExternally(qsTr("https://t.me/frkn_support"))
+            Qt.openUrlExternally("https://t.me/frkn_support")
         }
     }
 

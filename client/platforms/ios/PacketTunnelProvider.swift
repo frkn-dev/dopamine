@@ -42,6 +42,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private var currentPath: Network.NWPath?
     private var currentPathSignature: String?
 
+    var pendingXrayRestart: DispatchWorkItem?
+    var xrayRestartInFlight = false
+    var lastXrayRestartAt = Date.distantPast
+
     var splitTunnelType: Int?
     var splitTunnelSites: [String]?
 
@@ -74,7 +78,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             }
 
             DispatchQueue.main.async {
-                self.handle(networkChange: path) { _ in }
+                self.restartXrayAfterNetworkChange()
             }
         }
         pathMonitor.start(queue: pathMonitorQueue)
@@ -201,6 +205,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
   
     override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
+        pendingXrayRestart?.cancel()
+        pendingXrayRestart = nil
+
         guard let protoType else {
             completionHandler()
             return
@@ -237,12 +244,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         guard Constants.kDefaultPathKey == keyPath else {
             return
         }
-    }
-  
-    private func handle(networkChange changePath: Network.NWPath, completion: @escaping (Error?) -> Void) {
-        updateActiveInterfaceIndex(for: changePath)
-        wg_log(.info, message: "Tunnel restarted.")
-        startTunnel(options: nil, completionHandler: completion)
     }
 }
 

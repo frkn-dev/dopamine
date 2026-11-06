@@ -141,13 +141,120 @@ QString SettingsController::getSecondaryDns()
 
 void SettingsController::setSecondaryDns(const QString &dns)
 {
-    return m_settings->setSecondaryDns(dns);
+    m_settings->setSecondaryDns(dns);
     emit secondaryDnsChanged();
+}
+
+bool SettingsController::isDnsOverrideEnabled()
+{
+    return m_settings->isDnsOverrideEnabled();
+}
+
+void SettingsController::setDnsOverrideEnabled(bool enabled)
+{
+    m_settings->setDnsOverrideEnabled(enabled);
+    emit dnsOverrideEnabledChanged();
 }
 
 bool SettingsController::isLoggingEnabled()
 {
     return m_settings->isSaveLogs();
+}
+
+bool SettingsController::isExperimentalFeaturesEnabled()
+{
+    return m_settings->isExperimentalFeaturesEnabled();
+}
+
+void SettingsController::setExperimentalFeaturesEnabled(bool enabled)
+{
+    m_settings->setExperimentalFeaturesEnabled(enabled);
+    emit experimentalFeaturesChanged();
+}
+
+bool SettingsController::isTelemetryPromptShown()
+{
+    return m_settings->isTelemetryPromptShown();
+}
+
+void SettingsController::setTelemetryPromptShown(bool shown)
+{
+    m_settings->setTelemetryPromptShown(shown);
+    emit telemetryPromptShownChanged();
+}
+
+bool SettingsController::isTelemetryEnabled()
+{
+    return m_settings->isTelemetryEnabled();
+}
+
+void SettingsController::setTelemetryEnabled(bool enabled)
+{
+    m_settings->setTelemetryEnabled(enabled);
+    emit telemetryEnabledChanged();
+}
+
+bool SettingsController::isReconnectUntilCancelled()
+{
+    return m_settings->isReconnectUntilCancelled();
+}
+
+void SettingsController::setReconnectUntilCancelled(bool enabled)
+{
+    m_settings->setReconnectUntilCancelled(enabled);
+    emit reconnectUntilCancelledChanged();
+}
+
+bool SettingsController::isPostConnectCheckEnabled()
+{
+    return m_settings->isPostConnectCheckEnabled();
+}
+
+void SettingsController::setPostConnectCheckEnabled(bool enabled)
+{
+    m_settings->setPostConnectCheckEnabled(enabled);
+    emit postConnectCheckChanged();
+}
+
+int SettingsController::mtuOverride()
+{
+    return m_settings->mtuOverride();
+}
+
+void SettingsController::setMtuOverride(int mtu)
+{
+    // 0 = «как на сервере»; рабочий диапазон проверяем и здесь, чтобы UI не мог
+    // записать бессмыслицу (слишком большой MTU = чёрная дыра, а не ошибка).
+    const int clamped = (mtu <= 0) ? 0 : qBound(1200, mtu, 1500);
+    m_settings->setMtuOverride(clamped);
+    emit mtuOverrideChanged();
+}
+
+bool SettingsController::isEndpointTogglesAllowed()
+{
+    return m_settings->isEndpointTogglesAllowed();
+}
+
+void SettingsController::setEndpointTogglesAllowed(bool allowed)
+{
+    m_settings->setEndpointTogglesAllowed(allowed);
+    emit endpointTogglesAllowedChanged();
+}
+
+QStringList SettingsController::poolDisabledIps()
+{
+    return m_settings->poolDisabledEndpoints();
+}
+
+void SettingsController::setPoolDisabledIps(const QStringList &ips)
+{
+    m_settings->setPoolDisabledEndpoints(ips);
+    emit poolDisabledIpsChanged();
+}
+
+int SettingsController::lastAppliedMtu()
+{
+    return m_settings->lastAppliedMtu();
 }
 
 bool SettingsController::isServerPingTextVisible()

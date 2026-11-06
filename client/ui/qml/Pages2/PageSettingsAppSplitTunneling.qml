@@ -67,109 +67,105 @@ PageType {
         }
     }
 
-    ColumnLayout {
-        id: header
-
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-
-        anchors.topMargin: 20 + SettingsController.safeAreaTopMargin
-
-        BackButtonType {
-            id: backButton
-        }
-
-        HeaderTypeWithSwitcher {
-            Layout.fillWidth: true
-            Layout.leftMargin: 16
-            Layout.rightMargin: 16
-
-            headerText: qsTr("App split tunneling")
-
-            enabled: root.pageEnabled
-            showSwitcher: true
-            switcher {
-                checked: AppSplitTunnelingModel.isTunnelingEnabled
-                enabled: root.pageEnabled
-            }
-            switcherFunction: function(checked) {
-                AppSplitTunnelingModel.toggleSplitTunneling(checked)
-                selector.text = root.routeModesModel[getRouteModesModelIndex()].name
-            }
-        }
-
-        DropDownType {
-            id: selector
-
-            Layout.fillWidth: true
-            Layout.topMargin: 32
-            Layout.leftMargin: 16
-            Layout.rightMargin: 16
-
-            drawerHeight: 0.4375
-            drawerParent: root
-
-            headerText: qsTr("Mode")
-
-            enabled: (Qt.platform.os === "android") && root.pageEnabled
-
-            listView: ListViewWithRadioButtonType {
-                rootWidth: root.width
-
-                model: root.routeModesModel
-
-                selectedIndex: getRouteModesModelIndex()
-
-                clickedFunction: function() {
-                    selector.text = selectedText
-                    selector.closeTriggered()
-                    if (AppSplitTunnelingModel.routeMode !== root.routeModesModel[selectedIndex].type) {
-                        AppSplitTunnelingModel.routeMode = root.routeModesModel[selectedIndex].type
-                    }
-                }
-
-                Component.onCompleted: {
-                    if (root.routeModesModel[selectedIndex].type === AppSplitTunnelingModel.routeMode) {
-                        selector.text = selectedText
-                    } else {
-                        selector.text = root.routeModesModel[0].name
-                    }
-                }
-
-                Connections {
-                    target: AppSplitTunnelingModel
-                    function onRouteModeChanged() {
-                        selectedIndex = getRouteModesModelIndex()
-                    }
-                }
-            }
-        }
-
-        WarningType {
-            Layout.fillWidth: true
-            Layout.topMargin: 8
-            Layout.leftMargin: 16
-            Layout.rightMargin: 16
-
-            textString: qsTr("Only \"Apps from the list should not have access via VPN\" mode is available on Windows")
-            iconPath: "qrc:/images/controls/alert-circle.svg"
-
-            visible: (Qt.platform.os === "windows") && root.pageEnabled
-        }
-    }
-
     ListViewType {
         id: listView
 
         ScrollBar.vertical: ScrollBarType { policy: ScrollBar.AlwaysOn }
 
-        anchors.top: header.bottom
+        anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.bottomMargin: addAppButton.implicitHeight + 48 + SettingsController.safeAreaBottomMargin + (searchField.textField.activeFocus ? 0 : SettingsController.imeHeight)
         anchors.left: parent.left
         anchors.right: parent.right
         clip: true
+
+        header: ColumnLayout {
+            width: listView.width
+
+            BackButtonType {
+                id: backButton
+
+                Layout.topMargin: 20 + SettingsController.safeAreaTopMargin
+            }
+
+            HeaderTypeWithSwitcher {
+                Layout.fillWidth: true
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+
+                headerText: qsTr("App split tunneling")
+
+                enabled: root.pageEnabled
+                showSwitcher: true
+                switcher {
+                    checked: AppSplitTunnelingModel.isTunnelingEnabled
+                    enabled: root.pageEnabled
+                }
+                switcherFunction: function(checked) {
+                    AppSplitTunnelingModel.toggleSplitTunneling(checked)
+                    selector.text = root.routeModesModel[getRouteModesModelIndex()].name
+                }
+            }
+
+            DropDownType {
+                id: selector
+
+                Layout.fillWidth: true
+                Layout.topMargin: 32
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+
+                drawerHeight: 0.4375
+                drawerParent: root
+
+                headerText: qsTr("Mode")
+
+                enabled: (Qt.platform.os === "android") && root.pageEnabled
+
+                listView: ListViewWithRadioButtonType {
+                    rootWidth: root.width
+
+                    model: root.routeModesModel
+
+                    selectedIndex: getRouteModesModelIndex()
+
+                    clickedFunction: function() {
+                        selector.text = selectedText
+                        selector.closeTriggered()
+                        if (AppSplitTunnelingModel.routeMode !== root.routeModesModel[selectedIndex].type) {
+                            AppSplitTunnelingModel.routeMode = root.routeModesModel[selectedIndex].type
+                        }
+                    }
+
+                    Component.onCompleted: {
+                        if (root.routeModesModel[selectedIndex].type === AppSplitTunnelingModel.routeMode) {
+                            selector.text = selectedText
+                        } else {
+                            selector.text = root.routeModesModel[0].name
+                        }
+                    }
+
+                    Connections {
+                        target: AppSplitTunnelingModel
+                        function onRouteModeChanged() {
+                            selectedIndex = getRouteModesModelIndex()
+                        }
+                    }
+                }
+            }
+
+            WarningType {
+                Layout.fillWidth: true
+                Layout.topMargin: 8
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+
+                textString: qsTr("Only \"Apps from the list should not have access via VPN\" mode is available on Windows")
+                iconPath: "qrc:/images/controls/alert-circle.svg"
+
+                visible: (Qt.platform.os === "windows") && root.pageEnabled
+            }
+        }
 
         model: SortFilterProxyModel {
             id: proxyAppSplitTunnelingModel

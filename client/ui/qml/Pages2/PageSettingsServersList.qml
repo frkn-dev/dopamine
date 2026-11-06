@@ -51,7 +51,7 @@ PageType {
             Layout.fillWidth: true
             Layout.leftMargin: 16
 
-            headerText: qsTr("Connections")
+            headerText: qsTr("Connections List")
         }
 
         ImageButtonType {

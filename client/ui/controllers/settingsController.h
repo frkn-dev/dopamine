@@ -22,7 +22,24 @@ public:
 
     Q_PROPERTY(QString primaryDns READ getPrimaryDns WRITE setPrimaryDns NOTIFY primaryDnsChanged)
     Q_PROPERTY(QString secondaryDns READ getSecondaryDns WRITE setSecondaryDns NOTIFY secondaryDnsChanged)
+    Q_PROPERTY(bool dnsOverrideEnabled READ isDnsOverrideEnabled WRITE setDnsOverrideEnabled NOTIFY dnsOverrideEnabledChanged)
     Q_PROPERTY(bool isLoggingEnabled READ isLoggingEnabled WRITE toggleLogging NOTIFY loggingStateChanged)
+    Q_PROPERTY(bool isTelemetryEnabled READ isTelemetryEnabled WRITE setTelemetryEnabled NOTIFY telemetryEnabledChanged)
+    Q_PROPERTY(bool isExperimentalFeaturesEnabled READ isExperimentalFeaturesEnabled
+               WRITE setExperimentalFeaturesEnabled NOTIFY experimentalFeaturesChanged)
+    // спрашивали ли уже про телеметрию (одноразовый вопрос после первого коннекта)
+    Q_PROPERTY(bool isTelemetryPromptShown READ isTelemetryPromptShown WRITE setTelemetryPromptShown
+               NOTIFY telemetryPromptShownChanged)
+    Q_PROPERTY(bool isReconnectUntilCancelled READ isReconnectUntilCancelled WRITE setReconnectUntilCancelled NOTIFY reconnectUntilCancelledChanged)
+    Q_PROPERTY(bool isPostConnectCheckEnabled READ isPostConnectCheckEnabled WRITE setPostConnectCheckEnabled NOTIFY postConnectCheckChanged)
+    Q_PROPERTY(int mtuOverride READ mtuOverride WRITE setMtuOverride NOTIFY mtuOverrideChanged)
+    // MTU, с которым реально подняли туннель в последний раз (0 = ещё не подключались)
+    Q_PROPERTY(int lastAppliedMtu READ lastAppliedMtu NOTIFY lastAppliedMtuChanged)
+    Q_PROPERTY(bool isEndpointTogglesAllowed READ isEndpointTogglesAllowed WRITE setEndpointTogglesAllowed NOTIFY endpointTogglesAllowedChanged)
+    // Адреса пула, выключенные пользователем. Обычное свойство, а не вызов
+    // метода: QML-биндинг сам обновляет карточку, и не зависит от того,
+    // попал ли новый Q_INVOKABLE в мета-объект конкретной сборки.
+    Q_PROPERTY(QStringList poolDisabledIps READ poolDisabledIps WRITE setPoolDisabledIps NOTIFY poolDisabledIpsChanged)
     Q_PROPERTY(bool isServerPingTextVisible READ isServerPingTextVisible WRITE setServerPingTextVisible NOTIFY serverPingTextVisibleChanged)
     Q_PROPERTY(bool isNotificationPermissionGranted READ isNotificationPermissionGranted NOTIFY onNotificationStateChanged)
     Q_PROPERTY(bool isKillSwitchEnabled READ isKillSwitchEnabled WRITE toggleKillSwitch NOTIFY killSwitchEnabledChanged)
@@ -54,7 +71,27 @@ public slots:
     QString getSecondaryDns();
     void setSecondaryDns(const QString &dns);
 
+    bool isDnsOverrideEnabled();
+    void setDnsOverrideEnabled(bool enabled);
+
     bool isLoggingEnabled();
+    bool isTelemetryEnabled();
+    void setTelemetryEnabled(bool enabled);
+    bool isExperimentalFeaturesEnabled();
+    void setExperimentalFeaturesEnabled(bool enabled);
+    bool isTelemetryPromptShown();
+    void setTelemetryPromptShown(bool shown);
+    bool isReconnectUntilCancelled();
+    bool isPostConnectCheckEnabled();
+    void setPostConnectCheckEnabled(bool enabled);
+    void setReconnectUntilCancelled(bool enabled);
+    int mtuOverride();
+    int lastAppliedMtu();
+    bool isEndpointTogglesAllowed();
+    void setEndpointTogglesAllowed(bool allowed);
+    QStringList poolDisabledIps();
+    void setPoolDisabledIps(const QStringList &ips);
+    void setMtuOverride(int mtu);
     void toggleLogging(bool enable);
 
     bool isServerPingTextVisible();
@@ -143,7 +180,17 @@ public slots:
 signals:
     void primaryDnsChanged();
     void secondaryDnsChanged();
+    void dnsOverrideEnabledChanged();
     void loggingStateChanged();
+    void telemetryEnabledChanged();
+    void telemetryPromptShownChanged();
+    void experimentalFeaturesChanged();
+    void reconnectUntilCancelledChanged();
+    void postConnectCheckChanged();
+    void mtuOverrideChanged();
+    void lastAppliedMtuChanged();
+    void endpointTogglesAllowedChanged();
+    void poolDisabledIpsChanged();
     void serverPingTextVisibleChanged();
     void killSwitchEnabledChanged();
     void routeLanThroughVpnChanged();

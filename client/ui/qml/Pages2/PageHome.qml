@@ -21,6 +21,9 @@ import "../Components"
 PageType {
     id: root
 
+    // Server card and the two shortcut buttons above it move together.
+    property int serverCardLift: 90
+
     ImageButtonType {
         id: settingsButton
         objectName: "settingsButton"
@@ -39,18 +42,6 @@ PageType {
         imageColor: DopamineStyle.color.paleGray
 
         onClicked: PageController.goToPage(PageEnum.PageSettings)
-    }
-
-    Connections {
-        target: Qt.application
-
-        function onStateChanged() {
-            if (Qt.application.state !== Qt.ApplicationActive) {
-                if (homeSplitTunnelingDrawer.isOpened) {
-                    homeSplitTunnelingDrawer.closeTriggered()
-                }
-            }
-        }
     }
 
     Item {
@@ -74,6 +65,10 @@ PageType {
                 Layout.alignment: Qt.AlignHCenter
 
                 implicitHeight: 36
+
+                // Nudge the diagnostic banner down without moving the connect
+                // button that fills the rest of the column.
+                transform: Translate { y: 40 }
 
                 defaultColor: DopamineStyle.color.transparent
                 hoveredColor: DopamineStyle.color.translucentWhite
@@ -150,6 +145,10 @@ PageType {
                 implicitHeight: ConnectionController.isConnected ? 112 : 96
                 radius: 20
 
+                // Raise the card (and its shortcut buttons) without moving the
+                // connect button above it.
+                transform: Translate { y: -root.serverCardLift }
+
                 color: DopamineStyle.color.transparent
 
                 // accent-blue underlight behind the glass: its source sits low in the
@@ -204,21 +203,45 @@ PageType {
 
                     ColumnLayout {
                         Layout.fillWidth: true
-                        Layout.rightMargin: 56
+                        Layout.rightMargin: 8
                         spacing: 2
 
-                        ListItemTitleType {
+                        RowLayout {
                             Layout.fillWidth: true
+                            spacing: 8
 
-                            maximumLineCount: 1
-                            elide: Text.ElideRight
-                            wrapMode: Text.NoWrap
-                            font.pixelSize: 24
-                            font.weight: 600
+                            Image {
+                                Layout.alignment: Qt.AlignVCenter
+                                Layout.preferredWidth: 32
+                                Layout.preferredHeight: 32
 
-                            text: SettingsController.autoServerSelection && !ConnectionController.isConnected
-                                  ? qsTr("Auto-select")
-                                  : ServersModel.defaultServerName
+                                visible: SettingsController.autoServerSelection && !ConnectionController.isConnected
+                                source: "qrc:/countriesFlags/images/flagKit/PIRATE.svg"
+                                fillMode: Image.PreserveAspectFit
+
+                                layer.enabled: true
+                                layer.effect: OpacityMask {
+                                    maskSource: Rectangle {
+                                        width: 32
+                                        height: 32
+                                        radius: 5
+                                    }
+                                }
+                            }
+
+                            ListItemTitleType {
+                                Layout.fillWidth: true
+
+                                maximumLineCount: 1
+                                elide: Text.ElideRight
+                                wrapMode: Text.NoWrap
+                                font.pixelSize: 24
+                                font.weight: 600
+
+                                text: SettingsController.autoServerSelection && !ConnectionController.isConnected
+                                      ? qsTr("Auto-select")
+                                      : ServersModel.defaultServerName
+                            }
                         }
 
                         CaptionTextType {
@@ -294,85 +317,59 @@ PageType {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
 
+                    // The card has always been the shortcut to the server list;
+                    // keep that habit. The info button opens the server card.
                     onClicked: PageController.goToPage(PageEnum.PageSettingsServersList)
                 }
 
                 ImageButtonType {
-                    id: serverCardInfoButton
-                    objectName: "serverCardInfoButton"
+                    id: splitTunnelingButton
+                    objectName: "splitTunnelingButton"
+
+                    anchors.right: serverInfoButton.left
+                    anchors.rightMargin: 4
+
+                    y: -height - 10
+
+                    z: 2
+
+                    implicitWidth: 48
+                    implicitHeight: 48
+
+                    // The split-tunneling SVG is a two-colour badge; tinting
+                    // the whole icon turns it into a solid square.
+                    Image {
+                        anchors.centerIn: parent
+
+                        width: 20
+                        height: 20
+
+                        source: "qrc:/images/controls/split-tunneling.svg"
+                        sourceSize: Qt.size(width * Screen.devicePixelRatio,
+                                            height * Screen.devicePixelRatio)
+                        fillMode: Image.PreserveAspectFit
+                    }
+
+                    onClicked: PageController.goToPage(PageEnum.PageSettingsSplitTunnelingOverview)
+                }
+
+                ImageButtonType {
+                    id: serverInfoButton
+                    objectName: "serverInfoButton"
 
                     anchors.right: parent.right
-                    anchors.rightMargin: 10
-                    anchors.verticalCenter: parent.verticalCenter
 
-                    implicitWidth: 56
-                    implicitHeight: 56
+                    y: -height - 10
+
+                    z: 2
+
+                    implicitWidth: 48
+                    implicitHeight: 48
 
                     image: "qrc:/images/controls/info.svg"
-                    imageColor: DopamineStyle.color.mutedGray
+                    imageColor: DopamineStyle.color.paleGray
 
-                    onClicked: {
-                        ServersModel.processedIndex = ServersModel.defaultIndex
-
-                        if (ServersModel.getProcessedServerData("isServerFromGatewayApi")) {
-                            PageController.showBusyIndicator(true)
-                            let result = ApiSettingsController.getAccountInfo(false)
-                            PageController.showBusyIndicator(false)
-                            if (!result) {
-                                return
-                            }
-
-                            PageController.goToPage(PageEnum.PageSettingsApiServerInfo)
-                        } else {
-                            PageController.goToPage(PageEnum.PageSettingsServerInfo)
-                        }
-                    }
-                }
-            }
-
-            BasicButtonType {
-                id: splitTunnelingButton
-                objectName: "splitTunnelingButton"
-
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
-                Layout.bottomMargin: 80
-                leftPadding: 16
-                rightPadding: 16
-
-                implicitHeight: 36
-
-                defaultColor: DopamineStyle.color.transparent
-                hoveredColor: DopamineStyle.color.translucentWhite
-                pressedColor: DopamineStyle.color.sheerWhite
-                disabledColor: DopamineStyle.color.mutedGray
-                textColor: DopamineStyle.color.mutedGray
-                borderWidth: 0
-
-                buttonTextLabel.lineHeight: 20
-                buttonTextLabel.font.pixelSize: 14
-                buttonTextLabel.font.weight: 500
-
-                property bool isSplitTunnelingEnabled: SitesModel.isTunnelingEnabled || AppSplitTunnelingModel.isTunnelingEnabled ||
-                                                       ServersModel.isDefaultServerDefaultContainerHasSplitTunneling
-
-                text: qsTr("Split tunneling")
-
-                leftImageSource: isSplitTunnelingEnabled ? "qrc:/images/controls/split-tunneling.svg" : ""
-                leftImageColor: ""
-                rightImageSource: "qrc:/images/controls/chevron-down.svg"
-
-                Keys.onEnterPressed: this.clicked()
-                Keys.onReturnPressed: this.clicked()
-
-                onClicked: {
-                    homeSplitTunnelingDrawer.openTriggered()
-                }
-
-                HomeSplitTunnelingDrawer {
-                    id: homeSplitTunnelingDrawer
-                    objectName: "homeSplitTunnelingDrawer"
-
-                    parent: root
+                    onClicked: root.openDefaultServerCard()
                 }
             }
 
@@ -393,6 +390,23 @@ PageType {
 
     Component.onCompleted: {
         connectButton.birdPerched = ConnectionController.isConnected
+    }
+
+    function openDefaultServerCard() {
+        ServersModel.processedIndex = ServersModel.defaultIndex
+
+        if (ServersModel.getProcessedServerData("isServerFromGatewayApi")) {
+            PageController.showBusyIndicator(true)
+            let result = ApiSettingsController.getAccountInfo(false)
+            PageController.showBusyIndicator(false)
+            if (!result) {
+                return
+            }
+
+            PageController.goToPage(PageEnum.PageSettingsApiServerInfo)
+        } else {
+            PageController.goToPage(PageEnum.PageSettingsServerInfo)
+        }
     }
 
     function startPterodactylFlight() {

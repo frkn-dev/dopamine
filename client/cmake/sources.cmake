@@ -11,6 +11,7 @@ set(HEADERS ${HEADERS}
     ${CLIENT_ROOT_DIR}/core/api/apiDefs.h
     ${CLIENT_ROOT_DIR}/core/qrCodeUtils.h
     ${CLIENT_ROOT_DIR}/core/controllers/coreController.h
+    ${CLIENT_ROOT_DIR}/core/controllers/connectionReportController.h
     ${CLIENT_ROOT_DIR}/core/controllers/gatewayController.h
     ${CLIENT_ROOT_DIR}/core/controllers/vpnConfigurationController.h
     ${CLIENT_ROOT_DIR}/protocols/protocols_defs.h
@@ -58,6 +59,7 @@ set(SOURCES ${SOURCES}
     ${CLIENT_ROOT_DIR}/core/server_defs.cpp
     ${CLIENT_ROOT_DIR}/core/qrCodeUtils.cpp
     ${CLIENT_ROOT_DIR}/core/controllers/coreController.cpp
+    ${CLIENT_ROOT_DIR}/core/controllers/connectionReportController.cpp
     ${CLIENT_ROOT_DIR}/core/controllers/gatewayController.cpp
     ${CLIENT_ROOT_DIR}/core/controllers/vpnConfigurationController.cpp
     ${CLIENT_ROOT_DIR}/protocols/protocols_defs.cpp

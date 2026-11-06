@@ -154,6 +154,11 @@ void CoreController::initControllers()
     m_engine->rootContext()->setContextProperty("ApiConfigsController", m_apiConfigsController.get());
     m_connectionController->setApiConfigsController(m_apiConfigsController.get());
 
+    m_connectionReportController.reset(
+            new ConnectionReportController(m_serversModel, m_settings));
+    m_engine->rootContext()->setContextProperty("ConnectionReportController",
+                                                m_connectionReportController.get());
+
     m_keyActivationController.reset(new KeyActivationController());
     m_engine->rootContext()->setContextProperty("KeyActivationController", m_keyActivationController.get());
 
@@ -225,6 +230,7 @@ void CoreController::initControllers()
     m_healthCheckController.reset(new HealthCheckController(m_serversModel, this));
     m_engine->rootContext()->setContextProperty("HealthCheckController", m_healthCheckController.get());
     m_connectionController->setHealthCheckController(m_healthCheckController.get());
+    m_connectionReportController->setHealthCheckController(m_healthCheckController.get());
     connect(m_apiConfigsController.get(), &ApiConfigsController::reloadSubscriptionConfigsFinished, this,
             [this](bool success) {
                 if (!success || m_connectionController->isConnected() || m_connectionController->isConnectionInProgress()) {
@@ -240,6 +246,32 @@ void CoreController::initControllers()
         if (state == Vpn::ConnectionState::Connecting || state == Vpn::ConnectionState::Connected) {
             m_healthCheckController->stopProbe();
             m_serversModel->clearHealthResults();
+        }
+
+        // Пробы на живом туннеле запрещены: они идут через VPN и дают ложные
+        // «нода недоступна». При отключении старые вердикты стираем — они могли
+        // быть получены через туннель и врать при следующем выборе адреса.
+        if (m_healthCheckController) {
+            const bool connected = state == Vpn::ConnectionState::Connected;
+            m_healthCheckController->setTunnelActive(connected);
+            if (connected) {
+                m_healthCheckController->stopProbe();
+            } else if (state == Vpn::ConnectionState::Disconnected && m_serversModel) {
+                m_serversModel->clearHealthResults();
+            }
+        }
+
+        // Автосбор телеметрии сессии: пока туннель поднят, клиент раз в минуту
+        // пишет RTT до текущего сервера — это метрика качества канала.
+        if (m_connectionReportController) {
+            m_connectionReportController->setConnected(state == Vpn::ConnectionState::Connected);
+            // Провал подключения = повод отправить отчёт без действий юзера.
+            const bool userRequested = m_connectionController
+                    ? m_connectionController->userDisconnectRequested()
+                    : false;
+            m_connectionReportController->handleConnectionState(static_cast<int>(state),
+                                                               static_cast<int>(m_vpnConnection->lastError()),
+                                                               userRequested);
         }
     });
 }
@@ -429,13 +461,20 @@ void CoreController::initContainerModelUpdateHandler()
     auto warmAccountInfoCache = [this]() {
         const int defaultIndex = m_serversModel->getDefaultServerIndex();
         if (m_serversModel->hasServersFromGatewayApi() && defaultIndex >= 0) {
-            m_serversModel->setProcessedServerIndex(defaultIndex);
+            // processedIndex трогаем ТОЛЬКО если текущая строка не из API:
+            // иначе открытая карточка перерисовывалась на сервер по умолчанию
+            // (EU → PL1 сам собой).
+            const int processedIndex = m_serversModel->getProcessedServerIndex();
+            if (processedIndex < 0 || !m_serversModel->serverHasUsableConfig(processedIndex)) {
+                m_serversModel->setProcessedServerIndex(defaultIndex);
+            }
             m_apiSettingsController->getAccountInfo(true);
         }
     };
     connect(m_serversModel.get(), &ServersModel::hasServersFromGatewayApiChanged, this, warmAccountInfoCache);
     QTimer::singleShot(0, this, warmAccountInfoCache);
     m_serversModel->resetModel();
+    // resetModel уже восстановил выбор юзера (Conf.selectedServerIndex)
     // the presets catalog is public — fetch on every app start
     m_splitPresetsModel->fetchPresets();
     auto refreshSubscription = [this]() {
@@ -480,6 +519,16 @@ void CoreController::initPrepareConfigHandler()
         // auto-select picks the server itself — validating the UI-selected default
         // server here would block auto mode whenever that server was never connected
         if (m_settings->isAutoServerSelection()) {
+            m_connectionController->openConnection();
+            return;
+        }
+
+        // Конфиг, который уже подключался, не «портится» сам: проверять его
+        // на каждом коннекте — лишний сетевой round-trip на критическом пути
+        // (именно он висел в «Preparing» на плохой сети). Валидируем только
+        // когда строка ещё ни разу не поднималась.
+        const int row = m_serversModel->getProcessedServerIndex();
+        if (row >= 0 && m_serversModel->serverHasUsableConfig(row)) {
             m_connectionController->openConnection();
             return;
         }

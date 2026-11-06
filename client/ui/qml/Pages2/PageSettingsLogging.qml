@@ -16,6 +16,14 @@ import "../Controls2/TextTypes"
 PageType {
     id: root
 
+    // Скролл сбрасываем при открытии страницы, а не по фокусу кнопки «назад»:
+    // фокус переезжает во время обычных свайпов, и список возвращало наверх.
+    onVisibleChanged: {
+        if (visible) {
+            listView.positionViewAtBeginning()
+        }
+    }
+
     BackButtonType {
         id: backButton
 
@@ -24,11 +32,6 @@ PageType {
         anchors.right: parent.right
         anchors.topMargin: 20 + SettingsController.safeAreaTopMargin
 
-        onFocusChanged: {
-            if (this.activeFocus) {
-                listView.positionViewAtBeginning()
-            }
-        }
     }
 
     ListViewType {
@@ -74,6 +77,29 @@ PageType {
             DividerType {}
 
             SwitcherType {
+                id: telemetrySwitcher
+
+                Layout.fillWidth: true
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+
+                text: qsTr("Share network telemetry")
+                descriptionText: qsTr("Probes how this device reaches our servers (DNS, ping, ports) and lets you send " +
+                                      "the result to support. Collected on this device only, sent only when you tap " +
+                                      "\"Send to support\". Off by default.")
+
+                checked: SettingsController.isTelemetryEnabled
+
+                onToggled: function() {
+                    if (checked !== SettingsController.isTelemetryEnabled) {
+                        SettingsController.isTelemetryEnabled = checked
+                    }
+                }
+            }
+
+            DividerType {}
+
+            SwitcherType {
                 id: pingTextSwitcher
 
                 Layout.fillWidth: true
@@ -95,18 +121,129 @@ PageType {
             DividerType {}
 
             LabelWithButtonType {
+                id: connectionScan
+                Layout.fillWidth: true
+
+                visible: SettingsController.isTelemetryEnabled
+
+                text: ConnectionReportController.hasScan && !ConnectionReportController.scanning
+                      ? qsTr("Check all servers again")
+                      : qsTr("Check all servers")
+                descriptionText: {
+                    if (ConnectionController.isConnected) {
+                        return qsTr("VPN is on — turn off the VPN to check all servers. Through a tunnel the probe measures the tunnel, not the servers.")
+                    }
+                    if (ConnectionReportController.scanning) {
+                        return qsTr("Probing %1 of %2… tap to cancel")
+                                 .arg(ConnectionReportController.progressDone)
+                                 .arg(ConnectionReportController.progressTotal)
+                    }
+                    if (ConnectionReportController.hasScan) {
+                        return qsTr("Scan ready — send it below or copy to clipboard")
+                    }
+                    return qsTr("Probe every address of every server in your subscription")
+                }
+                descriptionOnTop: true
+
+                enabled: !ConnectionController.isConnected || ConnectionReportController.scanning
+
+                rightImageSource: ConnectionReportController.scanning
+                                 ? "qrc:/images/controls/close.svg"
+                                 : "qrc:/images/controls/scan-line.svg"
+                rightImageColor: DopamineStyle.color.paleGray
+
+                clickedFunction: function() {
+                    if (ConnectionReportController.busy && !ConnectionReportController.scanning) {
+                        return
+                    }
+                    if (ConnectionReportController.scanning) {
+                        ConnectionReportController.cancel()
+                        return
+                    }
+                    ConnectionReportController.collectAll()
+                }
+            }
+            DividerType {}
+
+            LabelWithButtonType {
                 Layout.fillWidth: true
                 Layout.topMargin: -8
 
-                text: qsTr("Subscription ID")
-                descriptionText: ApiConfigsController.subscriptionId !== "" ? ApiConfigsController.subscriptionId : qsTr("not set")
-                rightImageSource: "qrc:/images/controls/copy.svg"
+                visible: ConnectionReportController.hasScan && !ConnectionReportController.scanning
+
+                text: qsTr("Send scan to support")
+                descriptionText: {
+                    if (ConnectionReportController.sendState === "sending") {
+                        return qsTr("Sending…")
+                    }
+                    if (ConnectionReportController.sendMessage !== "") {
+                        return ConnectionReportController.sendMessage
+                    }
+                    return qsTr("Uploads this scan with your account tag")
+                }
+                descriptionOnTop: true
+
+                rightImageSource: "qrc:/images/controls/share-2.svg"
+                rightImageColor: DopamineStyle.color.paleGray
 
                 clickedFunction: function() {
-                    ApiConfigsController.copySubscriptionIdToClipboard()
-                    PageController.showNotificationMessage(qsTr("Subscription ID copied"))
+                    ConnectionReportController.send()
                 }
             }
+
+            DividerType {
+                visible: ConnectionReportController.hasScan && !ConnectionReportController.scanning
+            }
+
+            LabelWithButtonType {
+                Layout.fillWidth: true
+                Layout.topMargin: -8
+
+                visible: ConnectionReportController.hasScan && !ConnectionReportController.scanning
+
+                text: qsTr("Copy scan to clipboard")
+                descriptionText: qsTr("Same text as the upload — paste it in the chat if sending fails")
+                descriptionOnTop: true
+
+                rightImageSource: "qrc:/images/controls/copy.svg"
+                rightImageColor: DopamineStyle.color.paleGray
+
+                clickedFunction: function() {
+                    ConnectionReportController.copyReport()
+                    PageController.showNotificationMessage(qsTr("Scan copied to clipboard"))
+                }
+            }
+
+            Connections {
+                target: ConnectionReportController
+
+                function onReportChanged() {
+                    // Отчёт уходит на сервер автоматически (см. finishReport/finishScan),
+                    // в буфер его юзеру не кладём — это никому не нужно.
+                }
+            }
+
+            // Когда клиент последний раз сам отправил отчёт (провал подключения).
+            LabelWithImageType {
+                Layout.fillWidth: true
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+
+                visible: SettingsController.isTelemetryEnabled
+
+                imageSource: "qrc:/images/controls/settings.svg"
+                leftText: qsTr("Last auto report")
+                rightText: {
+                    var iso = ConnectionReportController.lastAutoReportAt
+                    if (!iso) {
+                        return qsTr("never")
+                    }
+                    var date = new Date(iso)
+                    return isNaN(date.getTime()) ? iso : date.toLocaleString(Qt.locale(), Locale.ShortFormat)
+                }
+            }
+
+            DividerType {}
 
             DividerType {}
 
@@ -141,12 +278,20 @@ PageType {
 
         model: logTypes
 
-        snapMode: ListView.SnapOneItem
+        // SnapOneItem здесь и давал «залипание»: вся страница — один высокий
+        // делегат, и список постоянно притягивал его к началу.
+        snapMode: ListView.NoSnap
+        boundsBehavior: Flickable.StopAtBounds
+        cacheBuffer: 4000
 
         delegate: ColumnLayout {
             id: delegateContent
 
             width: listView.width
+            // ColumnLayout сам по себе не отдаёт высоту списку: без этого
+            // contentHeight оставался меньше содержимого, и скролл отскакивал
+            // к началу, пока список не пересчитает раскладку.
+            height: implicitHeight
 
             enabled: isVisible
 

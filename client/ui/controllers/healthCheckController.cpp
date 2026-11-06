@@ -1,10 +1,13 @@
 #include "healthCheckController.h"
 
+#include "ui/models/servers_model.h"
+
 #include <QDateTime>
 #include <QDir>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QRandomGenerator>
 #include <QSslSocket>
 #include <QTemporaryFile>
 #include <QTimer>
@@ -60,10 +63,99 @@ static QString libXrayPingAndroid(const QString &configPath, int timeoutSec, con
 HealthCheckController::HealthCheckController(const QSharedPointer<ServersModel> &serversModel, QObject *parent)
     : QObject(parent), m_serversModel(serversModel)
 {
+    // Проверка качества замеров без кликов: DOPAMINE_PROBE_SELFTEST=1 запускает
+    // самопроверку handshake-пробы сразу после старта и печатает [SELFTEST] в лог.
+    if (qEnvironmentVariableIsSet("DOPAMINE_PROBE_SELFTEST")) {
+        QTimer::singleShot(3000, this, [this]() { runProbeSelfTest(); });
+    }
+}
+
+// Junk-параметры AWG: их надо отправлять перед handshake, иначе сервер молчит.
+// Собираем из last_config (long/short имена) и добираем из INI, если поля пустые.
+static QJsonObject wgJunkParams(const QJsonObject &lastConfig, const QString &ini)
+{
+    auto jsonText = [](const QJsonValue &value) {
+        if (value.isString()) {
+            return value.toString().trimmed();
+        }
+        if (value.isDouble()) {
+            return QString::number(static_cast<qint64>(value.toDouble()));
+        }
+        return QString();
+    };
+    QJsonObject params = lastConfig;
+    const QList<QPair<QString, QString>> aliases = {
+        { QStringLiteral("junkPacketCount"), QStringLiteral("Jc") },
+        { QStringLiteral("junkPacketMinSize"), QStringLiteral("Jmin") },
+        { QStringLiteral("junkPacketMaxSize"), QStringLiteral("Jmax") },
+        { QStringLiteral("initPacketJunkSize"), QStringLiteral("S1") },
+        { QStringLiteral("responsePacketJunkSize"), QStringLiteral("S2") },
+        { QStringLiteral("cookieReplyPacketJunkSize"), QStringLiteral("S3") },
+        { QStringLiteral("transportPacketJunkSize"), QStringLiteral("S4") },
+        { QStringLiteral("initPacketMagicHeader"), QStringLiteral("H1") },
+        { QStringLiteral("responsePacketMagicHeader"), QStringLiteral("H2") },
+        { QStringLiteral("underloadPacketMagicHeader"), QStringLiteral("H3") },
+        { QStringLiteral("transportPacketMagicHeader"), QStringLiteral("H4") },
+        { QStringLiteral("specialJunk1"), QStringLiteral("I1") },
+        { QStringLiteral("specialJunk2"), QStringLiteral("I2") },
+        { QStringLiteral("specialJunk3"), QStringLiteral("I3") },
+        { QStringLiteral("specialJunk4"), QStringLiteral("I4") },
+        { QStringLiteral("specialJunk5"), QStringLiteral("I5") },
+        { QStringLiteral("headerProtectionKey"), QStringLiteral("HeaderProtectionKey") },
+    };
+    for (const auto &alias : aliases) {
+        if (!jsonText(params.value(alias.second)).isEmpty()) {
+            continue;
+        }
+        const QString value = jsonText(params.value(alias.first));
+        if (!value.isEmpty()) {
+            params.insert(alias.second, value);
+        }
+    }
+    QJsonObject junk;
+    for (const char *key : { "Jc", "Jmin", "Jmax", "S1", "S2", "S3", "S4", "H1", "H2", "H3", "H4",
+                             "I1", "I2", "I3", "I4", "I5", "HeaderProtectionKey" }) {
+        const QString value = jsonText(params.value(QString::fromLatin1(key)));
+        if (!value.isEmpty()) {
+            junk.insert(QString::fromLatin1(key), value);
+        }
+    }
+
+    // fill gaps from junk params embedded in the wg-quick INI (some configs
+    // carry them only there / last_config fields may be null)
+    static const QSet<QString> junkKeys = { "Jc", "Jmin", "Jmax", "S1", "S2", "S3", "S4",
+                                            "H1", "H2", "H3", "H4", "I1", "I2", "I3", "I4", "I5",
+                                            "HeaderProtectionKey" };
+    for (const QString &line : ini.split(QLatin1Char('\n'))) {
+        const auto parts = line.split(QLatin1Char('='), Qt::SkipEmptyParts);
+        if (parts.size() != 2) {
+            continue;
+        }
+        const QString key = parts[0].trimmed();
+        if (junkKeys.contains(key) && !junk.contains(key)) {
+            const QString value = parts[1].trimmed();
+            if (!value.isEmpty()) {
+                junk.insert(key, value);
+            }
+        }
+    }
+
+    return junk;
 }
 
 void HealthCheckController::startProbe(bool force)
 {
+    // Глобальное «не чаще раза в минуту» здесь было ошибкой: оно блокировало
+    // пробы и для тех адресов, по которым замера вообще нет (карточка пула
+    // показывала «no data»). Свежесть проверяет вызывающий — по каждому адресу
+    // отдельно (кэш 5 мин), плюс ниже остаётся общий throttle.
+
+    if (m_tunnelActive) {
+        // на живом туннеле не меряем: результат врёт и портит выбор адресов
+        qDebug() << "[HEALTH] probe skipped: tunnel is active";
+        return;
+    }
+
     if (m_serversModel.isNull()) {
         return;
     }
@@ -170,10 +262,14 @@ void HealthCheckController::startProbe(bool force)
         }
 
         for (const QString &probeAddress : probeHosts) {
+            // порт — свой у каждого адреса (node_ports), иначе проба стучится
+            // в порт протокола мимо реально открытого
+            const quint16 hostPort = static_cast<quint16>(
+                    ServersModel::portForNodeIp(serverConfig, probeAddress, port));
             // one probe per host:port — duplicate rows share the node; every sharing
             // row gets the result (rows can share a host on different ports, e.g.
             // AWG and its mobile variant, so results are applied per row, not per host)
-            const QString endpoint = QStringLiteral("%1:%2").arg(probeAddress).arg(port);
+            const QString endpoint = QStringLiteral("%1:%2").arg(probeAddress).arg(hostPort);
             const auto seen = m_seenTcpEndpoints.constFind(endpoint);
             if (seen != m_seenTcpEndpoints.constEnd()) {
                 m_queue[seen.value()].rows.append(i);
@@ -184,7 +280,7 @@ void HealthCheckController::startProbe(bool force)
             Target target;
             target.rows.append(i);
             target.host = probeAddress;
-            target.port = port;
+            target.port = hostPort;
             target.httpsProbe = httpsProbe;
             target.sni = sni.isEmpty() ? probeAddress : sni;
             target.path = path.isEmpty() ? QStringLiteral("/") : path;
@@ -225,73 +321,8 @@ void HealthCheckController::startProbe(bool force)
             continue;
         }
 
-        auto jsonText = [](const QJsonValue &value) {
-            if (value.isString()) {
-                return value.toString().trimmed();
-            }
-            if (value.isDouble()) {
-                return QString::number(static_cast<qint64>(value.toDouble()));
-            }
-            return QString();
-        };
-        QJsonObject params = lastConfig;
-        const QList<QPair<QString, QString>> aliases = {
-            { QStringLiteral("junkPacketCount"), QStringLiteral("Jc") },
-            { QStringLiteral("junkPacketMinSize"), QStringLiteral("Jmin") },
-            { QStringLiteral("junkPacketMaxSize"), QStringLiteral("Jmax") },
-            { QStringLiteral("initPacketJunkSize"), QStringLiteral("S1") },
-            { QStringLiteral("responsePacketJunkSize"), QStringLiteral("S2") },
-            { QStringLiteral("cookieReplyPacketJunkSize"), QStringLiteral("S3") },
-            { QStringLiteral("transportPacketJunkSize"), QStringLiteral("S4") },
-            { QStringLiteral("initPacketMagicHeader"), QStringLiteral("H1") },
-            { QStringLiteral("responsePacketMagicHeader"), QStringLiteral("H2") },
-            { QStringLiteral("underloadPacketMagicHeader"), QStringLiteral("H3") },
-            { QStringLiteral("transportPacketMagicHeader"), QStringLiteral("H4") },
-            { QStringLiteral("specialJunk1"), QStringLiteral("I1") },
-            { QStringLiteral("specialJunk2"), QStringLiteral("I2") },
-            { QStringLiteral("specialJunk3"), QStringLiteral("I3") },
-            { QStringLiteral("specialJunk4"), QStringLiteral("I4") },
-            { QStringLiteral("specialJunk5"), QStringLiteral("I5") },
-            { QStringLiteral("headerProtectionKey"), QStringLiteral("HeaderProtectionKey") },
-        };
-        for (const auto &alias : aliases) {
-            if (!jsonText(params.value(alias.second)).isEmpty()) {
-                continue;
-            }
-            const QString value = jsonText(params.value(alias.first));
-            if (!value.isEmpty()) {
-                params.insert(alias.second, value);
-            }
-        }
-        QJsonObject junk;
-        for (const char *key : { "Jc", "Jmin", "Jmax", "S1", "S2", "S3", "S4", "H1", "H2", "H3", "H4",
-                                 "I1", "I2", "I3", "I4", "I5", "HeaderProtectionKey" }) {
-            const QString value = jsonText(params.value(QString::fromLatin1(key)));
-            if (!value.isEmpty()) {
-                junk.insert(QString::fromLatin1(key), value);
-            }
-        }
-
-        // fill gaps from junk params embedded in the wg-quick INI (some configs
-        // carry them only there / last_config fields may be null)
-        static const QSet<QString> junkKeys = { "Jc", "Jmin", "Jmax", "S1", "S2", "S3", "S4",
-                                                "H1", "H2", "H3", "H4", "I1", "I2", "I3", "I4", "I5",
-                                                "HeaderProtectionKey" };
         const QString ini = containerObject.value(containerName).toObject().value(QStringLiteral("config")).toString();
-        for (const QString &line : ini.split(QLatin1Char('\n'))) {
-            const auto parts = line.split(QLatin1Char('='), Qt::SkipEmptyParts);
-            if (parts.size() != 2) {
-                continue;
-            }
-            const QString key = parts[0].trimmed();
-            if (junkKeys.contains(key) && !junk.contains(key)) {
-                const QString value = parts[1].trimmed();
-                if (!value.isEmpty()) {
-                    junk.insert(key, value);
-                }
-            }
-        }
-
+        const QJsonObject junk = wgJunkParams(lastConfig, ini);
         const QString clientPrivKey = lastConfig.value(QStringLiteral("client_priv_key")).toString();
         const QString serverPubKey = lastConfig.value(QStringLiteral("server_pub_key")).toString();
         if (clientPrivKey.isEmpty() || serverPubKey.isEmpty()) {
@@ -316,11 +347,13 @@ void HealthCheckController::startProbe(bool force)
         }
 
         for (const QString &probeHost : probeHosts) {
+            const quint16 hostPort = static_cast<quint16>(
+                    ServersModel::portForNodeIp(serverConfig, probeHost, port));
             // one probe per host:port — duplicate entries (same node in several
             // server rows) racing handshakes with the same key get dropped by the
             // server and show up as random timeouts; sharing rows get the result
             // applied per row (rows can share a host on different ports)
-            const QString endpoint = QStringLiteral("%1:%2").arg(probeHost).arg(port);
+            const QString endpoint = QStringLiteral("%1:%2").arg(probeHost).arg(hostPort);
             const auto seen = m_seenWgEndpoints.constFind(endpoint);
             if (seen != m_seenWgEndpoints.constEnd()) {
                 m_wgQueue[seen.value()].rows.append(i);
@@ -330,7 +363,7 @@ void HealthCheckController::startProbe(bool force)
             WgTarget target;
             target.rows.append(i);
             target.host = probeHost;
-            target.port = port;
+            target.port = hostPort;
             target.clientPrivKey = clientPrivKey;
             target.serverPubKey = serverPubKey;
             target.psk = lastConfig.value(QStringLiteral("psk_key")).toString();
@@ -435,6 +468,7 @@ void HealthCheckController::startProbe(bool force)
 
     // covers the "no targets at all" case — waiters must not hang
     m_probeActive = true;
+    emit probingChanged();
     maybeFinishProbe();
 }
 
@@ -448,6 +482,11 @@ void HealthCheckController::maybeFinishProbe()
         return;
     }
     m_probeActive = false;
+    if (m_serversModel) {
+        m_serversModel->saveEndpointHealthCache(); // переживёт перезапуск
+        m_serversModel->markProbeRun();
+    }
+    emit probingChanged();
     emit probingFinished();
 }
 
@@ -483,9 +522,16 @@ void HealthCheckController::stopProbe()
     m_h2Queue.clear();
     m_seenH2Endpoints.clear();
 
+    // прогон мог прерваться (уход в фон/дисконнект) — сохраняем то, что успели
+    if (m_serversModel) {
+        m_serversModel->saveEndpointHealthCache();
+        m_serversModel->markProbeRun();
+    }
+
     // wake up anyone waiting on this run (e.g. auto server selection)
     if (m_probeActive) {
         m_probeActive = false;
+        emit probingChanged();
         emit probingFinished();
     }
 }
@@ -590,6 +636,128 @@ void HealthCheckController::finishSocket(QTcpSocket *socket, int latencyMs)
     maybeFinishProbe();
 }
 
+// Самопроверка пробы: показывает, что мы меряем настоящий handshake, а не эхо
+// чего-то другого. Три контроля на каждый адрес:
+//   1) настоящая проба 3 раза — значения должны быть близкими и конечными;
+//   2) проба со случайным server_pub_key — сервер НЕ должен ответить (иначе
+//      «ответ» приходит не от handshake);
+//   3) проба на закрытый порт — тоже обязана молчать.
+// Пишет строки [SELFTEST] в лог; вызывается из диагностики.
+void HealthCheckController::runProbeSelfTest()
+{
+    // Проходим по ВСЕМ awg/wg-серверам подписки: если проба молчит там, где
+    // приложение реально подключается, — виновата проба, а не нода.
+    struct SelfTestTarget
+    {
+        QString host;
+        quint16 port = 0;
+        QString clientPrivKey;
+        QString serverPubKey;
+        QString psk;
+        QString junkJson;
+        QStringList endpoints;
+    };
+
+    QList<SelfTestTarget> targets;
+    const int count = m_serversModel->getServersCount();
+    for (int i = 0; i < count && targets.size() < 12; ++i) {
+        const QString protocol = m_serversModel->data(i, ServersModel::Roles::ServiceProtocolRole).toString();
+        if (protocol != QStringLiteral("awg") && protocol != QStringLiteral("wireguard")) {
+            continue;
+        }
+        const QJsonObject serverConfig = m_serversModel->getServerConfig(i);
+        const QJsonArray containers = serverConfig.value(QStringLiteral("containers")).toArray();
+        if (containers.isEmpty()) {
+            continue;
+        }
+        const QJsonObject containerObject = containers.at(0).toObject();
+        const QString containerName = protocol == QStringLiteral("awg") ? QStringLiteral("amnezia-awg")
+                                                                        : QStringLiteral("amnezia-wireguard");
+        const QJsonObject container = containerObject.value(containerName).toObject();
+        const QJsonObject lastConfig =
+                QJsonDocument::fromJson(container.value(QStringLiteral("last_config")).toString().toUtf8()).object();
+        if (lastConfig.isEmpty()) {
+            continue;
+        }
+
+        SelfTestTarget target;
+        target.host = serverConfig.value(QStringLiteral("hostName")).toString();
+        if (target.host.isEmpty()) {
+            target.host = lastConfig.value(QStringLiteral("hostName")).toString();
+        }
+        const QJsonValue portValue = lastConfig.value(QStringLiteral("port"));
+        target.port = static_cast<quint16>(portValue.isString() ? portValue.toString().toUShort()
+                                                                : portValue.toInt());
+        target.clientPrivKey = lastConfig.value(QStringLiteral("client_priv_key")).toString();
+        target.serverPubKey = lastConfig.value(QStringLiteral("server_pub_key")).toString();
+        target.psk = lastConfig.value(QStringLiteral("psk_key")).toString();
+        if (target.host.isEmpty() || target.port == 0 || target.clientPrivKey.isEmpty()
+            || target.serverPubKey.isEmpty()) {
+            continue;
+        }
+        target.junkJson = QString::fromUtf8(
+                QJsonDocument(wgJunkParams(lastConfig, container.value(QStringLiteral("config")).toString()))
+                        .toJson(QJsonDocument::Compact));
+
+        for (const QJsonValue &v : serverConfig.value(QStringLiteral("node_ips")).toArray()) {
+            const QString ip = v.toString();
+            if (!ip.isEmpty() && !target.endpoints.contains(ip)) {
+                target.endpoints.append(ip);
+            }
+        }
+        if (target.endpoints.isEmpty()) {
+            target.endpoints.append(target.host);
+        }
+        targets.append(target);
+    }
+
+    if (targets.isEmpty()) {
+        qWarning() << "[SELFTEST] no awg server with keys configured";
+        return;
+    }
+
+    QtConcurrent::run([targets]() {
+        for (const SelfTestTarget &target : targets) {
+            const QJsonObject junkParams = QJsonDocument::fromJson(target.junkJson.toUtf8()).object();
+
+            QByteArray randomPub(32, Qt::Uninitialized);
+            for (int i = 0; i < randomPub.size(); ++i) {
+                randomPub[i] = static_cast<char>(QRandomGenerator::global()->bounded(256));
+            }
+            const QString badPubKey = QString::fromLatin1(randomPub.toBase64());
+
+            for (const QString &endpoint : target.endpoints) {
+                QList<int> real;
+                for (int i = 0; i < 3; ++i) {
+                    real.append(wgProbeHandshakeRTT(endpoint, target.port, target.clientPrivKey,
+                                                    target.serverPubKey, target.psk, junkParams, kWgTimeoutMs));
+                }
+                const int badKey = wgProbeHandshakeRTT(endpoint, target.port, target.clientPrivKey, badPubKey,
+                                                       target.psk, junkParams, kWgTimeoutMs);
+                const int closedPort = wgProbeHandshakeRTT(endpoint, 1, target.clientPrivKey,
+                                                           target.serverPubKey, target.psk, junkParams,
+                                                           kWgTimeoutMs);
+
+                int okCount = 0;
+                int best = -1;
+                for (const int rtt : real) {
+                    if (rtt >= 0) {
+                        ++okCount;
+                        best = (best < 0 || rtt < best) ? rtt : best;
+                    }
+                }
+
+                const bool verdict = (okCount > 0 && badKey < 0 && closedPort < 0);
+                qDebug().noquote() << "[SELFTEST]" << endpoint << ":" << target.port
+                                   << "real=" << real << "badkey=" << badKey << "closedport=" << closedPort
+                                   << "best=" << best << "verdict=" << (verdict ? "OK" : "CHECK")
+                                   << "junk=" << (target.junkJson.size() > 2 ? "yes" : "no");
+            }
+        }
+        qDebug().noquote() << "[SELFTEST] finished";
+    });
+}
+
 void HealthCheckController::startNextWg()
 {
 #if defined(Q_OS_IOS) || defined(Q_OS_MACOS) || defined(Q_OS_ANDROID) || defined(Q_OS_WIN) || defined(Q_OS_LINUX)
@@ -631,6 +799,9 @@ void HealthCheckController::finishWatcher(QFutureWatcher<int> *watcher)
         for (const int row : target.rows) {
             m_serversModel->setHealthResult(row, rttMs);
         }
+        // результат фиксируем на конкретный адрес: в пуле у ноды несколько IP,
+        // и один может быть заблокирован, пока другой отвечает
+        m_serversModel->setEndpointHealthResult(target.host, target.port, rttMs, target.attempts + 1);
     }
 
     startNextWg();
