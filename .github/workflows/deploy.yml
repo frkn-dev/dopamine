@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - '**'
+  workflow_dispatch:
 
 env:
   # mirrors.ocf.berkeley.edu is down and the aqt fallback (ustc) lacks 6.10.1 —
