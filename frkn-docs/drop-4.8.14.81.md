@@ -131,8 +131,8 @@
 - macOS arm64: `Dopamine-arm64-4.8.14.81.pkg`, sha256 `93c67bcce67f865d1391f1bdfcab6268dcf7fd90cdbf0cc15882a2acc6b35322`.
 - macOS Intel: `Dopamine-intel-4.8.14.81.pkg`, sha256 `0315a82c47fa7988179caa2b0e18c3c506f4dae73f5bc8c7981aff9a1fccf1f6`.
 - Windows: `Dopamine-4.8.81-win64.msi`, sha256 `2089137ce5b7d88e781579ec1d23911825af13b9018d7eaf544c638d43a34c33`.
-- Android arm64: `frkn-dopamine-4.8.14.81.apk`, sha256 `361137ee63aa26dcf8ef3c79b74e5b5359587c2597d9041e6883b350a5d1627f`.
-- Android armeabi-v7a: `frkn-dopamine-4.8.14.81-armeabi-v7a.apk`, sha256 `b6486f36012ee922f8feb8591f632a3aa4f7e9b7e7116ac88315f5b8bcacd96e`.
+- Android arm64: `frkn-dopamine-4.8.14.81.apk`, sha256 `ffb07fe373a24da78cffc8d7564549dab83c1c0eaa923b6d8b11dc82281e0033`.
+- Android armeabi-v7a: `frkn-dopamine-4.8.14.81-armeabi-v7a.apk`, sha256 `813a854aa9a830ca1673bf40a5110fc45b76b3683b043894a4c0fb1e2e567407`.
 - Linux x64: `Dopamine-4.8.14.81-linux-x64.bin`, sha256 `986ed25e690644412edd688db5bc5e89cfaa2bf76dab7e6403228823e5353fb5`.
 - iOS: `4.8.14` build `81`, загружен в TestFlight, `Upload succeeded`.
 - Сайт: `https://frkn.app/` и `/en/` отдают `v4.8.14.81`; все артефакты — `200`, размеры совпадают с локальными.
