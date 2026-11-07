@@ -79,6 +79,20 @@ fi
 $CQTDEPLOYER_DIR/cqtdeployer.sh -bin $BUILD_DIR/client/Dopamine -qmake $QT_BIN_DIR/qmake -qmlDir $PROJECT_DIR/client/ui/qml/ -targetDir $APP_DIR/client/
 $CQTDEPLOYER_DIR/cqtdeployer.sh -bin $BUILD_DIR/service/server/dopamine-service -qmake $QT_BIN_DIR/qmake -targetDir $APP_DIR/service/
 
+deploy_icu() {
+  local binary=$1
+  local target_dir=$2
+
+  LD_LIBRARY_PATH="$QT_BIN_DIR/../lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" ldd "$binary" |
+    awk '$1 ~ /^libicu(data|i18n|uc)\.so\.[0-9]+$/ && $3 ~ /^\// { print $3 }' |
+    while read -r library; do
+      cp -fL "$library" "$target_dir/"
+    done
+}
+
+deploy_icu $BUILD_DIR/client/Dopamine $APP_DIR/client/lib
+deploy_icu $BUILD_DIR/service/server/dopamine-service $APP_DIR/service/lib
+
 mkdir -p $INSTALLER_DATA_DIR
 rm -f $INSTALLER_DATA_DIR/data.7z
 
