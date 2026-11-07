@@ -151,27 +151,25 @@ PageType {
 
                 color: DopamineStyle.color.transparent
 
-                // accent-blue underlight behind the glass: its source sits low in the
-                // card, so it tints the lower part of the panel and spills out under
-                // it, while the top of the card stays clean
-                RadialGradient {
+                // accent-blue underlight behind the glass: the asset is a soft PNG,
+                // not a QML RadialGradient — Android's shader shows a hard band
+                // where iOS renders the same stops smoothly.
+                Image {
                     id: serverCardGlow
 
+                    // Android's compositor makes even the PNG look like a blotch;
+                    // the user asked for no glow on Android, keep it on iOS/desktop.
+                    visible: Qt.platform.os !== "android"
+
                     anchors.centerIn: parent
+                    anchors.verticalCenterOffset: 13
+
                     width: parent.width + 48
                     height: parent.height + 200
 
-                    horizontalRadius: width / 2
-                    verticalRadius: 78
-                    verticalOffset: parent.height / 2 - 35
-
-                    gradient: Gradient {
-                        GradientStop { position: 0.00; color: Qt.rgba(39/255, 87/255, 1.0, 0.46) }
-                        GradientStop { position: 0.20; color: Qt.rgba(39/255, 87/255, 1.0, 0.35) }
-                        GradientStop { position: 0.45; color: Qt.rgba(39/255, 87/255, 1.0, 0.20) }
-                        GradientStop { position: 0.70; color: Qt.rgba(39/255, 87/255, 1.0, 0.07) }
-                        GradientStop { position: 1.00; color: Qt.rgba(39/255, 87/255, 1.0, 0.00) }
-                    }
+                    source: "qrc:/images/controls/server-card-glow.png"
+                    fillMode: Image.Stretch
+                    smooth: true
                 }
 
                 // the card's fill — same colour as before, the light shows through it
