@@ -48,6 +48,7 @@ public slots:
     void connectToVpn(int serverIndex, const ServerCredentials &credentials, DockerContainer container, const QJsonObject &vpnConfiguration);
     void reconnectToVpn();
     void disconnectFromVpn();
+    void refreshTunnel();
 
     void onKillSwitchModeChanged(bool enabled);
     void disconnectSlots();
@@ -100,6 +101,7 @@ private:
    void applySplitRefreshDelta(const QSet<QString> &resolved);
 
    QTimer m_splitRefreshTimer;
+   int m_silentReconnectAttempts = 0;
    QString m_splitRefreshGw;
    Settings::RouteMode m_splitRefreshMode = Settings::VpnAllSites;
    QSet<QString> m_installedSplitRoutes;

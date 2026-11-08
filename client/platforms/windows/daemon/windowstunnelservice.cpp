@@ -83,6 +83,7 @@ void WindowsTunnelService::stop() {
     m_service = nullptr;
   }
 
+  m_downStreak = 0;
   m_timer.stop();
 
   if (m_logworker) {
@@ -115,16 +116,17 @@ void WindowsTunnelService::timeout() {
   SERVICE_STATUS status;
   if (!QueryServiceStatus((SC_HANDLE)m_service, &status)) {
     WindowsUtils::windowsLog("Failed to retrieve the service status");
-    emit backendFailure();
+  } else if (status.dwCurrentState == SERVICE_RUNNING) {
+    m_downStreak = 0;
     return;
+  } else {
+    logger.debug() << "The service is not active";
   }
 
-  if (status.dwCurrentState == SERVICE_RUNNING) {
-    // The service is active
+  if (++m_downStreak < 3)
     return;
-  }
 
-  logger.debug() << "The service is not active";
+  m_timer.stop();
   emit backendFailure();
 }
 

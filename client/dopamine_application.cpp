@@ -28,6 +28,16 @@
 #include <QtQuick/QQuickWindow>  // for QQuickWindow
 #include <QWindow>              // for qobject_cast<QWindow*>
 
+#ifdef Q_OS_WIN
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#ifdef interface
+#undef interface
+#endif
+#endif
+
 bool DopamineApplication::m_forceQuit = false;
 
 DopamineApplication::DopamineApplication(int &argc, char *argv[]) : AMNEZIA_BASE_CLASS(argc, argv),
@@ -38,6 +48,17 @@ DopamineApplication::DopamineApplication(int &argc, char *argv[]) : AMNEZIA_BASE
 {
     setDesktopFileName(QStringLiteral(APPLICATION_NAME));
     setQuitOnLastWindowClosed(false);
+
+#ifdef Q_OS_WIN
+    PROCESS_POWER_THROTTLING_STATE powerState{};
+    powerState.Version = PROCESS_POWER_THROTTLING_CURRENT_VERSION;
+    powerState.ControlMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED;
+#ifdef PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION
+    powerState.ControlMask |= PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION;
+#endif
+    powerState.StateMask = 0;
+    SetProcessInformation(GetCurrentProcess(), ProcessPowerThrottling, &powerState, sizeof(powerState));
+#endif
 
     // Fix config file permissions
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
@@ -344,12 +365,15 @@ bool DopamineApplication::eventFilter(QObject *watched, QEvent *event)
         quit();
 #else
         if (m_forceQuit) {
-            quit();
-        } else {
-            if (m_coreController && m_coreController->pageController()) {
-                m_coreController->pageController()->hideMainWindow();
-            }
+            return false;
         }
+        event->ignore();
+        QTimer::singleShot(0, this, [this] {
+            if (m_forceQuit)
+                return;
+            if (m_coreController && m_coreController->pageController())
+                m_coreController->pageController()->hideMainWindow();
+        });
 #endif
         return true;
     }
