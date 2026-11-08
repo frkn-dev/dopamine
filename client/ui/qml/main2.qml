@@ -16,6 +16,8 @@ Window  {
     id: root
     objectName: "mainWindow"
 
+    readonly property bool isTv: SettingsController.isOnTv()
+
     Connections {
         target: Qt.application
         function onStateChanged() {
@@ -42,12 +44,12 @@ Window  {
     }
 
     visible: true
-    width: GC.screenWidth
-    height: GC.screenHeight
+    width: isTv ? Screen.width : GC.screenWidth
+    height: isTv ? Screen.height : GC.screenHeight
     minimumWidth: GC.isDesktop() ? 360 : 0
     minimumHeight: GC.isDesktop() ? 640 : 0
-    maximumWidth: 600
-    maximumHeight: 800
+    maximumWidth: isTv ? Screen.width : 600
+    maximumHeight: isTv ? Screen.height : 800
 
     color: DopamineStyle.color.midnightBlack
 

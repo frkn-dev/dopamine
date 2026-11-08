@@ -244,6 +244,21 @@ void ListViewFocusController::resetFocusChain()
     m_focusedItemIndex = -1;
 }
 
+bool ListViewFocusController::focusHeaderItem(QQuickItem *item)
+{
+    m_currentSection = Section::Header;
+    reloadFocusChain();
+    m_focusedItemIndex = m_focusChain.indexOf(item);
+    if (m_focusedItemIndex < 0) {
+        return false;
+    }
+
+    viewAtCurrentIndex();
+    m_focusedItem = item;
+    item->forceActiveFocus(Qt::TabFocusReason);
+    return true;
+}
+
 void ListViewFocusController::reloadFocusChain()
 {
     m_focusChain = FocusControl::getItemsChain(currentDelegate());
@@ -251,12 +266,12 @@ void ListViewFocusController::reloadFocusChain()
 
 bool ListViewFocusController::isFirstFocusItemInDelegate() const
 {
-    return m_focusedItem && (m_focusedItem == m_focusChain.first());
+    return m_focusedItem && !m_focusChain.isEmpty() && (m_focusedItem == m_focusChain.first());
 }
 
 bool ListViewFocusController::isLastFocusItemInDelegate() const
 {
-    return m_focusedItem && (m_focusedItem == m_focusChain.last());
+    return m_focusedItem && !m_focusChain.isEmpty() && (m_focusedItem == m_focusChain.last());
 }
 
 bool ListViewFocusController::hasHeader() const

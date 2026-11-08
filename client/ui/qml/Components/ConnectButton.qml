@@ -15,7 +15,8 @@ Button {
     property string progressButtonColor: DopamineStyle.color.deepBrown
     property string connectedButtonColor: DopamineStyle.color.goldenApricot
     property string connectedTextColor: "#00AEEF"
-    property bool buttonActiveFocus: activeFocus && (Qt.platform.os !== "android" || SettingsController.isOnTv())
+    readonly property bool isTv: SettingsController.isOnTv()
+    property bool buttonActiveFocus: activeFocus && (Qt.platform.os !== "android" || isTv)
 
     // set by PageHome when the flying pterodactyl lands on the button
     property bool birdPerched: false
@@ -97,8 +98,8 @@ Button {
 
             ShapePath {
                 fillColor: DopamineStyle.color.transparent
-                strokeColor: DopamineStyle.color.slateGray
-                strokeWidth: root.buttonActiveFocus ? 1 : 0
+                strokeColor: root.isTv ? DopamineStyle.color.paleGray : DopamineStyle.color.slateGray
+                strokeWidth: root.buttonActiveFocus ? (root.isTv ? 3 : 1) : 0
                 capStyle: ShapePath.RoundCap
 
                 PathAngleArc {

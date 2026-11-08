@@ -16,6 +16,9 @@ import "../Components"
 PageType {
     id: root
 
+    // The active page chooses the initial remote focus.
+    enableTimer: !SettingsController.isOnTv()
+
     property bool isControlsDisabled: false
     property bool isTabBarDisabled: false
 

@@ -28,6 +28,8 @@ Item {
 
     property bool textFieldEditable: true
     property bool multiline: false
+    property bool tvInput: false
+    readonly property Item editor: multiline ? textArea : textField
     readonly property string inputText: multiline ? textArea.text : textField.text
 
     property string borderColor: DopamineStyle.color.slateGray
@@ -67,7 +69,7 @@ Item {
             color: root.enabled ? root.backgroundColor : root.backgroundDisabledColor
             radius: 16
             border.color: getBackgroundBorderColor(root.borderColor)
-            border.width: 1
+            border.width: root.tvInput && root.editor.activeFocus ? 3 : 1
 
             Behavior on border.color {
                 PropertyAnimation { duration: 200 }
@@ -92,6 +94,12 @@ Item {
 
                         visible: !root.multiline
                         property bool isFocusable: true
+
+                        Keys.onPressed: event => {
+                            if (root.tvInput) {
+                                root.handleTvEditorKey(event)
+                            }
+                        }
 
                         Keys.onTabPressed: {
                             FocusController.nextKeyTabItem()
@@ -152,6 +160,12 @@ Item {
                         id: textArea
 
                         visible: root.multiline
+                        property bool isFocusable: root.tvInput
+                        Keys.onPressed: event => {
+                            if (root.tvInput) {
+                                root.handleTvEditorKey(event)
+                            }
+                        }
                         enabled: root.textFieldEditable
                         color: root.enabled ? root.textFieldTextColor : root.textFieldTextDisabledColor
 
@@ -234,11 +248,13 @@ Item {
 
         visible: (root.buttonText !== "") || (root.buttonImageSource !== "")
 
-        focusPolicy: Qt.NoFocus
+        focusPolicy: root.tvInput ? Qt.StrongFocus : Qt.NoFocus
+        borderFocusedWidth: root.tvInput ? 3 : 1
+        borderFocusedColor: root.tvInput ? DopamineStyle.color.goldenApricot : DopamineStyle.color.paleGray
         text: root.buttonText
         leftImageSource: root.buttonImageSource
 
-        anchors.verticalCenter: root.multiline ? backgroud.verticalCenter : undefined
+        anchors.verticalCenter: root.multiline ? (root.tvInput ? content.verticalCenter : backgroud.verticalCenter) : undefined
         anchors.top: root.multiline ? undefined : content.top
         anchors.bottom: root.multiline ? undefined : content.bottom
         anchors.right: content.right
@@ -257,12 +273,41 @@ Item {
 
     function insertFromClipboard() {
         var field = root.multiline ? textArea : textField
+        if (tvInput) {
+            // Replace the selection through the editor so an empty clipboard leaves the text intact.
+            field.selectAll()
+            field.paste()
+            return
+        }
+
         field.text = ""
         field.paste()
     }
 
+    function handleTvEditorKey(event) {
+        if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Select) {
+            if (!event.isAutoRepeat) {
+                if (Qt.inputMethod.visible) {
+                    Qt.inputMethod.hide()
+                } else {
+                    Qt.inputMethod.show()
+                }
+            }
+            event.accepted = true
+        } else if (!Qt.inputMethod.visible && event.key === Qt.Key_Up) {
+            FocusController.nextKeyUpItem()
+            event.accepted = true
+        } else if (!Qt.inputMethod.visible && event.key === Qt.Key_Down) {
+            FocusController.nextKeyDownItem()
+            event.accepted = true
+        } else if (Qt.inputMethod.visible && (event.key === Qt.Key_Back || event.key === Qt.Key_Escape)) {
+            Qt.inputMethod.hide()
+            event.accepted = true
+        }
+    }
+
     function getBackgroundBorderColor(noneFocusedColor) {
-        var focused = root.multiline ? textArea.focus : textField.focus
+        var focused = root.tvInput ? root.editor.activeFocus : root.editor.focus
         return focused ? root.borderFocusedColor : noneFocusedColor
     }
 
