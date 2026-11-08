@@ -723,7 +723,7 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">VPN протокол</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="242"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="240"/>
         <source>Auto-select</source>
         <translation>Автовибір</translation>
     </message>
