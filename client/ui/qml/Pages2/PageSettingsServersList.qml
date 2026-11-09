@@ -19,6 +19,8 @@ PageType {
     id: root
 
     property bool subscriptionReloadStartedHere: false
+    // What the reload button is about to refresh, for the result notification.
+    property string pendingReloadLabel: ""
 
     Connections {
         target: ApiConfigsController
@@ -29,7 +31,15 @@ PageType {
             }
             root.subscriptionReloadStartedHere = false
             PageController.showBusyIndicator(false)
-            PageController.showNotificationMessage(success ? qsTr("Servers reloaded") : qsTr("Failed to reload servers"))
+            const scope = root.pendingReloadLabel
+            root.pendingReloadLabel = ""
+            if (!success) {
+                PageController.showNotificationMessage(qsTr("Failed to reload servers"))
+            } else if (scope === "") {
+                PageController.showNotificationMessage(qsTr("Servers reloaded"))
+            } else {
+                PageController.showNotificationMessage(qsTr("%1 reloaded").arg(scope))
+            }
         }
     }
 
@@ -68,9 +78,15 @@ PageType {
             implicitHeight: 48
 
             onClicked: {
+                // "All" reloads everything; a selected subscription reloads only
+                // itself. The "Other" bucket has no subscription id of its own, so
+                // it falls back to a full reload.
+                const selected = servers.subscriptionFilter
+                const scoped = selected === "" || selected === servers.otherSubscriptionValue
+                root.pendingReloadLabel = scoped ? "" : servers.subscriptionLabel(selected)
                 PageController.showBusyIndicator(true)
                 root.subscriptionReloadStartedHere = true
-                ApiConfigsController.reloadSubscriptionConfigs()
+                ApiConfigsController.reloadSubscriptionConfigs(false, scoped ? "" : selected)
             }
         }
 

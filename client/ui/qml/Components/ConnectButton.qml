@@ -190,6 +190,8 @@ Button {
             fillMode: Image.PreserveAspectFit
 
             source: "qrc:/images/pterodactyl.png"
+            // Drawn at 96x96; without sourceSize the 507x512 PNG decodes in full.
+            sourceSize: Qt.size(96 * Screen.devicePixelRatio, 96 * Screen.devicePixelRatio)
 
             opacity: root.birdPerched && ConnectionController.isConnected ? 0.22 : 0
             visible: opacity > 0

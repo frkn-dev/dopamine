@@ -12,8 +12,12 @@ Rectangle {
 
     property var filterModel
     property string currentValue
+    // Rows carrying a "deletable" role get a trash button that emits
+    // deleteRequested instead of selecting the row.
+    property bool deletableValues: false
 
     signal selected(string value)
+    signal deleteRequested(string value)
 
     implicitHeight: buttonContent.implicitHeight
     radius: 16
@@ -118,6 +122,10 @@ Rectangle {
             interactive: contentHeight > height
 
             delegate: Rectangle {
+                id: row
+
+                readonly property bool rowDeletable: root.deletableValues && model.deletable === true
+
                 width: list.width
                 height: 44
                 radius: 12
@@ -126,7 +134,7 @@ Rectangle {
 
                 ButtonTextType {
                     anchors.left: parent.left
-                    anchors.right: parent.right
+                    anchors.right: row.rowDeletable ? deleteButton.left : parent.right
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.leftMargin: 12
                     anchors.rightMargin: 12
@@ -148,6 +156,27 @@ Rectangle {
                     onClicked: {
                         root.selected(value)
                         popup.close()
+                    }
+                }
+
+                // Declared after the MouseArea so the tap lands on the button.
+                ImageButtonType {
+                    id: deleteButton
+
+                    anchors.right: parent.right
+                    anchors.rightMargin: 4
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    implicitWidth: 36
+                    implicitHeight: 36
+
+                    visible: row.rowDeletable
+                    image: "qrc:/images/controls/trash.svg"
+                    imageColor: DopamineStyle.color.vibrantRed
+
+                    onClicked: {
+                        popup.close()
+                        root.deleteRequested(value)
                     }
                 }
             }

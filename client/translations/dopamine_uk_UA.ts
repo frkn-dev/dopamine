@@ -164,7 +164,7 @@
 <context>
     <name>ConnectButton</name>
     <message>
-        <location filename="../ui/qml/Components/ConnectButton.qml" line="68"/>
+        <location filename="../ui/qml/Components/ConnectButton.qml" line="69"/>
         <source>Unable to disconnect during configuration preparation</source>
         <translation>Неможливо відключитися під час підготовки конфігурації</translation>
     </message>
@@ -296,27 +296,27 @@ for the best server...</source>
 <context>
     <name>ConnectionReportController</name>
     <message>
-        <location filename="../core/controllers/connectionReportController.cpp" line="1382"/>
+        <location filename="../core/controllers/connectionReportController.cpp" line="1489"/>
         <source>Type a message first</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/controllers/connectionReportController.cpp" line="1388"/>
+        <location filename="../core/controllers/connectionReportController.cpp" line="1495"/>
         <source>Sign in to your subscription to send feedback</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/controllers/connectionReportController.cpp" line="1424"/>
+        <location filename="../core/controllers/connectionReportController.cpp" line="1531"/>
         <source>No connection — we&apos;ll send it later</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/controllers/connectionReportController.cpp" line="1431"/>
+        <location filename="../core/controllers/connectionReportController.cpp" line="1538"/>
         <source>Send failed (http %1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/controllers/connectionReportController.cpp" line="1434"/>
+        <location filename="../core/controllers/connectionReportController.cpp" line="1541"/>
         <source>Thanks — we got your message</source>
         <translation type="unfinished"></translation>
     </message>
@@ -705,12 +705,12 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageHome</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="81"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="101"/>
         <source>Diagnostic Mode Enabled</source>
         <translation>Режим діагностики увімкнено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="109"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="129"/>
         <source>Dev gateway enabled</source>
         <translation>Dev-шлюз увімкнено</translation>
     </message>
@@ -723,7 +723,7 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">VPN протокол</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="240"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="260"/>
         <source>Auto-select</source>
         <translation>Автовибір</translation>
     </message>
@@ -1492,21 +1492,26 @@ Already installed containers were found on the server. All installed containers 
         <translation>Налаштування</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="133"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="136"/>
         <source>Support</source>
         <translation>Підтримка</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="173"/>
+        <source>Diagnostics</source>
+        <translation type="unfinished">Діагностика</translation>
     </message>
     <message>
         <source>Connections List</source>
         <translation type="vanished">Список з’єднань</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="144"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="147"/>
         <source>Connection</source>
         <translation>Підключення</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="157"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="160"/>
         <source>Application</source>
         <translation>Застосунок</translation>
     </message>
@@ -1519,12 +1524,12 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Резервна копія</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="168"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="184"/>
         <source>About FRKN Dopamine</source>
         <translation>Про FRKN Dopamine</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="179"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="195"/>
         <source>Dev console</source>
         <translation>Dev-консоль</translation>
     </message>
@@ -1562,7 +1567,7 @@ Already installed containers were found on the server. All installed containers 
         <translation>Закрити застосунок</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="122"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="125"/>
         <source>Split tunneling</source>
         <translation>Роздільне тунелювання</translation>
     </message>
@@ -1570,27 +1575,27 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageSettingsAbout</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="64"/>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="66"/>
         <source>Support FRKN</source>
         <translation>Privacy is our Religion</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="79"/>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="81"/>
         <source>Dopamine is a free and open-source application by FRKN. You can support the developers if you like it.</source>
         <translation>Ми підтримуємо свободу слова і виступаємо проти всіх форм цензури. Ми розробляємо децентралізований VPN, який не збирає та не зберігає дані користувачів.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="89"/>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="91"/>
         <source>Contacts</source>
         <translation>Контакти</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="192"/>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="194"/>
         <source>Telegram group</source>
         <translation>Група в Telegram</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="193"/>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="195"/>
         <source>To discuss features</source>
         <translation>Для дискусій</translation>
     </message>
@@ -1599,12 +1604,12 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">https://t.me/FRKN_org</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="203"/>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="205"/>
         <source>mail@frkn.org</source>
         <translation>mail@frkn.org</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="226"/>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="228"/>
         <source>Visit official website</source>
         <translation>Відвідати офіційний сайт</translation>
     </message>
@@ -1613,47 +1618,47 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">mail@frkn.org</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="204"/>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="206"/>
         <source>For reviews and bug reports</source>
         <translation>Для відгуків і повідомлень про помилки</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="207"/>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="209"/>
         <source>mailto:mail@frkn.org</source>
         <translation>mailto:mail@frkn.org</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="214"/>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="216"/>
         <source>GitHub</source>
         <translation>GitHub</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="215"/>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="217"/>
         <source>Discover the source code</source>
         <translation>Переглянути вихідний код</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="218"/>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="220"/>
         <source>https://github.com/frkn-dev/dopamine</source>
         <translation>https://github.com/frkn-dev/dopamine</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="225"/>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="227"/>
         <source>Website</source>
         <translation>Веб-сайт</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="122"/>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="124"/>
         <source>Software version: %1</source>
         <translation>Версія ПЗ: %1</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="152"/>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="154"/>
         <source>Check for updates</source>
         <translation>Перевірити оновлення</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="173"/>
+        <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="175"/>
         <source>Privacy Policy</source>
         <translation>Політика конфіденційності</translation>
     </message>
@@ -2596,42 +2601,42 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Дозволити скріншоти в застосунку</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="227"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="211"/>
         <source>Enable notifications</source>
         <translation>Увімкнути сповіщення</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="228"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="212"/>
         <source>Enable notifications to show the VPN state in the status bar</source>
         <translation>Увімкніть сповіщення, щоб показувати стан VPN у рядку стану</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="248"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="232"/>
         <source>Auto start</source>
         <translation>Автозапуск</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="249"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="233"/>
         <source>Launch the application every time the device is starts</source>
         <translation>Запускати застосунок при старті</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="271"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="255"/>
         <source>Auto connect</source>
         <translation>Автопідключення</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="272"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="256"/>
         <source>Connect to VPN on app start</source>
         <translation>Підключення до VPN при старті застосунку</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="294"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="278"/>
         <source>Start minimized</source>
         <translation>Запускати в згорнутому вигляді</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="295"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="279"/>
         <source>Launch application minimized (works with autostart option turned on)</source>
         <translation>Запускати застосунок згорнутим (працює з увімкненим автозапуском)</translation>
     </message>
@@ -2648,98 +2653,95 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Запускати застосунок в згорнутому вигляді</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="322"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="306"/>
         <source>Language</source>
         <translation>Мова</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="339"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="323"/>
         <source>Dark mode</source>
         <translation>Темна тема</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="340"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="324"/>
         <source>Use dark mode</source>
         <translation>Використовувати темну тему</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="105"/>
         <source>Diagnostics</source>
-        <translation>Діагностика</translation>
+        <translation type="vanished">Діагностика</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="106"/>
         <source>Enabled</source>
-        <translation>Увімкнено</translation>
+        <translation type="vanished">Увімкнено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="106"/>
         <source>Disabled</source>
-        <translation>Вимкнено</translation>
+        <translation type="vanished">Вимкнено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="394"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="378"/>
         <source>Reset settings and remove all data from the application</source>
         <translation>Скинути налаштування і видалити всі дані із застосунку</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="399"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="383"/>
         <source>Reset settings and remove all data from the application?</source>
         <translation>Скинути налаштування і видалити всі дані із застосунку?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="400"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="384"/>
         <source>All settings will be reset to default. All installed Dopamine services will still remain on the server.</source>
         <translation>Всі дані із застосунку будуть видалені, всі встановлені сервіси FRKN VPN залишаться на сервері.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="401"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="385"/>
         <source>Continue</source>
         <translation>Продовжити</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="369"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="402"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="353"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="386"/>
         <source>Cancel</source>
         <translation>Відмінити</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="406"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="390"/>
         <source>Cannot reset settings during active connection</source>
         <translation>Неможливо скинути налаштування під час активного підключення</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="123"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="107"/>
         <source>Auto-update server list</source>
         <translation>Автооновлення списку серверів</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="124"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="108"/>
         <source>Periodically checks the server catalog version and refreshes the list only when it changed on the server.</source>
         <translation>Періодично перевіряє версію каталогу серверів і оновлює список, лише коли він змінився на сервері.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="362"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="346"/>
         <source>Reload all servers from subscription</source>
         <translation>Перезавантажити всі сервери з підписки</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="366"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="350"/>
         <source>Reload all servers from subscription?</source>
         <translation>Перезавантажити всі сервери з підписки?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="367"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="351"/>
         <source>All servers from the current subscription will be removed and downloaded again. Use this if servers stopped working after an update.</source>
         <translation>Усі сервери поточної підписки будуть видалені та завантажені знову. Використовуйте, якщо сервери перестали працювати після оновлення.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="368"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="352"/>
         <source>Reload</source>
         <translation>Перезавантажити</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="373"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="357"/>
         <source>Cannot reload configuration during active connection</source>
         <translation>Неможливо перезавантажити конфігурацію під час активного підключення</translation>
     </message>
@@ -2754,7 +2756,7 @@ Already installed containers were found on the server. All installed containers 
         <translation>Не вдалося перезавантажити сервери</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="143"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="127"/>
         <source>Experimental features</source>
         <translation>Експериментальні функції</translation>
     </message>
@@ -2763,22 +2765,22 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Роздільне тунелювання за сервісами (вибір застосунків і сайтів за сервісом). Може працювати погано: вмикайте усвідомлено.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="163"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="147"/>
         <source>Allow switch off endpoints</source>
         <translation>Дозволити вимикання ендпоінтів</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="164"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="148"/>
         <source>Adds a per-address switch to the server card, so an address your operator blocks can be turned off. On by default.</source>
         <translation>Додає перемикач для кожної адреси в картці сервера, щоб можна було вимкнути адресу, яку блокує оператор. Увімкнено за замовчуванням.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="204"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="188"/>
         <source>Keep reconnecting</source>
         <translation>Підключатися повторно до скасування</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="205"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="189"/>
         <source>If the connection fails or the internet disappears, keep retrying with a growing delay until you press Cancel — the app reconnects by itself when the network is back. On by default; when disabled, a failed attempt stops with an error.</source>
         <translation>Якщо підключення не вдалося або зник інтернет, повторювати спроби зі зростаючою затримкою до натискання «Скасувати» — застосунок перепідключиться сам, коли мережа повернеться. Увімкнено за замовчуванням; якщо вимкнути, невдала спроба завершиться помилкою.</translation>
     </message>
@@ -2798,7 +2800,7 @@ Already installed containers were found on the server. All installed containers 
         <translation>ID підписки скопійовано</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="144"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="128"/>
         <source>Experimental features list. Currently one item: service-based split tunneling. May work poorly — enable at your own risk.</source>
         <translation>Список експериментальних функцій. Поки один пункт — роздільне тунелювання за сервісами. Може працювати нестабільно — вмикайте на свій ризик.</translation>
     </message>
@@ -2807,12 +2809,12 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Додає перемикач для кожної адреси в картці сервера, щоб можна було вимкнути адресу, яку блокує оператор. Вимкнено за замовчуванням.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="183"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="167"/>
         <source>Check the tunnel after connecting</source>
         <translation>Перевіряти тунель після підключення</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="184"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="168"/>
         <source>Right after a connection is up, resolves a name through the tunnel. Catches the case where the handshake succeeded but data does not flow. On by default.</source>
         <translation>Одразу після підключення перевіряє розв&apos;язання імені через тунель. Ловить випадок, коли рукостискання пройшло, а дані не йдуть. Увімкнено за замовчуванням.</translation>
     </message>
@@ -3361,30 +3363,30 @@ Already installed containers were found on the server. All installed containers 
         <translation>За замовчуванням у списку серверів показується лише кольоровий індикатор. Увімкніть, щоб бачити точну затримку в мілісекундах.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="364"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="365"/>
         <source>Dopamine logs</source>
         <translation>Логи Dopamine</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="374"/>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="400"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="375"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="401"/>
         <source>Save</source>
         <translation>Зберегти</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="375"/>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="401"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="376"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="402"/>
         <source>Logs files (*.log)</source>
         <translation>Logs files (*.log)</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="384"/>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="409"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="385"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="410"/>
         <source>Logs file saved</source>
         <translation>Файл з логами збережено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="393"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="394"/>
         <source>Dopamine-service logs</source>
         <translation>Логи сервісу Dopamine</translation>
     </message>
@@ -3491,22 +3493,22 @@ Already installed containers were found on the server. All installed containers 
         <translation>Логи видалено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="363"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="364"/>
         <source>Client logs</source>
         <translation>Логи клієнта</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="325"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="326"/>
         <source>Open logs folder</source>
         <translation>Відкрити папку з логами</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="339"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="340"/>
         <source>Export logs</source>
         <translation>Експортувати логи</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="392"/>
+        <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="393"/>
         <source>Service logs</source>
         <translation>Логи сервісу</translation>
     </message>
@@ -3738,19 +3740,24 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageSettingsServersList</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServersList.qml" line="54"/>
+        <location filename="../ui/qml/Pages2/PageSettingsServersList.qml" line="64"/>
         <source>Connections List</source>
         <translation>Список з’єднань</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServersList.qml" line="32"/>
+        <location filename="../ui/qml/Pages2/PageSettingsServersList.qml" line="39"/>
         <source>Servers reloaded</source>
         <translation>Сервери перезавантажено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServersList.qml" line="32"/>
+        <location filename="../ui/qml/Pages2/PageSettingsServersList.qml" line="37"/>
         <source>Failed to reload servers</source>
         <translation>Не вдалося перезавантажити сервери</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsServersList.qml" line="41"/>
+        <source>%1 reloaded</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4242,62 +4249,67 @@ Can&apos;t be disabled for current server</source>
 <context>
     <name>PageSetupWizardConfigSource</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="404"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="439"/>
         <source>File with connection settings</source>
         <translation>Файл з налаштуваннями підключення</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="120"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="144"/>
         <source>Connection</source>
         <translation>Підключення</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="46"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="64"/>
         <source>All configurations have already been added</source>
         <translation>Усі конфігурації вже додано</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="147"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="173"/>
         <source>Settings</source>
         <translation>Налаштування</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="157"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="183"/>
         <source>Enable logs</source>
         <translation>Увімкнути логи</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="171"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="197"/>
         <source>Export client logs</source>
         <translation>Експортувати логи клієнта</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="181"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="207"/>
         <source>Save</source>
         <translation>Зберегти</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="182"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="208"/>
         <source>Logs files (*.log)</source>
         <translation>Logs files (*.log)</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="191"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="217"/>
         <source>Logs file saved</source>
         <translation>Файл з логами збережено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="201"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="227"/>
         <source>Support tag</source>
         <translation>Тег підтримки</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="212"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="238"/>
         <source>Copied</source>
         <translation>Скопійовано</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="232"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="258"/>
+        <source>Press OK to type a frkn:// link or an activation key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="259"/>
         <source>Insert a key or a WireGuard/Amnezia config, add a file, or scan the QR-code</source>
         <translation>Вставте ключ або конфіг WireGuard/Amnezia, додайте файл або відскануйте QR-код</translation>
     </message>
@@ -4306,37 +4318,42 @@ Can&apos;t be disabled for current server</source>
         <translation type="vanished">Ключ або конфіг</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="243"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="270"/>
         <source>Insert</source>
         <translation>Вставити</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="242"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="269"/>
         <source>Insert key</source>
         <translation>Вставте ключ</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="264"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="270"/>
+        <source>Paste</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="296"/>
         <source>Continue</source>
         <translation>Продовжити</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="297"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="332"/>
         <source>Other connection options</source>
         <translation>Інші варіанти підключення</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="347"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="382"/>
         <source>FRKN website</source>
         <translation>Сайт FRKN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="369"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="404"/>
         <source>VPN by FRKN</source>
         <translation>VPN от FRKN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="370"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="405"/>
         <source>Connect to classic paid and free VPN services from FRKN</source>
         <translation>Підключіться до класичних платних і безкоштовних VPN-сервісів від FRKN</translation>
     </message>
@@ -4349,56 +4366,56 @@ Can&apos;t be disabled for current server</source>
         <translation type="vanished">Налаштуйте Dopamine VPN на власному сервері</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="386"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="421"/>
         <source>Restore from backup</source>
         <translation>Відновити із бекапа</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="387"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="405"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="424"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="439"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="453"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="422"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="440"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="459"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="474"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="488"/>
         <source></source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="391"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="426"/>
         <source>Open backup file</source>
         <translation>Відкрити бекап файл</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="392"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="427"/>
         <source>Backup files (*.backup)</source>
         <translation>Файли резервної копії (*.backup)</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="411"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="446"/>
         <source>Open config file</source>
         <translation>Відкрити файл з конфігурацією</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="423"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="458"/>
         <source>QR code</source>
         <translation>QR-код</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="438"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="473"/>
         <source>Restore purchases</source>
         <translation>Відновити покупки</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="452"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="487"/>
         <source>I have nothing</source>
         <translation>У мене нічого нема</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="488"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="539"/>
         <source>Subscription loaded</source>
         <translation>Підписку завантажено</translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="497"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="548"/>
         <source>Found %n configuration(s). Add them all?</source>
         <translation>
             <numerusform>Знайдено %n конфігурацію. Додати її?</numerusform>
@@ -4407,12 +4424,12 @@ Can&apos;t be disabled for current server</source>
         </translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="507"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="558"/>
         <source>Delete previous configurations</source>
         <translation>Видалити попередні конфігурації</translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="518"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="571"/>
         <source>Add %n server(s)</source>
         <translation>
             <numerusform>Додати %n сервер</numerusform>
@@ -4421,18 +4438,18 @@ Can&apos;t be disabled for current server</source>
         </translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="538"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="638"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="591"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="710"/>
         <source>Cancel</source>
         <translation>Відмінити</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="580"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="649"/>
         <source>Activation key</source>
         <translation>Ключ активації</translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="590"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="659"/>
         <source>This key gives you %n GiB of traffic</source>
         <translation>
             <numerusform>Цей ключ дає %n ГіБ трафіку</numerusform>
@@ -4441,7 +4458,7 @@ Can&apos;t be disabled for current server</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="591"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="660"/>
         <source>This key gives you %n day(s) of VPN access</source>
         <translation>
             <numerusform>Цей ключ дає %n день доступу до VPN</numerusform>
@@ -4450,22 +4467,22 @@ Can&apos;t be disabled for current server</source>
         </translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="604"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="674"/>
         <source>Email</source>
         <translation>Email</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="613"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="685"/>
         <source>Activate</source>
         <translation>Активувати</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="618"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="690"/>
         <source>Enter your email</source>
         <translation>Введіть Email</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="87"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="105"/>
         <source>Unrecognized input — paste an activation key, frkn:// link, subscription UUID, vless:// configuration, or a WireGuard/Amnezia config</source>
         <translation>Не вдалося розпізнати ввід — вставте ключ активації, frkn:// посилання, UUID підписки, vless:// конфігурацію або конфіг WireGuard/Amnezia</translation>
     </message>
@@ -4680,7 +4697,7 @@ Can&apos;t be disabled for current server</source>
         <translation type="vanished">Увійти</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardStart.qml" line="42"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardStart.qml" line="70"/>
         <source>Let&apos;s get started</source>
         <translation>Почнімо</translation>
     </message>
@@ -5013,37 +5030,37 @@ Can&apos;t be disabled for current server</source>
 <context>
     <name>PageStart</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageStart.qml" line="149"/>
+        <location filename="../ui/qml/Pages2/PageStart.qml" line="152"/>
         <source>Logging was disabled after 14 days, log files were deleted</source>
         <translation>Логування було вимкнено через 14 днів, файли логів видалено</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageStart.qml" line="153"/>
+        <location filename="../ui/qml/Pages2/PageStart.qml" line="156"/>
         <source>Settings restored from backup file</source>
         <translation>Відновлення налаштувань із бекап файлу</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageStart.qml" line="159"/>
+        <location filename="../ui/qml/Pages2/PageStart.qml" line="162"/>
         <source>Logging is enabled. Note that logs will be automaticallydisabled after 14 days, and all log files will be deleted.</source>
         <translation>Логування увімкнено. Зверніть увагу: логи будуть автоматично вимкнені через 14 днів, а всі файли логів будуть видалені.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageStart.qml" line="186"/>
+        <location filename="../ui/qml/Pages2/PageStart.qml" line="189"/>
         <source>Help us fix connection problems?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageStart.qml" line="187"/>
+        <location filename="../ui/qml/Pages2/PageStart.qml" line="190"/>
         <source>Send technical reports when a connection fails: which server, port and protocol were used, error codes and timings. No traffic, no domains, no account data.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageStart.qml" line="188"/>
+        <location filename="../ui/qml/Pages2/PageStart.qml" line="191"/>
         <source>Send diagnostics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageStart.qml" line="189"/>
+        <location filename="../ui/qml/Pages2/PageStart.qml" line="192"/>
         <source>Not now</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6231,59 +6248,84 @@ This means that AmneziaWG keeps the fast performance of the original while addin
     <name>ServersListView</name>
     <message>
         <location filename="../ui/qml/Components/ServersListView.qml" line="75"/>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="104"/>
         <location filename="../ui/qml/Components/ServersListView.qml" line="115"/>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="165"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="126"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="176"/>
         <source>All</source>
         <translation>Всі</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="116"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="89"/>
+        <source>Subscription</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="127"/>
         <source>White Elephants</source>
         <translation>Білі Слони</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="117"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="128"/>
         <source>Regular</source>
         <translation>Основний</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="118"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="129"/>
         <source>Reverse</source>
         <translation>Зворотний</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="119"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="130"/>
         <source>Premium</source>
         <translation>Преміум</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="120"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="131"/>
         <source>Private</source>
         <translation>Приватний</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="602"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="323"/>
+        <source>Delete %1?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="324"/>
+        <source>Servers of this subscription are removed from this device. Nothing happens to the subscription itself.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="325"/>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="326"/>
+        <source>Cancel</source>
+        <translation type="unfinished">Відмінити</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="638"/>
         <source>offline</source>
         <translation>офлайн</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="384"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="414"/>
         <source>Auto-select</source>
         <translation>Автовибір</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="385"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="415"/>
         <source>Fastest available server</source>
         <translation>Найшвидший доступний сервер</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="167"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="92"/>
         <source>Subscription %1</source>
         <translation>Підписка %1</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="170"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="181"/>
         <source>Other</source>
         <translation>Інше</translation>
     </message>
@@ -6443,7 +6485,7 @@ This means that AmneziaWG keeps the fast performance of the original while addin
 <context>
     <name>TextFieldWithHeaderType</name>
     <message>
-        <location filename="../ui/qml/Controls2/TextFieldWithHeaderType.qml" line="138"/>
+        <location filename="../ui/qml/Controls2/TextFieldWithHeaderType.qml" line="146"/>
         <source>The field can&apos;t be empty</source>
         <translation>Поле не може бути пустим</translation>
     </message>

@@ -405,7 +405,11 @@ extension PacketTunnelProvider {
         // RunXray returns an empty C string on success and the error message on
         // failure (e.g. a config the core rejects). Without this check the tunnel
         // reported "connected" while xray never started and no traffic flowed.
-        if let result = LibXrayRunXray(nil, path, Int64.max) {
+        // A soft Go memory limit (GOMEMLIMIT). With Int64.max the xray runtime has
+        // no ceiling at all and the Network Extension is the process the system
+        // kills on RAM pressure, so it collects far too late.
+        let xrayMemoryLimitBytes = Int64(64 * 1024 * 1024)
+        if let result = LibXrayRunXray(nil, path, xrayMemoryLimitBytes) {
             let message = String(cString: result)
             free(result)
             if !message.isEmpty {

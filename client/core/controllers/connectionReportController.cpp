@@ -11,6 +11,7 @@
 #include <QStorageInfo>
 #include <QCryptographicHash>
 #include <QDateTime>
+#include <QFile>
 #include <QElapsedTimer>
 #include <QHostInfo>
 #include <QJsonDocument>
@@ -33,6 +34,17 @@
 
 #include <algorithm>
 #include <random>
+
+#if defined(Q_OS_IOS) || defined(Q_OS_MACOS)
+#include <mach/mach.h>
+#include <sys/resource.h>
+#elif defined(Q_OS_WIN)
+#include <windows.h>
+#include <psapi.h>
+#else
+#include <sys/resource.h>
+#include <unistd.h>
+#endif
 
 #include "core/api/apiDefs.h"
 #include "ui/controllers/healthCheckController.h"
@@ -68,10 +80,30 @@ namespace
 #endif
 }
 
+static qint64 processMemoryMb(bool peak);
+
 ConnectionReportController::ConnectionReportController(const QSharedPointer<ServersModel> &serversModel,
                                                        const std::shared_ptr<Settings> &settings, QObject *parent)
     : QObject(parent), m_serversModel(serversModel), m_settings(settings)
 {
+    // Sample memory while the app lives: iOS kills the process on RAM pressure and
+    // the user has no way to see the number, so it is persisted for support.
+    auto *memoryTimer = new QTimer(this);
+    memoryTimer->setInterval(30 * 1000);
+    connect(memoryTimer, &QTimer::timeout, this, [this]() {
+        if (!m_settings) {
+            return;
+        }
+        const qint64 rss = processMemoryMb(false);
+        if (rss <= 0) {
+            return;
+        }
+        m_settings->setMemorySample(QStringLiteral("rss=%1 peak=%2 at=%3")
+                                            .arg(rss)
+                                            .arg(processMemoryMb(true))
+                                            .arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate)));
+    });
+    memoryTimer->start();
 }
 
 void ConnectionReportController::setBusy(bool busy)
@@ -224,8 +256,12 @@ void ConnectionReportController::collect(int serverIndex)
             }
             m_ports = targets;
         } else {
+            // Row without node_ips (single host / one address): the probes used to
+            // keep an empty address, and every handshake entry was skipped as
+            // "no address" — the report then named no endpoint of the row at all.
             for (PortProbe &probe : m_ports) {
                 probe.udpTransport = udpTransport;
+                probe.address = m_host;
             }
         }
     }
@@ -429,6 +465,45 @@ void ConnectionReportController::probeUdpForCurrentPort()
     timer->start(kUdpTimeoutMs);
 }
 
+// Memory actually held by this process: the phone kills the app on RAM pressure and
+// the user cannot see the number anywhere, so it goes into the report.
+static qint64 processMemoryMb(bool peak)
+{
+#if defined(Q_OS_IOS) || defined(Q_OS_MACOS)
+    if (peak) {
+        struct rusage usage{};
+        if (getrusage(RUSAGE_SELF, &usage) == 0) {
+            return qint64(usage.ru_maxrss / (1024 * 1024));
+        }
+        return -1;
+    }
+    mach_task_basic_info_data_t info{};
+    mach_msg_type_number_t count = MACH_TASK_BASIC_INFO_COUNT;
+    if (task_info(mach_task_self(), MACH_TASK_BASIC_INFO,
+                  reinterpret_cast<task_info_t>(&info), &count) == KERN_SUCCESS) {
+        return qint64(info.resident_size / (1024 * 1024));
+    }
+    return -1;
+#elif defined(Q_OS_WIN)
+    PROCESS_MEMORY_COUNTERS_EX counters{};
+    if (GetProcessMemoryInfo(GetCurrentProcess(), reinterpret_cast<PROCESS_MEMORY_COUNTERS *>(&counters),
+                             sizeof(counters))) {
+        return qint64((peak ? counters.PeakWorkingSetSize : counters.WorkingSetSize) / (1024 * 1024));
+    }
+    return -1;
+#else
+    QFile statm(QStringLiteral("/proc/self/statm"));
+    if (statm.open(QIODevice::ReadOnly)) {
+        const QList<QByteArray> parts = statm.readAll().simplified().split(' ');
+        if (parts.size() > 1) {
+            const qint64 pages = parts.at(1).toLongLong();
+            return qint64(pages * sysconf(_SC_PAGESIZE) / (1024 * 1024));
+        }
+    }
+    return -1;
+#endif
+}
+
 QJsonObject ConnectionReportController::buildReport() const
 {
     QJsonObject report;
@@ -439,6 +514,14 @@ QJsonObject ConnectionReportController::buildReport() const
     app.insert(QStringLiteral("os"), QSysInfo::productVersion());
     if (m_settings) {
         app.insert(QStringLiteral("build"), m_settings->diagBuild());
+    }
+    const qint64 rssMb = processMemoryMb(false);
+    if (rssMb > 0) {
+        app.insert(QStringLiteral("memory_rss_mb"), static_cast<double>(rssMb));
+    }
+    const qint64 peakMb = processMemoryMb(true);
+    if (peakMb > 0) {
+        app.insert(QStringLiteral("memory_peak_mb"), static_cast<double>(peakMb));
     }
     report.insert(QStringLiteral("app"), app);
 
@@ -477,12 +560,36 @@ QJsonObject ConnectionReportController::buildReport() const
 
         // Последние попытки подключения: по ним видно, перебирал ли юзер адреса
         // и на чём именно спотыкался, а не только «сейчас не работает».
-        const QJsonArray attempts = m_settings->connectAttempts();
-        if (!attempts.isEmpty()) {
+        // The attempt ring buffer is device-wide, so a report about one server used
+        // to list addresses of other subscriptions and other days ("нажал тест на KG,
+        // а в отчёте чужие ендпойнты"). Keep only the addresses of THIS row.
+        QStringList attemptPool;
+        if (!m_host.isEmpty()) {
+            attemptPool.append(m_host);
+        }
+        if (m_serversModel && reportIndex() >= 0) {
+            const QJsonArray nodeIps = m_serversModel->getServerConfig(reportIndex())
+                                               .value(QStringLiteral("node_ips")).toArray();
+            for (const QJsonValue &value : nodeIps) {
+                const QString ip = value.toString();
+                if (!ip.isEmpty() && !attemptPool.contains(ip)) {
+                    attemptPool.append(ip);
+                }
+            }
+        }
+
+        QJsonArray scopedAttempts;
+        for (const QJsonValue &value : m_settings->connectAttempts()) {
+            const QString address = value.toObject().value(QStringLiteral("address")).toString();
+            if (!attemptPool.isEmpty() && attemptPool.contains(address)) {
+                scopedAttempts.append(value);
+            }
+        }
+        if (!scopedAttempts.isEmpty()) {
             QJsonArray tail;
-            const int from = qMax(0, attempts.size() - 5);
-            for (int i = from; i < attempts.size(); ++i) {
-                tail.append(attempts.at(i));
+            const int from = qMax(0, scopedAttempts.size() - 5);
+            for (int i = from; i < scopedAttempts.size(); ++i) {
+                tail.append(scopedAttempts.at(i));
             }
             report.insert(QStringLiteral("attempts"), tail);
         }

@@ -2884,7 +2884,7 @@ QVariantList ApiConfigsController::getSubscriptionConfigs() const
     return list;
 }
 
-void ApiConfigsController::reloadSubscriptionConfigs(bool silent)
+void ApiConfigsController::reloadSubscriptionConfigs(bool silent, const QString &subscriptionId)
 {
     if (m_subscriptionReloadRunning) {
         if (!silent) {
@@ -2896,8 +2896,12 @@ void ApiConfigsController::reloadSubscriptionConfigs(bool silent)
 
     // every FRKN subscription stored in the app, refreshed independently and
     // sequentially — a failure or an empty response of one must not delete or
-    // block the others
-    const QStringList subscriptionIds = collectSubscriptionIds();
+    // block the others. With a subscription selected in the list only that one
+    // is refetched: reloading all of them on a per-subscription filter wasted
+    // traffic and made every other row flicker.
+    const QStringList subscriptionIds = subscriptionId.isEmpty()
+                                                ? collectSubscriptionIds()
+                                                : QStringList{ subscriptionId };
 
     if (subscriptionIds.isEmpty()) {
         qWarning() << "[SUBSCRIPTION] reload: no subscription id found";

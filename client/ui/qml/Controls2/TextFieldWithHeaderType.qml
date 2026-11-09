@@ -260,7 +260,10 @@ Item {
         anchors.right: content.right
         anchors.rightMargin: root.multiline ? 8 : 0
 
-        height: root.multiline ? implicitHeight : content.implicitHeight
+        // The insert button must fit inside the input box: a 56px button in a
+        // 48px multiline field read as a height mismatch next to the field.
+        height: root.multiline ? Math.max(28, Math.min(insertButton.implicitHeight, backgroud.height - 16))
+                                 : content.implicitHeight
         width: root.multiline ? implicitWidth : content.implicitHeight
         squareLeftSide: !root.multiline
 

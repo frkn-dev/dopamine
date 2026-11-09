@@ -149,6 +149,9 @@ public slots:
     void editServer(const QJsonObject &server, const int serverIndex);
     void removeServer();
     void removeServer(const int serverIndex);
+    // Removes every server row that belongs to one FRKN subscription. The
+    // subscription itself stays on the account, only this device forgets it.
+    Q_INVOKABLE void removeSubscription(const QString &subscriptionId);
 
     // health probe result for a server (key = row index): >=0 latency ms,
     // -1 offline, missing = unknown

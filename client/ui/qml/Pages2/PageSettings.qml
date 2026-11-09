@@ -111,6 +111,9 @@ PageType {
         application,
         connection,
         splitTunneling,
+        // Diagnostics right before Support: it is the screen support asks about
+        // first, and it used to be two taps deep inside Application.
+        diagnostics,
         support,
         about,
         devConsole
@@ -159,6 +162,19 @@ PageType {
         property bool isVisible: true
         readonly property var clickedHandler: function() {
             PageController.goToPage(PageEnum.PageSettingsApplication)
+        }
+    }
+
+    QtObject {
+        id: diagnostics
+
+        // Diagnostics is the screen support asks about first (subscription id,
+        // telemetry, reports); it used to sit two taps deep under Application.
+        property string title: qsTr("Diagnostics")
+        readonly property string leftImagePath: "qrc:/images/controls/gauge.svg"
+        property bool isVisible: true
+        readonly property var clickedHandler: function() {
+            PageController.goToPage(PageEnum.PageSettingsLogging)
         }
     }
 

@@ -105,7 +105,9 @@ public slots:
     // installs every fetched subscription config at once (we no longer show the
     // protocol selection screen — users were confused by it); returns the count
     int installAllSubscriptionConfigs();
-    Q_INVOKABLE void reloadSubscriptionConfigs(bool silent = false);
+    // subscriptionId empty = every subscription stored on the device ("All");
+    // otherwise only that subscription is refetched.
+    Q_INVOKABLE void reloadSubscriptionConfigs(bool silent = false, const QString &subscriptionId = QString());
 
     // FRKN connection sharing (frkn://conn/<share_token>): the recipient imports a single
     // shared connection via importSharedConnection; the owner creates/lists/revokes share

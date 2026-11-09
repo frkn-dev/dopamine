@@ -46,6 +46,8 @@ PageType {
             Image {
                 id: image
                 source: "qrc:/images/dopamineBigLogo.png"
+                // 1024x1024 source decoded to ~4 MB for a 291x224 slot.
+                sourceSize: Qt.size(320 * Screen.devicePixelRatio, 246 * Screen.devicePixelRatio)
 
                 Layout.alignment: Qt.AlignCenter
                 Layout.topMargin: 16

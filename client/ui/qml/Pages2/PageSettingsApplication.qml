@@ -97,22 +97,6 @@ PageType {
 
             DividerType {}
 
-            LabelWithButtonType {
-                id: labelWithButtonLogging
-
-                Layout.fillWidth: true
-
-                text: qsTr("Diagnostics")
-                descriptionText: SettingsController.isLoggingEnabled ? qsTr("Enabled") : qsTr("Disabled")
-                rightImageSource: "qrc:/images/controls/chevron-right.svg"
-
-                clickedFunction: function() {
-                    PageController.goToPage(PageEnum.PageSettingsLogging)
-                }
-            }
-
-            DividerType {}
-
             SwitcherType {
                 id: switcherAutoServerListUpdate
 

@@ -1,7 +1,7 @@
 <svg width="21" height="15" viewBox="0 0 336 240" xmlns="http://www.w3.org/2000/svg">
   <title>PIRATE</title>
   <desc>Vectorized from the project PNG.</desc>
-  <rect width="336" height="240" fill="#111111"/>
+  <rect width="336" height="240" fill="#000000"/>
   <g transform="translate(0.000000,240.000000) scale(0.100000,-0.100000)"
 fill="#ffffff" stroke="none">
 <path d="M1549 2157 c-37 -13 -85 -35 -109 -51 -23 -15 -49 -25 -57 -21 -21 8

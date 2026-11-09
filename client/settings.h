@@ -158,6 +158,19 @@ public:
         m_settings.sync();
     }
 
+    // Last sampled process memory ("rss=.. peak=.. at=.."): the phone kills the app
+    // on RAM pressure and nothing else on the device reports the number, so the
+    // client writes it itself and support reads it from the settings plist.
+    QString memorySample() const
+    {
+        return m_settings.value("Conf/memorySample").toString();
+    }
+
+    void setMemorySample(const QString &value)
+    {
+        m_settings.setValue("Conf/memorySample", value);
+    }
+
     QString diagBuild() const
     {
         return m_settings.value("Conf/diagBuild").toString();

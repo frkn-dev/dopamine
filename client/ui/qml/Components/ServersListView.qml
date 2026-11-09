@@ -81,6 +81,17 @@ ListViewType {
         return proto
     }
 
+    // The tail of the subscription id, not a sequence number: "Subscription 1/2"
+    // said nothing about which subscription was which.
+    function subscriptionLabel(id) {
+        const cleaned = (id || "").replace(/-/g, "")
+        if (cleaned === "") {
+            return qsTr("Subscription")
+        }
+        const tail = cleaned.length > 8 ? cleaned.slice(cleaned.length - 8) : cleaned
+        return qsTr("Subscription %1").arg(tail)
+    }
+
     function protocolRank(proto) {
         const p = (proto || "").toLowerCase()
         if (p === "awg-mobile" || p === "amneziawgmobile") return 0
@@ -164,7 +175,7 @@ ListViewType {
         subscriptionsModel.clear()
         subscriptionsModel.append({ "name": qsTr("All"), "value": "" })
         for (let i = 0; i < subs.length; i++) {
-            subscriptionsModel.append({ "name": qsTr("Subscription %1").arg(i + 1), "value": subs[i] })
+            subscriptionsModel.append({ "name": subscriptionLabel(subs[i]), "value": subs[i], "deletable": true })
         }
         if (hasNonSubscriptionServers()) {
             subscriptionsModel.append({ "name": qsTr("Other"), "value": root.otherSubscriptionValue })
@@ -299,11 +310,30 @@ ListViewType {
 
                     filterModel: subscriptionsModel
                     currentValue: root.subscriptionFilter
+                    deletableValues: true
 
                     onSelected: function(value) {
                         root.subscriptionFilter = value
                         SettingsController.serversSubscriptionFilter = value === "" ? "all" : value
                         root.rebuildGroups()
+                    }
+
+                    onDeleteRequested: function(value) {
+                        const label = root.subscriptionLabel(value)
+                        showQuestionDrawer(qsTr("Delete %1?").arg(label),
+                                           qsTr("Servers of this subscription are removed from this device. Nothing happens to the subscription itself."),
+                                           qsTr("Delete"),
+                                           qsTr("Cancel"),
+                                           function() {
+                                               ServersModel.removeSubscription(value)
+                                               if (root.subscriptionFilter === value) {
+                                                   root.subscriptionFilter = ""
+                                                   SettingsController.serversSubscriptionFilter = "all"
+                                               }
+                                               root.rebuildSubscriptionsModel()
+                                               root.rebuildGroups()
+                                           },
+                                           function() {})
                     }
                 }
             }
@@ -494,6 +524,12 @@ ListViewType {
 
                     property var variant: modelData
 
+                    // With "All protocols" the row says nothing about the protocol
+                    // otherwise, so two rows of the same pool look identical.
+                    readonly property bool showProtocolLabel: groupData.variants.length > 1
+                                                              || root.protocolFilter === ""
+                                                              || root.protocolFilter === "all"
+
                     implicitWidth: groupContent.width
                     implicitHeight: variantContent.implicitHeight
 
@@ -541,7 +577,7 @@ ListViewType {
                                 Layout.fillWidth: true
 
                                 text: variant.name
-                                descriptionText: groupData.variants.length > 1
+                                descriptionText: variantDelegate.showProtocolLabel
                                                  ? root.protocolLabel(variant.protocol)
                                                  : (variant.isServerFromGatewayApi ? "" : variant.serverDescription)
 

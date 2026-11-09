@@ -762,6 +762,44 @@ void ServersModel::removeServer(const int serverIndex)
     endResetModel();
 }
 
+void ServersModel::removeSubscription(const QString &subscriptionId)
+{
+    if (subscriptionId.isEmpty() || m_settings->serversCount() == 0) {
+        return;
+    }
+
+    beginResetModel();
+    m_healthResults.clear();
+
+    int defaultIndex = m_settings->defaultServerIndex();
+    for (int i = m_settings->serversCount() - 1; i >= 0; --i) {
+        const QJsonObject server = m_settings->serversArray().at(i).toObject();
+        if (subscriptionIdOfServer(server) != subscriptionId) {
+            continue;
+        }
+
+        m_settings->removeServer(i);
+        if (i == defaultIndex) {
+            defaultIndex = -1;
+        } else if (i < defaultIndex) {
+            --defaultIndex;
+        }
+    }
+
+    m_servers = m_settings->serversArray();
+
+    if (m_servers.isEmpty()) {
+        defaultIndex = -1;
+    } else if (defaultIndex < 0 || defaultIndex >= m_servers.size()) {
+        defaultIndex = 0;
+    }
+
+    setDefaultServerIndex(defaultIndex);
+    setProcessedServerIndex(defaultIndex);
+    recomputeAvailableSubscriptions();
+    endResetModel();
+}
+
 QHash<int, QByteArray> ServersModel::roleNames() const
 {
     QHash<int, QByteArray> roles;

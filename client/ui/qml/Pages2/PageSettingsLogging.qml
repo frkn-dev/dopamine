@@ -282,7 +282,8 @@ PageType {
         // делегат, и список постоянно притягивал его к началу.
         snapMode: ListView.NoSnap
         boundsBehavior: Flickable.StopAtBounds
-        cacheBuffer: 4000
+        // 4000px kept dozens of delegates alive far outside the viewport.
+        cacheBuffer: 800
 
         delegate: ColumnLayout {
             id: delegateContent

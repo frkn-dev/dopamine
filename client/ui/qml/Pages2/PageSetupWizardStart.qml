@@ -42,6 +42,9 @@ PageType {
         Image {
             id: image
             source: root.isTv ? "qrc:/images/pterodactyl.png" : "qrc:/images/dopamineBigLogo.png"
+            // Cap the decode size: the 1024x1024 logo was ~4 MB per page load.
+            sourceSize: Qt.size((root.isTv ? 360 : 380) * Screen.devicePixelRatio,
+                                (root.isTv ? 248 : 300) * Screen.devicePixelRatio)
 
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
             Layout.topMargin: (root.isTv ? 16 : 32) + SettingsController.safeAreaTopMargin

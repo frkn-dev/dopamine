@@ -1,7 +1,7 @@
 <svg width="21" height="15" viewBox="0 0 336 240" xmlns="http://www.w3.org/2000/svg">
   <title>ELEPHANT</title>
   <desc>Outline elephant vectorized from the project PNG; line weight adjusted for the 24px row.</desc>
-  <rect width="336" height="240" fill="#111111"/>
+  <rect width="336" height="240" fill="#000000"/>
   <g transform="translate(0.000000,240.000000) scale(0.100000,-0.100000)"
 fill="#ffffff" stroke="none">
 <path d="M1689 2136 l-125 -43 -90 13 c-49 8 -101 14 -117 14 -36 0 -516 -224
