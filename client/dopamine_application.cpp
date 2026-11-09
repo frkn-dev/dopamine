@@ -18,6 +18,7 @@
 #include <QFileOpenEvent>
 
 #include "logger.h"
+#include "ui/controllers/appUpdateController.h"
 #include "ui/controllers/pageController.h"
 #include "ui/models/installedAppsModel.h"
 #include "version.h"
@@ -231,6 +232,7 @@ void DopamineApplication::registerTypes()
 
     Vpn::declareQmlVpnConnectionStateEnum();
     PageLoader::declareQmlPageEnum();
+    AppUpdate::declareQmlEnum();
     amnezia::error_code_ns::declareQmlErrorCode();
 }
 
