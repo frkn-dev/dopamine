@@ -44,13 +44,18 @@ set(SOURCES ${SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/core/installedAppsImageProvider.cpp
 )
 
+# Accumulate the paths of EVERY abi: set_property inside the loop overwrote the
+# previous abi, so a multi-abi build shipped an arm64 apk without libwg-go.so,
+# libcrypto_3.so and libssl_3.so (the tunnel core missing from the package).
+set(DOPAMINE_ANDROID_EXTRA_LIBS "")
 foreach(abi IN ITEMS ${QT_ANDROID_ABIS})
-    set_property(TARGET ${PROJECT} PROPERTY QT_ANDROID_EXTRA_LIBS
+    list(APPEND DOPAMINE_ANDROID_EXTRA_LIBS
         ${CMAKE_CURRENT_SOURCE_DIR}/3rd-prebuilt/3rd-prebuilt/amneziawg/android/${abi}/libwg-go.so
         ${CMAKE_CURRENT_SOURCE_DIR}/3rd-prebuilt/3rd-prebuilt/openssl/android/${abi}/libcrypto_3.so
         ${CMAKE_CURRENT_SOURCE_DIR}/3rd-prebuilt/3rd-prebuilt/openssl/android/${abi}/libssl_3.so
     )
 endforeach()
+set_property(TARGET ${PROJECT} PROPERTY QT_ANDROID_EXTRA_LIBS ${DOPAMINE_ANDROID_EXTRA_LIBS})
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/3rd-prebuilt/3rd-prebuilt/xray/android/libxray.aar
         DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/android/xray/libXray)
