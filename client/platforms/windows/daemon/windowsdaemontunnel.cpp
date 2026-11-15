@@ -32,6 +32,15 @@ int WindowsDaemonTunnel::run(QStringList& tokens) {
 
   logger.debug() << "Tunnel daemon service is starting";
 
+  PROCESS_POWER_THROTTLING_STATE powerState{};
+  powerState.Version = PROCESS_POWER_THROTTLING_CURRENT_VERSION;
+  powerState.ControlMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED;
+#ifdef PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION
+  powerState.ControlMask |= PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION;
+#endif
+  powerState.StateMask = 0;
+  SetProcessInformation(GetCurrentProcess(), ProcessPowerThrottling, &powerState, sizeof(powerState));
+
   QCoreApplication app();
 
   QCoreApplication::setApplicationName("FRKN VPN Tunnel");

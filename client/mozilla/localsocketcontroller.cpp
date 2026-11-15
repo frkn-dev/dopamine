@@ -478,6 +478,11 @@ void LocalSocketController::parseCommand(const QByteArray& command) {
   }
 
   if (type == "status") {
+    const QJsonValue connected = obj.value("connected");
+    if (connected.isBool() && !connected.toBool()) {
+      disconnectInternal();
+      return;
+    }
 
     QJsonValue serverIpv4Gateway = obj.value("serverIpv4Gateway");
     if (!serverIpv4Gateway.isString()) {

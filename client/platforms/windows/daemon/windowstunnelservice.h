@@ -40,6 +40,7 @@ class WindowsTunnelService final : public QObject {
   // These are really SC_HANDLEs in disguise.
   void* m_scm = nullptr;
   void* m_service = nullptr;
+  int m_downStreak = 0;
 };
 
 #endif  // WINDOWSTUNNELSERVICE_H
