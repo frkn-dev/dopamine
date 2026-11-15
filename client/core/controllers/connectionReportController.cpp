@@ -7,6 +7,7 @@
 #include <sys/sysctl.h>
 #endif
 
+#include <QNetworkProxy>
 #include <QLocale>
 #include <QStorageInfo>
 #include <QCryptographicHash>
@@ -366,6 +367,10 @@ void ConnectionReportController::probeNextPort()
     }
 
     auto *socket = new QTcpSocket(this);
+    // Probe sockets must not consult the system proxy: on macOS a PAC
+    // configuration makes connectToHost() resolve the proxy synchronously
+    // on the calling thread, freezing the UI for seconds per probe.
+    socket->setProxy(QNetworkProxy::NoProxy);
     auto *timer = new QTimer(this);
     auto *elapsed = new QElapsedTimer();
     elapsed->start();
@@ -1218,6 +1223,10 @@ void ConnectionReportController::launchScanTask(int index)
     }
 
     auto *socket = new QTcpSocket(this);
+    // Probe sockets must not consult the system proxy: on macOS a PAC
+    // configuration makes connectToHost() resolve the proxy synchronously
+    // on the calling thread, freezing the UI for seconds per probe.
+    socket->setProxy(QNetworkProxy::NoProxy);
     auto *timer = new QTimer(this);
     auto *elapsed = new QElapsedTimer();
     elapsed->start();
@@ -2177,6 +2186,10 @@ void ConnectionReportController::sampleSession()
         return;
     }
     auto *tcpSocket = new QTcpSocket(this);
+    // Probe sockets must not consult the system proxy: on macOS a PAC
+    // configuration makes connectToHost() resolve the proxy synchronously
+    // on the calling thread, freezing the UI for seconds per probe.
+    tcpSocket->setProxy(QNetworkProxy::NoProxy);
     auto *tcpTimer = new QTimer(this);
     auto *tcpElapsed = new QElapsedTimer();
     tcpElapsed->start();

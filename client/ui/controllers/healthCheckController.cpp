@@ -2,6 +2,7 @@
 
 #include "ui/models/servers_model.h"
 
+#include <QNetworkProxy>
 #include <QDateTime>
 #include <QDir>
 #include <QJsonArray>
@@ -543,6 +544,10 @@ void HealthCheckController::startNext()
         const int timeoutMs = target.httpsProbe ? kHttpsTimeoutMs : kTimeoutMs;
 
         QTcpSocket *socket = target.httpsProbe ? static_cast<QTcpSocket *>(new QSslSocket(this)) : new QTcpSocket(this);
+        // Probe sockets must not consult the system proxy: on macOS a PAC
+        // configuration makes connectToHost() resolve the proxy synchronously
+        // on the calling thread, freezing the UI for seconds per probe.
+        socket->setProxy(QNetworkProxy::NoProxy);
         m_socketTargets.insert(socket, target);
         m_attempts.insert(socket, 1);
         m_timers.insert(socket, QElapsedTimer());
