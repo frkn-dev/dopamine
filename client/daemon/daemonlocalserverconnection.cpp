@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QLocalSocket>
+#include <QPointer>
 
 #include "daemon.h"
 #include "leakdetector.h"
@@ -48,9 +49,25 @@ DaemonLocalServerConnection::~DaemonLocalServerConnection() {
 void DaemonLocalServerConnection::readData() {
   logger.debug() << "Read Data";
 
-  Q_ASSERT(m_socket);
+  // Q_ASSERT compiles away in release builds, so it cannot guard the
+  // dereference below.
+  if (!m_socket) {
+    return;
+  }
 
-  while (true) {
+  // parseCommand() can reach platform code that spins the event loop
+  // (QCoreApplication::processEvents in the macOS tunnel helpers). That lets
+  // the peer's disconnect be delivered mid-command, which calls deleteLater()
+  // on this object and may destroy it before the loop continues. It also
+  // re-enters readData() through a queued readyRead, which would corrupt
+  // m_buffer. The guard makes both cases safe.
+  if (m_reading) {
+    return;
+  }
+  m_reading = true;
+  QPointer<DaemonLocalServerConnection> alive(this);
+
+  while (alive && m_socket) {
     int pos = m_buffer.indexOf("\n");
     if (pos == -1) {
       QByteArray input = m_socket->readAll();
@@ -72,6 +89,10 @@ void DaemonLocalServerConnection::readData() {
     }
 
     parseCommand(command);
+  }
+
+  if (alive) {
+    m_reading = false;
   }
 }
 

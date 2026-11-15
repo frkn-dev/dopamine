@@ -32,6 +32,9 @@ class DaemonLocalServerConnection final : public QObject {
  private:
   QLocalSocket* m_socket = nullptr;
 
+  // guards against re-entering readData() from a nested event loop
+  bool m_reading = false;
+
   QByteArray m_buffer;
 };
 
