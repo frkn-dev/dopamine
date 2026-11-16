@@ -1,3 +1,4 @@
+#include <QNetworkProxy>
 #include <QNetworkInformation>
 #include "connectionController.h"
 
@@ -590,6 +591,10 @@ void ConnectionController::probeLivePing()
     static constexpr int hostCount = int(sizeof(hosts) / sizeof(hosts[0]));
 
     auto *socket = new QTcpSocket(this);
+    // Probe sockets must not consult the system proxy: on macOS a PAC
+    // configuration makes connectToHost() resolve the proxy synchronously
+    // on the calling thread, freezing the UI for seconds per probe.
+    socket->setProxy(QNetworkProxy::NoProxy);
     m_pingSocket = socket;
     m_pingElapsed.start();
 
