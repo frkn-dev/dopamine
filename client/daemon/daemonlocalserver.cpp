@@ -60,8 +60,10 @@ bool DaemonLocalServer::initialize() {
     DaemonLocalServerConnection* connection =
         new DaemonLocalServerConnection(&m_server, socket);
     ++m_clientSockets;
-    connect(socket, &QLocalSocket::disconnected, this, [this, connection]() {
+    connect(socket, &QLocalSocket::disconnected, this,
+            [this, connection, socket]() {
       connection->deleteLater();
+      socket->deleteLater();
       if (--m_clientSockets > 0)
         return;
       if (Daemon* daemon = Daemon::instance())

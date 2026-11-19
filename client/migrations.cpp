@@ -143,6 +143,10 @@ void Migrations::migrateAndroidAppSettings()
         }
         if (QFile::copy(legacyFile, currentFile)) {
             qDebug() << "Migrated Android settings from" << legacyFile;
+            // rename the source so it is never picked up again (e.g. after a settings reset)
+            const QString migratedFile = legacyFile + QStringLiteral(".migrated");
+            QFile::remove(migratedFile);
+            QFile::rename(legacyFile, migratedFile);
         }
         return;
     }

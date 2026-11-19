@@ -161,7 +161,10 @@ Switch {
 
     function handleSwitch(event) {
         if (!event.isAutoRepeat) {
-            root.checked = !root.checked
+            // toggle() flips `checked` through the C++ setter, which (unlike a QML
+            // assignment) keeps the page's `checked: ...` binding alive; it does not
+            // emit toggled() itself
+            root.toggle()
             root.toggled()
         }
         event.accepted = true

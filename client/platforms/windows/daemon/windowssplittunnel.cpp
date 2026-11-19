@@ -407,6 +407,7 @@ std::unique_ptr<WindowsSplitTunnel> WindowsSplitTunnel::create(
   }
   if (!initDriver(driverFile)) {
     logger.error() << "Failed to init driver";
+    CloseHandle(driverFile);
     return nullptr;
   }
   // We're ready to talk to the driver, it's alive and setup.
@@ -865,6 +866,8 @@ bool WindowsSplitTunnel::uninstallDriver() {
   if (result) {
     logger.debug() << "Split Tunnel Driver Removed";
   }
+  CloseServiceHandle(servicehandle);
+  CloseServiceHandle(serviceManager);
   return result;
 }
 // static

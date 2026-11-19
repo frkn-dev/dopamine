@@ -70,7 +70,7 @@ int RouterWin::routeAddList(const QString &gw, const QStringList &ips)
     }
 
     int success_count = 0;
-    MIB_IPFORWARDROW ipfrow;
+    MIB_IPFORWARDROW ipfrow = {};
 
     ipfrow.dwForwardPolicy = 0;
     ipfrow.dwForwardAge = INFINITE;
@@ -83,6 +83,8 @@ int RouterWin::routeAddList(const QString &gw, const QStringList &ips)
     IPAddr dwGwAddr = inet_addr(gw.toStdString().c_str());
     if (GetBestInterface(dwGwAddr, &ipfrow.dwForwardIfIndex) != NO_ERROR) {
         qDebug() << "Router::routeAddList : GetBestInterface failed";
+        if (pIpForwardTable)
+            free(pIpForwardTable);
         return false;
     }
 
@@ -151,6 +153,9 @@ int RouterWin::routeAddList(const QString &gw, const QStringList &ips)
 
 bool RouterWin::clearSavedRoutes()
 {
+    // Resume wcmSvc even when there is nothing left to delete (no-op if not suspended)
+    suspendWcmSvc(false);
+
     if (m_ipForwardRows.isEmpty()) return true;
 
     qDebug() << "RouterWin::clearSavedRoutes forward rows size:" << m_ipForwardRows.size();
@@ -250,7 +255,8 @@ int RouterWin::routeDeleteList(const QString &gw, const QStringList &ips)
         in_addr maskAddr;
         inet_pton(AF_INET, mask.toStdString().c_str(), &maskAddr);
 
-        ipMap.insert(inet_addr(ip.toStdString().c_str()), qMakePair(ipMask, maskAddr.S_un.S_addr));
+        // first is the bookkeeping key of m_ipForwardRows, which is the bare ip (no prefix)
+        ipMap.insert(inet_addr(ip.toStdString().c_str()), qMakePair(ip, maskAddr.S_un.S_addr));
     }
 
     for (int i = 0; i < (int) pIpForwardTable->dwNumEntries; i++) {
@@ -371,6 +377,11 @@ bool RouterWin::createTun(const QString &dev, const QString &subnet)
         return false;
     }
 
+    if (res == ERROR_OBJECT_ALREADY_EXISTS) {
+        // No change notification fires for an address that is already assigned
+        return GetUnicastIpAddressEntry(&row) == NO_ERROR;
+    }
+
     res = WaitForSingleObject(hEvent, 10000);
     if (res == WAIT_TIMEOUT) {
         qCritical() << "Timeout of waiting for IP assignment for " << dev << " device";
@@ -472,13 +483,17 @@ BOOL RouterWin::EnableDebugPrivilege(VOID)
   if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &hToken))
     return FALSE;
 
-  if (!LookupPrivilegeValueW(NULL, SE_DEBUG_NAME, &priv.Privileges[0].Luid))
+  if (!LookupPrivilegeValueW(NULL, SE_DEBUG_NAME, &priv.Privileges[0].Luid)) {
+    CloseHandle(hToken);
     return FALSE;
+  }
 
   priv.PrivilegeCount           = 1;
   priv.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
 
-  return AdjustTokenPrivileges(hToken, FALSE, &priv, sizeof(priv), NULL, NULL);
+  BOOL ok = AdjustTokenPrivileges(hToken, FALSE, &priv, sizeof(priv), NULL, NULL);
+  CloseHandle(hToken);
+  return ok;
 }
 
 BOOL RouterWin::InitNtFunctions(VOID)
@@ -538,6 +553,8 @@ bool RouterWin::StopRoutingIpv6()
 
     if (auto loopback = findLoopbackIface(); loopback.isValid()) {
         QFuture<bool> res = QtConcurrent::mappedReduced(kIpv6Subnets, [loopback](const QString &subnet) -> bool {
+            // Drop a leftover route first so that adding is idempotent (result ignored)
+            QProcess::execute("netsh", { "interface", "ipv6", "delete", "route", subnet, QString("interface=%1").arg(loopback.index()) });
             int res = QProcess::execute("netsh", { "interface", "ipv6", "add", "route", subnet, QString("interface=%1").arg(loopback.index()), "metric=0", "store=active" });
             return res == 0;
         },
@@ -564,6 +581,11 @@ bool RouterWin::StartRoutingIpv6()
         [](bool &result, bool success) {
             result = result && success;
         }, true);
+
+        // Wait like StopRoutingIpv6 so a quick reconnect cannot race the deletes.
+        // Deleting an absent route is not an error, so the result is ignored.
+        res.waitForFinished();
+        return true;
     }
 
     return false;

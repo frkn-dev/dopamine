@@ -509,6 +509,10 @@ void CoreController::initAutoConnectHandler()
 void CoreController::initAmneziaDnsToggledHandler()
 {
     connect(m_settingsController.get(), &SettingsController::amneziaDnsToggled, m_serversModel.get(), &ServersModel::toggleAmneziaDns);
+
+    // these models cache their lists; re-read them after a backup restore
+    connect(m_settingsController.get(), &SettingsController::restoreBackupFinished, m_allowedDnsModel.get(), &AllowedDnsModel::reload);
+    connect(m_settingsController.get(), &SettingsController::restoreBackupFinished, m_localSubnetExclusionsModel.get(), &LocalSubnetExclusionsModel::reload);
 }
 
 void CoreController::initPrepareConfigHandler()

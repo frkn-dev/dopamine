@@ -703,7 +703,10 @@ void ServersModel::removeAllServers()
 
 void ServersModel::editServer(const QJsonObject &server, const int serverIndex)
 {
-    m_settings->editServer(serverIndex, server);
+    if (serverIndex < 0 || serverIndex >= m_servers.size() || !m_settings->editServer(serverIndex, server)) {
+        qWarning() << "ServersModel::editServer invalid server index" << serverIndex;
+        return;
+    }
     m_servers.replace(serverIndex, m_settings->serversArray().at(serverIndex));
     emit dataChanged(index(serverIndex, 0), index(serverIndex, 0));
 

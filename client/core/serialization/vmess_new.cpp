@@ -165,7 +165,7 @@ QJsonObject Deserialize(const QString &vmessStr, QString *alias, QString *errMes
 
     //
     root["outbounds"] = QJsonArray{ outbound };
-    root["inbound"] = QJsonArray{ inbound };
+    root["inbounds"] = QJsonArray{ inbound };
     return root;
 }
 

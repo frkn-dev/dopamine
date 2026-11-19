@@ -54,22 +54,6 @@ void WindowsNetworkWatcher::initialize() {
   logger.debug() << "initialize";
 
 
-  DWORD negotiatedVersion;
-  if (WlanOpenHandle(2, nullptr, &negotiatedVersion, &m_wlanHandle) !=
-      ERROR_SUCCESS) {
-    WindowsUtils::windowsLog("Failed to open the WLAN handle");
-    return;
-  }
-
-  DWORD prefNotifSource;
-  if (WlanRegisterNotification(m_wlanHandle, WLAN_NOTIFICATION_SOURCE_MSM,
-                               true /* ignore duplicates */,
-                               (WLAN_NOTIFICATION_CALLBACK)wlanCallback, this,
-                               nullptr, &prefNotifSource) != ERROR_SUCCESS) {
-    WindowsUtils::windowsLog("Failed to register a wlan callback");
-    return;
-  }
-
   const wchar_t* className = L"PowerMonitorClass";
   WNDCLASS wc = { 0 };
   wc.lpfnWndProc = &WindowsNetworkWatcher::PowerWndProcCallback;
@@ -88,6 +72,32 @@ void WindowsNetworkWatcher::initialize() {
     return;
   }
   SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+
+  // WLAN is optional (desktops without Wi-Fi have no WLAN interface), so its
+  // failure must not disable the sleep/wake monitoring above. Wlan* APIs return
+  // the status code instead of setting the last error.
+  DWORD negotiatedVersion;
+  DWORD wlanResult =
+      WlanOpenHandle(2, nullptr, &negotiatedVersion, &m_wlanHandle);
+  if (wlanResult != ERROR_SUCCESS) {
+    logger.warning() << "Failed to open the WLAN handle -"
+                     << WindowsUtils::getErrorMessage(wlanResult);
+    m_wlanHandle = nullptr;
+    return;
+  }
+
+  DWORD prefNotifSource;
+  wlanResult = WlanRegisterNotification(
+      m_wlanHandle, WLAN_NOTIFICATION_SOURCE_MSM, true /* ignore duplicates */,
+      (WLAN_NOTIFICATION_CALLBACK)wlanCallback, this, nullptr,
+      &prefNotifSource);
+  if (wlanResult != ERROR_SUCCESS) {
+    logger.warning() << "Failed to register a wlan callback -"
+                     << WindowsUtils::getErrorMessage(wlanResult);
+    WlanCloseHandle(m_wlanHandle, nullptr);
+    m_wlanHandle = nullptr;
+    return;
+  }
 
   logger.debug() << "callback registered";
 }

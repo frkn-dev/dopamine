@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QMetaObject>
+#include <atomic>
 #include <QSet>
 #include <QString>
 #include <QScopedPointer>
@@ -74,6 +75,10 @@ private:
     QJsonObject m_routeMode;
     QString m_remoteAddress;
 
+    // lastError() is called from the GUI thread: the owner thread publishes the value here
+    // instead of letting other threads touch m_vpnProtocol
+    std::atomic<int> m_lastErrorCache { static_cast<int>(ErrorCode::InternalError) };
+
     // Only for iOS for now, check counters
     QTimer m_checkTimer;
 
@@ -82,9 +87,14 @@ private:
 
    AndroidVpnProtocol* createDefaultAndroidVpnProtocol();
    void createAndroidConnections();
+
+   // A connect request sent while a tunnel or an attempt is still up makes the Android
+   // service restart it by itself (DISCONNECTING -> DISCONNECTED -> CONNECTING). While this
+   // is set, those teardown states of the previous tunnel are not forwarded.
+   bool m_androidRestartPending = false;
 #endif
 
-   Vpn::ConnectionState m_connectionState;
+   Vpn::ConnectionState m_connectionState = Vpn::ConnectionState::Disconnected;
 
    void createProtocolConnections();
 
@@ -106,6 +116,8 @@ private:
    QSet<QString> m_splitRefreshResolved;
    quint64 m_splitRefreshGeneration = 0;
    int m_splitRefreshPending = 0;
+   // bumped on every non-Connected state and per addSitesRoutes call; drops late DNS callbacks
+   quint64 m_sitesRoutesGeneration = 0;
 #endif
 };
 

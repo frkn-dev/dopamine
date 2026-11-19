@@ -710,7 +710,7 @@ bool WindowsFirewall::allowDHCPTraffic(uint8_t weight, const QString& title) {
     }
   }
 
-  // Allow outbound DHCPv6
+  // Allow outbound DHCPv6 (client port 546, server port 547)
   {
     FWPM_FILTER_CONDITION0 conds[3];
     // Condition: Request must be targeting the TUN interface
@@ -722,12 +722,12 @@ bool WindowsFirewall::allowDHCPTraffic(uint8_t weight, const QString& title) {
     conds[1].fieldKey = FWPM_CONDITION_IP_LOCAL_PORT;
     conds[1].matchType = FWP_MATCH_EQUAL;
     conds[1].conditionValue.type = FWP_UINT16;
-    conds[1].conditionValue.uint16 = (68);
+    conds[1].conditionValue.uint16 = (546);
 
     conds[2].fieldKey = FWPM_CONDITION_IP_REMOTE_PORT;
     conds[2].matchType = FWP_MATCH_EQUAL;
     conds[2].conditionValue.type = FWP_UINT16;
-    conds[2].conditionValue.uint16 = 67;
+    conds[2].conditionValue.uint16 = 547;
 
     // Assemble the Filter base
     FWPM_FILTER0 filter;
@@ -745,7 +745,7 @@ bool WindowsFirewall::allowDHCPTraffic(uint8_t weight, const QString& title) {
     }
   }
 
-  // Allow inbound DHCPv6
+  // Allow inbound DHCPv6 (client port 546, server port 547)
   {
     FWPM_FILTER_CONDITION0 conds[3];
     conds[0].fieldKey = FWPM_CONDITION_IP_PROTOCOL;
@@ -756,12 +756,12 @@ bool WindowsFirewall::allowDHCPTraffic(uint8_t weight, const QString& title) {
     conds[1].fieldKey = FWPM_CONDITION_IP_LOCAL_PORT;
     conds[1].matchType = FWP_MATCH_EQUAL;
     conds[1].conditionValue.type = FWP_UINT16;
-    conds[1].conditionValue.uint16 = (68);
+    conds[1].conditionValue.uint16 = (546);
 
     conds[2].fieldKey = FWPM_CONDITION_IP_REMOTE_PORT;
     conds[2].matchType = FWP_MATCH_EQUAL;
     conds[2].conditionValue.type = FWP_UINT16;
-    conds[2].conditionValue.uint16 = 67;
+    conds[2].conditionValue.uint16 = 547;
 
     // Assemble the Filter base
     FWPM_FILTER0 filter;

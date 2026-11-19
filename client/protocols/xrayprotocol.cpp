@@ -117,6 +117,9 @@ void XrayProtocol::stop()
 ErrorCode XrayProtocol::startTun2Socks()
 {
     m_tun2socksProcess = IpcClient::CreatePrivilegedProcess();
+    if (!m_tun2socksProcess) {
+        return ErrorCode::DopamineServiceConnectionFailed;
+    }
     if (!m_tun2socksProcess->waitForSource()) {
         return ErrorCode::DopamineServiceConnectionFailed;
     }
@@ -208,7 +211,7 @@ ErrorCode XrayProtocol::setupRouting() {
                 QJsonObject config = m_rawConfig;
                 config.insert("vpnServer", m_remoteAddress);
 
-                auto enableKillSwitch = IpcClient::Interface()->enableKillSwitch(config, vpnAdapterIndex);
+                auto enableKillSwitch = iface->enableKillSwitch(config, vpnAdapterIndex);
                 if (!enableKillSwitch.waitForFinished() || !enableKillSwitch.returnValue()) {
                     qCritical() << "Failed to enable killswitch";
                     return ErrorCode::InternalError;

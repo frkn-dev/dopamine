@@ -41,6 +41,31 @@ QSharedPointer<IpcInterfaceReplica> IpcClient::Interface()
     return rep;
 }
 
+QSharedPointer<IpcInterfaceReplica> IpcClient::readyInterface()
+{
+    IpcClient &self = Instance();
+    QSharedPointer<IpcInterfaceReplica> rep = self.m_interface;
+    if (rep.isNull()) {
+        return nullptr;
+    }
+    // fast path: a valid replica is initialized, waitForSource() would return at once
+    if (rep->isReplicaValid()) {
+        return rep;
+    }
+    // nested call from the event loop of the wait below: fail fast, do not nest another loop
+    if (self.m_waitingForSource) {
+        return nullptr;
+    }
+
+    self.m_waitingForSource = true;
+    const bool ready = rep->waitForSource(1000) && rep->isReplicaValid();
+    self.m_waitingForSource = false;
+    if (!ready) {
+        return nullptr;
+    }
+    return rep;
+}
+
 QSharedPointer<IpcProcessInterfaceReplica> IpcClient::CreatePrivilegedProcess()
 {
     return withInterface([](QSharedPointer<IpcInterfaceReplica> &iface) -> QSharedPointer<IpcProcessInterfaceReplica> {

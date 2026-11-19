@@ -6486,6 +6486,10 @@ This means that AmneziaWG keeps the fast performance of the original while addin
         <source>Unable change server while there is an active connection</source>
         <translation type="vanished">Невозможно изменить сервер во время активного соединения</translation>
     </message>
+    <message>
+        <source>Cannot delete subscription during active connection</source>
+        <translation>Невозможно удалить подписку во время активного подключения</translation>
+    </message>
 </context>
 <context>
     <name>Settings</name>

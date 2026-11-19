@@ -86,7 +86,7 @@ class CameraActivity : ComponentActivity() {
                 ACTION_DOWN -> true
                 ACTION_UP -> {
                     val point = viewFinder
-                        .meteringPointFactory.createPoint(motionEvent.x, motionEvent.x)
+                        .meteringPointFactory.createPoint(motionEvent.x, motionEvent.y)
 
                     val action = FocusMeteringAction
                         .Builder(point, FLAG_AF or FLAG_AE).build()
@@ -125,6 +125,10 @@ class CameraActivity : ComponentActivity() {
         val checkedBarcodes = hashSetOf<String>()
 
         imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this)) { imageProxy ->
+            if (imageProxy.image == null) {
+                imageProxy.close()
+                return@setAnalyzer
+            }
             imageProxy.image?.let { InputImage.fromMediaImage(it, imageProxy.imageInfo.rotationDegrees) }
                 ?.let { image ->
                     barcodeScanner.process(image).addOnSuccessListener { barcodes ->

@@ -279,6 +279,14 @@ ListViewType {
         id: groupsModel
     }
 
+    Timer {
+        id: rebuildDebounceTimer
+
+        interval: 150
+        repeat: false
+        onTriggered: root.rebuildGroups()
+    }
+
     header: Item {
         visible: true
         width: root.width
@@ -325,6 +333,10 @@ ListViewType {
                                            qsTr("Delete"),
                                            qsTr("Cancel"),
                                            function() {
+                                               if (ConnectionController.isConnected || ConnectionController.isConnectionInProgress) {
+                                                   PageController.showNotificationMessage(qsTr("Cannot delete subscription during active connection"))
+                                                   return
+                                               }
                                                ServersModel.removeSubscription(value)
                                                if (root.subscriptionFilter === value) {
                                                    root.subscriptionFilter = ""
@@ -422,8 +434,9 @@ ListViewType {
                 ButtonGroup.group: serversRadioButtonGroup
 
                 onClicked: {
+                    const wasAutoSelection = SettingsController.autoServerSelection
                     SettingsController.autoServerSelection = true
-                    if (ConnectionController.isConnected) {
+                    if (!wasAutoSelection && ConnectionController.isConnected) {
                         ConnectionController.openConnection()
                     }
                 }
@@ -476,7 +489,8 @@ ListViewType {
             root.rebuildGroups()
         }
         function onDataChanged() {
-            root.rebuildGroups()
+            // probe results emit dataChanged per row; coalesce the full rebuild
+            rebuildDebounceTimer.start()
         }
     }
 
@@ -587,11 +601,14 @@ ListViewType {
                                 ButtonGroup.group: serversRadioButtonGroup
 
                                 onClicked: {
+                                    // re-tapping the active row must not restart a live tunnel
+                                    const selectionChanged = SettingsController.autoServerSelection
+                                                             || ServersModel.defaultIndex !== variant.sourceIndex
                                     SettingsController.autoServerSelection = false
                                     root.selectedIndex = variant.sourceIndex
                                     ServersModel.defaultIndex = variant.sourceIndex
 
-                                    if (ConnectionController.isConnected) {
+                                    if (selectionChanged && ConnectionController.isConnected) {
                                         ConnectionController.openConnection()
                                     }
                                 }

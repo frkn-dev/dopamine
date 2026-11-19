@@ -56,7 +56,7 @@ PageType {
         target: ConnectionController
 
         function onConnectionStateChanged() {
-            if (!ConnectionController.isConnected) {
+            if (!ConnectionController.isConnected && !ConnectionController.isConnectionInProgress) {
                 HealthCheckController.startProbe(false)
             }
         }
@@ -68,7 +68,7 @@ PageType {
         id: endpointRecheckTimer
         interval: 5 * 60 * 1000
         repeat: true
-        running: !ConnectionController.isConnected
+        running: !ConnectionController.isConnected && !ConnectionController.isConnectionInProgress
         onTriggered: HealthCheckController.startProbe(false)
     }
 

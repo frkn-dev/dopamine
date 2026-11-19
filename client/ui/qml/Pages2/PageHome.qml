@@ -342,8 +342,16 @@ PageType {
                     // keep that habit. The info button opens the server card.
                     onClicked: PageController.goToPage(PageEnum.PageSettingsServersList)
 
-                    Keys.onEnterPressed: PageController.goToPage(PageEnum.PageSettingsServersList)
-                    Keys.onReturnPressed: PageController.goToPage(PageEnum.PageSettingsServersList)
+                    Keys.onEnterPressed: function(event) {
+                        if (!event.isAutoRepeat) {
+                            PageController.goToPage(PageEnum.PageSettingsServersList)
+                        }
+                    }
+                    Keys.onReturnPressed: function(event) {
+                        if (!event.isAutoRepeat) {
+                            PageController.goToPage(PageEnum.PageSettingsServersList)
+                        }
+                    }
 
                     Rectangle {
                         anchors.fill: parent

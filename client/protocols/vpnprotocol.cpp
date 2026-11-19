@@ -60,8 +60,10 @@ Vpn::ConnectionState VpnProtocol::connectionState() const
 
 void VpnProtocol::setBytesChanged(quint64 receivedBytes, quint64 sentBytes)
 {
-    quint64 rxDiff = receivedBytes - m_receivedBytes;
-    quint64 txDiff = sentBytes - m_sentBytes;
+    // counters restart from zero when the tunnel is rebuilt (Android self-reconnect):
+    // a smaller value means a reset, so the current value itself is the delta
+    quint64 rxDiff = receivedBytes >= m_receivedBytes ? receivedBytes - m_receivedBytes : receivedBytes;
+    quint64 txDiff = sentBytes >= m_sentBytes ? sentBytes - m_sentBytes : sentBytes;
 
     emit bytesChanged(rxDiff, txDiff);
 

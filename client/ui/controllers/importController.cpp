@@ -126,40 +126,61 @@ bool ImportController::extractConfigFromData(QString data)
 
     if (config.startsWith("vless://")) {
         m_configType = ConfigTypes::Xray;
-        m_config = extractXrayConfig(
-                Utils::JsonToString(serialization::vless::Deserialize(config, &prefix, &errormsg), QJsonDocument::JsonFormat::Compact),
-                prefix);
+        const QJsonObject json = serialization::vless::Deserialize(config, &prefix, &errormsg);
+        if (json.isEmpty()) {
+            qWarning() << "[IMPORT] vless link parse failed:" << errormsg;
+            emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+            return false;
+        }
+        m_config = extractXrayConfig(Utils::JsonToString(json, QJsonDocument::JsonFormat::Compact), prefix);
         return m_config.empty() ? false : true;
     }
 
     if (config.startsWith("vmess://") && config.contains("@")) {
         m_configType = ConfigTypes::Xray;
-        m_config = extractXrayConfig(
-                Utils::JsonToString(serialization::vmess_new::Deserialize(config, &prefix, &errormsg), QJsonDocument::JsonFormat::Compact),
-                prefix);
+        const QJsonObject json = serialization::vmess_new::Deserialize(config, &prefix, &errormsg);
+        if (json.isEmpty()) {
+            qWarning() << "[IMPORT] vmess link parse failed:" << errormsg;
+            emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+            return false;
+        }
+        m_config = extractXrayConfig(Utils::JsonToString(json, QJsonDocument::JsonFormat::Compact), prefix);
         return m_config.empty() ? false : true;
     }
 
     if (config.startsWith("vmess://")) {
         m_configType = ConfigTypes::Xray;
-        m_config = extractXrayConfig(
-                Utils::JsonToString(serialization::vmess::Deserialize(config, &prefix, &errormsg), QJsonDocument::JsonFormat::Compact),
-                prefix);
+        const QJsonObject json = serialization::vmess::Deserialize(config, &prefix, &errormsg);
+        if (json.isEmpty()) {
+            qWarning() << "[IMPORT] vmess link parse failed:" << errormsg;
+            emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+            return false;
+        }
+        m_config = extractXrayConfig(Utils::JsonToString(json, QJsonDocument::JsonFormat::Compact), prefix);
         return m_config.empty() ? false : true;
     }
 
     if (config.startsWith("trojan://")) {
         m_configType = ConfigTypes::Xray;
-        m_config = extractXrayConfig(
-                Utils::JsonToString(serialization::trojan::Deserialize(config, &prefix, &errormsg), QJsonDocument::JsonFormat::Compact),
-                prefix);
+        const QJsonObject json = serialization::trojan::Deserialize(config, &prefix, &errormsg);
+        if (json.isEmpty()) {
+            qWarning() << "[IMPORT] trojan link parse failed:" << errormsg;
+            emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+            return false;
+        }
+        m_config = extractXrayConfig(Utils::JsonToString(json, QJsonDocument::JsonFormat::Compact), prefix);
         return m_config.empty() ? false : true;
     }
 
     if (config.startsWith("ss://") && !config.contains("plugin=")) {
         m_configType = ConfigTypes::ShadowSocks;
-        m_config = extractXrayConfig(
-                Utils::JsonToString(serialization::ss::Deserialize(config, &prefix, &errormsg), QJsonDocument::JsonFormat::Compact), prefix);
+        const QJsonObject json = serialization::ss::Deserialize(config, &prefix, &errormsg);
+        if (json.isEmpty()) {
+            qWarning() << "[IMPORT] ss link parse failed:" << errormsg;
+            emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+            return false;
+        }
+        m_config = extractXrayConfig(Utils::JsonToString(json, QJsonDocument::JsonFormat::Compact), prefix);
         return m_config.empty() ? false : true;
     }
 
@@ -169,7 +190,8 @@ bool ImportController::extractConfigFromData(QString data)
         m_configType = ConfigTypes::ShadowSocks;
         // Took only first config from list
         if (!servers.isEmpty()) {
-            m_config = extractXrayConfig(servers.first().first);
+            m_config = extractXrayConfig(Utils::JsonToString(servers.first().second, QJsonDocument::JsonFormat::Compact),
+                                         servers.first().first);
         }
         return m_config.empty() ? false : true;
     }
@@ -275,7 +297,8 @@ bool ImportController::extractConfigFromData(QString data)
         }
 
         // Plain string without spaces and without :// — try as subscriber ID
-        if (!urlCandidate.contains(' ') && !urlCandidate.contains("://") && !urlCandidate.isEmpty()) {
+        if (!urlCandidate.contains(' ') && !urlCandidate.contains("://") && !urlCandidate.contains('{') && !urlCandidate.contains('"')
+            && !urlCandidate.isEmpty()) {
             fetchAndImportFromUrl(frknApiBase + QUrl::toPercentEncoding(urlCandidate));
             return false;
         }
@@ -285,7 +308,8 @@ bool ImportController::extractConfigFromData(QString data)
     const bool staticConfig = (lowered.contains(QLatin1String("[interface]")) && lowered.contains(QLatin1String("[peer]")))
             || config.contains(QLatin1String("vpn://"))
             || config.contains(QLatin1String("\"containers\""))
-            || config.contains(QLatin1String("Servers/serversList"));
+            || config.contains(QLatin1String("Servers/serversList"))
+            || (config.contains(QLatin1String("\"inbounds\"")) && config.contains(QLatin1String("\"outbounds\"")));
     if (!staticConfig) {
         const QString unrecognized = config.trimmed();
         if (!unrecognized.isEmpty()) {
@@ -887,13 +911,18 @@ bool ImportController::parseConfigLine(const QString &line, QJsonObject &outConf
     } else if (trimmed.startsWith("trojan://")) {
         json = serialization::trojan::Deserialize(trimmed, &prefix, &errormsg);
     } else if (trimmed.startsWith("ss://") && !trimmed.contains("plugin=")) {
-        m_configType = ConfigTypes::ShadowSocks;
         json = serialization::ss::Deserialize(trimmed, &prefix, &errormsg);
-        m_configType = ConfigTypes::Xray;
-        return !outConfig.isEmpty();
     }
 
+    // not a recognized or parseable link (comment, profile header, parse failure)
+    if (json.isEmpty()) {
+        return false;
+    }
+
+    // m_configType selects the container in extractXrayConfig(); set it per line
+    m_configType = trimmed.startsWith("ss://") ? ConfigTypes::ShadowSocks : ConfigTypes::Xray;
     outConfig = extractXrayConfig(Utils::JsonToString(json, QJsonDocument::JsonFormat::Compact), prefix);
+    m_configType = ConfigTypes::Xray;
     return !outConfig.isEmpty();
 }
 

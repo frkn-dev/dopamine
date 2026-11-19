@@ -16,7 +16,9 @@
 
 constexpr const char* WG_INTERFACE = "frkn0";
 
-constexpr uint16_t WG_KEEPALIVE_PERIOD = 60;
+// 25 s like the API configs and Android/iOS: a shorter period keeps UDP NAT mappings
+// alive on routers that drop unreplied flows after ~30 s
+constexpr uint16_t WG_KEEPALIVE_PERIOD = 25;
 
 class WireguardUtils : public QObject {
   Q_OBJECT

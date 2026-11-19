@@ -322,7 +322,10 @@ ConnectionController::ConnectionController(const QSharedPointer<ServersModel> &s
         if (auto *networkInfo = QNetworkInformation::instance()) {
             connect(networkInfo, &QNetworkInformation::reachabilityChanged, this,
                     [this](QNetworkInformation::Reachability reachability) {
-                        if (m_waitingForNetwork && reachability == QNetworkInformation::Reachability::Online) {
+                        // only between attempts: during a dial the retry timer is stopped and a restart
+                        // would cut the attempt that is already in progress
+                        if (m_waitingForNetwork && m_retryTimer && m_retryTimer->isActive()
+                            && reachability == QNetworkInformation::Reachability::Online) {
                             qDebug() << "[RETRY] network is back, reconnecting immediately";
                             retryConnectionNow();
                         }
@@ -954,7 +957,11 @@ void ConnectionController::connectToServerIndex(int serverIndex)
             }
             const int row = m_awaitConnectRow;
             m_awaitConnectRow = -1;
+            // nothing to wait for: re-enter without probing, otherwise
+            // connectToServerIndex() would recurse into this branch forever
+            m_prepareBypass = true;
             connectToServerIndex(row);
+            m_prepareBypass = false;
         }
         return;
     }
@@ -1668,7 +1675,12 @@ bool ConnectionController::retrySameAddressAfterFastFail()
     qDebug() << "[IPPOOL] fast fail on" << address << "— retry same address once";
     m_connectionStateText = tr("Connecting...");
     emit connectionStateChanged();
-    QTimer::singleShot(500, this, [this, row, address, port]() { connectToServerIndexWithIp(row, address, port); });
+    QTimer::singleShot(500, this, [this, row, address, port]() {
+        if (m_userDisconnectRequested) {
+            return; // cancelled while waiting
+        }
+        connectToServerIndexWithIp(row, address, port);
+    });
     return true;
 }
 
@@ -2175,6 +2187,20 @@ void ConnectionController::closeConnection()
 
     m_manualConnectTimer->stop();
 
+    // cancel also drops deferred starters: a pending pre-connect probe wait and a card
+    // switch waiting for the old tunnel would otherwise dial after the user cancelled
+    m_awaitConnectProbe = false;
+    m_awaitConnectRow = -1;
+    if (m_connectProbeGuard) {
+        m_connectProbeGuard->stop();
+    }
+    if (m_connectProbeConn) {
+        disconnect(m_connectProbeConn);
+        m_connectProbeConn = {};
+    }
+    m_switchWaiting = false;
+    m_pendingSwitchRow = -1;
+
     if (m_waitingForNetwork) {
         // пользователь нажал «Отмена» в режиме ожидания сети
         resetRetryState();
@@ -2211,7 +2237,9 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
         m_prepareWatchdog = new QTimer(this);
         m_prepareWatchdog->setSingleShot(true);
         connect(m_prepareWatchdog, &QTimer::timeout, this, [this]() {
-            if (m_isConnected || m_ipPoolPos >= 0) {
+            // auto selection has its own probe/attempt timers; bypassing here would dial
+            // the default server in parallel with the probe and with the auto candidate
+            if (m_isConnected || m_ipPoolPos >= 0 || m_autoPhase != AutoPhase::None) {
                 return;
             }
             if (m_state != Vpn::ConnectionState::Preparing
@@ -2398,8 +2426,14 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
             const bool handshakeGated = false;
 #else
+            // Desktop Xray (tun2socks) exposes no byte counters, so waiting for rx>0
+            // would always tear a healthy tunnel down; its Connected is the only proof.
             const bool handshakeGated = container == DockerContainer::Awg || container == DockerContainer::Awg2
-                    || container == DockerContainer::WireGuard;
+                    || container == DockerContainer::WireGuard
+#if !defined(MACOS_NE)
+                    || container == DockerContainer::Xray || container == DockerContainer::SSXray
+#endif
+                    ;
 #endif
             if (handshakeGated) {
                 qDebug() << "[IPPOOL] handshake-confirmed connect on row" << m_ipPool.at(m_ipPoolPos).row;
@@ -2479,8 +2513,14 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
             const int row = m_autoCandidates.at(m_autoCandidatePos).row;
             const DockerContainer container = qvariant_cast<DockerContainer>(
                     m_serversModel->data(row, ServersModel::Roles::DefaultContainerRole));
-            if (container == DockerContainer::Awg || container == DockerContainer::Awg2
-                || container == DockerContainer::WireGuard) {
+            bool acceptOnConnect = container == DockerContainer::Awg || container == DockerContainer::Awg2
+                    || container == DockerContainer::WireGuard;
+#if !defined(Q_OS_IOS) && !defined(Q_OS_ANDROID) && !defined(MACOS_NE)
+            // desktop Xray reports no byte counters: Connected is all the proof there is
+            acceptOnConnect = acceptOnConnect || container == DockerContainer::Xray
+                    || container == DockerContainer::SSXray;
+#endif
+            if (acceptOnConnect) {
                 qDebug() << "[AUTO] handshake-confirmed connect on row" << row << "- accepting without waiting for traffic";
                 finalizeAutoSuccess();
             }
@@ -2541,8 +2581,9 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
             m_manualConnectTimer->stop();
         }
         if (m_waitingForNetwork) {
-            // это наш же teardown перед повтором: кнопка остаётся «Отмена»,
-            // текст «Waiting for network…» не сбрасываем в «Connect»
+            // this is our own teardown before a retry: the button stays "Cancel"
+            // (in progress) and the "Waiting for network..." text is kept
+            m_isConnectionInProgress = true;
             break;
         }
         m_connectionStateText = tr("Connect");
@@ -2588,6 +2629,19 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
 
 void ConnectionController::onTranslationsUpdated()
 {
+    // Settled states only need their text re-translated; replaying the state machine
+    // would record the attempt again and reset the session traffic counters
+    if (m_state == Vpn::ConnectionState::Connected && m_isConnected && !m_tunnelFlaggedDead) {
+        m_connectionStateText = tr("Connected");
+        emit connectionStateChanged();
+        return;
+    }
+    if (m_state == Vpn::ConnectionState::Disconnected && !m_isConnectionInProgress && !m_waitingForNetwork
+        && m_autoPhase == AutoPhase::None) {
+        m_connectionStateText = tr("Connect");
+        emit connectionStateChanged();
+        return;
+    }
     // get translated text of current state
     onConnectionStateChanged(getCurrentConnectionState());
 }

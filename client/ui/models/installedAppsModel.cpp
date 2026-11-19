@@ -73,19 +73,26 @@ QVector<QPair<QString, QString>> InstalledAppsModel::getSelectedAppsInfo()
 
 void InstalledAppsModel::updateModel()
 {
-    QFuture<void> future = QtConcurrent::run([this]() {
-        beginResetModel();
+    // Only the slow JNI call runs on the pool thread; the model reset must happen
+    // on the thread that owns the model.
+    QFuture<QJsonArray> future = QtConcurrent::run([]() -> QJsonArray {
 #ifdef Q_OS_ANDROID
-        m_installedApps = AndroidController::instance()->getAppList();
+        return AndroidController::instance()->getAppList();
+#else
+        return QJsonArray();
 #endif
-        endResetModel();
     });
 
-    QFutureWatcher<void> watcher;
+    QFutureWatcher<QJsonArray> watcher;
     QEventLoop wait;
-    connect(&watcher, &QFutureWatcher<void>::finished, &wait, &QEventLoop::quit);
+    connect(&watcher, &QFutureWatcher<QJsonArray>::finished, &wait, &QEventLoop::quit);
     watcher.setFuture(future);
     wait.exec();
+
+    beginResetModel();
+    m_installedApps = future.result();
+    m_selectedAppIndexes.clear();
+    endResetModel();
 
     return;
 }

@@ -587,21 +587,31 @@ class AmneziaActivity : QtActivity() {
     private fun checkVpnPermission(onPermissionGranted: () -> Unit) {
         Log.d(TAG, "Check VPN permission")
         VpnService.prepare(applicationContext)?.let { intent ->
-            startActivityForResult(intent, CHECK_VPN_PERMISSION_ACTION_CODE, ActivityResultHandler(
-                onSuccess = {
-                    Log.d(TAG, "Vpn permission granted")
-                    Toast.makeText(this@AmneziaActivity, resources.getText(R.string.vpnGranted), Toast.LENGTH_LONG).show()
-                    onPermissionGranted()
-                },
-                onFail = {
-                    Log.w(TAG, "Vpn permission denied")
-                    showOnVpnPermissionRejectDialog()
-                    mainScope.launch {
-                        qtInitialized.await()
-                        QtAndroidController.onVpnPermissionRejected()
+            try {
+                startActivityForResult(intent, CHECK_VPN_PERMISSION_ACTION_CODE, ActivityResultHandler(
+                    onSuccess = {
+                        Log.d(TAG, "Vpn permission granted")
+                        Toast.makeText(this@AmneziaActivity, resources.getText(R.string.vpnGranted), Toast.LENGTH_LONG).show()
+                        onPermissionGranted()
+                    },
+                    onFail = {
+                        Log.w(TAG, "Vpn permission denied")
+                        showOnVpnPermissionRejectDialog()
+                        mainScope.launch {
+                            qtInitialized.await()
+                            QtAndroidController.onVpnPermissionRejected()
+                        }
                     }
+                ))
+            } catch (e: ActivityNotFoundException) {
+                // some TV firmwares ship without the system VPN confirmation dialog
+                Log.e(TAG, "VPN permission dialog is not available: $e")
+                actionResultHandlers.remove(CHECK_VPN_PERMISSION_ACTION_CODE)
+                mainScope.launch {
+                    qtInitialized.await()
+                    QtAndroidController.onVpnPermissionRejected()
                 }
-            ))
+            }
         } ?: onPermissionGranted()
     }
 
@@ -611,7 +621,11 @@ class AmneziaActivity : QtActivity() {
             .setMessage(R.string.vpnSetupFailedMessage)
             .setNegativeButton(R.string.ok) { _, _ -> }
             .setPositiveButton(R.string.openVpnSettings) { _, _ ->
-                startActivity(Intent(Settings.ACTION_VPN_SETTINGS))
+                try {
+                    startActivity(Intent(Settings.ACTION_VPN_SETTINGS))
+                } catch (e: ActivityNotFoundException) {
+                    Log.w(TAG, "VPN settings are not available: $e")
+                }
             }
             .show()
     }
@@ -651,6 +665,8 @@ class AmneziaActivity : QtActivity() {
                     )
                 )
             }
+            // Back / outside tap dismisses the dialog without a button: do not lose the connect request
+            .setOnCancelListener { onChecked() }
             .show()
     }
 

@@ -587,6 +587,9 @@ void HealthCheckController::startNext()
             });
         }
         connect(socket, &QTcpSocket::errorOccurred, this, [this, socket, timeoutMs](QTcpSocket::SocketError) {
+            if (!m_socketTargets.contains(socket)) {
+                return; // already finished and waiting for deleteLater()
+            }
             // flaky networks / DPI: one retry before declaring the server offline
             if (m_attempts.value(socket) < 2) {
                 const Target target = m_socketTargets.value(socket);
