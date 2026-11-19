@@ -314,6 +314,7 @@ PageType {
                         var isUuid = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(inputText)
                         var isHttp = inputText.startsWith("http://") || inputText.startsWith("https://")
                         var isPlainId = !inputText.includes(" ") && !inputText.includes("://")
+                                && !inputText.includes("{") && !inputText.includes("\"")
                         if ((isFrkn && !isFrknSubscription && !isFrknShare) || isHttp || (isPlainId && !isUuid)) {
                             PageController.showBusyIndicator(true)
                         }

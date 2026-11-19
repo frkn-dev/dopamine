@@ -33,6 +33,8 @@ public slots:
     void removeSubnet(QModelIndex index);
     void removeSubnets();
     QStringList getSubnets() const;
+    // Re-reads the list from Settings (after Reset settings / restore backup).
+    void reload();
 
 protected:
     QHash<int, QByteArray> roleNames() const override;

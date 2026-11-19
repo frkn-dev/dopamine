@@ -23,6 +23,8 @@ public slots:
     void addDnsList(const QStringList &dnsServers, bool replaceExisting);
     void removeDns(QModelIndex index);
     QStringList getCurrentDnsServers();
+    // Re-reads the list from Settings (after Reset settings / restore backup).
+    void reload();
 
 protected:
     QHash<int, QByteArray> roleNames() const override;

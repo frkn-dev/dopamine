@@ -49,6 +49,7 @@ QJsonObject Deserialize(const QString &ssUri, QString *alias, QString *errMessag
     if (ssUri.length() < 5)
     {
         *errMessage = QObject::tr("SS URI is too short");
+        return QJsonObject{};
     }
 
     auto uri = ssUri.mid(5);
@@ -74,6 +75,11 @@ QJsonObject Deserialize(const QString &ssUri, QString *alias, QString *errMessag
             *errMessage = QObject::tr("Can't find the colon separator between method and password");
         }
 
+        if (colonPos < 0)
+        {
+            return QJsonObject{};
+        }
+
         server.method = decoded.left(colonPos);
         decoded.remove(0, colonPos + 1);
         atPos = decoded.lastIndexOf('@');
@@ -81,6 +87,7 @@ QJsonObject Deserialize(const QString &ssUri, QString *alias, QString *errMessag
         if (atPos < 0)
         {
             *errMessage = QObject::tr("Can't find the at separator between password and hostname");
+            return QJsonObject{};
         }
 
         server.password = decoded.mid(0, atPos);
@@ -90,6 +97,7 @@ QJsonObject Deserialize(const QString &ssUri, QString *alias, QString *errMessag
         if (colonPos < 0)
         {
             *errMessage = QObject::tr("Can't find the colon separator between hostname and port");
+            return QJsonObject{};
         }
 
         server.address = decoded.mid(0, colonPos);
@@ -101,7 +109,8 @@ QJsonObject Deserialize(const QString &ssUri, QString *alias, QString *errMessag
         auto x = QUrl::fromUserInput(uri);
         server.address = x.host();
         server.port = x.port();
-        const auto userInfo = Utils::SafeBase64Decode(x.userName());
+        const QString userInfo = x.password().isEmpty() ? Utils::SafeBase64Decode(x.userName())
+                                                         : x.userName() + QChar(':') + x.password();
         const auto userInfoSp = userInfo.indexOf(':');
 
         if (userInfoSp < 0)

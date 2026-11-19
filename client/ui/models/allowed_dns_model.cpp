@@ -4,6 +4,7 @@ AllowedDnsModel::AllowedDnsModel(std::shared_ptr<Settings> settings, QObject *pa
     : QAbstractListModel(parent), m_settings(settings)
 {
     fillDnsServers();
+    connect(m_settings.get(), &Settings::settingsCleared, this, &AllowedDnsModel::reload);
 }
 
 int AllowedDnsModel::rowCount(const QModelIndex &parent) const
@@ -78,6 +79,13 @@ QHash<int, QByteArray> AllowedDnsModel::roleNames() const
     QHash<int, QByteArray> roles;
     roles[IpRole] = "ip";
     return roles;
+}
+
+void AllowedDnsModel::reload()
+{
+    beginResetModel();
+    fillDnsServers();
+    endResetModel();
 }
 
 void AllowedDnsModel::fillDnsServers()

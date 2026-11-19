@@ -46,10 +46,10 @@ bool SitesModel::addSite(const QString &hostname, const QString &ip)
         return false;
     }
     for (int i = 0; i < m_sites.size(); i++) {
-        if (m_sites[i].first == hostname && (m_sites[i].second.isEmpty() && !ip.isEmpty())) {
+        if (m_sites[i].first == hostname && m_sites[i].second != ip) {
             m_sites[i].second = ip;
-            QModelIndex index = createIndex(i, i);
-            emit dataChanged(index, index);
+            const QModelIndex modelIndex = index(i, 0);
+            emit dataChanged(modelIndex, modelIndex);
             return true;
         } else if (m_sites[i].first == hostname && (m_sites[i].second == ip)) {
             return false;

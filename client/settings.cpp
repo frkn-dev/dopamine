@@ -99,7 +99,7 @@ void Settings::addServers(const QJsonArray &newServers)
 void Settings::removeServer(int index)
 {
     QJsonArray servers = serversArray();
-    if (index >= servers.size())
+    if (index < 0 || index >= servers.size())
         return;
 
     servers.removeAt(index);
@@ -110,7 +110,7 @@ void Settings::removeServer(int index)
 bool Settings::editServer(int index, const QJsonObject &server)
 {
     QJsonArray servers = serversArray();
-    if (index >= servers.size())
+    if (index < 0 || index >= servers.size())
         return false;
 
     servers.replace(index, server);

@@ -6,6 +6,7 @@ LocalSubnetExclusionsModel::LocalSubnetExclusionsModel(std::shared_ptr<Settings>
     : QAbstractListModel(parent), m_settings(settings)
 {
     fillSubnets();
+    connect(m_settings.get(), &Settings::settingsCleared, this, &LocalSubnetExclusionsModel::reload);
 }
 
 int LocalSubnetExclusionsModel::rowCount(const QModelIndex &parent) const
@@ -105,6 +106,13 @@ QHash<int, QByteArray> LocalSubnetExclusionsModel::roleNames() const
     QHash<int, QByteArray> roles;
     roles[SubnetRole] = "subnet";
     return roles;
+}
+
+void LocalSubnetExclusionsModel::reload()
+{
+    beginResetModel();
+    fillSubnets();
+    endResetModel();
 }
 
 void LocalSubnetExclusionsModel::fillSubnets()

@@ -14,6 +14,8 @@ SitesController::SitesController(const std::shared_ptr<Settings> &settings, cons
 
 void SitesController::addSite(QString hostname)
 {
+    hostname = hostname.trimmed();
+
     if (hostname.isEmpty()) {
         return;
     }
@@ -107,6 +109,12 @@ void SitesController::importSites(const QString &fileName, bool replaceExisting)
             ips.append(ip);
         }
         sites.insert(hostname, ip);
+    }
+
+    if (sites.isEmpty()) {
+        // nothing usable in the file: keep the current list (same message as for unparsable data)
+        emit errorOccurred(tr("Failed to parse JSON data from file: %1").arg(fileName));
+        return;
     }
 
     m_sitesModel->addSites(sites, replaceExisting);
