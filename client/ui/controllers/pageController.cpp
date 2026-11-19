@@ -84,8 +84,13 @@ void PageController::keyPressEvent(Qt::Key key)
     case Qt::Key_Back:
     case Qt::Key_Escape: {
         if (m_drawerDepth) {
+            // a drawer that handles closeTopDrawer decrements the depth itself in its closed
+            // handler; decrement here only when no drawer reacted (stale count)
+            const int depthBefore = m_drawerDepth;
             emit closeTopDrawer();
-            decrementDrawerDepth();
+            if (m_drawerDepth == depthBefore) {
+                decrementDrawerDepth();
+            }
         } else {
             emit escapePressed();
         }

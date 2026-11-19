@@ -212,12 +212,12 @@ Button {
 
             font.family: "IBM Plex Mono"
             font.weight: 700
-            font.pixelSize: multiLine ? 16 : 20
+            font.pixelSize: (multiLine || text.length > 13) ? 16 : 20
 
             color: ConnectionController.isConnected ? connectedTextColor : DopamineStyle.color.paleGray
             text: root.text
 
-            wrapMode: multiLine ? Text.WrapAtWordBoundaryOrAnywhere : Text.NoWrap
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
         }
@@ -228,6 +228,14 @@ Button {
         ConnectionController.connectButtonClicked()
     }
 
-    Keys.onEnterPressed: this.clicked()
-    Keys.onReturnPressed: this.clicked()
+    Keys.onEnterPressed: function(event) {
+        if (!event.isAutoRepeat) {
+            root.clicked()
+        }
+    }
+    Keys.onReturnPressed: function(event) {
+        if (!event.isAutoRepeat) {
+            root.clicked()
+        }
+    }
 }

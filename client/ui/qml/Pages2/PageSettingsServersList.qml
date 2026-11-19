@@ -113,6 +113,7 @@ PageType {
         anchors.top: header.bottom
         anchors.topMargin: 16
         anchors.bottom: parent.bottom
+        anchors.bottomMargin: SettingsController.safeAreaBottomMargin
         anchors.left: parent.left
         anchors.right: parent.right
     }

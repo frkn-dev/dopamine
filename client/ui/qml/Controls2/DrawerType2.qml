@@ -125,6 +125,8 @@ Item {
 
                 aboutToHide()
 
+                setParentInteractive(true)
+
                 drawerContent.state = root.drawerCollapsedStateName
                 depthIndex = 0
                 closed()
