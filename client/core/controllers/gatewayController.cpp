@@ -155,9 +155,8 @@ GatewayController::EncryptedRequestData GatewayController::prepareRequest(const 
 
     encRequestData.requestBody = QJsonDocument(requestBody).toJson();
 
-    qDebug().noquote() << "[AGW REQUEST] key:" << encRequestData.key.toBase64();
-    qDebug().noquote() << "[AGW REQUEST] iv:" << encRequestData.iv.toBase64();
-    qDebug().noquote() << "[AGW REQUEST] salt:" << encRequestData.salt.toBase64();
+    // the session key, iv and salt are never logged: with them anyone who gets the log
+    // (support upload, logcat) can decrypt the body, which carries the subscription id
     qDebug().noquote() << "[AGW REQUEST] body:" << encRequestData.requestBody;
 
     return encRequestData;
@@ -505,9 +504,6 @@ bool GatewayController::shouldBypassProxy(const QNetworkReply::NetworkError &rep
     if (replyError == QNetworkReply::NetworkError::OperationCanceledError || replyError == QNetworkReply::NetworkError::TimeoutError) {
         qDebug() << "timeout occurred";
         qDebug() << replyError;
-        return true;
-    } else if (responseBody.contains("html")) {
-        qDebug() << "the response contains an html tag";
         return true;
     } else if (httpStatus == httpStatusCodeNotFound) {
         if (responseBody.contains(errorResponsePattern1) || responseBody.contains(errorResponsePattern2)

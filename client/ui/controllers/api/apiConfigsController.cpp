@@ -55,7 +55,7 @@ namespace
             strm.avail_out = CHUNK;
             strm.next_out = reinterpret_cast<Bytef *>(outBuffer);
             ret = inflate(&strm, Z_NO_FLUSH);
-            if (ret == Z_NEED_DICT || ret == Z_DATA_ERROR || ret == Z_MEM_ERROR) {
+            if (ret != Z_OK && ret != Z_STREAM_END) {
                 inflateEnd(&strm);
                 return {};
             }
@@ -63,6 +63,25 @@ namespace
         } while (ret != Z_STREAM_END);
 
         inflateEnd(&strm);
+        return out;
+    }
+
+    // Decompresses a config payload that is either zlib (qCompress) or gzip. Returns an
+    // empty array for plain JSON. qUncompress() must not see gzip or JSON input: it reads
+    // the first four bytes as the expected size (the gzip magic 1f 8b 08 .. is ~529 MB,
+    // a leading '{' is ~2 GB) and tries to allocate that much, which fails on 32-bit devices.
+    static QByteArray decompressPayload(const QByteArray &data)
+    {
+        if (data.startsWith('{')) {
+            return {};
+        }
+        if (data.left(2) == QByteArray("\x1f\x8b", 2)) {
+            return gzipDecompress(data);
+        }
+        QByteArray out = qUncompress(data);
+        if (out.isEmpty()) {
+            out = gzipDecompress(data);
+        }
         return out;
     }
 
@@ -285,10 +304,7 @@ namespace
         }
 
         // The payload may be plain JSON, zlib-compressed (qUncompress) or gzip-compressed.
-        QByteArray ba_uncompressed = qUncompress(ba);
-        if (ba_uncompressed.isEmpty()) {
-            ba_uncompressed = gzipDecompress(ba);
-        }
+        QByteArray ba_uncompressed = decompressPayload(ba);
         if (!ba_uncompressed.isEmpty()) {
             ba = ba_uncompressed;
         }
@@ -509,7 +525,8 @@ namespace
         serverConfig[config_key::defaultContainer] = defaultContainer;
 
         qDebug().noquote() << "[API CONFIG] defaultContainer:" << defaultContainer;
-        qDebug().noquote() << "[API CONFIG] containers:" << QJsonDocument(newServerConfig.value(config_key::containers).toArray()).toJson(QJsonDocument::Compact);
+        // the containers carry the client private key: log how many there are, not the content
+        qDebug().noquote() << "[API CONFIG] containers:" << newServerConfig.value(config_key::containers).toArray().size();
 
         QVariantMap map = serverConfig.value(configKey::apiConfig).toObject().toVariantMap();
         map.insert(newServerConfig.value(configKey::apiConfig).toObject().toVariantMap());
@@ -548,10 +565,7 @@ namespace
             ba = QByteArray::fromBase64(data.toUtf8(), QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
         }
 
-        QByteArray baUncompressed = qUncompress(ba);
-        if (baUncompressed.isEmpty()) {
-            baUncompressed = gzipDecompress(ba);
-        }
+        QByteArray baUncompressed = decompressPayload(ba);
         if (!baUncompressed.isEmpty()) {
             ba = baUncompressed;
         }
@@ -1253,11 +1267,11 @@ bool ApiConfigsController::restoreSerivceFromAppStore()
         }
 
         ErrorCode installError = importServiceFromBilling(responseBody, isTestPurchase);
-        if (errorCode == ErrorCode::ApiConfigAlreadyAdded) {
+        if (installError == ErrorCode::ApiConfigAlreadyAdded) {
             duplicateConfigAlreadyPresent = true;
             qInfo().noquote() << "[IAP] Skipping restored transaction" << originalTransactionId
                               << "because subscription config with the same vpn_key already exists";
-        } else if (errorCode != ErrorCode::NoError) {
+        } else if (installError != ErrorCode::NoError) {
             qWarning().noquote() << "[IAP] Failed to process restored subscription response for transaction" << originalTransactionId;
         } else {
             hasInstalledConfig = true;
@@ -1557,6 +1571,21 @@ bool ApiConfigsController::finishGatewayConfigUpdate(const GatewayConfigUpdate &
     const auto newCountryName = update.newCountryName;
     const auto reloadServiceConfig = update.reloadServiceConfig;
     const auto silent = update.silent;
+
+    // The row index was captured before the network round trip; the list may have been
+    // renumbered meanwhile (subscription reconcile, deletion). Never write to a row that
+    // is gone or now holds another node.
+    if (serverIndex < 0 || serverIndex >= m_serversModel->getServersCount()) {
+        qWarning() << "[UPDATE GATEWAY] server row" << serverIndex << "no longer exists, dropping the response";
+        return false;
+    }
+    const QJsonObject currentApiConfig = m_serversModel->getServerConfig(serverIndex).value(configKey::apiConfig).toObject();
+    if (currentApiConfig.value(QStringLiteral("connection_uuid")).toString() != apiConfig.value(QStringLiteral("connection_uuid")).toString()
+        || currentApiConfig.value(QStringLiteral("node_id")).toString() != apiConfig.value(QStringLiteral("node_id")).toString()) {
+        qWarning() << "[UPDATE GATEWAY] server row" << serverIndex << "now holds another node, dropping the response";
+        return false;
+    }
+
     const bool hasUsable = m_serversModel->serverHasUsableConfig(serverIndex);
     const bool keepLocalQuietly = hasUsable && !reloadServiceConfig && newCountryName.isEmpty();
 
@@ -2936,9 +2965,11 @@ void ApiConfigsController::reloadSubscriptionConfigs(bool silent, const QString 
 
     auto remaining = QSharedPointer<QStringList>::create(subscriptionIds);
     auto anyFetched = QSharedPointer<bool>::create(false);
+    // stays true only while every refreshed subscription loaded without a failed node
+    auto allClean = QSharedPointer<bool>::create(true);
     auto step = QSharedPointer<std::function<void()>>::create();
 
-    *step = [this, remaining, anyFetched, step, prevConnectionUuid, prevNodeId,
+    *step = [this, remaining, anyFetched, allClean, step, prevConnectionUuid, prevNodeId,
              prevPool, prevProtocol, prevCountry, prevDefaultIndex]() {
         if (remaining->isEmpty()) {
             // Restore the selection. Раньше совпадение искалось только по паре
@@ -3046,7 +3077,10 @@ void ApiConfigsController::reloadSubscriptionConfigs(bool silent, const QString 
             m_settings->setServersProtocolFilter(proto);
 
             if (!m_pendingCatalogVersion.isEmpty()) {
-                m_settings->setLastCatalogVersion(m_pendingCatalogVersion);
+                // a failed or partial reload must be retried by the next poll, not marked as seen
+                if (*anyFetched && *allClean) {
+                    m_settings->setLastCatalogVersion(m_pendingCatalogVersion);
+                }
                 m_pendingCatalogVersion.clear();
             }
 
@@ -3065,14 +3099,18 @@ void ApiConfigsController::reloadSubscriptionConfigs(bool silent, const QString 
         const QString subscriptionId = remaining->takeFirst();
         qDebug() << "[SUBSCRIPTION] refreshing subscription" << subscriptionId;
         fetchSubscriptionFeed(subscriptionId,
-                              [this, subscriptionId, remaining, anyFetched, step](bool success, const QJsonArray &configs,
+                              [this, subscriptionId, remaining, anyFetched, allClean, step](bool success, const QJsonArray &configs,
                                                                                   const QStringList &failures) {
             if (success) {
                 *anyFetched = true;
                 reconcileSubscription(subscriptionId, configs, failures);
+                if (!failures.isEmpty()) {
+                    *allClean = false;
+                }
             } else {
                 // keep this subscription's previous configs untouched
                 qWarning() << "[SUBSCRIPTION] reload failed for" << subscriptionId;
+                *allClean = false;
             }
             (*step)();
         },
@@ -3093,6 +3131,14 @@ void ApiConfigsController::reconcileSubscription(const QString &subscriptionId, 
                          + apiConfig.value(QStringLiteral("node_id")).toString());
     }
 
+    // removeServer() re-persists the selected-row identity from the default row as a side
+    // effect; keep the user's own selection so the restore step at the end of the reload can
+    // still find the row by pool when its old representative node is gone
+    const QString keepSelUuid = m_settings->selectedConnectionUuid();
+    const QString keepSelNode = m_settings->selectedNodeId();
+    const QString keepSelPool = m_settings->selectedPool();
+    const QString keepSelProto = m_settings->selectedProtocol();
+
     // delete only this subscription's records that really disappeared from its
     // response; failed entries keep their old config, foreign/share records and
     // records of other subscriptions are never touched
@@ -3112,6 +3158,7 @@ void ApiConfigsController::reconcileSubscription(const QString &subscriptionId, 
         }
         qDebug() << "[SUBSCRIPTION] removing node missing from subscription" << subscriptionId << key;
         m_serversModel->removeServer(i);
+        m_settings->setSelectedIdentity(keepSelUuid, keepSelNode, keepSelPool, keepSelProto);
     }
 
     for (const auto &config : finalized) {
@@ -3256,7 +3303,7 @@ QString ApiConfigsController::getVpnKey()
 
 ErrorCode ApiConfigsController::importServiceFromBilling(const QByteArray &responseBody, const bool isTestPurchase)
 {
-#ifdef Q_OS_IOS
+#if defined(Q_OS_IOS) || defined(MACOS_NE)
     QJsonObject responseObject = QJsonDocument::fromJson(responseBody).object();
     QString key = responseObject.value(QStringLiteral("key")).toString();
     if (key.isEmpty()) {

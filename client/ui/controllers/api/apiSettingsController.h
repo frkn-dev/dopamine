@@ -38,9 +38,9 @@ private:
 
     // account_info cache per server index — opening the server card must not
     // hit the gateway every time; refreshed on app start and when older than TTL
-    QHash<int, QJsonObject> m_accountInfoCache;
-    QHash<int, QDateTime> m_accountInfoCacheTime;
-    QSet<int> m_accountInfoInFlight;
+    QHash<QString, QJsonObject> m_accountInfoCache;
+    QHash<QString, QDateTime> m_accountInfoCacheTime;
+    QSet<QString> m_accountInfoInFlight;
     static constexpr qint64 kAccountInfoCacheTtlSecs = 3600;
 };
 
