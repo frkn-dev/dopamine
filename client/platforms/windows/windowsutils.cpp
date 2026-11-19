@@ -25,16 +25,24 @@ constexpr const int WINDOWS_11_BUILD =
     22000;  // Build Number of the first release win 11 iso
 
 QString WindowsUtils::getErrorMessage(quint32 code) {
-  LPSTR messageBuffer = nullptr;
-  size_t size = FormatMessageA(
+  // The wide variant returns UTF-16; the ANSI one returned the system code page
+  // (CP1251 on Russian Windows), which is not valid UTF-8 for QString.
+  LPWSTR messageBuffer = nullptr;
+  const DWORD size = FormatMessageW(
       FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
           FORMAT_MESSAGE_IGNORE_INSERTS,
       nullptr, code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-      (LPSTR)&messageBuffer, 0, nullptr);
+      (LPWSTR)&messageBuffer, 0, nullptr);
 
-  std::string message(messageBuffer, size);
-  QString result(message.c_str());
-  LocalFree(messageBuffer);
+  QString result;
+  if (size > 0 && messageBuffer) {
+    result = QString::fromWCharArray(messageBuffer, size).trimmed();
+  } else {
+    result = QStringLiteral("error %1").arg(code);
+  }
+  if (messageBuffer) {
+    LocalFree(messageBuffer);
+  }
   return result;
 }
 

@@ -140,7 +140,9 @@ bool WireguardUtilsWindows::addInterface(const InterfaceConfig& config) {
 
 bool WireguardUtilsWindows::deleteInterface() {
   if (m_routeMonitor) {
-    m_routeMonitor->deleteLater();
+    // Delete synchronously: with deleteLater() the destructor would remove
+    // the routes that a new monitor re-created in the same call stack.
+    delete m_routeMonitor.data();
   }
 
   m_firewall->disableKillSwitch();

@@ -131,6 +131,9 @@ void WindowsTunnelService::timeout() {
 bool WindowsTunnelService::start(const QString& configData) {
   logger.debug() << "Starting the tunnel service";
 
+  // Release the handle/log worker of a previous run, if any.
+  stop();
+
   WindowsCommons::ensureTunnelLogDir();
   m_logworker = new WindowsTunnelLogger(WindowsCommons::tunnelLogFile());
   m_logworker->moveToThread(&m_logthread);
@@ -145,7 +148,7 @@ bool WindowsTunnelService::start(const QString& configData) {
     }
     m_logthread.quit();
     m_logthread.wait();
-    delete m_logworker;
+    // The worker is destroyed by the finished -> deleteLater connection.
     m_logworker = nullptr;
   });
 
@@ -319,6 +322,15 @@ static bool waitForServiceStatus(SC_HANDLE service, DWORD expectedStatus) {
 
     if (status.dwCurrentState == expectedStatus) {
       return true;
+    }
+
+    // A stopped service never reaches another state: fail now instead of
+    // sleeping through the whole timeout.
+    if (expectedStatus != SERVICE_STOPPED &&
+        status.dwCurrentState == SERVICE_STOPPED) {
+      logger.warning() << "The service stopped while waiting for status"
+                       << expectedStatus;
+      return false;
     }
 
     logger.warning() << "The service is not in the right status yet.";

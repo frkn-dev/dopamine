@@ -33,8 +33,8 @@ std::unique_ptr<WindowsServiceManager> WindowsServiceManager::open(
   auto manager = OpenSCManager(NULL,  // local computer
                                NULL,  // servicesActive database
                                scm_rights);
-  err = GetLastError();
-  if (err != NULL) {
+  if (manager == nullptr) {
+    err = GetLastError();
     logger.error() << " OpenSCManager failed code: " << err;
     return {};
   }
@@ -46,8 +46,7 @@ std::unique_ptr<WindowsServiceManager> WindowsServiceManager::open(
       OpenService(manager,  // SCM database
                   service,  // name of service
                   (GENERIC_READ | SERVICE_START | SERVICE_STOP));
-  err = GetLastError();
-  if (err != NULL) {
+  if (serviceHandle == nullptr) {
     CloseServiceHandle(manager);
     WindowsUtils::windowsLog("OpenService failed");
     return {};
@@ -94,7 +93,7 @@ bool WindowsServiceManager::startPolling(DWORD goal_state, int max_wait_sec) {
 }
 
 SERVICE_STATUS_PROCESS WindowsServiceManager::getStatus() {
-  SERVICE_STATUS_PROCESS serviceStatus;
+  SERVICE_STATUS_PROCESS serviceStatus = {};
   DWORD dwBytesNeeded;  // Contains missing bytes if struct is too small?
   QueryServiceStatusEx(m_service,                       // handle to service
                        SC_STATUS_PROCESS_INFO,          // information level
