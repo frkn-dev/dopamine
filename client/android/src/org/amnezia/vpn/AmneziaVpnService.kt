@@ -139,7 +139,7 @@ open class AmneziaVpnService : VpnService() {
 
             is UnknownHostException -> onError("Unknown host")
 
-            else -> throw e
+            else -> onError("Unexpected error: $e")
         }
     }
 
@@ -151,8 +151,16 @@ open class AmneziaVpnService : VpnService() {
                 when (action) {
                     Action.REGISTER_CLIENT -> {
                         val clientName = msg.data.getString(MSG_CLIENT_NAME)
-                        val messenger = IpcMessenger(msg.replyTo, clientName)
-                        clientMessengers[msg.replyTo] = messenger
+                        val replyTo = msg.replyTo
+                        val messenger = IpcMessenger(replyTo, clientName, onDeadObjectException = {
+                            // the client process died without sending UNREGISTER_CLIENT
+                            clientMessengers.remove(replyTo)
+                            if (clientMessengers.isEmpty()) {
+                                isServiceBound = false
+                                stopSendingStatistics()
+                            }
+                        })
+                        clientMessengers[replyTo] = messenger
                         Log.d(TAG, "Messenger client '$clientName' was registered")
                         // a client attaching mid-connection still needs the counters
                         if (isConnected) launchSendingStatistics()
@@ -234,6 +242,11 @@ open class AmneziaVpnService : VpnService() {
             connect()
         } else if (intent?.getBooleanExtra(AFTER_PERMISSION_CHECK, false) == true) {
             Log.d(TAG, "Start service after permission check")
+            connect()
+        } else if ((flags and START_FLAG_REDELIVERY) != 0) {
+            // START_REDELIVER_INTENT replays the first start intent of the service lifetime after
+            // a process death; its config may be older than the stored LAST_CONF
+            Log.d(TAG, "Start service after redelivery")
             connect()
         } else {
             Log.d(TAG, "Start service")
@@ -509,7 +522,14 @@ open class AmneziaVpnService : VpnService() {
 
     @MainThread
     private fun connectToVpn(vpnConfig: String) {
-        if (isConnected || protocolState.value == CONNECTING) {
+        if (protocolState.value == DISCONNECTING) {
+            // teardown in progress: the disconnect job starts this config when it is done
+            Log.d(TAG, "Queue new config until the teardown completes")
+            pendingVpnConfig = vpnConfig
+            return
+        }
+
+        if (isConnected || protocolState.value == CONNECTING || protocolState.value == RECONNECTING) {
             // a new config while connecting/connected means "switch server":
             // restart with the newest config instead of silently dropping it
             Log.d(TAG, "Restart VPN connection with new config")

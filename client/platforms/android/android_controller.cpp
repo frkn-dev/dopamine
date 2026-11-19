@@ -293,7 +293,7 @@ QPixmap AndroidController::getAppIcon(const QString &package, QSize *size, const
     } else {
         auto *bmpPtr = static_cast<uchar *>(pixels);
         for (int i = 0; i < height; i++, bmpPtr += info.stride)
-            memcpy((void *) image.constScanLine(i), bmpPtr, width);
+            memcpy(image.scanLine(i), bmpPtr, size_t(width) * 4);
     }
 
     if (AndroidBitmap_unlockPixels(env.jniEnv(), bitmap.object()) != ANDROID_BITMAP_RESULT_SUCCESS) return {};
