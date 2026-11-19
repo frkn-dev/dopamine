@@ -245,6 +245,8 @@ private:
     int m_scanResolvePending = 0;
     int m_scanTaskCursor = 0;
     int m_scanActiveTasks = 0;
+    // bumped on every scan start and cancel; async callbacks of an older scan compare against it
+    quint64 m_scanGeneration = 0;
     QJsonObject m_scanPayload;
 
     // автосбор по активному коннекту
@@ -258,6 +260,8 @@ private:
     // автоотчёт: помним, что шла попытка подключения, чтобы отличить провал
     // от обычного «выключил VPN»
     bool m_connectAttemptActive = false;
+    // auto report: collect() is asynchronous, so the send happens in finishReport()
+    bool m_autoSendPending = false;
     QJsonObject m_disconnectInfo;
 
     // отправка

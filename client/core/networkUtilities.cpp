@@ -534,14 +534,16 @@ QPair<QString, QNetworkInterface> NetworkUtilities::getGatewayAndIface()
                 }
                 else if (afinet_type[ip_type] == AF_INET6)
                 {
-                    if ((reinterpret_cast<struct sockaddr_in*>(sa_tab[RTAX_DST]))->sin_addr.s_addr == 0)
+                    const struct in6_addr& dst6 = (reinterpret_cast<struct sockaddr_in6*>(sa_tab[RTAX_DST]))->sin6_addr;
+                    if (IN6_IS_ADDR_UNSPECIFIED(&dst6))
                     {
                         char dstStr6[INET6_ADDRSTRLEN];
                         char srcStr6[INET6_ADDRSTRLEN];
                         memcpy(srcStr6,
                                &(reinterpret_cast<struct sockaddr_in6*>(sa_tab[RTAX_GATEWAY]))->sin6_addr,
                                sizeof(struct in6_addr));
-                        if (inet_ntop(AF_INET6, srcStr6, dstStr6, INET6_ADDRSTRLEN) != nullptr)
+                        // keep the IPv4 default gateway when there is one
+                        if (gateway.isEmpty() && inet_ntop(AF_INET6, srcStr6, dstStr6, INET6_ADDRSTRLEN) != nullptr)
                         {
                             gateway = dstStr6;
                             index = rt->rtm_index;
@@ -551,7 +553,7 @@ QPair<QString, QNetworkInterface> NetworkUtilities::getGatewayAndIface()
                 }
             }
         }
-        free(buf);
+        delete[] buf;
     }
 
     return { gateway, QNetworkInterface::interfaceFromIndex(index) };

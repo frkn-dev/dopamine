@@ -73,6 +73,10 @@ namespace
 #if defined(Q_OS_WIN)
         return { QStringLiteral("-n"), QStringLiteral("1"), QStringLiteral("-w"),
                  QString::number(kIcmpWaitMs), host };
+#elif defined(Q_OS_MACOS)
+        // BSD/macOS ping: -W is in milliseconds (Linux: seconds)
+        return { QStringLiteral("-c"), QStringLiteral("1"), QStringLiteral("-W"),
+                 QString::number(kIcmpWaitMs), host };
 #else
         return { QStringLiteral("-c"), QStringLiteral("1"), QStringLiteral("-W"),
                  QString::number(kIcmpWaitMs / 1000 + 1), host };
@@ -285,18 +289,27 @@ void ConnectionReportController::resolveTarget()
 {
     auto *guard = new QTimer(this);
     guard->setSingleShot(true);
-    connect(guard, &QTimer::timeout, this, [this, guard]() {
+    // whichever of the timer and the lookup comes first owns the continuation and
+    // the timer; the other one must not touch either
+    auto done = QSharedPointer<bool>::create(false);
+    connect(guard, &QTimer::timeout, this, [this, guard, done]() {
+        if (*done) {
+            return;
+        }
+        *done = true;
         guard->deleteLater();
         // DNS не ответил — дальше пробовать нечего, но отчёт всё равно соберём.
         probeIcmp();
     });
     guard->start(kDnsTimeoutMs);
 
-    QHostInfo::lookupHost(m_host, this, [this, guard](const QHostInfo &info) {
-        if (guard->isActive()) {
-            guard->stop();
-            guard->deleteLater();
+    QHostInfo::lookupHost(m_host, this, [this, guard, done](const QHostInfo &info) {
+        if (*done) {
+            return; // the timeout already continued the report
         }
+        *done = true;
+        guard->stop();
+        guard->deleteLater();
         for (const auto &address : info.addresses()) {
             m_resolvedIps.append(address.toString());
         }
@@ -825,7 +838,12 @@ void ConnectionReportController::collectTunnel()
         delete timer;
         setBusy(false);
         emit reportChanged();
-        // см. finishReport(): отправка только по кнопке Send
+        // manual runs are sent by the Send button only; an auto report is sent here,
+        // same as in finishReport()
+        if (m_autoSendPending) {
+            m_autoSendPending = false;
+            send();
+        }
     };
 
     connect(guard, &QTimer::timeout, this, [finishOnce]() { finishOnce(false); });
@@ -888,6 +906,10 @@ void ConnectionReportController::finishReport()
     m_reportText = QString::fromUtf8(QJsonDocument(m_report).toJson(QJsonDocument::Indented));
     setBusy(false);
     emit reportChanged();
+    if (m_autoSendPending) {
+        m_autoSendPending = false;
+        send(); // auto report after a failed connection (telemetry checked by the caller and by send())
+    }
     // Отправку НЕ делаем автоматически: «проверить» и «отправить» — разные
     // действия, юзер сам жмёт Send (или Copy). Иначе половина отчётов уходила
     // без его решения, а половина — нет, и логика выглядела сломанной.
@@ -946,6 +968,7 @@ void ConnectionReportController::collectAll()
     m_report = QJsonObject();
     m_reportText.clear();
     m_scanPayload = QJsonObject();
+    ++m_scanGeneration;
     m_scanTargets.clear();
     m_scanTasks.clear();
     m_scanResolveCursor = 0;
@@ -1019,14 +1042,18 @@ void ConnectionReportController::resolveNextScanHost()
         auto *guard = new QTimer(this);
         guard->setSingleShot(true);
         auto done = QSharedPointer<bool>::create(false);
+        const quint64 generation = m_scanGeneration;
 
-        auto complete = [this, index, guard, done](const QStringList &ips) {
+        auto complete = [this, index, guard, done, generation](const QStringList &ips) {
             if (*done) {
                 return;
             }
             *done = true;
             guard->stop();
             guard->deleteLater();
+            if (generation != m_scanGeneration) {
+                return; // scan was cancelled or restarted meanwhile
+            }
             for (const QString &ip : ips) {
                 if (!ip.isEmpty() && !m_scanTargets[index].addresses.contains(ip)) {
                     m_scanTargets[index].addresses.append(ip);
@@ -1098,8 +1125,9 @@ void ConnectionReportController::buildScanTasks()
 void ConnectionReportController::startNextScanTasks()
 {
     if (m_scanStarted.msecsTo(QDateTime::currentDateTimeUtc()) > kScanMaxDurationMs) {
-        scanDone();
-        return;
+        // Time cap: launch nothing new and let the in-flight tasks drain; the last
+        // one reaches the 'all done' branch below, so scanDone() runs exactly once.
+        m_scanTaskCursor = m_scanTasks.size();
     }
 
     while (m_scanActiveTasks < kScanConcurrency && m_scanTaskCursor < m_scanTasks.size()) {
@@ -1194,14 +1222,20 @@ void ConnectionReportController::launchScanTask(int index)
             payload[i] = static_cast<char>(device() & 0xFF);
         }
 
-        auto done = [this, index, socket, timer](const QString &state) {
-            m_scanTasks[index].udpState = state;
+        const quint64 generation = m_scanGeneration;
+        auto done = [this, index, socket, timer, generation](const QString &state) {
+            const bool current = generation == m_scanGeneration;
+            if (current) {
+                m_scanTasks[index].udpState = state;
+            }
             if (timer->isActive()) {
                 timer->stop();
             }
             timer->deleteLater();
             socket->deleteLater();
-            completeScanTask(index);
+            if (current) {
+                completeScanTask(index);
+            }
         };
 
         connect(socket, &QUdpSocket::readyRead, this, [socket, done]() {
@@ -1232,16 +1266,22 @@ void ConnectionReportController::launchScanTask(int index)
     elapsed->start();
     timer->setSingleShot(true);
 
-    auto done = [this, index, socket, timer, elapsed](const QString &state, int ms) {
-        m_scanTasks[index].tcpState = state;
-        m_scanTasks[index].rttMs = ms;
+    const quint64 generation = m_scanGeneration;
+    auto done = [this, index, socket, timer, elapsed, generation](const QString &state, int ms) {
+        const bool current = generation == m_scanGeneration;
+        if (current) {
+            m_scanTasks[index].tcpState = state;
+            m_scanTasks[index].rttMs = ms;
+        }
         if (timer->isActive()) {
             timer->stop();
         }
         timer->deleteLater();
         socket->deleteLater();
         delete elapsed;
-        completeScanTask(index);
+        if (current) {
+            completeScanTask(index);
+        }
     };
 
     connect(socket, &QTcpSocket::connected, this, [done, elapsed]() {
@@ -1374,6 +1414,20 @@ QJsonObject ConnectionReportController::buildScan() const
 
 void ConnectionReportController::finishScan()
 {
+    // The handshake subscription and timer outlive the scan: tear them down on
+    // every call, and make the function idempotent so later probes and the stale
+    // timer cannot rebuild and re-upload a finished scan.
+    if (m_scanHandshakeConn) {
+        disconnect(m_scanHandshakeConn);
+        m_scanHandshakeConn = {};
+    }
+    if (m_scanHandshakeTimer) {
+        m_scanHandshakeTimer->stop();
+    }
+    if (!m_scanning) {
+        return;
+    }
+
     m_scanPayload = buildScan();
     if (m_reportId.isEmpty()) {
         m_reportId = QUuid::createUuid().toString(QUuid::WithoutBraces);
@@ -1396,10 +1450,12 @@ void ConnectionReportController::cancel()
         return;
     }
     if (m_scanning) {
+        ++m_scanGeneration; // in-flight tasks and lookups of this scan are now stale
         m_scanTaskCursor = m_scanTasks.size();
         finishScan();
         return;
     }
+    m_autoSendPending = false;
     setBusy(false);
 }
 
@@ -2096,10 +2152,13 @@ void ConnectionReportController::handleConnectionState(int state, int errorCode,
                        << "), collecting and sending auto report";
     m_settings->setLastAutoReportAt(QDateTime::currentDateTimeUtc().toString(Qt::ISODate));
     emit lastAutoReportAtChanged();
+    // collect() is asynchronous: the report is sent once it exists, from finishReport()
+    // or, on a live tunnel, from collectTunnel()
+    m_autoSendPending = true;
     collect();
-    // Собирали, но не отправляли: auto-отчёт молча лежал в памяти и умирал
-    // при закрытии приложения. Теперь уходит сразу (тот же send, что у кнопки).
-    send();
+    if (!m_busy) {
+        m_autoSendPending = false; // collect() did not start (or already finished and sent)
+    }
 }
 
 void ConnectionReportController::setConnected(bool connected)
