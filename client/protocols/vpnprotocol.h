@@ -94,7 +94,7 @@ protected:
 
 private:
     QTimer* m_timeoutTimer;
-    ErrorCode m_lastError;
+    ErrorCode m_lastError = ErrorCode::NoError;
     quint64 m_receivedBytes;
     quint64 m_sentBytes;
 };

@@ -18,13 +18,18 @@ public:
     static QSharedPointer<IpcInterfaceReplica> Interface();
     static QSharedPointer<IpcProcessInterfaceReplica> CreatePrivilegedProcess();
 
+    // Returns the replica if it is usable, nullptr otherwise. Waits at most 1 s for the
+    // initial source and never starts a second wait while one is already running on this
+    // thread: a call made from the wait's own event loop fails fast instead of nesting.
+    static QSharedPointer<IpcInterfaceReplica> readyInterface();
+
     template <typename Func>
     static auto withInterface(Func func)
     {
-        QSharedPointer<IpcInterfaceReplica> iface = Instance().m_interface;
+        QSharedPointer<IpcInterfaceReplica> iface = readyInterface();
         using ReturnType = decltype(func(std::declval<QSharedPointer<IpcInterfaceReplica>>()));
 
-        if (iface.isNull() || !iface->waitForSource(1000) || !iface->isReplicaValid()) {
+        if (iface.isNull()) {
             qWarning() << "IpcClient::withInterface(): Service is not running";
 
             if constexpr (std::is_void_v<ReturnType>)
@@ -39,8 +44,8 @@ public:
     template <typename OnSuccess, typename OnFailure>
     static auto withInterface(OnSuccess onSuccess, OnFailure onFailure)
     {
-        QSharedPointer<IpcInterfaceReplica> iface = Instance().m_interface;
-        if (iface.isNull() || !iface->waitForSource(1000) || !iface->isReplicaValid()) {
+        QSharedPointer<IpcInterfaceReplica> iface = readyInterface();
+        if (iface.isNull()) {
             return onFailure();
         }
 
@@ -51,6 +56,7 @@ signals:
 private:
     QRemoteObjectNode m_node;
     QSharedPointer<IpcInterfaceReplica> m_interface;
+    bool m_waitingForSource = false;
 };
 
 #endif // IPCCLIENT_H

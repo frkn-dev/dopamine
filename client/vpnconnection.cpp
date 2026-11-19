@@ -126,9 +126,16 @@ void VpnConnection::onConnectionStateChanged(Vpn::ConnectionState state)
     if (state != Vpn::ConnectionState::Connected) {
         m_splitRefreshTimer.stop();
         m_splitRefreshGeneration++;
+        m_sitesRoutesGeneration++;
         m_splitRefreshPending = 0;
         m_splitRefreshResolved.clear();
         m_installedSplitRoutes.clear();
+    }
+
+    // only these states have IPC work; for the others withInterface() would just pay for a service wait
+    if (state != Vpn::ConnectionState::Connected && state != Vpn::ConnectionState::Disconnected
+        && state != Vpn::ConnectionState::Error) {
+        return;
     }
 
     auto container = m_settings->defaultContainer(m_settings->defaultServerIndex());
@@ -136,7 +143,8 @@ void VpnConnection::onConnectionStateChanged(Vpn::ConnectionState state)
     IpcClient::withInterface([&](QSharedPointer<IpcInterfaceReplica> iface) {
         switch (state) {
             case Vpn::ConnectionState::Connected: {
-                iface->resetIpStack();
+                // no resetIpStack(): the netsh ip/winsock reset is an OpenVPN/TAP leftover that
+                // stalled the service and the UI on every connect and rewrites system network state
 
                 auto flushDns = iface->flushDns();
                 if (flushDns.waitForFinished() && flushDns.returnValue())
@@ -225,6 +233,7 @@ void VpnConnection::addSitesRoutes(const QString &gw, Settings::RouteMode mode)
 #ifdef AMNEZIA_DESKTOP
     m_splitRefreshGw = gw;
     m_splitRefreshMode = mode;
+    const quint64 sitesGeneration = ++m_sitesRoutesGeneration;
 
     QStringList ips;
     QStringList sites;
@@ -248,7 +257,10 @@ void VpnConnection::addSitesRoutes(const QString &gw, Settings::RouteMode mode)
 
     // re-resolve domains
     for (const QString &site : sites) {
-        const auto &cbResolv = [this, site, gw, mode, ips](const QHostInfo &hostInfo) {
+        const auto &cbResolv = [this, site, gw, mode, ips, sitesGeneration](const QHostInfo &hostInfo) {
+            if (sitesGeneration != m_sitesRoutesGeneration)
+                return;
+
             const QList<QHostAddress> &addresses = hostInfo.addresses();
             QString ipv4Addr;
             for (const QHostAddress &addr : hostInfo.addresses()) {
@@ -264,7 +276,7 @@ void VpnConnection::addSitesRoutes(const QString &gw, Settings::RouteMode mode)
                     }
                     IpcClient::withInterface([](QSharedPointer<IpcInterfaceReplica> iface) {
                         auto reply = iface->flushDns();
-                        if (reply.waitForFinished() || !reply.returnValue())
+                        if (!reply.waitForFinished() || !reply.returnValue())
                             qWarning() << "VpnConnection::addSitesRoutes: Failed to flush DNS";
                     });
                     break;
@@ -396,11 +408,7 @@ ErrorCode VpnConnection::lastError() const
     return ErrorCode::AndroidError;
 #endif
 
-    if (m_vpnProtocol.isNull()) {
-        return ErrorCode::InternalError;
-    }
-
-    return m_vpnProtocol.data()->lastError();
+    return static_cast<ErrorCode>(m_lastErrorCache.load());
 }
 
 void VpnConnection::connectToVpn(int serverIndex, const ServerCredentials &credentials, DockerContainer container,
@@ -412,7 +420,18 @@ void VpnConnection::connectToVpn(int serverIndex, const ServerCredentials &crede
              << m_settings->routeMode();
 
     m_remoteAddress = NetworkUtilities::getIPAddress(credentials.hostName);
+#ifdef Q_OS_ANDROID
+    const bool androidRestart = m_connectionState == Vpn::ConnectionState::Connected
+            || m_connectionState == Vpn::ConnectionState::Connecting
+            || m_connectionState == Vpn::ConnectionState::Reconnecting
+            || m_connectionState == Vpn::ConnectionState::Disconnecting;
+#endif
     setConnectionState(Vpn::ConnectionState::Connecting);
+#ifdef Q_OS_ANDROID
+    // armed after the Connecting above, which already told the controller that a new
+    // attempt started: from here on a teardown Disconnected belongs to the previous tunnel
+    m_androidRestartPending = androidRestart;
+#endif
 
     m_vpnConfiguration = vpnConfiguration;
     // Keep the server entry index in the config so platform controllers (e.g. iOS)
@@ -423,6 +442,9 @@ void VpnConnection::connectToVpn(int serverIndex, const ServerCredentials &crede
 #ifdef AMNEZIA_DESKTOP
     if (m_vpnProtocol) {
         disconnect(m_vpnProtocol.data(), &VpnProtocol::protocolError, this, &VpnConnection::vpnProtocolError);
+        // the old tunnel's teardown Disconnected must not reach the controller:
+        // it would be read as a failure of the attempt that is starting now
+        disconnect(m_vpnProtocol.data(), &VpnProtocol::connectionStateChanged, this, &VpnConnection::setConnectionState);
         m_vpnProtocol->stop();
         m_vpnProtocol.reset();
     }
@@ -439,7 +461,6 @@ void VpnConnection::connectToVpn(int serverIndex, const ServerCredentials &crede
     }
     m_vpnProtocol->prepare();
 #elif defined Q_OS_ANDROID
-    androidVpnProtocol = createDefaultAndroidVpnProtocol();
     createAndroidConnections();
 
     m_vpnProtocol.reset(androidVpnProtocol);
@@ -847,6 +868,11 @@ void VpnConnection::disconnectFromVpn()
     // checkStatus no-ops while the tunnel is down
 #endif
 
+#ifdef Q_OS_ANDROID
+    // an explicit disconnect: every state that follows must reach the controller
+    m_androidRestartPending = false;
+#endif
+
     if (m_vpnProtocol.isNull()) {
         setConnectionState(Vpn::ConnectionState::Disconnected);
         return;
@@ -876,11 +902,27 @@ void VpnConnection::disconnectFromVpn()
 }
 
 void VpnConnection::setConnectionState(Vpn::ConnectionState state) {
+#ifdef Q_OS_ANDROID
+    // Teardown of the previous tunnel during a service-side restart (see the flag). Passing
+    // it on made the controller count a failure for the attempt that was just starting: it
+    // jumped to the next pool address and stopped a tunnel that was about to come up.
+    if (m_androidRestartPending) {
+        if (state == Vpn::ConnectionState::Disconnecting) {
+            return;
+        }
+        m_androidRestartPending = false;
+        if (state == Vpn::ConnectionState::Disconnected) {
+            return;
+        }
+    }
+#endif
+
     onConnectionStateChanged(state);
 
     if (state == Vpn::Disconnected && m_connectionState == Vpn::Reconnecting)
         return;
 
     m_connectionState = state;
+    m_lastErrorCache = static_cast<int>(m_vpnProtocol ? m_vpnProtocol->lastError() : ErrorCode::InternalError);
     emit connectionStateChanged(state);
 }
