@@ -18,6 +18,9 @@
 #include "ui/controllers/connectionController.h"
 #include "ui/controllers/focusController.h"
 #include "ui/controllers/healthCheckController.h"
+#include "ui/controllers/peersImportController.h"
+#include "ui/controllers/serverTestController.h"
+#include "ui/controllers/subscriptionsInfoController.h"
 #include "ui/controllers/importController.h"
 #include "ui/controllers/installController.h"
 #include "ui/controllers/keyActivationController.h"
@@ -116,6 +119,13 @@ private:
     QSharedPointer<SitesModel> m_sitesModel;
     QSharedPointer<SplitPresetsModel> m_splitPresetsModel;
     QSharedPointer<HealthCheckController> m_healthCheckController;
+    QSharedPointer<ServerTestController> m_serverTestController;
+    QSharedPointer<PeersImportController> m_peersImportController;
+    // An import is in flight: the shard cards are the thing the user is waiting
+    // for, so the first batch that lands ends the screen even when the v1 part
+    // of the fetch failed (a v2-only shard legitimately imports nothing).
+    bool m_pendingImportNavigation = false;
+    QSharedPointer<SubscriptionsInfoController> m_subscriptionsInfoController;
     QSharedPointer<AllowedDnsModel> m_allowedDnsModel;
     QSharedPointer<LocalSubnetExclusionsModel> m_localSubnetExclusionsModel;
     QSharedPointer<AppSplitTunnelingModel> m_appSplitTunnelingModel;

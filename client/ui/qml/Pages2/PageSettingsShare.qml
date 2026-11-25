@@ -36,9 +36,9 @@ PageType {
             root.connectionUuid = apiConfig.connection_uuid || ""
         }
         root.serverName = ServersModel.getProcessedServerData("name")
-        PageController.showBusyIndicator(true)
+        PageController.busyOn()
         ApiConfigsController.listShares()
-        PageController.showBusyIndicator(false)
+        PageController.busyOff()
     }
 
     Connections {
@@ -47,9 +47,9 @@ PageType {
         function onConnectionShareCreated(shareUrl, shareToken) {
             root.createdShareUrl = shareUrl
             labelTextField.textField.text = ""
-            PageController.showBusyIndicator(true)
+            PageController.busyOn()
             ApiConfigsController.listShares()
-            PageController.showBusyIndicator(false)
+            PageController.busyOff()
         }
 
         function onSharesListed(shares) {
@@ -142,9 +142,9 @@ PageType {
                         PageController.showNotificationMessage(qsTr("Enter a name for this link"))
                         return
                     }
-                    PageController.showBusyIndicator(true)
+                    PageController.busyOn()
                     ApiConfigsController.shareConnection(ServersModel.processedIndex, label)
-                    PageController.showBusyIndicator(false)
+                    PageController.busyOff()
                 }
             }
 
@@ -252,9 +252,9 @@ PageType {
                         var noButtonText = qsTr("Cancel")
 
                         var yesButtonFunction = function() {
-                            PageController.showBusyIndicator(true)
+                            PageController.busyOn()
                             ApiConfigsController.revokeShare(shareToken)
-                            PageController.showBusyIndicator(false)
+                            PageController.busyOff()
                         }
                         var noButtonFunction = function() {
                         }

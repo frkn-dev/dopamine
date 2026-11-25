@@ -1,9 +1,16 @@
 #include "coreController.h"
 
 #include <QDirIterator>
+#include <QJsonDocument>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
 #include <QTimer>
 #include <QTranslator>
+#include <QUrl>
 #include <memory>
+
+#include "dopamine_application.h"
 
 #if defined(Q_OS_ANDROID)
     #include "core/installedAppsImageProvider.h"
@@ -154,6 +161,52 @@ void CoreController::initControllers()
     m_engine->rootContext()->setContextProperty("ApiConfigsController", m_apiConfigsController.get());
     m_connectionController->setApiConfigsController(m_apiConfigsController.get());
 
+    // Peers plane: cards of the shard become rows of the same list, and the
+    // tunnel of a card is built on its first connect (see PeersImportController).
+    m_peersImportController.reset(new PeersImportController(m_serversModel, m_settings));
+    // A silent failure is indistinguishable from "nothing happened": tell the
+    // user why the shard cards are missing instead of leaving the list empty.
+    // The user must see that the subscription landed: a silent list is
+    // indistinguishable from a broken import.
+    connect(m_peersImportController.get(), &PeersImportController::cardsReady, this,
+            [this](int count) {
+                if (count <= 0) {
+                    return;
+                }
+                // Cards are the import's real result: leave the add-subscription
+                // screen even if the v1 fetch reported nothing to import.
+                if (m_pendingImportNavigation) {
+                    m_pendingImportNavigation = false;
+                    emit m_pageController->goToPageHome();
+                }
+                // animated fly-by (pterodactyl + "Servers added: N" banner)
+                // replaces the plain text toast for a landed subscription
+                emit m_pageController->showServersAddedBanner(count);
+            });
+    connect(m_peersImportController.get(), &PeersImportController::cardsFailed, this,
+            [this](int httpStatus, const QString &error) {
+                qWarning() << "[PEERS] cards failed:" << httpStatus << error;
+                emit m_pageController->showNotificationMessage(
+                        tr("Could not load servers (%1)").arg(httpStatus));
+            });
+    m_engine->rootContext()->setContextProperty("PeersImportController", m_peersImportController.get());
+
+    // One plane per subscription: a subscription that already delivered v2
+    // cards is never asked on the v1 endpoints again. Before this, every reload
+    // walked the legacy per-protocol list for it — on Android that was five
+    // `vless` requests to a shard without xray, ~25 s of sequential timeouts and
+    // a "reload failed" line on top of a perfectly good server list. v1 stays
+    // for subscriptions that have no cards (not migrated yet).
+    m_apiConfigsController->setLegacyFetchAllowed([this](const QString &subscriptionId) {
+        return !m_peersImportController || !m_peersImportController->hasV2Cards(subscriptionId);
+    });
+    m_connectionController->setPeersImportController(m_peersImportController.get());
+
+    // Settings → Subscriptions: ids from the server rows, details from the api.
+    m_subscriptionsInfoController.reset(new SubscriptionsInfoController(m_serversModel, m_settings));
+    m_engine->rootContext()->setContextProperty("SubscriptionsInfoController",
+                                                m_subscriptionsInfoController.get());
+
     m_connectionReportController.reset(
             new ConnectionReportController(m_serversModel, m_settings));
     m_engine->rootContext()->setContextProperty("ConnectionReportController",
@@ -165,22 +218,33 @@ void CoreController::initControllers()
     // shared tail of the subscription-id flows (entered UUID, frkn://sub/, activation key):
     // busy on, fetch the configs, import them ALL (no protocol selection screen), go home
     auto fetchSubscriptionConfigs = [this](const QString &subscriptionId, bool shared = false) {
-        m_pageController->showBusyIndicator(true);
+        m_pageController->busyOn();
+        m_pendingImportNavigation = true;
         // the fetch is async now: navigate when it reports completion
         // (one-shot connection — reloadSubscriptionConfigs has its own signal)
         auto connection = QSharedPointer<QMetaObject::Connection>::create();
         *connection = connect(m_apiConfigsController.get(), &ApiConfigsController::fetchSubscriptionConfigsFinished, this,
-                              [this, connection](bool success) {
+                              [this, connection, subscriptionId](bool success) {
                                   disconnect(*connection);
-                                  m_pageController->showBusyIndicator(false);
+                                  m_pageController->busyOff();
                                   qDebug() << "[CORE] fetch subscription configs result:" << success;
-                                  if (success) {
-                                      const int importedCount = m_apiConfigsController->installAllSubscriptionConfigs();
-                                      qDebug() << "[CORE] imported all subscription configs:" << importedCount;
+                                  // Peers cards live next to the imported connections: same
+                                  // list, tunnels built on demand instead of fetched configs.
+                                  // Refresh them whatever the v1 import did — a shard that
+                                  // serves only peer protocols legitimately imports nothing,
+                                  // and gating the refresh on `success` kept the cards out.
+                                  m_peersImportController->refreshCards(subscriptionId, true);
+                                  if (!success) {
+                                      return;
+                                  }
+                                  const int importedCount = m_apiConfigsController->installAllSubscriptionConfigs();
+                                  qDebug() << "[CORE] imported all subscription configs:" << importedCount;
+                                  if (importedCount > 0) {
                                       emit m_pageController->showNotificationMessage(
                                               tr("Imported %1 configurations").arg(importedCount));
-                                      emit m_pageController->goToPageHome();
                                   }
+                                  m_pendingImportNavigation = false;
+                                  emit m_pageController->goToPageHome();
                               });
         m_apiConfigsController->fetchSubscriptionConfigs(subscriptionId, shared);
     };
@@ -189,6 +253,53 @@ void CoreController::initControllers()
             [this, fetchSubscriptionConfigs](const QString &subscriptionId) {
                 qDebug() << "[CORE] frkn subscription link detected:" << subscriptionId;
                 fetchSubscriptionConfigs(subscriptionId);
+            });
+
+    // FRKN short code from the ЛК (k7f2-9mxq-4t): s.frkn.org/s/<code> answers
+    // with {"subscription_id": ...}, which then takes the regular flow. A 404
+    // means the text was a legacy subscriber id after all.
+    connect(m_importController.get(), &ImportController::frknShortCodeDetected, this,
+            [this, fetchSubscriptionConfigs](const QString &code) {
+                qDebug() << "[CORE] frkn short code detected:" << code;
+                m_pageController->busyOn();
+
+                QNetworkRequest request;
+                request.setUrl(QUrl(QStringLiteral("https://s.frkn.org/s/") + code));
+                request.setRawHeader("Accept", "application/json");
+                // browsers get a 302 to the subscription page; we want the JSON payload
+                request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::ManualRedirectPolicy);
+                request.setTransferTimeout(45000);
+
+                QNetworkReply *reply = amnApp->networkManager()->get(request);
+                connect(reply, &QNetworkReply::finished, this,
+                        [this, reply, code, fetchSubscriptionConfigs]() {
+                            reply->deleteLater();
+
+                            const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+                            QString subscriptionId;
+                            if (reply->error() == QNetworkReply::NoError && status == 200) {
+                                subscriptionId = QJsonDocument::fromJson(reply->readAll())
+                                                         .object()
+                                                         .value(QStringLiteral("subscription_id"))
+                                                         .toString();
+                            }
+                            if (!subscriptionId.isEmpty()) {
+                                // fetchSubscriptionConfigs keeps the busy indicator going
+                                fetchSubscriptionConfigs(subscriptionId);
+                                return;
+                            }
+                            if (status == 404) {
+                                // not a short code after all — legacy subscriber-id flow;
+                                // its result signals drive the page, busy stays on
+                                m_importController->fetchAndImportFromUrl(
+                                        QStringLiteral("https://api.frkn.org/sub?id=") + QUrl::toPercentEncoding(code));
+                                return;
+                            }
+
+                            qWarning() << "[FRKN] Short code resolve failed:" << reply->errorString() << "status:" << status;
+                            m_pageController->busyOff();
+                            emit m_importController->unknownFormatDetected(code);
+                        });
             });
 
     // frkn://sub/shared/<uuid> — the same import flow, authenticating by the
@@ -202,7 +313,7 @@ void CoreController::initControllers()
     connect(m_importController.get(), &ImportController::frknActivationKeyDetected, this,
             [this](const QString &code) {
                 qDebug() << "[CORE] frkn activation key detected";
-                m_pageController->showBusyIndicator(true);
+                m_pageController->busyOn();
                 m_keyActivationController->validateKey(code);
             });
 
@@ -212,16 +323,16 @@ void CoreController::initControllers()
 
     connect(m_keyActivationController.get(), &KeyActivationController::keyErrorOccurred, this,
             [this](const QString &message) {
-                m_pageController->showBusyIndicator(false);
+                m_pageController->busyOff();
                 emit m_pageController->showErrorMessage(message);
             });
 
     connect(m_importController.get(), &ImportController::frknShareLinkDetected, this,
             [this](const QString &shareToken) {
                 qDebug() << "[CORE] frkn share link detected";
-                m_pageController->showBusyIndicator(true);
+                m_pageController->busyOn();
                 m_apiConfigsController->importSharedConnection(shareToken);
-                m_pageController->showBusyIndicator(false);
+                m_pageController->busyOff();
             });
 
     m_splitPresetsModel.reset(new SplitPresetsModel(m_settings, m_serversModel, this));
@@ -231,9 +342,41 @@ void CoreController::initControllers()
     m_engine->rootContext()->setContextProperty("HealthCheckController", m_healthCheckController.get());
     m_connectionController->setHealthCheckController(m_healthCheckController.get());
     m_connectionReportController->setHealthCheckController(m_healthCheckController.get());
+
+    m_serverTestController.reset(new ServerTestController(m_serversModel, m_settings, this));
+    m_engine->rootContext()->setContextProperty("ServerTestController", m_serverTestController.get());
+    // The speed test provisions a protocol the user picks but the pool has no
+    // config for yet: that request goes through the peers plane, which owns the
+    // prepare call and the per-card config cache.
+    m_serverTestController->setPeersImportController(m_peersImportController.get());
     connect(m_apiConfigsController.get(), &ApiConfigsController::reloadSubscriptionConfigsFinished, this,
             [this](bool success) {
-                if (!success || m_connectionController->isConnected() || m_connectionController->isConnectionInProgress()) {
+                if (!success) {
+                    return;
+                }
+                // The startup / periodic reload is the moment the cards of the
+                // shard are re-read: a revoked grant must drop its row even when
+                // the user never opens the subscription screen.
+                // Guarded prune: only our own gateway rows, only for the
+                // subscriptions that actually answered, and never on an empty
+                // answer. A retired v1 connection (v2 migration) leaves the list;
+                // a manual config or another provider's server cannot match.
+                m_apiConfigsController->pruneAbsentRowsForFetched();
+                const QString subscriptionId = m_apiConfigsController->getSubscriptionId();
+                if (!subscriptionId.isEmpty()) {
+                    m_peersImportController->refreshCards(subscriptionId);
+                }
+                // Every subscription that has peer rows is re-read too, not only
+                // the one the v1 configs resolve to. A second imported
+                // subscription (or a v2-only one) used to keep whatever row an
+                // older build wrote — one card, no protocol variants — with no
+                // way to switch the pool's protocol.
+                for (const QString &id : m_serversModel->availableSubscriptions()) {
+                    if (id != subscriptionId) {
+                        m_peersImportController->refreshCards(id);
+                    }
+                }
+                if (m_connectionController->isConnected() || m_connectionController->isConnectionInProgress()) {
                     return;
                 }
                 m_healthCheckController->startProbe(true);
@@ -259,6 +402,13 @@ void CoreController::initControllers()
             } else if (state == Vpn::ConnectionState::Disconnected && m_serversModel) {
                 m_serversModel->clearHealthResults();
             }
+        }
+
+        // Same rule for the server test: a pass started while the tunnel is up
+        // measures the exit path instead of the user's path to the node.
+        if (m_serverTestController) {
+            m_serverTestController->setTunnelActive(state == Vpn::ConnectionState::Connecting
+                                                    || state == Vpn::ConnectionState::Connected);
         }
 
         // Автосбор телеметрии сессии: пока туннель поднят, клиент раз в минуту
@@ -529,6 +679,15 @@ void CoreController::initPrepareConfigHandler()
         // когда строка ещё ни разу не поднималась.
         const int row = m_serversModel->getProcessedServerIndex();
         if (row >= 0 && m_serversModel->serverHasUsableConfig(row)) {
+            m_connectionController->openConnection();
+            return;
+        }
+
+        // A peers row has no config until its own tunnel is created on the first
+        // connect (PeersImportController::ensureTunnelForRow). The gateway
+        // validation below would stop it with "no VPN configuration on this
+        // server" before the connect ever reaches that lazy creation.
+        if (row >= 0 && !m_serversModel->peerCardId(row).isEmpty()) {
             m_connectionController->openConnection();
             return;
         }

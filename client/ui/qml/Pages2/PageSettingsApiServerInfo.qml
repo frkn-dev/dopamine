@@ -50,6 +50,105 @@ PageType {
     property int openedForIndex: -1
     property int configRevision: 0
 
+    // Stable identity of the row this card was opened on (`peer:<cardId>` /
+    // `uuid:<connection_uuid>`). Row positions move whenever syncPeerCards()
+    // rebuilds a subscription — which is exactly what «обновить» and the
+    // background peers import do — so every read that must hit *this* card
+    // re-resolves the row from the identity instead of trusting the number
+    // captured when the page was created (a stale number named another card, and
+    // its config was empty right after the refresh).
+    property string openedIdentity: ""
+    readonly property int openedRow: {
+        var revision = root.configRevision
+        var row = root.openedIdentity !== "" ? ServersModel.rowForIdentity(root.openedIdentity) : -1
+        return row >= 0 ? row : root.openedForIndex
+    }
+    // The router (wg-quick INI) text of the card, re-read on every change of the
+    // row (openedRow follows configRevision). When the card has no tunnel yet
+    // — a peers card that was never connected — it is empty and the row below
+    // stays hidden instead of opening an empty popup.
+    readonly property string routerConfigText: ApiConfigsController.serverConfigIniForIndex(root.openedRow)
+
+    // A peers pool serves one card per protocol; the row in the list names the
+    // protocol in use and the switch lives here, on the card the gear opens.
+    // Both read through configRevision so they follow a switch and a reload.
+    // The list is the row's own `peerVariants`, i.e. the fresh card set written
+    // by the last /v1/locations refresh — never the stored protocol choice,
+    // which cannot shrink it: two served protocols always mean two entries.
+    readonly property var peerVariants: {
+        var revision = root.configRevision
+        var data = ServersModel.getServerDisplayData(root.openedRow)
+        if ((!data || data.peerVariants === undefined || data.peerVariants.length === 0)
+                && root.openedIdentity !== "") {
+            // The row may have moved under a stale position; resolve again by
+            // the identity captured when the card was opened.
+            data = ServersModel.getServerDisplayData(ServersModel.rowForIdentity(root.openedIdentity))
+        }
+        return (data && data.peerVariants !== undefined) ? data.peerVariants : []
+    }
+
+    // The picker exists exactly while the pool serves more than one protocol.
+    // It must not depend on the selected card id (a stale one used to leave the
+    // row without any pill to press) — the highlight below is what uses it.
+    readonly property bool peerProtocolSwitchable: root.peerVariants.length > 1
+
+    readonly property string activePeerCardId: {
+        var revision = root.configRevision
+        return ServersModel.peerCardId(root.openedRow)
+    }
+
+    function protocolDisplayLabel(proto) {
+        if (proto === "vless") return "VLESS"
+        if (proto === "hysteria2") return "Hysteria2"
+        if (proto === "awg") return "AmneziaWG"
+        if (proto === "awg-mobile" || proto === "amneziawgmobile") return "AmneziaWG Mobile"
+        if (proto === "wireguard") return "WireGuard"
+        return proto
+    }
+
+    function selectPeerProtocol(cardId) {
+        if (cardId === "" || cardId === root.activePeerCardId) {
+            return
+        }
+        // Re-points the row at that protocol's card (POST /v1/peers receives it)
+        // and remembers the choice per pool; the list picks it up on dataChanged.
+        var row = root.openedRow
+        if (ServersModel.setPeerPoolProtocol(row, cardId)) {
+            // The row's identity is its card id, and the switch just changed it:
+            // follow the new one, or the next refresh would have to fall back to
+            // a row number again.
+            root.openedIdentity = ServersModel.rowIdentity(row)
+            root.configRevision++
+        }
+    }
+
+    // Set while the peers card below is being reloaded: the api answer arrives
+    // through PeersImportController, and only this page should report it.
+    property bool peerReloadPending: false
+
+    // A peers/shard card has no v1 config to refetch — its tunnel is built and
+    // cached on the device. The reload drops that cache and re-reads the card
+    // from POST /v1/locations (PeersImportController::reloadCard).
+    Connections {
+        target: PeersImportController
+
+        function onCardReloadFinished(success, errorText) {
+            if (!root.peerReloadPending) {
+                return
+            }
+            root.peerReloadPending = false
+            PageController.busyOff()
+            // addresses/ports of the card may have changed with the new answer
+            root.configRevision++
+            if (success) {
+                PageController.showNotificationMessage(qsTr("Servers reloaded"))
+            } else {
+                PageController.showNotificationMessage(errorText !== ""
+                                                       ? errorText : qsTr("Failed to reload servers"))
+            }
+        }
+    }
+
     // После отключения VPN пробы снова имеют смысл — сразу меряем, чтобы в
     // карточке не висело «not measured yet» до ближайшего таймера.
     Connections {
@@ -75,6 +174,20 @@ PageType {
     Component.onCompleted: {
 
         root.openedForIndex = ServersModel.processedIndex
+        root.openedIdentity = ServersModel.rowIdentity(root.openedForIndex)
+        // A peer row written before the pool variants existed carries no
+        // `peerVariants` at all: the card shows one protocol and, with the list
+        // picker gone, there is no way to reach the other one. Ask for the
+        // fresh card set once — the row is rebuilt from /v1/locations and the
+        // protocol picker appears. Plain refresh (no reloadCard): it must not
+        // drop the cached tunnel of the card we are looking at.
+        var openedData = ServersModel.getServerDisplayData(root.openedForIndex)
+        var openedSubscription = ServersModel.subscriptionIdForRow(root.openedForIndex)
+        if (openedData && openedData.isPeerPool
+                && (openedData.peerVariants === undefined || openedData.peerVariants.length === 0)
+                && openedSubscription !== "") {
+            PeersImportController.refreshCards(openedSubscription)
+        }
         // чужой отчёт (собранный для другого сервера) показывать и копировать нельзя
         ConnectionReportController.resetReport()
 
@@ -113,9 +226,9 @@ PageType {
         // the card opens with cached data for instant display, but the local copy
         // has no subscription_end_date — refresh from the server so the status
         // row shows "Active · until <date>" (pattern copied from the devices page)
-        PageController.showBusyIndicator(true)
+        PageController.busyOn()
         ApiSettingsController.getAccountInfo(true)
-        PageController.showBusyIndicator(false)
+        PageController.busyOff()
     }
 
     function techInfoText() {
@@ -141,7 +254,8 @@ PageType {
         if (mtu !== "") {
             lines.push((SettingsController.mtuOverride > 0 ? qsTr("MTU (overridden)") : "MTU") + ": " + mtu)
         }
-        var hostName = ServersModel.getProcessedServerData("hostName")
+        // endpointHost = hostName or, for hysteria2, the domain from its outbound
+        var hostName = ServersModel.getProcessedServerData("endpointHost")
         // «Primary endpoint» ничего не говорил юзеру: показываем адрес, который
         // реально в работе, а если не подключены — тот, с которым пойдём.
         var inUseEndpoint = ""
@@ -154,6 +268,11 @@ PageType {
         }
         if (inUseEndpoint !== "") {
             lines.push((hasInUse ? qsTr("Endpoint in use") : qsTr("Endpoint")) + ": " + inUseEndpoint)
+        }
+        // hysteria2 dials an address but verifies TLS against this domain
+        var endpointDomain = ServersModel.getProcessedServerData("endpointDomain")
+        if (endpointDomain !== "") {
+            lines.push(qsTr("Domain") + ": " + endpointDomain)
         }
         var usePort = (hasInUse && ConnectionController.currentPort > 0)
                 ? ConnectionController.currentPort : root.processedServerPort
@@ -190,6 +309,13 @@ PageType {
         // пула считались один раз при создании и цифры не появлялись,
         // пока не переоткроешь карточку
         function onDataChanged() {
+            root.configRevision++
+        }
+
+        // A rebuild (syncPeerCards after «обновить» or the background peers
+        // import) moves the rows while the card stays open: re-resolve the row
+        // this page is pinned to instead of keeping the old position.
+        function onModelReset() {
             root.configRevision++
         }
     }
@@ -258,7 +384,7 @@ PageType {
                 actionButtonImage: "qrc:/images/controls/edit-3.svg"
 
                 headerText: root.processedServer.name
-                badgeText: root.openedForIndex === ServersModel.defaultIndex ? qsTr("in use") : ""
+                badgeText: root.openedRow === ServersModel.defaultIndex ? qsTr("in use") : ""
                 descriptionText: root.processedServer.serverDescription !== "" ? root.processedServer.serverDescription : ApiAccountInfoModel.data("serviceDescription")
 
                 actionButtonFunction: function() {
@@ -384,7 +510,7 @@ PageType {
                     if (ConnectionReportController.busy || !SettingsController.isTelemetryEnabled) {
                         return
                     }
-                    ConnectionReportController.collect(root.openedForIndex)
+                    ConnectionReportController.collect(root.openedRow)
                 }
             }
 
@@ -417,7 +543,7 @@ PageType {
                     if (ConnectionReportController.busy || !SettingsController.isTelemetryEnabled) {
                         return
                     }
-                    ConnectionReportController.collect(root.openedForIndex)
+                    ConnectionReportController.collect(root.openedRow)
                 }
             }
 
@@ -429,7 +555,7 @@ PageType {
                 Layout.rightMargin: 16
 
                 visible: SettingsController.isTelemetryEnabled && ConnectionReportController.hasReport
-                         && ConnectionReportController.reportIndex === root.openedForIndex
+                         && ConnectionReportController.reportIndex === root.openedRow
                 enabled: ConnectionReportController.sendState !== "sending"
 
                 text: qsTr("Send to support")
@@ -463,7 +589,7 @@ PageType {
                 Layout.rightMargin: 16
 
                 visible: SettingsController.isTelemetryEnabled && ConnectionReportController.hasReport
-                         && ConnectionReportController.reportIndex === root.openedForIndex
+                         && ConnectionReportController.reportIndex === root.openedRow
 
                 text: qsTr("Copy report")
                 descriptionText: qsTr("Same JSON as Send — paste it wherever you need")
@@ -530,6 +656,65 @@ PageType {
                 visible: rightText !== ""
             }
 
+            // The protocol of a pool is a property of the row: it is switched here,
+            // not in the list, and the row only names the one in use. Selection is
+            // carried by the border alone, the fill stays transparent.
+            RowLayout {
+                id: peerProtocolPicker
+
+                Layout.fillWidth: true
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+                Layout.bottomMargin: 8
+
+                spacing: 8
+
+                visible: root.peerProtocolSwitchable
+
+                Repeater {
+                    model: root.peerVariants
+
+                    delegate: Rectangle {
+                        id: peerProtocolPill
+
+                        property var variantEntry: modelData
+
+                        readonly property bool active: variantEntry !== undefined
+                                                       && root.activePeerCardId === variantEntry.cardId
+
+                        implicitWidth: pillLabel.implicitWidth + 24
+                        implicitHeight: 28
+
+                        radius: 14
+
+                        color: "transparent"
+                        border.width: 1
+                        border.color: active ? DopamineStyle.color.goldenApricot
+                                             : DopamineStyle.color.slateGray
+
+                        CaptionTextType {
+                            id: pillLabel
+
+                            anchors.centerIn: parent
+
+                            text: root.protocolDisplayLabel(peerProtocolPill.variantEntry
+                                                            ? peerProtocolPill.variantEntry.protocol : "")
+                            color: DopamineStyle.color.paleGray
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+
+                            onClicked: root.selectPeerProtocol(peerProtocolPill.variantEntry
+                                                               ? peerProtocolPill.variantEntry.cardId : "")
+                        }
+                    }
+                }
+
+                Item { Layout.fillWidth: true }
+            }
+
             LabelWithImageType {
                 Layout.fillWidth: true
                 Layout.margins: 16
@@ -542,10 +727,25 @@ PageType {
                         && ConnectionController.currentEndpoint !== ""
                 property string endpointText: showInUse
                         ? ConnectionController.currentEndpoint
-                        : ServersModel.getProcessedServerData("hostName")
+                        : ServersModel.getProcessedServerData("endpointHost")
 
                 leftText: showInUse ? qsTr("Endpoint in use") : qsTr("Endpoint")
                 rightText: endpointText
+                visible: rightText !== ""
+            }
+
+            LabelWithImageType {
+                Layout.fillWidth: true
+                Layout.margins: 16
+
+                imageSource: "qrc:/images/controls/server.svg"
+
+                // hysteria2 rows dial an address but verify TLS against this
+                // domain, so the pair says where we actually go.
+                property string domainText: ServersModel.getProcessedServerData("endpointDomain")
+
+                leftText: qsTr("Domain")
+                rightText: domainText
                 visible: rightText !== ""
             }
 
@@ -628,7 +828,7 @@ PageType {
                             // здоровье адреса — по ТОЙ строке, которая открыта в
                             // карточке: иначе порты берутся у processedIndex и
                             // замер «не находится» (not measured при живом кэше)
-                            return ServersModel.endpointHealthFor(root.openedForIndex, modelData)
+                            return ServersModel.endpointHealthFor(root.openedRow, modelData)
                         }
                         readonly property bool userDisabled: SettingsController.poolDisabledIps.indexOf(modelData) >= 0
                         // проба сказала «молчит» — адрес не пробуем, и тумблер
@@ -856,10 +1056,19 @@ PageType {
                 descriptionText: qsTr("WireGuard configuration file (INI) for routers and other clients")
                 rightImageSource: "qrc:/images/controls/chevron-right.svg"
 
-                visible: ApiConfigsController.getCurrentServerConfigIni() !== ""
+                // routerConfigText re-reads the row of *this* card on every
+                // configRevision bump: an invokable call in a binding has no
+                // notifiable dependency, so the row used to keep the answer it
+                // got when the page was created (visible with an empty config
+                // after a refresh, or hidden after the fresh config arrived).
+                visible: root.routerConfigText !== ""
 
                 clickedFunction: function() {
-                    configPopup.text = ApiConfigsController.getCurrentServerConfigIni()
+                    var text = root.routerConfigText
+                    if (text === "") {
+                        return
+                    }
+                    configPopup.text = text
                     configPopup.titleText = qsTr("Configuration file (INI)")
                     configPopup.open()
                 }
@@ -928,7 +1137,8 @@ PageType {
                 rightImageSource: "qrc:/images/controls/chevron-right.svg"
 
                 clickedFunction: function() {
-                    configPopup.text = ApiConfigsController.getCurrentServerConfigJson()
+                    // Same row this card is on now, not the one it opened with
+                    configPopup.text = ApiConfigsController.serverConfigJsonForIndex(root.openedRow)
                     configPopup.titleText = qsTr("Raw JSON")
                     configPopup.open()
                 }
@@ -1048,9 +1258,27 @@ PageType {
                         if (ServersModel.isDefaultServerCurrentlyProcessed() && ConnectionController.isConnected) {
                             PageController.showNotificationMessage(qsTr("Cannot reload API config during active connection"))
                         } else {
-                            PageController.showBusyIndicator(true)
-                            ApiConfigsController.updateServiceFromGateway(ServersModel.processedIndex, "", "", true)
-                            PageController.showBusyIndicator(false)
+                            // The row of *this* card, resolved by identity: the
+                            // refresh below rebuilds the row list, so the number
+                            // captured when the page opened may name another
+                            // server by the time the user hits «обновить» twice.
+                            var serverIndex = root.openedRow >= 0
+                                    ? root.openedRow : ServersModel.processedIndex
+                            var cardId = ServersModel.peerCardId(serverIndex)
+                            if (cardId !== "") {
+                                // Peers/shard card: there is no v1 config behind it,
+                                // and the v1 answer has no inbounds for a shard
+                                // subscription. Drop the cached tunnel and re-read
+                                // the card from POST /v1/locations instead; the
+                                // result notification arrives via PeersImportController.
+                                PageController.busyOn()
+                                root.peerReloadPending = true
+                                PeersImportController.reloadCard(serverIndex)
+                                return
+                            }
+                            PageController.busyOn()
+                            ApiConfigsController.updateServiceFromGateway(serverIndex, "", "", true)
+                            PageController.busyOff()
                         }
                     }
                     var noButtonFunction = function() {

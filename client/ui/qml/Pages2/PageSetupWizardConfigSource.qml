@@ -49,23 +49,23 @@ PageType {
         }
 
         function onSubscriptionConfigsReady(count) {
-            PageController.showBusyIndicator(false)
+            PageController.busyOff()
             subscriptionDrawer.configCount = count
             subscriptionDrawer.openTriggered()
         }
 
         function onSubscriptionErrorOccurred(message) {
-            PageController.showBusyIndicator(false)
+            PageController.busyOff()
             PageController.showErrorMessage(message)
         }
 
         function onSubscriptionAllDuplicates() {
-            PageController.showBusyIndicator(false)
+            PageController.busyOff()
             PageController.showNotificationMessage(qsTr("All configurations have already been added"))
         }
 
         function onImportFinished() {
-            PageController.showBusyIndicator(false)
+            PageController.busyOff()
             if (!ConnectionController.isConnected) {
                 ServersModel.setDefaultServerIndex(ServersModel.getServersCount() - 1)
                 ServersModel.processedIndex = ServersModel.defaultIndex
@@ -77,18 +77,20 @@ PageType {
     Connections {
         target: KeyActivationController
 
+        // A valid key is activated without an extra tap: the controller chains
+        // validate -> activate itself, so do not open the drawer here and keep
+        // the busy indicator on. The drawer only appears when the api asks for
+        // an email (onEmailRequired) or when there is an error to show.
         function onKeyValidationPassed(code, days, trafficGib, isLite) {
-            PageController.showBusyIndicator(false)
             keyActivationDrawer.code = code
             keyActivationDrawer.days = days
             keyActivationDrawer.trafficGib = trafficGib
             keyActivationDrawer.isLite = isLite
             keyActivationDrawer.emailForced = false
-            keyActivationDrawer.openTriggered()
         }
 
         function onEmailRequired() {
-            PageController.showBusyIndicator(false)
+            PageController.busyOff()
             keyActivationDrawer.emailForced = true
             keyActivationDrawer.openTriggered()
         }
@@ -101,7 +103,7 @@ PageType {
         target: ImportController
 
         function onUnknownFormatDetected(rawInput) {
-            PageController.showBusyIndicator(false)
+            PageController.busyOff()
             PageController.showErrorMessage(qsTr("Unrecognized input — paste an activation key, frkn:// link, subscription UUID, vless:// configuration, or a WireGuard/Amnezia config"))
         }
     }
@@ -211,9 +213,9 @@ PageType {
                                                                             ".log")
                                 }
                                 if (fileName !== "") {
-                                    PageController.showBusyIndicator(true)
+                                    PageController.busyOn()
                                     SettingsController.exportLogsFile(fileName)
-                                    PageController.showBusyIndicator(false)
+                                    PageController.busyOff()
                                     PageController.showNotificationMessage(qsTr("Logs file saved"))
                                 }
                             }
@@ -286,7 +288,7 @@ PageType {
                 Layout.leftMargin: 16
                 // A plain tap target, not a second input box: the button used to
                 // be as tall as the key field above it.
-                Layout.preferredHeight: root.tvLayout ? Math.max(56, textKey.height) : 32
+                Layout.preferredHeight: root.tvLayout ? Math.max(56, textKey.height) : 48
 
                 visible: root.tvLayout || textKey.inputText !== ""
                 enabled: !root.tvLayout || textKey.inputText.trim() !== ""
@@ -312,10 +314,18 @@ PageType {
                         var isFrknSubscription = inputText.startsWith("frkn://sub/")
                         var isFrknShare = inputText.startsWith("frkn://conn/")
                         var isUuid = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(inputText)
+                        // ЛК short code — Crockford base32, 10 chars, pasted as
+                        // 2p1c-5n07-cq, 2p1cn07cq or with spaces. coreController
+                        // resolves it through s.frkn.org, so it must not be
+                        // treated as a key or as a plain subscriber id.
+                        var shortCode = inputText.replace(/[\s-]/g, "").toLowerCase()
+                                                 .replace(/o/g, "0").replace(/[il]/g, "1")
+                        var isShortCode = /^[0-9abcdefghjkmnpqrstvwxyz]{10}$/.test(shortCode)
                         var isHttp = inputText.startsWith("http://") || inputText.startsWith("https://")
                         var isPlainId = !inputText.includes(" ") && !inputText.includes("://")
-                        if ((isFrkn && !isFrknSubscription && !isFrknShare) || isHttp || (isPlainId && !isUuid)) {
-                            PageController.showBusyIndicator(true)
+                        if ((isFrkn && !isFrknSubscription && !isFrknShare) || isHttp
+                                || (isPlainId && !isUuid && !isShortCode)) {
+                            PageController.busyOn()
                         }
                     }
                 }
@@ -406,9 +416,9 @@ PageType {
         property string imageSource: "qrc:/images/controls/app.svg"
         property bool isVisible: true
         property var handler: function() {
-            PageController.showBusyIndicator(true)
+            PageController.busyOn()
             var result = ApiConfigsController.fillAvailableServices()
-            PageController.showBusyIndicator(false)
+            PageController.busyOff()
             if (result) {
                 PageController.goToPage(PageEnum.PageSetupWizardApiServicesList)
             }
@@ -426,9 +436,9 @@ PageType {
             var filePath = SystemController.getFileName(qsTr("Open backup file"),
                                                         qsTr("Backup files (*.backup)"))
             if (filePath !== "") {
-                PageController.showBusyIndicator(true)
+                PageController.busyOn()
                 SettingsController.restoreAppConfig(filePath)
-                PageController.showBusyIndicator(false)
+                PageController.busyOff()
             }
         }
     }
@@ -475,9 +485,9 @@ PageType {
         property string imageSource: "qrc:/images/controls/refresh-cw.svg"
         property bool isVisible: Qt.platform.os === "ios" || IsMacOsNeBuild
         property var handler: function() {
-            PageController.showBusyIndicator(true)
+            PageController.busyOn()
             ApiConfigsController.restoreSerivceFromAppStore()
-            PageController.showBusyIndicator(false)
+            PageController.busyOff()
         }
     }
 
@@ -571,7 +581,7 @@ PageType {
                 text: qsTr("Add %n server(s)", "", subscriptionDrawer.configCount)
 
                 clickedFunc: function() {
-                    PageController.showBusyIndicator(true)
+                    PageController.busyOn()
                     subscriptionDrawer.closeTriggered()
                     ImportController.importSubscriptionConfigs(replacePreviousCheckbox.checked)
                 }
@@ -690,7 +700,7 @@ PageType {
                         PageController.showErrorMessage(qsTr("Enter your email"))
                         return
                     }
-                    PageController.showBusyIndicator(true)
+                    PageController.busyOn()
                     keyActivationDrawer.closeTriggered()
                     KeyActivationController.activateKey(keyActivationDrawer.code, email)
                 }

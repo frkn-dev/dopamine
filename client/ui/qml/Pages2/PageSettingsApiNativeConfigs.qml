@@ -193,13 +193,13 @@ PageType {
                                                     configExtension)
         }
         if (fileName !== "") {
-            PageController.showBusyIndicator(true)
+            PageController.busyOn()
             let result = ApiConfigsController.exportNativeConfig(countryCode, fileName)
             if (result) {
                 ApiSettingsController.getAccountInfo(true, true)
             }
 
-            PageController.showBusyIndicator(false)
+            PageController.busyOff()
             if (result) {
                 PageController.showNotificationMessage(qsTr("Config file saved"))
             }
@@ -207,12 +207,12 @@ PageType {
     }
 
     function revokeConfig(countryCode) {
-        PageController.showBusyIndicator(true)
+        PageController.busyOn()
         let result = ApiConfigsController.revokeNativeConfig(countryCode)
         if (result) {
             ApiSettingsController.getAccountInfo(true, true)
         }
-        PageController.showBusyIndicator(false)
+        PageController.busyOff()
 
         if (result) {
             PageController.showNotificationMessage(qsTr("The config has been revoked"))

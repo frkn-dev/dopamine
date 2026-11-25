@@ -483,11 +483,23 @@ namespace
         // (top-level, also on share-token fetches) — persist it so connect time can
         // pick a random entry address and fail over between them. Absent = single
         // address, and a previously stored list must not linger
-        const QJsonArray nodeIps = QJsonDocument::fromJson(apiResponseBody).object().value(QStringLiteral("node_ips")).toArray();
+        const QJsonObject apiResponse = QJsonDocument::fromJson(apiResponseBody).object();
+        const QJsonArray nodeIps = apiResponse.value(QStringLiteral("node_ips")).toArray();
         if (!nodeIps.isEmpty()) {
             serverConfig[QStringLiteral("node_ips")] = nodeIps;
         } else {
             serverConfig.remove(QStringLiteral("node_ips"));
+        }
+        // The ONE endpoint shape: a new api sends `endpoints[]` next to (or
+        // instead of) the legacy fields. It is stored verbatim and
+        // ServersModel::addServer/editServer derives node_ips/node_ports/
+        // node_weights from it, so the address picker behaves identically for
+        // both sources. Absent = old api, and a stored list must not linger.
+        const QJsonArray endpoints = apiResponse.value(QStringLiteral("endpoints")).toArray();
+        if (!endpoints.isEmpty()) {
+            serverConfig[QStringLiteral("endpoints")] = endpoints;
+        } else {
+            serverConfig.remove(QStringLiteral("endpoints"));
         }
 
         if (newServerConfig.value(config_key::configVersion).toInt() == apiDefs::ConfigSource::AmneziaGateway) {
@@ -660,7 +672,10 @@ namespace
                                                 .toObject()
                                                 .value(configKey::serviceProtocol)
                                                 .toString();
-            if (rawProtocol.compare(QStringLiteral("AmneziaWgMobile"), Qt::CaseInsensitive) == 0) {
+            // The api serialises the wire tag ("awg-mobile"); older builds used
+            // the camel-case one. Both are the mobile variant and rank first.
+            if (rawProtocol.compare(QStringLiteral("AmneziaWgMobile"), Qt::CaseInsensitive) == 0
+                || rawProtocol.compare(QStringLiteral("awg-mobile"), Qt::CaseInsensitive) == 0) {
                 return 0;
             }
             const QString protocol = canonicalServiceProtocol(rawProtocol);
@@ -727,6 +742,17 @@ QString ApiConfigsController::resolveSubscriptionId() const
         if (subscriptionId.isEmpty()) {
             subscriptionId = serverConfig.value(configKey::authData).toObject().value(apiDefs::key::apiKey).toString();
         }
+        if (!subscriptionId.isEmpty()) {
+            return subscriptionId;
+        }
+    }
+    // A v2-only install has no v1 gateway row: the peers rows carry the
+    // subscription in `peerSubscriptionId`. Without this fallback the startup
+    // reload resolved no subscription, so the card refresh that hangs off it
+    // never ran and a pool row written by an older build stayed stale.
+    for (int i = 0; i < m_serversModel->getServersCount(); ++i) {
+        const QString subscriptionId =
+                m_serversModel->getServerConfig(i).value(QStringLiteral("peerSubscriptionId")).toString();
         if (!subscriptionId.isEmpty()) {
             return subscriptionId;
         }
@@ -2259,13 +2285,23 @@ bool ApiConfigsController::isAwgProtocol()
 
 QString ApiConfigsController::getCurrentServerConfigJson()
 {
-    auto serverConfig = m_serversModel->getServerConfig(m_serversModel->getProcessedServerIndex());
+    return serverConfigJsonForIndex(m_serversModel->getProcessedServerIndex());
+}
+
+QString ApiConfigsController::serverConfigJsonForIndex(const int serverIndex)
+{
+    auto serverConfig = m_serversModel->getServerConfig(serverIndex);
     return QString(QJsonDocument(serverConfig).toJson(QJsonDocument::Indented));
 }
 
 QString ApiConfigsController::getCurrentServerConfigIni()
 {
-    auto serverConfig = m_serversModel->getServerConfig(m_serversModel->getProcessedServerIndex());
+    return serverConfigIniForIndex(m_serversModel->getProcessedServerIndex());
+}
+
+QString ApiConfigsController::serverConfigIniForIndex(const int serverIndex)
+{
+    auto serverConfig = m_serversModel->getServerConfig(serverIndex);
     auto containers = serverConfig.value(config_key::containers).toArray();
     if (containers.isEmpty()) {
         return "";
@@ -2813,7 +2849,7 @@ void ApiConfigsController::fetchSubscriptionFeed(const QString &subscriptionId,
                 appendProtocolDataToApiPayload(serviceProtocol, protocolData, apiPayload);
 
                 executeRequestAsync(QString("%1v1/config"), apiPayload, false,
-                                    [pump, configSlots, pending, inFlight, anySuccess, decorate, outFailures, index, serviceObject,
+                                    [pump, configSlots, pending, inFlight, anySuccess, skipped, decorate, outFailures, index, serviceObject,
                                      connectionObject, serviceProtocol, serverCountryCode, connectionUuid, nodeId,
                                      servicesRev, protocolData](ErrorCode errorCode, const QByteArray &responseBody) {
                     auto noteFailure = [outFailures, connectionUuid, nodeId]() {
@@ -2840,6 +2876,20 @@ void ApiConfigsController::fetchSubscriptionFeed(const QString &subscriptionId,
                             (*configSlots)[index].ok = true;
                             *anySuccess = true;
                         }
+                    } else if (errorCode == amnezia::ErrorCode::ApiConfigDownloadError
+                               || errorCode == amnezia::ErrorCode::ApiConfigEmptyError) {
+                        // The shard still advertises a protocol the api has no
+                        // config for (vless on a shard without xray). That is a
+                        // property of the shard, not a broken subscription:
+                        // failing the whole reload over it left the user with an
+                        // empty list instead of the configs that DO exist.
+                        qWarning() << "[SUBSCRIPTION] no config for" << serviceProtocol << serverCountryCode
+                                   << "(ret" << static_cast<int>(errorCode) << ") - skipped";
+                        // Count it: the finish below treats "everything skipped,
+                        // nothing failed" as a successful reload, and without
+                        // this the counter stayed 0 and a shard without xray
+                        // still stamped the subscription as "reload failed".
+                        ++*skipped;
                     } else {
                         qWarning() << "[SUBSCRIPTION] failed to fetch config for" << serviceProtocol << serverCountryCode << ":"
                                    << static_cast<int>(errorCode);
@@ -2862,7 +2912,13 @@ void ApiConfigsController::fetchSubscriptionFeed(const QString &subscriptionId,
                 }
                 qDebug() << "[SUBSCRIPTION] fetch done, subscription:" << subscriptionId << "success:" << *anySuccess
                          << "configs:" << configs.size() << "failed:" << outFailures->size() << "skipped:" << *skipped;
-                callback(*anySuccess, configs, *outFailures);
+                // A shard that does not serve a protocol is not a broken
+                // subscription: when everything was skipped and nothing failed,
+                // the reload did its job (there was simply nothing to fetch on
+                // the v1 plane). Failing here is what stamped the row "reload
+                // failed" while its configs were fine.
+                const bool allSkippedNoFailure = !*anySuccess && outFailures->isEmpty() && *skipped > 0;
+                callback(*anySuccess || allSkippedNoFailure, configs, *outFailures);
             }
         };
         (*pump)();
@@ -2884,6 +2940,11 @@ QVariantList ApiConfigsController::getSubscriptionConfigs() const
     return list;
 }
 
+void ApiConfigsController::setLegacyFetchAllowed(std::function<bool(QString)> predicate)
+{
+    m_legacyFetchAllowed = std::move(predicate);
+}
+
 void ApiConfigsController::reloadSubscriptionConfigs(bool silent, const QString &subscriptionId)
 {
     if (m_subscriptionReloadRunning) {
@@ -2899,7 +2960,7 @@ void ApiConfigsController::reloadSubscriptionConfigs(bool silent, const QString 
     // block the others. With a subscription selected in the list only that one
     // is refetched: reloading all of them on a per-subscription filter wasted
     // traffic and made every other row flicker.
-    const QStringList subscriptionIds = subscriptionId.isEmpty()
+    QStringList subscriptionIds = subscriptionId.isEmpty()
                                                 ? collectSubscriptionIds()
                                                 : QStringList{ subscriptionId };
 
@@ -2909,6 +2970,30 @@ void ApiConfigsController::reloadSubscriptionConfigs(bool silent, const QString 
             emit reloadSubscriptionConfigsFinished(false);
         }
         return;
+    }
+
+    // One plane per subscription. A subscription whose v2 cards have already
+    // arrived needs nothing from the legacy per-protocol endpoints: the card
+    // carries the config, while the v1 fetch only walked protocols the shard
+    // does not serve (`vless` 1100 x5, ~25 s on Android) and then reported the
+    // whole reload as failed. v1 is asked only for subscriptions that have no
+    // cards yet — the ones that have not been migrated to v2.
+    if (m_legacyFetchAllowed) {
+        QStringList legacyIds;
+        for (const QString &id : subscriptionIds) {
+            if (!m_legacyFetchAllowed(id)) {
+                qDebug() << "[SUBSCRIPTION] v2 cards present for" << id << "- skipping the v1 fetch";
+                continue;
+            }
+            legacyIds.append(id);
+        }
+        if (legacyIds.isEmpty()) {
+            qDebug() << "[SUBSCRIPTION] reload: every subscription is served by v2 cards, nothing to fetch";
+            m_settings->setAbsentSubscriptionNodes({});
+            emit reloadSubscriptionConfigsFinished(true);
+            return;
+        }
+        subscriptionIds = legacyIds;
     }
 
     m_subscriptionReloadRunning = true;
@@ -2948,6 +3033,15 @@ void ApiConfigsController::reloadSubscriptionConfigs(bool silent, const QString 
             // и в последнюю очередь сохраняем прежнюю позицию.
             int newDefaultIndex = -1;
             int bestScore = 0;
+
+            // An identity stored by the model is authoritative. A reload
+            // reorders rows and the scoring below cannot match a peer card (it
+            // has no connection_uuid), so without this a peer selection was
+            // replaced by whatever now sits at the old index.
+            newDefaultIndex = m_serversModel->rowIndexForDefaultIdentity();
+            if (newDefaultIndex >= 0) {
+                bestScore = 100;
+            }
 
             // Источник истины — СОХРАНЁННЫЙ ВЫБОР ЮЗЕРА, а не прежний default:
             // default мог быть пересчитан прошлым обновлением, и тогда строка
@@ -3134,6 +3228,13 @@ QStringList ApiConfigsController::collectSubscriptionIds() const
     for (int i = 0; i < m_serversModel->getServersCount(); ++i) {
         add(subscriptionIdForServer(m_serversModel->getServerConfig(i)));
     }
+    // Rows are not the only place a subscription can live: a grant without card
+    // protocols drops its pool rows, and the id must survive that.
+    if (m_settings) {
+        for (const QString &id : m_settings->knownSubscriptions()) {
+            add(id);
+        }
+    }
     return ids;
 }
 
@@ -3204,6 +3305,13 @@ bool ApiConfigsController::installSubscriptionConfigObject(const QJsonObject &se
             } else {
                 existingServer.remove(QStringLiteral("node_ips"));
             }
+            // Same for the one endpoint shape: refreshed rows carry it, old
+            // ones do not, and a stale list must not survive a refresh.
+            if (configToInstall.contains(QStringLiteral("endpoints"))) {
+                existingServer.insert(QStringLiteral("endpoints"), configToInstall.value(QStringLiteral("endpoints")));
+            } else {
+                existingServer.remove(QStringLiteral("endpoints"));
+            }
             const QString freshDescription = configToInstall.value(config_key::description).toString();
             if (!freshDescription.isEmpty()) {
                 existingServer.insert(config_key::description, freshDescription);
@@ -3225,6 +3333,35 @@ bool ApiConfigsController::installSubscriptionConfigObject(const QJsonObject &se
     int serversAfter = m_serversModel->getServersCount();
     qDebug() << "[SUBSCRIPTION] count before:" << serversBefore << "after:" << serversAfter;
     return sameConnection || serversAfter > serversBefore;
+}
+
+void ApiConfigsController::pruneAbsentRowsForFetched()
+{
+    if (!m_serversModel) {
+        return;
+    }
+    QStringList ids;
+    QHash<QString, QStringList> keep;
+    for (const QJsonValue &value : m_subscriptionConfigs) {
+        const QJsonObject object = value.toObject();
+        const QString id = subscriptionIdForServer(object);
+        if (id.isEmpty()) {
+            continue;
+        }
+        const QString uuid = object.value(configKey::apiConfig)
+                                     .toObject()
+                                     .value(QStringLiteral("connection_uuid"))
+                                     .toString();
+        if (!uuid.isEmpty()) {
+            keep[id].append(uuid);
+        }
+        if (!ids.contains(id)) {
+            ids.append(id);
+        }
+    }
+    for (const QString &id : ids) {
+        m_serversModel->pruneAbsentRows(id, keep.value(id));
+    }
 }
 
 int ApiConfigsController::installAllSubscriptionConfigs()

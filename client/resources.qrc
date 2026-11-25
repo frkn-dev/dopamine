@@ -118,6 +118,7 @@
         <file>ui/qml/Components/InstalledAppsDrawer.qml</file>
         <file>ui/qml/Components/QuestionDrawer.qml</file>
         <file>ui/qml/Components/SelectLanguageDrawer.qml</file>
+        <file>ui/qml/Components/ServersAddedBanner.qml</file>
         <file>ui/qml/Components/ServersListView.qml</file>
         <file>ui/qml/Components/TransportProtoSelector.qml</file>
         <file>ui/qml/Components/AddSitePanel.qml</file>
@@ -172,6 +173,7 @@
         <file>ui/qml/Modules/Style/qmldir</file>
         <file>ui/qml/Pages2/PageDevMenu.qml</file>
         <file>ui/qml/Pages2/PageHome.qml</file>
+        <file>ui/qml/Pages2/PageHowItWorks.qml</file>
         <file>ui/qml/Pages2/PageSettings.qml</file>
         <file>ui/qml/Pages2/PageSettingsAbout.qml</file>
         <file>ui/qml/Pages2/PageSettingsApiServerInfo.qml</file>
@@ -204,7 +206,10 @@
         <file>ui/qml/Pages2/PageSettingsApiNativeConfigs.qml</file>
         <file>ui/qml/Pages2/PageSettingsApiDevices.qml</file>
         <file>ui/qml/Pages2/PageSettingsShare.qml</file>
+        <file>ui/qml/Pages2/PageSettingsSubscriptions.qml</file>
         <file>ui/qml/Pages2/PageSettingsLocalSubnets.qml</file>
+        <file>ui/qml/Pages2/PageServerTest.qml</file>
+        <file>ui/qml/Pages2/PageServerTestInfo.qml</file>
         <file>images/controls/monitor.svg</file>
         <file>ui/qml/Components/AwgTextField.qml</file>
         <file>ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml</file>

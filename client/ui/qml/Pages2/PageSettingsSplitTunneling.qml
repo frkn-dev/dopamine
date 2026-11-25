@@ -243,10 +243,10 @@ PageType {
                 buttonImageSource: "qrc:/images/controls/plus.svg"
 
                 clickedFunc: function() {
-                    PageController.showBusyIndicator(true)
+                    PageController.busyOn()
                     SitesController.addSite(textField.text)
                     textField.text = ""
-                    PageController.showBusyIndicator(false)
+                    PageController.busyOff()
                 }
             }
 
@@ -319,10 +319,10 @@ PageType {
                                                                 ".json")
                     }
                     if (fileName !== "") {
-                        PageController.showBusyIndicator(true)
+                        PageController.busyOn()
                         SitesController.exportSites(fileName)
                         moreActionsDrawer.closeTriggered()
-                        PageController.showBusyIndicator(false)
+                        PageController.busyOff()
                     }
                 }
             }
@@ -342,9 +342,9 @@ PageType {
                     var noButtonText = qsTr("Cancel")
 
                     var yesButtonFunction = function() {
-                        PageController.showBusyIndicator(true)
+                        PageController.busyOn()
                         SitesController.removeSites()
-                        PageController.showBusyIndicator(false)
+                        PageController.busyOff()
                     }
                     var noButtonFunction = function() {
                         
@@ -460,9 +460,9 @@ PageType {
     }
 
     function importSites(fileName, replaceExistingSites) {
-        PageController.showBusyIndicator(true)
+        PageController.busyOn()
         SitesController.importSites(fileName, replaceExistingSites)
-        PageController.showBusyIndicator(false)
+        PageController.busyOff()
         importSitesDrawer.closeTriggered()
         moreActionsDrawer.closeTriggered()
     }

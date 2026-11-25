@@ -118,9 +118,9 @@ PageType {
                                                                 ".backup")
                     }
                     if (fileName !== "") {
-                        PageController.showBusyIndicator(true)
+                        PageController.busyOn()
                         SettingsController.backupAppConfig(fileName)
-                        PageController.showBusyIndicator(false)
+                        PageController.busyOff()
                         PageController.showNotificationMessage(qsTr("Backup file saved"))
                     }
                 }
@@ -164,9 +164,9 @@ PageType {
             if (ConnectionController.isConnected) {
                 PageController.showNotificationMessage(qsTr("Cannot restore backup settings during active connection"))
             } else {
-                PageController.showBusyIndicator(true)
+                PageController.busyOn()
                 SettingsController.restoreAppConfig(filePath)
-                PageController.showBusyIndicator(false)
+                PageController.busyOff()
             }
         }
         var noButtonFunction = function() {

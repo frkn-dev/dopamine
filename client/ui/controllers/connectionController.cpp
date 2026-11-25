@@ -2,6 +2,8 @@
 #include <QNetworkInformation>
 #include "connectionController.h"
 
+#include "ui/models/node_endpoints.h"
+
 #include <QDateTime>
 #include <QDir>
 #include <QFile>
@@ -20,6 +22,7 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <utility>
 
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS) || defined(MACOS_NE)
     #include <QGuiApplication>
@@ -34,6 +37,7 @@
 #include "utilities.h"
 #include "core/controllers/vpnConfigurationController.h"
 #include "ui/controllers/api/apiConfigsController.h"
+#include "ui/controllers/peersImportController.h"
 #include "healthCheckController.h"
 #include "version.h"
 
@@ -248,6 +252,14 @@ ConnectionController::ConnectionController(const QSharedPointer<ServersModel> &s
 
     connect(this, &ConnectionController::connectButtonClicked, this, &ConnectionController::toggleConnection, Qt::QueuedConnection);
 
+    // Auto-select holds row numbers from the layout it picked them in. A
+    // subscription refresh or a peers sync rebuilds the list, so the candidates
+    // (and the row an attempt is dialling) are re-bound by identity here; a
+    // candidate whose card is gone is never dialled by its old position.
+    if (m_serversModel) {
+        connect(m_serversModel.get(), &QAbstractItemModel::modelReset, this, &ConnectionController::onServersModelReset);
+    }
+
     m_autoProbeTimer = new QTimer(this);
     m_autoProbeTimer->setSingleShot(true);
     connect(m_autoProbeTimer, &QTimer::timeout, this, &ConnectionController::onAutoProbeSettled);
@@ -441,12 +453,13 @@ ConnectionController::ConnectionController(const QSharedPointer<ServersModel> &s
                 if (protocol != QStringLiteral("awg") && protocol != QStringLiteral("wireguard")) {
                     continue;
                 }
-                const QJsonArray nodeIps = m_serversModel->getServerConfig(i).value(QStringLiteral("node_ips")).toArray();
+                const QStringList nodeIps =
+                        NodeEndpoints::ips(m_serversModel->getServerConfig(i));
                 if (nodeIps.isEmpty()) {
                     continue;
                 }
                 row = i;
-                ip = nodeIps.first().toString();
+                ip = nodeIps.first();
             }
             if (row < 0 || ip.isEmpty()) {
                 qWarning() << "[EPTEST] no awg server with node_ips";
@@ -659,6 +672,107 @@ void ConnectionController::setApiConfigsController(ApiConfigsController *apiConf
     m_apiConfigsController = apiConfigsController;
 }
 
+void ConnectionController::setPeersImportController(PeersImportController *peersImportController)
+{
+    m_peersImportController = peersImportController;
+    if (!m_peersImportController) {
+        return;
+    }
+
+    // The config arrives from a worker thread; the connect resumes here. The
+    // emitted index may be stale if a refresh reordered the rows meanwhile, so
+    // the pending card is resolved by its id before dialing: the user must not
+    // end up on a server they did not pick.
+    connect(m_peersImportController, &PeersImportController::tunnelReady, this, [this](int serverIndex) {
+        if (m_peersPendingRow < 0) {
+            return;
+        }
+        const int row = resolvePendingCardRow(serverIndex);
+        if (row < 0) {
+            // The card left the list while its tunnel was being created.
+            m_peersPendingRow = -1;
+            m_peersPendingCardId.clear();
+            m_isConnectionInProgress = false;
+            emit connectionStateChanged();
+            return;
+        }
+        m_peersPendingRow = -1;
+        m_peersPendingCardId.clear();
+        connectToServerIndex(row);
+    });
+    connect(m_peersImportController, &PeersImportController::tunnelFailed, this,
+            [this](int serverIndex, int httpStatus, const QString &error) {
+                if (m_peersPendingRow < 0) {
+                    return;
+                }
+                const int row = resolvePendingCardRow(serverIndex);
+                if (row < 0) {
+                    m_peersPendingRow = -1;
+                    m_peersPendingCardId.clear();
+                    m_isConnectionInProgress = false;
+                    emit connectionStateChanged();
+                    return;
+                }
+                m_peersPendingRow = -1;
+                m_peersPendingCardId.clear();
+                qWarning() << "[PEERS] cannot prepare the tunnel:" << httpStatus << error;
+                m_isConnectionInProgress = false;
+                // 409 `peers_limit`: this device already holds the maximum number
+                // of tunnels, so no new peer can be created. The api rejects the
+                // creation explicitly — say so instead of a generic download error.
+                if (httpStatus == 409 || error.contains(QLatin1String("peers_limit"))) {
+                    m_connectionStateText = tr("This device already has the maximum number of tunnels");
+                    emit connectionErrorOccurred(ErrorCode::ApiPeersLimitError);
+                    emit connectionStateChanged();
+                    return;
+                }
+                // 503 is the api saying "no server right now, the key was not
+                // spent" — that is not a network flake and must read differently.
+                const auto code = httpStatus == 503  ? ErrorCode::ApiServicesMissingError
+                                  : httpStatus == 402 || httpStatus == 403
+                                          ? ErrorCode::ApiSubscriptionExpiredError
+                                          : ErrorCode::ApiConfigDownloadError;
+                m_connectionStateText = tr("Could not prepare the tunnel");
+                emit connectionErrorOccurred(code);
+                emit connectionStateChanged();
+            });
+
+    // The retry of a failed peer connect, after ConnectionController asked for a
+    // fresh provision of the row's pool (see failOrRetry). The row is re-bound by
+    // its card id: the list may have been rebuilt while the call was in flight.
+    connect(m_peersImportController, &PeersImportController::peersReprovisioned, this,
+            [this](int serverIndex) {
+                const QString cardId = m_peersReprovisionCardId;
+                m_peersReprovisionCardId.clear();
+                int row = serverIndex;
+                if (!cardId.isEmpty() && m_serversModel) {
+                    const int resolved = m_serversModel->rowForIdentity(QStringLiteral("peer:") + cardId);
+                    if (resolved >= 0) {
+                        row = resolved;
+                    }
+                }
+                if (row < 0 || !m_serversModel || row >= m_serversModel->getServersCount()) {
+                    qWarning() << "[PEERS] reprovisioned card" << cardId << "is no longer in the list";
+                    m_isConnectionInProgress = false;
+                    m_connectionStateText = tr("Connect");
+                    emit connectionStateChanged();
+                    return;
+                }
+                m_connectionStateText = tr("Connecting...");
+                m_isConnectionInProgress = true;
+                emit connectionStateChanged();
+                connectToServerIndex(row);
+            });
+    connect(m_peersImportController, &PeersImportController::peersReprovisionFailed, this,
+            [this](int, const QString &error) {
+                m_peersReprovisionCardId.clear();
+                qWarning() << "[PEERS] reprovision failed, connecting cannot be retried:" << error;
+                // Report the connect error that started this; the retry guard is
+                // still up, so failOrRetry() does not reprovision again.
+                failOrRetry(getLastConnectionError());
+            });
+}
+
 void ConnectionController::dbgMark(const QString &what)
 {
     const qint64 ms = m_dbgClock.isValid() ? m_dbgClock.elapsed() : 0;
@@ -677,6 +791,9 @@ void ConnectionController::openConnection()
     m_fastPathConsumed = false;
     m_fastPathEndpoint.clear();
     m_fastPathPort = 0;
+    // New user attempt: a peer row earns one reprovision-and-retry again.
+    m_peersReprovisionTried = false;
+    m_peersReprovisionCardId.clear();
 
     // Плохая сеть: «Preparing»/«Probing» могут тянуться бесконечно. Через 7 с
     // бросаем всё лишнее и просто перебираем адреса по очереди.
@@ -756,13 +873,13 @@ bool ConnectionController::connectNeedsProbe(int serverIndex)
         return false;
     }
     const QJsonObject config = m_serversModel->getServerConfig(serverIndex);
-    const QJsonArray nodeIps = config.value(QStringLiteral("node_ips")).toArray();
+    // `endpoints[]` when the api sends the new shape, node_ips otherwise.
+    const QStringList nodeIps = NodeEndpoints::ips(config);
     if (nodeIps.isEmpty()) {
         return false; // одиночная строка: мерить нечего, идём в hostName
     }
     bool any = false;
-    for (const QJsonValue &v : nodeIps) {
-        const QString ip = v.toString();
+    for (const QString &ip : nodeIps) {
         if (ip.isEmpty()) {
             continue;
         }
@@ -793,6 +910,30 @@ QString ConnectionController::rowMemoryKey(int serverIndex) const
     return QStringLiteral("row:") + QString::number(serverIndex);
 }
 
+int ConnectionController::resolvePendingCardRow(int serverIndex) const
+{
+    if (!m_serversModel || m_peersPendingCardId.isEmpty()) {
+        return serverIndex;
+    }
+    if (m_serversModel->peerCardId(serverIndex) == m_peersPendingCardId) {
+        return serverIndex;
+    }
+    // A background refresh moved the row while the tunnel was being created:
+    // follow the card id instead of dialing whatever took that position.
+    for (int i = 0; i < m_serversModel->getServersCount(); ++i) {
+        if (m_serversModel->peerCardId(i) == m_peersPendingCardId) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// Dialing must start on the tap itself. A blocking "Calculating the best
+// server…" wait (3 s) made the user think he had to press Connect again, and on
+// a switch it looked like nothing happened at all. Address choice now happens
+// inside the dial: IPPool picks the best known endpoint, falls back to the next.
+static constexpr bool kAwaitProbeBeforeDial = false;
+
 void ConnectionController::connectToServerIndex(int serverIndex)
 {
     // Истёкшая подписка: нечего дозваниваться — говорим прямо, что оплата
@@ -822,6 +963,38 @@ void ConnectionController::connectToServerIndex(int serverIndex)
         m_connectionStateText = tr("Subscription expired");
         emit connectionErrorOccurred(ErrorCode::ApiSubscriptionExpiredError);
         emit connectionStateChanged();
+        return;
+    }
+
+    // A peers row has no config until the card's tunnel is created. It is built
+    // on the first connect, in the background (the device budget is three peers,
+    // so nothing is prefetched for cards the user never dials); the connect
+    // resumes from tunnelReady. A card whose config is already cached — every
+    // connect after the first, and every connect after a restart — passes here
+    // without touching the api.
+    if (m_peersImportController && !m_peersImportController->ensureTunnelForRow(serverIndex)) {
+        m_peersPendingRow = serverIndex;
+        // Pin the wait to the card, not to the row position.
+        m_peersPendingCardId = m_serversModel->peerCardId(serverIndex);
+        m_isConnectionInProgress = true;
+        m_connectionStateText = tr("Setting up your access…");
+        emit connectionStateChanged();
+        // The provisioning call has always been able to sit there for ever: no
+        // answer, no error, the button stuck on "Setting up your access…". Give
+        // it a floor in time and fail loudly instead.
+        const int pendingRow = serverIndex;
+        QTimer::singleShot(kPeerPrepareTimeoutMs, this, [this, pendingRow]() {
+            if (m_peersPendingRow != pendingRow) {
+                return;
+            }
+            m_peersPendingRow = -1;
+            m_peersPendingCardId.clear();
+            m_isConnectionInProgress = false;
+            m_connectionStateText = tr("Could not prepare the tunnel");
+            qWarning() << "[PEERS] provisioning timed out for row" << pendingRow;
+            emit connectionErrorOccurred(ErrorCode::ServerConnectionTimeoutError);
+            emit connectionStateChanged();
+        });
         return;
     }
 
@@ -883,10 +1056,11 @@ void ConnectionController::connectToServerIndex(int serverIndex)
     if (m_awaitConnectProbe) {
         return; // уже ждём прогон для этой попытки
     }
-    if (m_healthCheckController && !m_isConnected && !m_prepareBypass
+    if (kAwaitProbeBeforeDial && m_healthCheckController && !m_isConnected && !m_prepareBypass
         && connectNeedsProbe(serverIndex)) {
         m_awaitConnectProbe = true;
         m_awaitConnectRow = serverIndex;
+        m_awaitConnectIdentity = m_serversModel->rowIdentity(serverIndex);
         // Пока считаем варианты — говорим об этом прямо, вместо «Preparing»/
         // пустого Connecting.
         m_isConnectionInProgress = true;
@@ -907,8 +1081,17 @@ void ConnectionController::connectToServerIndex(int serverIndex)
                 disconnect(m_connectProbeConn);
                 m_connectProbeConn = {};
             }
-            const int row = m_awaitConnectRow;
+            // Re-resolve the probed card: the probe takes seconds and the list
+            // can be rebuilt meanwhile, so the captured row may name another
+            // server (or none at all).
+            int row = m_awaitConnectIdentity.isEmpty()
+                    ? m_awaitConnectRow
+                    : m_serversModel->rowForIdentity(m_awaitConnectIdentity);
             m_awaitConnectRow = -1;
+            m_awaitConnectIdentity.clear();
+            if (row < 0) {
+                row = m_serversModel->getDefaultServerIndex();
+            }
             qDebug() << "[PREPROBE] timeout, connecting with what we have, row" << row;
             // Без этого флага connectToServerIndex() снова уходил в ветку пробу и
             // ждал ещё 7 с — так набегало ~20 с «вечного CONNECTING» до первой
@@ -939,8 +1122,17 @@ void ConnectionController::connectToServerIndex(int serverIndex)
                 disconnect(m_connectProbeConn);
                 m_connectProbeConn = {};
             }
-            const int row = m_awaitConnectRow;
+            // Re-resolve the probed card: the probe takes seconds and the list
+            // can be rebuilt meanwhile, so the captured row may name another
+            // server (or none at all).
+            int row = m_awaitConnectIdentity.isEmpty()
+                    ? m_awaitConnectRow
+                    : m_serversModel->rowForIdentity(m_awaitConnectIdentity);
             m_awaitConnectRow = -1;
+            m_awaitConnectIdentity.clear();
+            if (row < 0) {
+                row = m_serversModel->getDefaultServerIndex();
+            }
             qDebug() << "[PREPROBE] done, connecting row" << row;
             connectToServerIndex(row);
         });
@@ -952,8 +1144,17 @@ void ConnectionController::connectToServerIndex(int serverIndex)
             if (m_connectProbeGuard) {
                 m_connectProbeGuard->stop();
             }
-            const int row = m_awaitConnectRow;
+            // Re-resolve the probed card: the probe takes seconds and the list
+            // can be rebuilt meanwhile, so the captured row may name another
+            // server (or none at all).
+            int row = m_awaitConnectIdentity.isEmpty()
+                    ? m_awaitConnectRow
+                    : m_serversModel->rowForIdentity(m_awaitConnectIdentity);
             m_awaitConnectRow = -1;
+            m_awaitConnectIdentity.clear();
+            if (row < 0) {
+                row = m_serversModel->getDefaultServerIndex();
+            }
             connectToServerIndex(row);
         }
         return;
@@ -1022,10 +1223,11 @@ void ConnectionController::connectToServerIndex(int serverIndex)
             continue;
         }
 
-        const QJsonArray nodeIps = config.value(QStringLiteral("node_ips")).toArray();
+        // One endpoint list per row: `endpoints[]` (new api) or node_ips
+        // (old api/pinned rows) — the picker below is identical for both.
+        const QStringList nodeIps = NodeEndpoints::ips(config);
         bool rowHasIps = false;
-        for (const QJsonValue &v : nodeIps) {
-            const QString ip = v.toString();
+        for (const QString &ip : nodeIps) {
             if (ip.isEmpty()) {
                 continue;
             }
@@ -1274,19 +1476,13 @@ void ConnectionController::connectToServerIndexWithIp(int serverIndex, const QSt
     // шёл мимо пула — и выключенный в карточке адрес всё равно набирался.
     // Здесь единая точка: если адрес выключен юзером, берём первый разрешённый.
     QString dialAddress = ip;
+    // Port of the address actually dialed: every pool entry carries its own
+    // (node_ports), so a switched address must move its port with it.
+    int dialPort = port;
     if (m_settings) {
         const QStringList disabled = m_settings->poolDisabledEndpoints();
         if (!disabled.isEmpty()) {
-            const QStringList nodeIps = [&]() {
-                QStringList list;
-                for (const QJsonValue &v : serverConfig.value(QStringLiteral("node_ips")).toArray()) {
-                    const QString value = v.toString();
-                    if (!value.isEmpty() && !list.contains(value)) {
-                        list.append(value);
-                    }
-                }
-                return list;
-            }();
+            const QStringList nodeIps = NodeEndpoints::ips(serverConfig);
             const QString hostName = serverConfig.value(QStringLiteral("hostName")).toString();
             const QString candidate = dialAddress.isEmpty() ? hostName : dialAddress;
             if (!candidate.isEmpty() && disabled.contains(candidate)) {
@@ -1307,6 +1503,8 @@ void ConnectionController::connectToServerIndexWithIp(int serverIndex, const QSt
                 }
                 qDebug() << "[IPPOOL] dial address" << candidate << "is switched off, using" << replacement;
                 dialAddress = replacement;
+                dialPort = ServersModel::portForNodeIp(serverConfig, replacement,
+                                                       m_serversModel->serverPort(serverIndex));
             }
         }
     }
@@ -1314,7 +1512,15 @@ void ConnectionController::connectToServerIndexWithIp(int serverIndex, const QSt
     if (!dialAddress.isEmpty()) {
         // порт адреса (node_ports) правим вместе с host: иначе альтернативный
         // IP стучится на порт протокола, который провайдер может резать
-        patchServerConfigAddress(serverConfig, dialAddress, port);
+        patchServerConfigAddress(serverConfig, dialAddress, dialPort);
+    }
+    // A peers card keeps one key/obfuscation profile per node, while its cached
+    // tunnel was built for the primary one: the endpoint failover must move the
+    // profile with the address, otherwise a healthy node is dialed with the
+    // wrong server key and dies in the handshake.
+    if (m_peersImportController && !dialAddress.isEmpty()
+        && !m_serversModel->peerCardId(serverIndex).isEmpty()) {
+        m_peersImportController->retargetPeerConfig(serverConfig, dialAddress, dialPort);
     }
 
     VpnConfigurationsController vpnConfigurationController(m_settings);
@@ -1349,7 +1555,7 @@ void ConnectionController::connectToServerIndexWithIp(int serverIndex, const QSt
     const int previousPort = m_currentPort;
     // Store and publish the endpoint's own port before notifying QML. Otherwise
     // the card briefly shows the previous endpoint's port and persists it.
-    m_currentPort = port > 0 ? port : m_serversModel->serverPort(serverIndex);
+    m_currentPort = dialPort > 0 ? dialPort : m_serversModel->serverPort(serverIndex);
     if (endpointChanged) {
         m_currentEndpoint = credentials.hostName;
     }
@@ -1430,14 +1636,7 @@ QStringList ConnectionController::poolAddresses()
     if (row < 0 || row >= m_serversModel->getServersCount()) {
         return {};
     }
-    QStringList ips;
-    for (const QJsonValue &value : m_serversModel->getServerConfig(row).value(QStringLiteral("node_ips")).toArray()) {
-        const QString ip = value.toString();
-        if (!ip.isEmpty() && !ips.contains(ip)) {
-            ips.append(ip);
-        }
-    }
-    return ips;
+    return NodeEndpoints::ips(m_serversModel->getServerConfig(row));
 }
 
 QStringList ConnectionController::poolDisabledAddressesFor(const int serverIndex)
@@ -1797,6 +1996,29 @@ void ConnectionController::failOrRetry(ErrorCode code)
         m_fastPathConsumed = false;
     }
 
+    // A peer row that just failed gets ONE fresh provision of its own pool and ONE
+    // retry: the address may have been recycled since the config was created, or
+    // the card's parameters may have moved. The guard keeps this from turning into
+    // a loop, and a second failure is reported as before.
+    if (!m_peersReprovisionTried && m_peersImportController && m_serversModel) {
+        const int row = currentPoolRow() >= 0 ? currentPoolRow() : m_serversModel->getProcessedServerIndex();
+        if (row >= 0 && row < m_serversModel->getServersCount()) {
+            const QString cardId = m_serversModel->peerCardId(row);
+            if (!cardId.isEmpty()) {
+                m_peersReprovisionTried = true;
+                m_peersReprovisionCardId = cardId;
+                if (m_peersImportController->reprovisionPeerRow(row, true)) {
+                    qDebug().noquote() << QStringLiteral("[PEERS] connect retry after reprovision %1").arg(cardId);
+                    m_connectionStateText = tr("Connecting...");
+                    m_isConnectionInProgress = true;
+                    emit connectionStateChanged();
+                    return;
+                }
+                m_peersReprovisionCardId.clear();
+            }
+        }
+    }
+
     if (m_settings && m_settings->isReconnectUntilCancelled() && !m_isConnected) {
         qDebug() << "[RETRY] connect failed, entering retry loop; code" << static_cast<int>(code);
         beginWaitingForNetwork();
@@ -1922,6 +2144,10 @@ QList<ConnectionController::AutoCandidate> ConnectionController::buildAutoCandid
         candidate.row = i;
         candidate.tier = tierForRow(i);
         candidate.latency = m_serversModel->data(i, ServersModel::Roles::HealthLatencyRole).toInt();
+        // Position is not an identity: the rows are rebuilt in place by every
+        // subscription refresh and peers sync, so the pick must be re-resolved by
+        // the card before it is dialled.
+        candidate.identity = m_serversModel->rowIdentity(i);
         candidates.append(candidate);
     }
 
@@ -1982,13 +2208,20 @@ void ConnectionController::installMissingConfigs()
     // connect (ApiConfigsController::isConfigValid) — until then there is nothing
     // to probe (no WG keys) and nothing to connect with. Install them up front.
     const QString envFilter = m_settings->serversEnvFilter();
-    const int count = m_serversModel->getServersCount();
-    for (int i = 0; i < count; ++i) {
+    // Installing a config ends in a model refresh, which can rebuild the row
+    // list: the bound is re-read every step instead of trusting a snapshot.
+    for (int i = 0; i < m_serversModel->getServersCount(); ++i) {
         if (!envFilter.isEmpty() && envFilter != QStringLiteral("all")
             && m_serversModel->data(i, ServersModel::Roles::ConnectionEnvRole).toString() != envFilter) {
             continue;
         }
         if (!m_serversModel->data(i, ServersModel::Roles::IsServerFromGatewayApiRole).toBool()) {
+            continue;
+        }
+        // A peers row builds its own tunnel on connect (PeersImportController):
+        // there is no v1 proxy config to fetch for it, and asking would only
+        // produce a failed request behind the user's back.
+        if (!m_serversModel->peerCardId(i).isEmpty()) {
             continue;
         }
         DockerContainer container = qvariant_cast<DockerContainer>(m_serversModel->data(i, ServersModel::Roles::DefaultContainerRole));
@@ -2113,19 +2346,117 @@ void ConnectionController::finalizeAutoSuccess()
     m_autoAttemptTimer->stop();
     m_autoAwaitingTraffic = false;
     if (m_autoCandidatePos < m_autoCandidates.size()) {
-        m_serversModel->setDefaultServerIndex(m_autoCandidates.at(m_autoCandidatePos).row);
+        // The row was captured before the tunnel was built; a refresh meanwhile
+        // may have moved it. Write the selection to the card, not to the number.
+        const int row = resolveAutoCandidateRow(m_autoCandidates.at(m_autoCandidatePos));
+        if (row >= 0) {
+            m_serversModel->setDefaultServerIndex(row);
+        } else {
+            qWarning() << "[AUTO] the winning row is gone, keeping the current selection";
+        }
     }
     m_autoPhase = AutoPhase::None;
     m_autoAdvancing = false;
     m_autoCandidates.clear();
+    m_autoCandidatePos = 0;
     resetIpPool();
     // isConnectionInProgress just flipped to false — QML must know, otherwise
     // the connect-button spinner keeps spinning forever under the "Connected" text
     emit connectionStateChanged();
 }
 
+int ConnectionController::resolveAutoCandidateRow(const AutoCandidate &candidate) const
+{
+    if (!m_serversModel) {
+        return -1;
+    }
+    // The identity is authoritative. A candidate that carries none (a
+    // self-hosted config has no uuid) can only be dialled while the row number
+    // it was captured with still exists.
+    if (!candidate.identity.isEmpty()) {
+        return m_serversModel->rowForIdentity(candidate.identity);
+    }
+    if (candidate.row >= 0 && candidate.row < m_serversModel->rowCount()) {
+        return candidate.row;
+    }
+    return -1;
+}
+
+void ConnectionController::onServersModelReset()
+{
+    if (m_autoCandidates.isEmpty() || !m_serversModel) {
+        return;
+    }
+    const QString currentIdentity = (m_autoCandidatePos >= 0 && m_autoCandidatePos < m_autoCandidates.size())
+            ? m_autoCandidates.at(m_autoCandidatePos).identity
+            : QString();
+
+    QList<AutoCandidate> rebound;
+    for (const AutoCandidate &candidate : std::as_const(m_autoCandidates)) {
+        const int row = resolveAutoCandidateRow(candidate);
+        if (row < 0) {
+            continue; // the card this candidate named is no longer in the list
+        }
+        AutoCandidate updated = candidate;
+        updated.row = row;
+        rebound.append(updated);
+    }
+
+    const bool wasConnecting = (m_autoPhase == AutoPhase::Connecting);
+    int newPos = -1;
+    for (int i = 0; i < rebound.size(); ++i) {
+        if (!currentIdentity.isEmpty() && rebound.at(i).identity == currentIdentity) {
+            newPos = i;
+            break;
+        }
+    }
+    m_autoCandidates = rebound;
+
+    if (!wasConnecting) {
+        // Probing: the decision is rebuilt from the fresh list when the probe
+        // settles, so only the numbers had to be refreshed.
+        m_autoCandidatePos = 0;
+        return;
+    }
+    if (newPos >= 0) {
+        m_autoCandidatePos = newPos;
+        qDebug() << "[AUTO] candidates re-bound after a model refresh, row"
+                 << m_autoCandidates.at(newPos).row;
+        return;
+    }
+
+    // The row the attempt was dialling disappeared (grant revoked, card dropped by
+    // the refresh). Its tunnel may be half-built: stop this attempt and decide
+    // again from the list that exists now, instead of waiting on a dead card.
+    qWarning() << "[AUTO] the row being dialled is gone after a model refresh — re-selecting";
+    m_autoAttemptTimer->stop();
+    m_autoProbeTimer->stop();
+    m_autoAwaitingTraffic = false;
+    m_autoAdvancing = false;
+    m_autoPhase = AutoPhase::None;
+    m_autoCandidates.clear();
+    m_autoCandidatePos = 0;
+    if (m_serversModel->rowCount() == 0) {
+        m_isConnectionInProgress = false;
+        m_connectionStateText = tr("Connect");
+        emit disconnectFromVpn();
+        emit connectionStateChanged();
+        return;
+    }
+    startAutoSelection();
+}
+
 void ConnectionController::connectCurrentAutoCandidate()
 {
+    // A row captured during the probe round can be gone, or can name another
+    // server now: re-resolve through the card id and skip what no longer exists
+    // instead of dialling a position that belongs to someone else.
+    while (m_autoCandidatePos < m_autoCandidates.size()
+           && resolveAutoCandidateRow(m_autoCandidates.at(m_autoCandidatePos)) < 0) {
+        qWarning() << "[AUTO] candidate vanished, skipping" << m_autoCandidates.at(m_autoCandidatePos).identity;
+        ++m_autoCandidatePos;
+    }
+
     if (m_autoCandidatePos >= m_autoCandidates.size()) {
         qWarning() << "[AUTO] all candidates failed";
         m_autoPhase = AutoPhase::None;
@@ -2139,7 +2470,8 @@ void ConnectionController::connectCurrentAutoCandidate()
         return;
     }
 
-    const AutoCandidate candidate = m_autoCandidates.at(m_autoCandidatePos);
+    AutoCandidate &candidate = m_autoCandidates[m_autoCandidatePos];
+    candidate.row = resolveAutoCandidateRow(candidate);
     qDebug() << "[AUTO] trying row" << candidate.row << "tier" << candidate.tier << "rtt" << candidate.latency;
     m_autoAdvancing = true;
     m_autoAwaitingTraffic = false;
@@ -2255,6 +2587,7 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
             const int row = currentPoolRow() >= 0 ? currentPoolRow()
                                                   : m_serversModel->getProcessedServerIndex();
             m_lastConnectedRowKey = rowMemoryKey(row);
+            m_lastConnectedCardId = m_serversModel->peerCardId(row);
         }
         if (m_settings) {
             const int connectedRow = currentPoolRow() >= 0 ? currentPoolRow()
@@ -2467,6 +2800,18 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
         m_isConnected = true;
         m_connectionStateText = tr("Connected");
         m_manualConnectTimer->stop(); // the traffic watchdogs take it from here
+        // Row bookkeeping for support: when this config was provisioned
+        // (`config_created_at`) and when it last worked (`last_connected_at`).
+        if (m_serversModel) {
+            const int row = currentPoolRow() >= 0 ? currentPoolRow()
+                                                  : m_serversModel->getProcessedServerIndex();
+            if (row >= 0) {
+                const QString cardId = m_serversModel->peerCardId(row);
+                if (!cardId.isEmpty()) {
+                    m_serversModel->markPeerConnected(cardId);
+                }
+            }
+        }
 #if defined(Q_OS_IOS) || defined(MACOS_NE) || defined(Q_OS_MACOS) || defined(Q_OS_ANDROID) || defined(Q_OS_LINUX) || defined(Q_OS_WIN)
         if (m_autoPhase == AutoPhase::Connecting && m_autoAwaitingTraffic
             && m_autoCandidatePos < m_autoCandidates.size()) {
@@ -2610,6 +2955,8 @@ void ConnectionController::toggleConnection()
     m_fastPathConsumed = false;
     m_fastPathEndpoint.clear();
     m_fastPathPort = 0;
+    m_peersReprovisionTried = false;
+    m_peersReprovisionCardId.clear();
 
     if (m_state == Vpn::ConnectionState::Preparing) {
         emit preparingConfig();
@@ -2623,6 +2970,28 @@ void ConnectionController::toggleConnection()
     } else {
         emit prepareConfig();
     }
+}
+
+bool ConnectionController::isConnectedToCard(const QString &cardId)
+{
+    const QString wanted = cardId.trimmed();
+    if (!m_isConnected || wanted.isEmpty()) {
+        return false;
+    }
+    return !m_lastConnectedCardId.isEmpty() && m_lastConnectedCardId == wanted;
+}
+
+bool ConnectionController::isConnectedToRow(const int serverIndex)
+{
+    if (!m_isConnected || !m_serversModel || serverIndex < 0) {
+        return false;
+    }
+    return !m_lastConnectedRowKey.isEmpty() && rowMemoryKey(serverIndex) == m_lastConnectedRowKey;
+}
+
+bool ConnectionController::isSwitching() const
+{
+    return m_switchWaiting;
 }
 
 bool ConnectionController::isConnectionInProgress() const

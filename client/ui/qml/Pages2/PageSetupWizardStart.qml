@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
 
 import PageEnum 1.0
 import Style 1.0
@@ -39,18 +40,51 @@ PageType {
         anchors.rightMargin: root.isTv ? 32 : 0
         spacing: root.isTv ? 16 : 0
 
-        Image {
-            id: image
-            source: root.isTv ? "qrc:/images/pterodactyl.png" : "qrc:/images/dopamineBigLogo.png"
-            // Cap the decode size: the 1024x1024 logo was ~4 MB per page load.
-            sourceSize: Qt.size((root.isTv ? 360 : 380) * Screen.devicePixelRatio,
-                                (root.isTv ? 248 : 300) * Screen.devicePixelRatio)
+        // The mascot leads the start screen as a round avatar; the square
+        // stretched logo read as a banner, not as the app's face.
+        Item {
+            id: mascotFrame
 
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
             Layout.topMargin: (root.isTv ? 16 : 32) + SettingsController.safeAreaTopMargin
-            Layout.preferredWidth: root.isTv ? Math.min(content.width, 360) : 360
-            Layout.preferredHeight: root.isTv ? Math.min(root.height * 0.5, 248) : 287
-            fillMode: root.isTv ? Image.PreserveAspectFit : Image.Stretch
+            Layout.preferredWidth: root.isTv ? Math.min(content.width, 360) : 220
+            Layout.preferredHeight: root.isTv ? Math.min(root.height * 0.5, 248) : 220
+
+            Rectangle {
+                id: mascotDisc
+
+                anchors.fill: parent
+                radius: width / 2
+                color: "#ffffff"
+                border.width: 1
+                border.color: Qt.rgba(0, 0, 0, 0.08)
+            }
+
+            Rectangle {
+                id: mascotMask
+
+                anchors.fill: parent
+                radius: width / 2
+                color: "white"
+                visible: false
+            }
+
+            Image {
+                id: mascotLogo
+
+                anchors.fill: parent
+                source: "qrc:/images/pterodactyl.png"
+                // Cap the decode size: the 1024x1024 mascot was ~4 MB per load.
+                sourceSize: Qt.size(440 * Screen.devicePixelRatio, 440 * Screen.devicePixelRatio)
+                fillMode: Image.PreserveAspectCrop
+                visible: false
+            }
+
+            OpacityMask {
+                anchors.fill: parent
+                source: mascotLogo
+                maskSource: mascotMask
+            }
         }
 
         BasicButtonType {

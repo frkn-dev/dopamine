@@ -11,6 +11,17 @@ RadioButton {
     id: root
 
     property int textMaximumLineCount: 2
+    // Shrink the title before it gets elided (see titleText.font.pixelSize).
+    property bool textAutoFit: false
+
+    TextMetrics {
+        id: titleMetrics
+
+        font.family: "IBM Plex Mono"
+        font.weight: 400
+        font.pixelSize: 18
+        text: root.text
+    }
     property int textElide: Qt.ElideRight
     property string descriptionText
 
@@ -40,6 +51,10 @@ RadioButton {
 
     
     property string radioButtonInnerCirclePressedSource: "qrc:/images/controls/radio-button-inner-circle-pressed.png"
+    // Colour for the checked dot (see the Rectangle below). Empty = use the PNG.
+    property string innerCircleColor: ""
+    // Colour the picked row is drawn in when the caller gave none: white.
+    readonly property string selectionColor: innerCircleColor !== "" ? innerCircleColor : "#E6E8EF"
     property string radioButtonInnerCircleSource: "qrc:/images/controls/radio-button-inner-circle.png"
     property string radioButtonPressedSource: "qrc:/images/controls/radio-button-pressed.svg"
     property string radioButtonDefaultSource: "qrc:/images/controls/radio-button.svg"
@@ -107,10 +122,12 @@ RadioButton {
             source: {
                 if (showImage) {
                     return imageSource
-                } else if (root.pressed) {
-                    return root.radioButtonInnerCirclePressedSource
-                } else if (root.checked) {
-                    return root.radioButtonInnerCircleSource
+                } else if (root.checked || root.pressed) {
+                    // Selection is drawn from `selectionColor` below: white for a
+                    // picked row, whatever the caller passes for a connected one.
+                    // The old blue PNG (radio-button-inner-circle.png) leaked
+                    // through whenever the caller had no colour to give.
+                    return ""
                 }
 
                 return ""
@@ -123,9 +140,37 @@ RadioButton {
             height: 24
         }
 
+        // Solid dot for callers that colour the selection themselves: green while
+        // the tunnel is up, plain white for "selected but not connected".
+        // White by default: "no tunnel" must read as a plain picked row, never
+        // as the legacy blue dot. Callers pass a colour only for the connected one.
+        Rectangle {
+            visible: root.checked && !showImage
+            anchors.centerIn: parent
+            width: 24
+            height: 24
+            radius: 12
+            color: "transparent"
+            border.width: 1
+            border.color: root.selectionColor
+        }
+
+        Rectangle {
+            visible: root.checked && !showImage
+            anchors.centerIn: parent
+            width: 12
+            height: 12
+            radius: 6
+            color: root.selectionColor
+        }
+
         Image {
             source: {
                 if (showImage) {
+                    return ""
+                } else if (root.checked && root.innerCircleColor !== "") {
+                    // Coloured selection (green = connected, white = selected):
+                    // the ring is drawn from innerCircleColor below.
                     return ""
                 } else if (root.pressed || root.checked) {
                     return root.radioButtonPressedSource
@@ -183,9 +228,21 @@ RadioButton {
                 spacing: 4
 
                 ListItemTitleType {
+                    id: titleText
+
                     text: root.text
                     maximumLineCount: root.textMaximumLineCount
                     elide: root.textElide
+
+                    // Shrink to fit instead of truncating: a long pool label
+                    // ("Czechia | Selfhosted") must stay readable next to the
+                    // ping digits, so the font gives up a couple of points
+                    // before the text starts losing characters.
+                    font.pixelSize: root.textAutoFit
+                                     ? Math.max(13, Math.min(18,
+                                            Math.floor(18 * Math.max(0, width - 2)
+                                                       / Math.max(1, titleMetrics.advanceWidth))))
+                                     : 18
 
                     color: {
                         if (root.enabled) {

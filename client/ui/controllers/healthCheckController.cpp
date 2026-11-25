@@ -2,60 +2,174 @@
 
 #include "ui/models/servers_model.h"
 
-#include <QNetworkProxy>
 #include <QDateTime>
-#include <QDir>
+#include <QHostAddress>
+#include <QHostInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QNetworkProxy>
 #include <QRandomGenerator>
-#include <QSslSocket>
-#include <QTemporaryFile>
+#include <QScopedValueRollback>
+#include <QTcpSocket>
 #include <QTimer>
 #include <QtConcurrent/QtConcurrent>
 
-#include <atomic>
+#include <cstring>
 
-#include "core/api/apiUtils.h"
-
-#if defined(Q_OS_IOS) || defined(Q_OS_MACOS)
-// from libwg-go.a (api-xray.go): full-path probe — starts a real xray instance with
-// the given config and measures an HTTP request through it; returns C string
-// "delayMs:error" (empty error on success), caller frees
-extern "C" char *LibXrayPing(const char *datDir, const char *configPath, int timeoutSec, const char *url,
-                             const char *proxy);
-#elif defined(Q_OS_ANDROID)
-#include <QJniEnvironment>
-#include <QJniObject>
-
-#include "platforms/android/android_utils.h"
-
-// same Go API as LibXrayPing on Apple platforms, via the Java binding packaged
-// in the APK (client/android/xray/libXray/libxray.aar); returns "delayMs:error"
-static QString libXrayPingAndroid(const QString &configPath, int timeoutSec, const QString &url, const QString &proxy)
-{
-    // the gomobile runtime needs an app context before any Go call (Xray.kt does
-    // the same in the vpn service process; the health probe runs in the app process)
-    static bool seqInitialized = false;
-    if (!seqInitialized) {
-        QJniObject::callStaticMethod<void>("go/Seq", "setContext", "(Landroid/content/Context;)V",
-                                           AndroidUtils::getActivity().object());
-        seqInitialized = true;
-    }
-    const QJniObject reply = QJniObject::callStaticObjectMethod(
-            "org/amnezia/vpn/protocol/xray/libXray/LibXray", "ping",
-            "(Ljava/lang/String;Ljava/lang/String;JLjava/lang/String;Ljava/lang/String;)Ljava/lang/String;",
-            QJniObject::fromString(QString()).object<jstring>(), QJniObject::fromString(configPath).object<jstring>(),
-            static_cast<jlong>(timeoutSec), QJniObject::fromString(url).object<jstring>(),
-            QJniObject::fromString(proxy).object<jstring>());
-    QJniEnvironment env;
-    if (env.checkAndClearExceptions()) {
-        qWarning() << "[HEALTH] h2 probe: LibXray.ping failed (JNI exception)";
-        return QString();
-    }
-    return reply.toString();
-}
+#if !defined(Q_OS_WIN)
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <poll.h>
+#include <sys/socket.h>
+#include <unistd.h>
 #endif
+
+namespace {
+
+// Internet checksum of an ICMPv4 message (RFC 1071).
+quint16 icmpChecksum(const quint8 *data, const int len)
+{
+    quint32 sum = 0;
+    for (int i = 0; i + 1 < len; i += 2) {
+        sum += static_cast<quint16>((data[i] << 8) | data[i + 1]);
+    }
+    if (len & 1) {
+        sum += static_cast<quint16>(data[len - 1] << 8);
+    }
+    while (sum >> 16) {
+        sum = (sum & 0xffff) + (sum >> 16);
+    }
+    return static_cast<quint16>(~sum);
+}
+
+// Unprivileged ICMPv4 echo (SOCK_DGRAM + IPPROTO_ICMP): no raw socket, so it
+// works inside the app sandbox on iOS and for a normal user elsewhere. Returns
+// -1 when the platform has no ping socket (Windows), the packet never leaves or
+// nothing answers within the timeout — the caller then falls back to TCP.
+int icmpEchoRttMs(const QHostAddress &address, const int timeoutMs)
+{
+#if defined(Q_OS_WIN)
+    Q_UNUSED(address);
+    Q_UNUSED(timeoutMs);
+    return -1;
+#else
+    if (address.protocol() != QAbstractSocket::IPv4Protocol) {
+        return -1;
+    }
+    const int fd = ::socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP);
+    if (fd < 0) {
+        return -1;
+    }
+
+    sockaddr_in destination {};
+    destination.sin_family = AF_INET;
+    destination.sin_port = 0;
+    destination.sin_addr.s_addr = htonl(address.toIPv4Address());
+
+    // echo request built by hand: `struct icmphdr` does not exist on Darwin and
+    // the reply is read the same way, so only the fixed byte layout is relied on
+    quint8 packet[32] = {};
+    packet[0] = 8; // echo request
+    packet[1] = 0; // code
+    const quint16 id = static_cast<quint16>(QRandomGenerator::global()->bounded(0x10000));
+    const quint16 seq = 1;
+    memcpy(packet + 4, &id, sizeof(id));
+    memcpy(packet + 6, &seq, sizeof(seq));
+    packet[8] = 0x21; // payload lets the kernel size the reply it builds
+    packet[9] = 0x9f;
+    packet[10] = 0x4c;
+    packet[11] = 0x11;
+    const quint16 checksum = icmpChecksum(packet, sizeof(packet));
+    memcpy(packet + 2, &checksum, sizeof(checksum));
+
+    QElapsedTimer timer;
+    timer.start();
+    const auto sent = ::sendto(fd, packet, sizeof(packet), 0, reinterpret_cast<const sockaddr *>(&destination),
+                               sizeof(destination));
+    if (sent <= 0) {
+        ::close(fd);
+        return -1;
+    }
+
+    int rttMs = -1;
+    const qint64 deadline = QDateTime::currentMSecsSinceEpoch() + timeoutMs;
+    while (true) {
+        const qint64 left = deadline - QDateTime::currentMSecsSinceEpoch();
+        if (left <= 0) {
+            break;
+        }
+        pollfd descriptor {};
+        descriptor.fd = fd;
+        descriptor.events = POLLIN;
+        const int ready = ::poll(&descriptor, 1, static_cast<int>(left));
+        if (ready <= 0) {
+            break; // timeout (or a signal): no usable reply
+        }
+        // a ping socket also reports the destination unreachable this way
+        if ((descriptor.revents & POLLERR) != 0 || (descriptor.revents & POLLIN) == 0) {
+            break;
+        }
+        quint8 reply[512];
+        const auto got = ::recv(fd, reply, sizeof(reply), 0);
+        if (got < 8) {
+            continue;
+        }
+        // Darwin hands the reply over with the IPv4 header still in front, Linux
+        // ping sockets strip it — detected by the version/IHL nibble.
+        const int offset = (reply[0] >> 4) == 4 ? (reply[0] & 0x0f) * 4 : 0;
+        // type 0 / code 0 = echo reply. The kernel may rewrite the identifier of
+        // a ping socket, so the id is not compared.
+        if (got >= offset + 8 && reply[offset] == 0 && reply[offset + 1] == 0) {
+            rttMs = static_cast<int>(timer.elapsed());
+            break;
+        }
+    }
+    ::close(fd);
+    return rttMs;
+#endif
+}
+
+// TCP-connect RTT to the node itself: the fallback when ICMP is unavailable or
+// unanswered. Any port that answers proves the host is reachable; 443 is what a
+// proxy node serves anyway.
+int tcpConnectRttMs(const QHostAddress &address, const quint16 port, const int timeoutMs)
+{
+    QTcpSocket socket;
+    // the probe must not consult the system proxy: a PAC configuration makes
+    // connectToHost() resolve it synchronously on the calling thread
+    socket.setProxy(QNetworkProxy::NoProxy);
+    QElapsedTimer timer;
+    timer.start();
+    socket.connectToHost(address, port);
+    if (!socket.waitForConnected(timeoutMs)) {
+        socket.abort();
+        return -1;
+    }
+    const int rttMs = static_cast<int>(timer.elapsed());
+    socket.abort();
+    return rttMs;
+}
+
+// Node address for a ping: IP literals go straight through, names are resolved
+// on the worker thread (IPv4 first, ICMP needs it).
+QHostAddress resolveProbeAddress(const QString &host)
+{
+    const QHostAddress literal(host);
+    if (!literal.isNull()) {
+        return literal;
+    }
+    const QHostInfo info = QHostInfo::fromName(host);
+    const QList<QHostAddress> addresses = info.addresses();
+    for (const QHostAddress &address : addresses) {
+        if (address.protocol() == QAbstractSocket::IPv4Protocol) {
+            return address;
+        }
+    }
+    return addresses.isEmpty() ? QHostAddress() : addresses.first();
+}
+
+} // namespace
 
 #if defined(Q_OS_IOS) || defined(Q_OS_MACOS) || defined(Q_OS_ANDROID) || defined(Q_OS_WIN) || defined(Q_OS_LINUX)
 #include "core/wgHandshakeProbe.h"
@@ -64,6 +178,16 @@ static QString libXrayPingAndroid(const QString &configPath, int timeoutSec, con
 HealthCheckController::HealthCheckController(const QSharedPointer<ServersModel> &serversModel, QObject *parent)
     : QObject(parent), m_serversModel(serversModel)
 {
+    // A run measures the row numbers it queued. A subscription refresh or a peers
+    // sync rebuilds those rows in place (ServersModel bumps its row generation),
+    // so a result still in flight would be written into another server's row —
+    // that is exactly the "a probe outlived a refresh" class of bug that crashed
+    // on iOS (qBadAlloc). Stop the run instead: everything waiting on it
+    // (auto-select decision, pre-connect probe) rebuilds from the fresh list.
+    if (m_serversModel) {
+        connect(m_serversModel.get(), &QAbstractItemModel::modelReset, this, &HealthCheckController::stopProbe);
+    }
+
     // Проверка качества замеров без кликов: DOPAMINE_PROBE_SELFTEST=1 запускает
     // самопроверку handshake-пробы сразу после старта и печатает [SELFTEST] в лог.
     if (qEnvironmentVariableIsSet("DOPAMINE_PROBE_SELFTEST")) {
@@ -144,8 +268,76 @@ static QJsonObject wgJunkParams(const QJsonObject &lastConfig, const QString &in
     return junk;
 }
 
+// A peers card groups nodes that each carry their own server key and AWG junk,
+// while the cached tunnel config only holds the primary node's profile. Probing
+// another node's address with the primary key would always look dead, so the
+// probe takes the node's own profile when the row has one.
+static QString peersNodeHost(const QString &endpoint)
+{
+    const int colon = endpoint.lastIndexOf(QLatin1Char(':'));
+    return colon > 0 ? endpoint.left(colon) : endpoint;
+}
+
+static QJsonObject peersNodeJunk(const QJsonObject &obfuscation)
+{
+    // The same short keys wgJunkParams produces, with the first letter
+    // capitalized (the api sends them lower-case).
+    static const QStringList known = { "Jc", "Jmin", "Jmax", "S1", "S2", "S3", "S4", "H1", "H2", "H3",
+                                       "H4", "I1", "I2", "I3", "I4", "I5", "HeaderProtectionKey" };
+    QJsonObject junk;
+    for (auto it = obfuscation.constBegin(); it != obfuscation.constEnd(); ++it) {
+        QString key = it.key();
+        if (key.isEmpty()) {
+            continue;
+        }
+        key[0] = key[0].toUpper();
+        if (!known.contains(key)) {
+            continue;
+        }
+        const QString value = it.value().isDouble()
+                ? QString::number(static_cast<qint64>(it.value().toDouble()))
+                : it.value().toString();
+        if (!value.isEmpty()) {
+            junk.insert(key, value);
+        }
+    }
+    return junk;
+}
+
+// m_seen*Endpoints caches the position of a target inside its queue. The
+// position only holds while the queue keeps its order: startNext*() pops from
+// the front, and a re-entrant run clears the queue altogether. So a cached
+// position has to be bounds-checked before use — an out-of-range [] reads and
+// writes past the list, and appending to the garbage QList<int> header found
+// there throws std::bad_alloc (SIGABRT in qBadAlloc, seen on iOS).
+template<typename TargetType>
+static bool appendRowToQueuedTarget(QList<TargetType> &queue, const QHash<QString, int> &positions,
+                                    const QString &endpoint, int row, const QString &cardId)
+{
+    const auto it = positions.constFind(endpoint);
+    if (it == positions.constEnd() || it.value() < 0 || it.value() >= queue.size()) {
+        return false;
+    }
+    queue[it.value()].rows.append(row);
+    queue[it.value()].cardIds.append(cardId);
+    return true;
+}
+
 void HealthCheckController::startProbe(bool force)
 {
+    // stopProbe() below clears the queues together with their position maps, and
+    // both it (probingFinished) and clearHealthResults() (dataChanged) can call
+    // back into QML, which may re-enter this function. A nested run then drains
+    // queue through startNext*() while the outer loop still resolves addresses
+    // through the position maps: a stale index writes into freed heap and the
+    // next rows.append() on that garbage header aborts. A run already being
+    // filled covers the same servers, so the nested call is simply dropped.
+    if (m_startingProbe) {
+        qDebug() << "[HEALTH] probe skipped: run already being started";
+        return;
+    }
+    QScopedValueRollback<bool> startGuard(m_startingProbe, true);
+
     // Глобальное «не чаще раза в минуту» здесь было ошибкой: оно блокировало
     // пробы и для тех адресов, по которым замера вообще нет (карточка пула
     // показывала «no data»). Свежесть проверяет вызывающий — по каждому адресу
@@ -172,120 +364,43 @@ void HealthCheckController::startProbe(bool force)
     // clear displayed values: badges reappear only as fresh results arrive
     m_serversModel->clearHealthResults();
 
-    // collect targets: vless (TCP) servers only; everything else stays n/a
+    // collect ping targets: proxy protocols (vless, hysteria2, any client_config
+    // card) cannot be handshake-probed from the client, so they get a server ping
+    // on the node's own address. One probe per address answers every protocol of
+    // the pool, and each row keeps the value for the card it shows.
     const int count = m_serversModel->getServersCount();
     for (int i = 0; i < count; ++i) {
-        const QString protocol = m_serversModel->data(i, ServersModel::Roles::ServiceProtocolRole).toString();
-        if (protocol != QStringLiteral("vless")) {
+        if (!m_serversModel->data(i, ServersModel::Roles::HealthPingRole).toBool()) {
             continue;
         }
-
-        const QJsonObject serverConfig = m_serversModel->getServerConfig(i);
-        const QString host = serverConfig.value(QStringLiteral("hostName")).toString();
+        const QString host = m_serversModel->data(i, ServersModel::Roles::EndpointHostRole).toString();
         if (host.isEmpty()) {
             continue;
         }
 
-        // port and address from the xray outbound inside the stored config —
-        // for xhttp-cdn the client connects to the CDN front (vnext address),
-        // not to hostName (the origin, which is usually firewalled), so probing
-        // hostName would mark a healthy server offline and vice versa
-        quint16 port = 0;
-        QString connectAddress;
-        QString sni;
-        QString path;
-        bool httpsProbe = false;
-        const QJsonArray containers = serverConfig.value(QStringLiteral("containers")).toArray();
-        if (!containers.isEmpty()) {
-            const QJsonObject containerObject = containers.at(0).toObject();
-
-            auto endpointFromOutbound = [&](const QJsonObject &outbound) -> quint16 {
-                const QJsonArray vnext = outbound.value(QStringLiteral("settings")).toObject()
-                                                 .value(QStringLiteral("vnext")).toArray();
-                if (vnext.isEmpty()) {
-                    return 0;
-                }
-                const QJsonObject vnextObject = vnext.at(0).toObject();
-                connectAddress = vnextObject.value(QStringLiteral("address")).toString();
-
-                // xhttp over plain TLS = CDN-fronted server: probe through the CDN with a
-                // real HTTPS request, the edge TCP/TLS alone says nothing about the origin
-                const QJsonObject streamSettings = outbound.value(QStringLiteral("streamSettings")).toObject();
-                if (streamSettings.value(QStringLiteral("security")).toString() == QStringLiteral("tls")
-                    && streamSettings.value(QStringLiteral("network")).toString() == QStringLiteral("xhttp")) {
-                    httpsProbe = true;
-                    sni = streamSettings.value(QStringLiteral("tlsSettings")).toObject()
-                                  .value(QStringLiteral("serverName")).toString();
-                    path = streamSettings.value(QStringLiteral("xhttpSettings")).toObject()
-                                   .value(QStringLiteral("path")).toString();
-                }
-                return static_cast<quint16>(vnextObject.value(QStringLiteral("port")).toInt());
-            };
-
-            // standard form: containers[0].xray.config = {"outbounds":[...]}
-            const QJsonObject xray = containerObject.value(QStringLiteral("xray")).toObject();
-            QJsonObject configRoot = QJsonDocument::fromJson(xray.value(QStringLiteral("config")).toString().toUtf8()).object();
-
-            // xhttp-cdn form: containers[0].config holds the outbound (or outbounds) directly
-            if (configRoot.isEmpty()) {
-                configRoot = QJsonDocument::fromJson(containerObject.value(QStringLiteral("config")).toString().toUtf8()).object();
-            }
-
-            const QJsonArray outbounds = configRoot.value(QStringLiteral("outbounds")).toArray();
-            if (!outbounds.isEmpty()) {
-                port = endpointFromOutbound(outbounds.at(0).toObject());
-            } else if (!configRoot.isEmpty()) {
-                // single outbound object instead of an outbounds array
-                port = endpointFromOutbound(configRoot);
-            }
-        }
-        if (port == 0) {
-            continue;
-        }
-        const QString probeHost = connectAddress.isEmpty() ? host : connectAddress;
-
-        // multi-IP nodes: probe every entry address (same port) — the badge
-        // should say "alive" if ANY address answers. CDN-fronted rows keep
-        // probing the CDN front only
-        QStringList probeHosts;
-        if (!httpsProbe) {
-            const QJsonArray nodeIps = serverConfig.value(QStringLiteral("node_ips")).toArray();
-            for (const QJsonValue &v : nodeIps) {
-                const QString ip = v.toString();
-                if (!ip.isEmpty()) {
-                    probeHosts.append(ip);
-                }
-            }
-            probeHosts.removeDuplicates();
-        }
+        // multi-IP nodes: ping every entry address — the badge is the best result
+        QStringList probeHosts = m_serversModel->data(i, ServersModel::Roles::NodeIpsRole).toStringList();
+        probeHosts.removeDuplicates();
         if (probeHosts.isEmpty()) {
-            probeHosts.append(probeHost);
+            probeHosts.append(host);
         }
 
-        for (const QString &probeAddress : probeHosts) {
-            // порт — свой у каждого адреса (node_ports), иначе проба стучится
-            // в порт протокола мимо реально открытого
-            const quint16 hostPort = static_cast<quint16>(
-                    ServersModel::portForNodeIp(serverConfig, probeAddress, port));
-            // one probe per host:port — duplicate rows share the node; every sharing
-            // row gets the result (rows can share a host on different ports, e.g.
-            // AWG and its mobile variant, so results are applied per row, not per host)
-            const QString endpoint = QStringLiteral("%1:%2").arg(probeAddress).arg(hostPort);
-            const auto seen = m_seenTcpEndpoints.constFind(endpoint);
-            if (seen != m_seenTcpEndpoints.constEnd()) {
-                m_queue[seen.value()].rows.append(i);
+        const QString protocol = m_serversModel->data(i, ServersModel::Roles::ServiceProtocolRole).toString();
+        const QString cardId = m_serversModel->peerCardId(i);
+        for (const QString &probeHost : probeHosts) {
+            if (appendRowToQueuedTarget(m_pingQueue, m_seenPingEndpoints, probeHost, i, cardId)) {
                 continue;
             }
-            m_seenTcpEndpoints.insert(endpoint, m_queue.size());
+            m_seenPingEndpoints.insert(probeHost, m_pingQueue.size());
 
-            Target target;
+            PingTarget target;
             target.rows.append(i);
-            target.host = probeAddress;
-            target.port = hostPort;
-            target.httpsProbe = httpsProbe;
-            target.sni = sni.isEmpty() ? probeAddress : sni;
-            target.path = path.isEmpty() ? QStringLiteral("/") : path;
-            m_queue.append(target);
+            target.cardIds.append(cardId);
+            target.host = probeHost;
+            target.proto = protocol;
+            target.port = static_cast<quint16>(m_serversModel->endpointPort(i));
+            target.udpOnly = protocol == QLatin1String("hysteria2");
+            m_pingQueue.append(target);
         }
     }
 
@@ -315,6 +430,9 @@ void HealthCheckController::startProbe(bool force)
         if (host.isEmpty()) {
             host = lastConfig.value(QStringLiteral("hostName")).toString();
         }
+        // the result belongs to the card on screen: the pool may show another
+        // protocol by the time the handshake answers
+        const QString cardId = m_serversModel->peerCardId(i);
         const QJsonValue portValue = lastConfig.value(QStringLiteral("port"));
         const quint16 port = static_cast<quint16>(portValue.isString() ? portValue.toString().toUShort()
                                                                        : portValue.toInt());
@@ -350,29 +468,46 @@ void HealthCheckController::startProbe(bool force)
         for (const QString &probeHost : probeHosts) {
             const quint16 hostPort = static_cast<quint16>(
                     ServersModel::portForNodeIp(serverConfig, probeHost, port));
+            // per-node profile of a peers card (empty for v1 rows)
+            QJsonObject probeJunk = junk;
+            QString probeServerKey = serverPubKey;
+            for (const QJsonValue &nodeValue : serverConfig.value(QStringLiteral("peerNodes")).toArray()) {
+                const QJsonObject node = nodeValue.toObject();
+                if (peersNodeHost(node.value(QStringLiteral("endpoint")).toString()) != probeHost) {
+                    continue;
+                }
+                const QString key = node.value(QStringLiteral("serverPublicKey")).toString();
+                if (!key.isEmpty()) {
+                    probeServerKey = key;
+                }
+                const QJsonObject nodeJunk = peersNodeJunk(node.value(QStringLiteral("obfuscation")).toObject());
+                if (!nodeJunk.isEmpty()) {
+                    probeJunk = nodeJunk;
+                }
+                break;
+            }
             // one probe per host:port — duplicate entries (same node in several
             // server rows) racing handshakes with the same key get dropped by the
             // server and show up as random timeouts; sharing rows get the result
             // applied per row (rows can share a host on different ports)
             const QString endpoint = QStringLiteral("%1:%2").arg(probeHost).arg(hostPort);
-            const auto seen = m_seenWgEndpoints.constFind(endpoint);
-            if (seen != m_seenWgEndpoints.constEnd()) {
-                m_wgQueue[seen.value()].rows.append(i);
+            if (appendRowToQueuedTarget(m_wgQueue, m_seenWgEndpoints, endpoint, i, cardId)) {
                 continue;
             }
 
             WgTarget target;
             target.rows.append(i);
+            target.cardIds.append(cardId);
             target.host = probeHost;
             target.port = hostPort;
             target.clientPrivKey = clientPrivKey;
-            target.serverPubKey = serverPubKey;
+            target.serverPubKey = probeServerKey;
             target.psk = lastConfig.value(QStringLiteral("psk_key")).toString();
-            target.junkParamsJson = QString::fromUtf8(QJsonDocument(junk).toJson(QJsonDocument::Compact));
+            target.junkParamsJson = QString::fromUtf8(QJsonDocument(probeJunk).toJson(QJsonDocument::Compact));
 
             m_seenWgEndpoints.insert(endpoint, m_wgQueue.size());
 
-            if (!junk.isEmpty()) {
+            if (!probeJunk.isEmpty()) {
                 qDebug() << "[HEALTH] wg probe queued:" << probeHost << port << "junk:" << target.junkParamsJson;
             }
             m_wgQueue.append(target);
@@ -380,92 +515,8 @@ void HealthCheckController::startProbe(bool force)
     }
 #endif
 
-#if defined(Q_OS_IOS) || defined(Q_OS_MACOS) || defined(Q_OS_ANDROID)
-    // collect hysteria2 targets: a bare QUIC version-negotiation probe is unreliable
-    // (live servers may ignore it), so H2 gets a full-path probe via LibXrayPing —
-    // real handshake + auth + HTTP request through the server
-    for (int i = 0; i < count; ++i) {
-        const QString protocol = m_serversModel->data(i, ServersModel::Roles::ServiceProtocolRole).toString();
-        if (protocol != QStringLiteral("hysteria2")) {
-            continue;
-        }
-
-        const QJsonObject serverConfig = m_serversModel->getServerConfig(i);
-        const QJsonArray containers = serverConfig.value(QStringLiteral("containers")).toArray();
-        if (containers.isEmpty()) {
-            continue;
-        }
-        const QJsonObject containerObject = containers.at(0).toObject();
-        const QJsonObject xray = containerObject.value(QStringLiteral("xray")).toObject();
-        QJsonObject configRoot = QJsonDocument::fromJson(xray.value(QStringLiteral("config")).toString().toUtf8()).object();
-        if (configRoot.isEmpty()) {
-            configRoot = QJsonDocument::fromJson(containerObject.value(QStringLiteral("config")).toString().toUtf8()).object();
-        }
-        const QJsonArray outbounds = configRoot.value(QStringLiteral("outbounds")).toArray();
-        if (outbounds.isEmpty()) {
-            continue;
-        }
-        const QJsonObject outbound = outbounds.at(0).toObject();
-        const QJsonArray servers = outbound.value(QStringLiteral("settings")).toObject()
-                                           .value(QStringLiteral("servers")).toArray();
-        if (servers.isEmpty()) {
-            continue;
-        }
-        const QJsonObject server = servers.at(0).toObject();
-        const QString host = server.value(QStringLiteral("address")).toString();
-        const quint16 port = static_cast<quint16>(server.value(QStringLiteral("port")).toInt());
-        if (host.isEmpty() || port == 0) {
-            continue;
-        }
-
-        // multi-IP nodes: probe every entry address — same port and auth per
-        // the node_ips contract; the row badge is the best result
-        QStringList probeHosts;
-        const QJsonArray nodeIps = serverConfig.value(QStringLiteral("node_ips")).toArray();
-        for (const QJsonValue &v : nodeIps) {
-            const QString ip = v.toString();
-            if (!ip.isEmpty()) {
-                probeHosts.append(ip);
-            }
-        }
-        probeHosts.removeDuplicates();
-        if (probeHosts.isEmpty()) {
-            probeHosts.append(host);
-        }
-
-        for (const QString &probeHost : probeHosts) {
-            // one probe per host:port, result applied to every sharing row
-            const QString endpoint = QStringLiteral("%1:%2").arg(probeHost).arg(port);
-            const auto seen = m_seenH2Endpoints.constFind(endpoint);
-            if (seen != m_seenH2Endpoints.constEnd()) {
-                m_h2Queue[seen.value()].rows.append(i);
-                continue;
-            }
-            m_seenH2Endpoints.insert(endpoint, m_h2Queue.size());
-
-            H2Target target;
-            target.rows.append(i);
-            target.host = probeHost;
-            target.port = port;
-            target.outbound = outbound;
-            if (probeHost != host) {
-                // point the probe at this entry address, keeping port/auth/SNI
-                QJsonObject settings = target.outbound.value(QStringLiteral("settings")).toObject();
-                QJsonArray serversArr = settings.value(QStringLiteral("servers")).toArray();
-                QJsonObject serverEntry = serversArr.at(0).toObject();
-                serverEntry[QStringLiteral("address")] = probeHost;
-                serversArr[0] = serverEntry;
-                settings[QStringLiteral("servers")] = serversArr;
-                target.outbound[QStringLiteral("settings")] = settings;
-            }
-            m_h2Queue.append(target);
-        }
-    }
-#endif
-
-    startNext();
+    startNextPing();
     startNextWg();
-    startNextH2();
 
     // covers the "no targets at all" case — waiters must not hang
     m_probeActive = true;
@@ -478,8 +529,8 @@ void HealthCheckController::maybeFinishProbe()
     if (!m_probeActive) {
         return;
     }
-    if (!m_queue.isEmpty() || !m_socketTargets.isEmpty() || !m_wgQueue.isEmpty() || !m_wgWatchers.isEmpty()
-        || !m_h2Queue.isEmpty() || !m_h2Watchers.isEmpty()) {
+    if (!m_pingQueue.isEmpty() || !m_pingWatchers.isEmpty() || !m_wgQueue.isEmpty()
+        || !m_wgWatchers.isEmpty()) {
         return;
     }
     m_probeActive = false;
@@ -493,15 +544,14 @@ void HealthCheckController::maybeFinishProbe()
 
 void HealthCheckController::stopProbe()
 {
-    for (QTcpSocket *socket : m_socketTargets.keys()) {
-        socket->abort();
-        socket->deleteLater();
+    // in-flight pings finish on their worker threads; detach and drop the results
+    for (QFutureWatcher<PingResult> *watcher : m_pingWatchers.keys()) {
+        disconnect(watcher, nullptr, this, nullptr);
+        watcher->deleteLater();
     }
-    m_socketTargets.clear();
-    m_timers.clear();
-    m_attempts.clear();
-    m_queue.clear();
-    m_seenTcpEndpoints.clear();
+    m_pingWatchers.clear();
+    m_pingQueue.clear();
+    m_seenPingEndpoints.clear();
     m_seenWgEndpoints.clear();
 
     // in-flight Go probes cannot be cancelled; detach the watchers and let
@@ -512,16 +562,6 @@ void HealthCheckController::stopProbe()
     }
     m_wgWatchers.clear();
     m_wgQueue.clear();
-
-    // in-flight H2 pings run a full xray instance and cannot be cancelled cheaply;
-    // detach the watchers and let them finish harmlessly
-    for (QFutureWatcher<int> *watcher : m_h2Watchers.keys()) {
-        disconnect(watcher, nullptr, this, nullptr);
-        watcher->deleteLater();
-    }
-    m_h2Watchers.clear();
-    m_h2Queue.clear();
-    m_seenH2Endpoints.clear();
 
     // прогон мог прерваться (уход в фон/дисконнект) — сохраняем то, что успели
     if (m_serversModel) {
@@ -537,109 +577,70 @@ void HealthCheckController::stopProbe()
     }
 }
 
-void HealthCheckController::startNext()
+void HealthCheckController::startNextPing()
 {
-    while (m_socketTargets.size() < kMaxParallel && !m_queue.isEmpty()) {
-        const Target target = m_queue.takeFirst();
-        const int timeoutMs = target.httpsProbe ? kHttpsTimeoutMs : kTimeoutMs;
+    while (m_pingWatchers.size() < kMaxParallel && !m_pingQueue.isEmpty()) {
+        const PingTarget target = m_pingQueue.takeFirst();
 
-        QTcpSocket *socket = target.httpsProbe ? static_cast<QTcpSocket *>(new QSslSocket(this)) : new QTcpSocket(this);
-        // Probe sockets must not consult the system proxy: on macOS a PAC
-        // configuration makes connectToHost() resolve the proxy synchronously
-        // on the calling thread, freezing the UI for seconds per probe.
-        socket->setProxy(QNetworkProxy::NoProxy);
-        m_socketTargets.insert(socket, target);
-        m_attempts.insert(socket, 1);
-        m_timers.insert(socket, QElapsedTimer());
-        m_timers[socket].start();
+        auto *watcher = new QFutureWatcher<PingResult>(this);
+        m_pingWatchers.insert(watcher, target);
+        connect(watcher, &QFutureWatcher<PingResult>::finished, this,
+                [this, watcher]() { finishPingWatcher(watcher); });
 
-        if (target.httpsProbe) {
-            QSslSocket *sslSocket = static_cast<QSslSocket *>(socket);
-            // TLS up -> ask the xhttp endpoint for anything; the response status tells
-            // whether the ORIGIN behind the CDN is alive, not just the CDN edge
-            connect(sslSocket, &QSslSocket::encrypted, this, [this, sslSocket]() {
-                const Target t = m_socketTargets.value(sslSocket);
-                sslSocket->write("GET " + t.path.toUtf8() + " HTTP/1.1\r\nHost: " + t.sni.toUtf8()
-                                 + "\r\nUser-Agent: Dopamine-HealthCheck\r\nConnection: close\r\n\r\n");
-            });
-            connect(sslSocket, &QSslSocket::readyRead, this, [this, sslSocket]() {
-                if (!m_socketTargets.contains(sslSocket)) {
-                    return;
-                }
-                const QByteArray head = sslSocket->peek(64);
-                const int space = head.indexOf(' ');
-                if (space < 0 || head.size() < space + 4) {
-                    return; // status line not fully here yet
-                }
-                const int status = head.mid(space + 1, 3).toInt();
-                if (status <= 0) {
-                    return;
-                }
-                const qint64 elapsed = m_timers.value(sslSocket).elapsed();
-                // any non-5xx answer (404/405/200...) means the origin responded;
-                // 5xx is the CDN edge reporting a dead/hung origin
-                finishSocket(sslSocket, status < 500 ? static_cast<int>(elapsed) : -1);
-            });
-        } else {
-            connect(socket, &QTcpSocket::connected, this, [this, socket]() {
-                const qint64 elapsed = m_timers.value(socket).elapsed();
-                finishSocket(socket, static_cast<int>(elapsed));
-            });
-        }
-        connect(socket, &QTcpSocket::errorOccurred, this, [this, socket, timeoutMs](QTcpSocket::SocketError) {
-            // flaky networks / DPI: one retry before declaring the server offline
-            if (m_attempts.value(socket) < 2) {
-                const Target target = m_socketTargets.value(socket);
-                const int attempt = m_attempts.value(socket) + 1;
-                m_attempts.insert(socket, attempt);
-                m_timers[socket].restart();
-                socket->abort();
-                if (target.httpsProbe) {
-                    static_cast<QSslSocket *>(socket)->connectToHostEncrypted(target.host, target.port, target.sni);
-                } else {
-                    socket->connectToHost(target.host, target.port);
-                }
-                QTimer::singleShot(timeoutMs, socket, [this, socket, attempt]() {
-                    if (m_socketTargets.contains(socket) && m_attempts.value(socket) == attempt) {
-                        finishSocket(socket, -1);
-                    }
-                });
-            } else {
-                finishSocket(socket, -1);
+        const QString host = target.host;
+        const int icmpTimeoutMs = kPingIcmpTimeoutMs;
+        const int tcpTimeoutMs = kPingTcpTimeoutMs;
+        const quint16 tcpPort = target.port > 0 ? target.port : kPingTcpPort;
+        const bool udpOnly = target.udpOnly;
+        watcher->setFuture(QtConcurrent::run([host, icmpTimeoutMs, tcpTimeoutMs, tcpPort, udpOnly]() {
+            PingResult result;
+            const QHostAddress address = resolveProbeAddress(host);
+            if (address.isNull()) {
+                return result;
             }
-        });
-
-        if (target.httpsProbe) {
-            static_cast<QSslSocket *>(socket)->connectToHostEncrypted(target.host, target.port, target.sni);
-        } else {
-            socket->connectToHost(target.host, target.port);
-        }
-
-        QTimer::singleShot(timeoutMs, socket, [this, socket]() {
-            if (m_socketTargets.contains(socket) && m_attempts.value(socket) == 1) {
-                finishSocket(socket, -1);
+            // real ICMP first: it measures the node itself and needs no open
+            // port. No ping socket or no answer -> TCP connect on 443.
+            const int icmpMs = icmpEchoRttMs(address, icmpTimeoutMs);
+            if (icmpMs >= 0) {
+                result.rttMs = icmpMs;
+                result.viaIcmp = true;
+                return result;
             }
-        });
+            // A QUIC/UDP proxy port never completes a TCP handshake: the TCP
+            // fallback would report "no answer" for a perfectly live node.
+            if (udpOnly) {
+                return result;
+            }
+            result.rttMs = tcpConnectRttMs(address, tcpPort, tcpTimeoutMs);
+            return result;
+        }));
     }
 }
 
-void HealthCheckController::finishSocket(QTcpSocket *socket, int latencyMs)
+void HealthCheckController::finishPingWatcher(QFutureWatcher<PingResult> *watcher)
 {
-    if (!m_socketTargets.contains(socket)) {
+    if (!m_pingWatchers.contains(watcher)) {
         return;
     }
-    const Target target = m_socketTargets.take(socket);
-    m_timers.remove(socket);
-    m_attempts.remove(socket);
-    socket->deleteLater();
+    const PingTarget target = m_pingWatchers.take(watcher);
+    const PingResult result = watcher->result();
+    watcher->deleteLater();
 
-    for (const int row : target.rows) {
-        m_serversModel->setHealthResult(row, latencyMs);
+    qDebug().noquote() << QStringLiteral("[HEALTH] %1: proxy ping via %2 %3")
+                                  .arg(target.proto.isEmpty() ? QStringLiteral("proxy") : target.proto,
+                                       result.viaIcmp ? QStringLiteral("icmp") : QStringLiteral("tcp"),
+                                       result.rttMs >= 0 ? QStringLiteral("%1 ms").arg(result.rttMs)
+                                                         : QStringLiteral("no reply"));
+
+    for (int i = 0; i < target.rows.size(); ++i) {
+        m_serversModel->setHealthResult(target.rows.at(i), result.rttMs,
+                                        i < target.cardIds.size() ? target.cardIds.at(i) : QString());
     }
 
-    startNext();
+    startNextPing();
     maybeFinishProbe();
 }
+
 
 // Самопроверка пробы: показывает, что мы меряем настоящий handshake, а не эхо
 // чего-то другого. Три контроля на каждый адрес:
@@ -801,8 +802,9 @@ void HealthCheckController::finishWatcher(QFutureWatcher<int> *watcher)
         target.attempts++;
         m_wgQueue.append(target);
     } else {
-        for (const int row : target.rows) {
-            m_serversModel->setHealthResult(row, rttMs);
+        for (int i = 0; i < target.rows.size(); ++i) {
+            m_serversModel->setHealthResult(target.rows.at(i), rttMs,
+                                            i < target.cardIds.size() ? target.cardIds.at(i) : QString());
         }
         // результат фиксируем на конкретный адрес: в пуле у ноды несколько IP,
         // и один может быть заблокирован, пока другой отвечает
@@ -810,89 +812,5 @@ void HealthCheckController::finishWatcher(QFutureWatcher<int> *watcher)
     }
 
     startNextWg();
-    maybeFinishProbe();
-}
-
-void HealthCheckController::startNextH2()
-{
-#if defined(Q_OS_IOS) || defined(Q_OS_MACOS) || defined(Q_OS_ANDROID)
-    // strictly one at a time: each ping spins up a full xray instance and
-    // libxray keeps global state
-    if (!m_h2Watchers.isEmpty() || m_h2Queue.isEmpty()) {
-        return;
-    }
-    const H2Target target = m_h2Queue.takeFirst();
-
-    QFutureWatcher<int> *watcher = new QFutureWatcher<int>(this);
-    m_h2Watchers.insert(watcher, target);
-    connect(watcher, &QFutureWatcher<int>::finished, this, [this, watcher]() { finishH2Watcher(watcher); });
-
-    watcher->setFuture(QtConcurrent::run([target]() -> int {
-        static std::atomic<int> probePort { 19081 };
-        const int localPort = probePort.fetch_add(1);
-
-        QJsonObject inbound;
-        inbound[QStringLiteral("listen")] = QStringLiteral("127.0.0.1");
-        inbound[QStringLiteral("port")] = localPort;
-        inbound[QStringLiteral("protocol")] = QStringLiteral("socks");
-        inbound[QStringLiteral("settings")] = QJsonObject { { QStringLiteral("auth"), QStringLiteral("noauth") },
-                                                            { QStringLiteral("udp"), true } };
-
-        QJsonObject probeConfig;
-        probeConfig[QStringLiteral("inbounds")] = QJsonArray { inbound };
-        probeConfig[QStringLiteral("outbounds")] =
-                QJsonArray { apiUtils::translateLegacyHysteria2Outbound(target.outbound) };
-
-        QTemporaryFile file(QDir::tempPath() + QStringLiteral("/dopamine-h2probe-XXXXXX.json"));
-        if (!file.open()) {
-            return -1;
-        }
-        file.write(QJsonDocument(probeConfig).toJson(QJsonDocument::Compact));
-        file.flush();
-
-        const QByteArray proxy = QStringLiteral("socks5://127.0.0.1:%1").arg(localPort).toUtf8();
-#if defined(Q_OS_ANDROID)
-        const QString result = libXrayPingAndroid(file.fileName(), kH2TimeoutSec,
-                                                  QStringLiteral("https://www.google.com/generate_204"),
-                                                  QString::fromUtf8(proxy));
-#else
-        char *reply = LibXrayPing(nullptr, file.fileName().toUtf8().constData(), kH2TimeoutSec,
-                                  "https://www.google.com/generate_204", proxy.constData());
-        if (!reply) {
-            return -1;
-        }
-        const QString result = QString::fromUtf8(reply);
-        free(reply);
-#endif
-        if (result.isEmpty()) {
-            return -1;
-        }
-
-        // libxray answers "delayMs:error"; delays >= 10000 are its failure markers
-        const int delay = result.section(QLatin1Char(':'), 0, 0).toInt();
-        const bool failed = !result.section(QLatin1Char(':'), 1).isEmpty();
-        if (failed || delay <= 0 || delay >= 10000) {
-            return -1;
-        }
-        return delay;
-    }));
-#endif
-}
-
-void HealthCheckController::finishH2Watcher(QFutureWatcher<int> *watcher)
-{
-    if (!m_h2Watchers.contains(watcher)) {
-        return;
-    }
-    const H2Target target = m_h2Watchers.take(watcher);
-    const int delayMs = watcher->result();
-    qDebug() << "[HEALTH] h2 probe" << target.host << "delay:" << delayMs;
-    watcher->deleteLater();
-
-    for (const int row : target.rows) {
-        m_serversModel->setHealthResult(row, delayMs);
-    }
-
-    startNextH2();
     maybeFinishProbe();
 }

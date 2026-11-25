@@ -108,8 +108,10 @@ PageType {
     }
 
     property list<QtObject> settingsEntries: [
+        subscriptions,
         application,
         connection,
+        howItWorks,
         splitTunneling,
         // Diagnostics right before Support: it is the screen support asks about
         // first, and it used to be two taps deep inside Application.
@@ -155,6 +157,19 @@ PageType {
     }
 
     QtObject {
+        id: subscriptions
+
+        // Every subscription of this device, even when there is only one:
+        // ids, share codes and the plan state live here, not on the server card.
+        property string title: qsTr("Subscriptions")
+        readonly property string leftImagePath: "qrc:/images/controls/tag.svg"
+        property bool isVisible: true
+        readonly property var clickedHandler: function() {
+            PageController.goToPage(PageEnum.PageSettingsSubscriptions)
+        }
+    }
+
+    QtObject {
         id: application
 
         property string title: qsTr("Application")
@@ -162,6 +177,19 @@ PageType {
         property bool isVisible: true
         readonly property var clickedHandler: function() {
             PageController.goToPage(PageEnum.PageSettingsApplication)
+        }
+    }
+
+    QtObject {
+        id: howItWorks
+
+        // Explainer, not a setting: the user picks the entry server, the app
+        // decides the exit. Lives in the top-level list so it is one tap away.
+        property string title: qsTr("How it works")
+        readonly property string leftImagePath: "qrc:/images/controls/help-circle.svg"
+        property bool isVisible: true
+        readonly property var clickedHandler: function() {
+            PageController.goToPage(PageEnum.PageHowItWorks)
         }
     }
 

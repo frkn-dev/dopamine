@@ -86,6 +86,11 @@ set(DOPAMINE_TS_FILES
 
 file(GLOB_RECURSE DOPAMINE_TS_SOURCES *.qrc *.cpp *.h *.ui)
 list(FILTER DOPAMINE_TS_SOURCES EXCLUDE REGEX "qtgamepad/examples")
+# qsTr() lives in QML as much as in C++: without the .qml files in the lupdate
+# source list every interface string was maintained by hand and any new one was
+# marked obsolete on the next build, so it silently fell back to English
+file(GLOB_RECURSE DOPAMINE_QML_SOURCES ${CMAKE_CURRENT_LIST_DIR}/ui/qml/*.qml)
+list(APPEND DOPAMINE_TS_SOURCES ${DOPAMINE_QML_SOURCES})
 
 qt_create_translation(DOPAMINE_QM_FILES ${DOPAMINE_TS_SOURCES} ${DOPAMINE_TS_FILES})
 

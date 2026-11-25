@@ -33,6 +33,36 @@ namespace
 {
     const QString frknApiBase = QStringLiteral("https://api.frkn.org/sub?id=");
 
+    // FRKN short code from the ЛК: Crockford base32, 10 significant chars.
+    // The display form is k7f2-9mxq-4t, the stored form is contiguous, and the
+    // backend folds o->0 / i,l->1 — so the lookup form must do the same.
+    QString normalizeShortCode(const QString &input)
+    {
+        QString normalized;
+        normalized.reserve(input.size());
+        for (const QChar c : input) {
+            if (c.isSpace() || c == QLatin1Char('-')) {
+                continue;
+            }
+            const QChar lower = c.toLower();
+            if (lower == QLatin1Char('o')) {
+                normalized.append(QLatin1Char('0'));
+            } else if (lower == QLatin1Char('i') || lower == QLatin1Char('l')) {
+                normalized.append(QLatin1Char('1'));
+            } else {
+                normalized.append(lower);
+            }
+        }
+        return normalized;
+    }
+
+    bool isFrknShortCode(const QString &normalizedCode)
+    {
+        // Crockford alphabet: no i, l, o, u
+        static const QRegularExpression shortCodeRegex(QStringLiteral("^[0-9abcdefghjkmnpqrstvwxyz]{10}$"));
+        return shortCodeRegex.match(normalizedCode).hasMatch();
+    }
+
     QString decodeIfBase64(const QByteArray &input)
     {
         if (input.isEmpty())
@@ -117,9 +147,12 @@ bool ImportController::extractConfigFromData(QString data)
 {
     m_maliciousWarningText.clear();
 
-    QString config = data;
+    // Pasted text arrives with stray spaces/newlines (clipboard, QR, external
+    // share): trim once here so every downstream detector sees the bare value.
+    QString config = data.trimmed();
     if (config.startsWith(QChar(0xFEFF))) {
         config.remove(0, 1);
+        config = config.trimmed();
     }
     QString prefix;
     QString errormsg;
@@ -226,6 +259,18 @@ bool ImportController::extractConfigFromData(QString data)
             return false;
         }
 
+        // FRKN short code from the ЛК — k7f2-9mxq-4t, also pasted contiguous
+        // (k7f29mxq4t) or with spaces. Crockford base32, 10 chars; resolved
+        // asynchronously through s.frkn.org, so a key is never 10 chars and
+        // the key detection below cannot be shadowed by this branch.
+        {
+            const QString normalizedCode = normalizeShortCode(urlCandidate);
+            if (isFrknShortCode(normalizedCode)) {
+                emit frknShortCodeDetected(normalizedCode);
+                return false;
+            }
+        }
+
         // frkn://key/<code> — activation key deeplink; strip the prefix and let
         // the bare-key detection below handle the code itself
         if (urlCandidate.startsWith("frkn://key/")) {
@@ -254,18 +299,6 @@ bool ImportController::extractConfigFromData(QString data)
         // frkn:// is an alias for https://
         if (urlCandidate.startsWith("frkn://")) {
             urlCandidate.replace(0, 7, "https://");
-        }
-
-        // FRKN short code (k7f2-9mxq-4t — Crockford base32, 10 chars after
-        // stripping dashes/spaces; the backend normalizes o→0, i/l→1 itself)
-        {
-            static const QRegularExpression shortCodeRegex(QStringLiteral("(?i)^[0-9a-tv-z]{10}$"));
-            QString normalizedCode = urlCandidate;
-            normalizedCode.remove(QRegularExpression(QStringLiteral("[\\s-]")));
-            if (shortCodeRegex.match(normalizedCode).hasMatch()) {
-                resolveShortCode(urlCandidate, normalizedCode);
-                return false;
-            }
         }
 
         // Direct URL to subscription endpoint
@@ -811,8 +844,9 @@ bool ImportController::parseQrCodeChunk(const QString &code)
                 stopDecodingQr();
                 return true;
             }
-            // Check if an async fetch was started (URL or subscriber ID)
+            // Check if an async fetch was started (URL, subscriber ID or short code)
             if (rawText.startsWith("frkn://") || rawText.startsWith("http://") || rawText.startsWith("https://")
+                || isFrknShortCode(normalizeShortCode(rawText))
                 || (!rawText.contains("://") && !rawText.contains(' '))) {
                 m_isQrCodeProcessed = false;
                 return true;
@@ -959,48 +993,6 @@ void ImportController::handleSubscriptionResponse(const QByteArray &responseData
     }
 
     emit subscriptionConfigsReady(parsed);
-}
-
-void ImportController::resolveShortCode(const QString &rawInput, const QString &normalizedCode)
-{
-    // Ensure we run on the Qt main thread (QNetworkAccessManager requires it)
-    if (QThread::currentThread() != this->thread()) {
-        QMetaObject::invokeMethod(this, [this, rawInput, normalizedCode]() { resolveShortCode(rawInput, normalizedCode); },
-                                  Qt::QueuedConnection);
-        return;
-    }
-
-    QNetworkRequest request;
-    request.setUrl(QUrl(QStringLiteral("https://s.frkn.org/s/") + normalizedCode.toLower()));
-    request.setRawHeader("Accept", "application/json");
-    // browsers get a 302 to the subscription page; we want the JSON payload
-    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::ManualRedirectPolicy);
-    request.setTransferTimeout(45000);
-
-    QNetworkReply *reply = amnApp->networkManager()->get(request);
-
-    connect(reply, &QNetworkReply::finished, this, [this, reply, rawInput]() {
-        reply->deleteLater();
-
-        const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        if (reply->error() == QNetworkReply::NoError && status == 200) {
-            const QJsonObject body = QJsonDocument::fromJson(reply->readAll()).object();
-            const QString subscriptionId = body.value(QStringLiteral("subscription_id")).toString();
-            if (!subscriptionId.isEmpty()) {
-                emit frknSubscriptionLinkDetected(subscriptionId);
-                return;
-            }
-        }
-
-        if (status == 404) {
-            // not a short code after all — legacy subscriber-id flow
-            fetchAndImportFromUrl(frknApiBase + QUrl::toPercentEncoding(rawInput));
-            return;
-        }
-
-        qWarning() << "[FRKN] Short code resolve failed:" << reply->errorString() << "status:" << status;
-        emit subscriptionErrorOccurred(tr("Failed to fetch configurations: %1").arg(reply->errorString()));
-    });
 }
 
 void ImportController::fetchAndImportFromUrl(const QString &url)

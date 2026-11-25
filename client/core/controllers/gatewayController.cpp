@@ -203,8 +203,29 @@ ErrorCode GatewayController::post(const QString &endpoint, const QJsonObject api
     return errorCode;
 }
 
-ErrorCode GatewayController::doPost(const QString &endpoint, const QJsonObject &apiPayload, QByteArray &responseBody)
+ErrorCode GatewayController::postWithStatus(const QString &endpoint, const QJsonObject apiPayload, QByteArray &responseBody,
+                                            int &httpStatus)
 {
+    ErrorCode errorCode = doPost(endpoint, apiPayload, responseBody, &httpStatus);
+
+    if (!m_fallbackEndpoint.isEmpty() && m_fallbackEndpoint != m_gatewayEndpoint
+        && (errorCode == ErrorCode::ApiConfigTimeoutError || errorCode == ErrorCode::ApiConfigDownloadError)) {
+        qWarning() << "[AGW] primary endpoint failed with" << static_cast<int>(errorCode)
+                   << "— retrying via fallback endpoint" << m_fallbackEndpoint;
+        m_gatewayEndpoint = m_fallbackEndpoint;
+        m_proxyUrl.clear();
+        errorCode = doPost(endpoint, apiPayload, responseBody, &httpStatus);
+    }
+    return errorCode;
+}
+
+ErrorCode GatewayController::doPost(const QString &endpoint, const QJsonObject &apiPayload, QByteArray &responseBody,
+                                    int *httpStatus)
+{
+    if (httpStatus) {
+        *httpStatus = 0;
+    }
+
     EncryptedRequestData encRequestData = prepareRequest(endpoint, apiPayload);
     if (encRequestData.errorCode != ErrorCode::NoError) {
         return encRequestData.errorCode;
@@ -258,9 +279,20 @@ ErrorCode GatewayController::doPost(const QString &endpoint, const QJsonObject &
         bypassProxy(endpoint, serviceType, userCountryCode, requestFunction, replyProcessingFunction);
     }
 
+    if (httpStatus) {
+        *httpStatus = httpStatusCode;
+    }
+
     auto errorCode =
             apiUtils::checkNetworkReplyErrors(sslErrors, replyErrorString, replyError, httpStatusCode, decryptionResult.decryptedBody);
     if (errorCode) {
+        // Hand the decrypted error envelope to the caller: without it every
+        // refusal (409 peers_limit / key_taken, 403 proto_not_granted, …) reached
+        // the UI as an empty string, which is why "This device already has the
+        // maximum number of tunnels" was the only thing we could ever show.
+        if (decryptionResult.isDecryptionSuccessful) {
+            responseBody = decryptionResult.decryptedBody;
+        }
         return errorCode;
     }
 

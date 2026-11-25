@@ -21,12 +21,14 @@ namespace amnezia
     }
 
     // Human-readable name for a raw backend protocol tag; canonical tags are
-    // already shown elsewhere in their usual form.
+    // already shown elsewhere in their usual form. The mobile variant gets the
+    // same spelling the list uses ("AmneziaWG Mobile") so a v1 subscription with
+    // both Amnezia rows names them the same way everywhere.
     inline QString serviceProtocolDisplayName(const QString &protocol)
     {
         if (protocol.compare(QStringLiteral("awg-mobile"), Qt::CaseInsensitive) == 0
             || protocol.compare(QStringLiteral("AmneziaWgMobile"), Qt::CaseInsensitive) == 0) {
-            return QStringLiteral("AmneziaWgMobile");
+            return QStringLiteral("AmneziaWG Mobile");
         }
         return protocol;
     }

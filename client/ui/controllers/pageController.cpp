@@ -18,6 +18,11 @@
     #include "ui/macos_util.h"
 #endif
 
+void PageController::notifyServersLoaded()
+{
+    emit showServersAddedBanner(1);
+}
+
 PageController::PageController(const QSharedPointer<ServersModel> &serversModel,
                                const std::shared_ptr<Settings> &settings, QObject *parent)
     : QObject(parent), m_serversModel(serversModel), m_settings(settings)
@@ -39,6 +44,41 @@ PageController::PageController(const QSharedPointer<ServersModel> &serversModel,
     connect(this, qOverload<ErrorCode>(&PageController::showErrorMessage), this, &PageController::onShowErrorMessage);
     
     m_isTriggeredByConnectButton = false;
+}
+
+void PageController::busyOn()
+{
+    ++m_busyRefs;
+    if (!m_busyWatchdog) {
+        m_busyWatchdog = new QTimer(this);
+        m_busyWatchdog->setSingleShot(true);
+        m_busyWatchdog->setInterval(30000);
+        connect(m_busyWatchdog, &QTimer::timeout, this, [this]() {
+            if (m_busyRefs == 0) {
+                return;
+            }
+            qWarning() << "[BUSY] watchdog released a stuck busy indicator, refs:" << m_busyRefs;
+            m_busyRefs = 0;
+            emit showBusyIndicator(false);
+        });
+    }
+    m_busyWatchdog->start();
+    if (m_busyRefs == 1) {
+        emit showBusyIndicator(true);
+    }
+}
+
+void PageController::busyOff()
+{
+    if (m_busyRefs > 0) {
+        --m_busyRefs;
+    }
+    if (m_busyRefs == 0) {
+        if (m_busyWatchdog) {
+            m_busyWatchdog->stop();
+        }
+        emit showBusyIndicator(false);
+    }
 }
 
 bool PageController::isStartPageVisible()

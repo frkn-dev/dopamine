@@ -53,6 +53,23 @@ public:
     {
         m_settings.setValue("Servers/defaultServerIndex", index);
     }
+    // Stable identity of the default row (`peer:<cardId>` / `uuid:<uuid>`),
+    // stored next to the index: the index alone drifts when a refresh inserts,
+    // drops or reorders rows, and the home card silently showed another server.
+    // `Servers/defaultServerIndex` stays the compatibility key (old builds and
+    // the migration path still read it).
+    QString defaultServerIdentity() const
+    {
+        return m_settings.value("Servers/defaultServerIdentity").toString();
+    }
+    void setDefaultServerIdentity(const QString &identity)
+    {
+        if (identity.isEmpty()) {
+            m_settings.remove("Servers/defaultServerIdentity");
+        } else {
+            m_settings.setValue("Servers/defaultServerIdentity", identity);
+        }
+    }
     QJsonObject defaultServer() const
     {
         return server(defaultServerIndex());
@@ -276,6 +293,63 @@ public:
     QString selectedProtocol() const
     {
         return m_settings.value("Conf/selectedProtocol").toString();
+    }
+    // Peer cards have no connection uuid: their identity is the card id
+    // (`<shard>:<pool>:<proto>`). Empty for v1 config rows.
+    QString selectedPeerCardId() const
+    {
+        return m_settings.value("Conf/selectedPeerCardId").toString();
+    }
+    void setSelectedPeerCardId(const QString &cardId)
+    {
+        m_settings.setValue("Conf/selectedPeerCardId", cardId);
+    }
+
+    // Which protocol variant of a peer pool the user picked, keyed by
+    // "<subscription>|<shard>:<pool>" and holding the card's protocol tag
+    // (`amnezia_peer` / `wireguard_peer`). One pool is one row, and it can serve
+    // several protocols: without this the row snapped back to AmneziaWG on every
+    // refreshCards() and the app re-opened on the other protocol than the one
+    // the user chose.
+    QJsonObject peerPoolProtocols() const
+    {
+        return QJsonDocument::fromJson(m_settings.value("Conf/peerPoolProtocols").toString().toUtf8()).object();
+    }
+    QString peerPoolProtocol(const QString &key) const
+    {
+        return peerPoolProtocols().value(key).toString();
+    }
+    void setPeerPoolProtocol(const QString &key, const QString &proto)
+    {
+        if (key.isEmpty() || proto.isEmpty()) {
+            return;
+        }
+        QJsonObject all = peerPoolProtocols();
+        if (all.value(key).toString() == proto) {
+            return;
+        }
+        all.insert(key, proto);
+        m_settings.setValue("Conf/peerPoolProtocols",
+                            QString::fromUtf8(QJsonDocument(all).toJson(QJsonDocument::Compact)));
+        m_settings.sync();
+    }
+    // Forget the choice for one pool. Called when a fresh card set proves the
+    // pool no longer serves the stored protocol: keeping the entry would make
+    // every later refresh (and the card's protocol picker) reason about a
+    // protocol that is not on offer any more.
+    void removePeerPoolProtocol(const QString &key)
+    {
+        if (key.isEmpty()) {
+            return;
+        }
+        QJsonObject all = peerPoolProtocols();
+        if (!all.contains(key)) {
+            return;
+        }
+        all.remove(key);
+        m_settings.setValue("Conf/peerPoolProtocols",
+                            QString::fromUtf8(QJsonDocument(all).toJson(QJsonDocument::Compact)));
+        m_settings.sync();
     }
     void setSelectedIdentity(const QString &connectionUuid, const QString &nodeId,
                              const QString &pool = QString(), const QString &protocol = QString())
@@ -623,6 +697,28 @@ public:
     void setAutoServerListUpdateEnabled(bool enabled)
     {
         m_settings.setValue("Conf/autoServerListUpdate", enabled);
+    }
+
+    // Subscription ids the app has ever imported. Rows can legitimately
+    // disappear (a grant with no card protocols, a wiped list), and the id used
+    // to live only in those rows — dropping them lost the subscription for good,
+    // so the reload then answered "no subscription id found" and the list stayed
+    // empty. The feed is the durable place for the handle.
+    QStringList knownSubscriptions() const
+    {
+        return m_settings.value("Conf/knownSubscriptions").toStringList();
+    }
+
+    void rememberSubscription(const QString &id)
+    {
+        if (id.isEmpty()) {
+            return;
+        }
+        QStringList list = knownSubscriptions();
+        if (!list.contains(id)) {
+            list.append(id);
+            m_settings.setValue("Conf/knownSubscriptions", list);
+        }
     }
 
     QVariantMap absentSubscriptionNodes() const

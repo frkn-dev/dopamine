@@ -78,6 +78,35 @@ namespace
                  QString::number(kIcmpWaitMs / 1000 + 1), host };
 #endif
     }
+
+    // A ping process is torn down here, never by letting it fall out of scope
+    // while it still runs. ~QProcess on a running child kills it and waits, and
+    // that wait reaps the exit and emits `finished` into the object that is
+    // already half-destroyed — the connected handler then reads a freed channel
+    // and the app dies with EXC_BAD_ACCESS (crash reports 114-118, all of them
+    // inside the session-sampling lambda, with `QProcess: Destroyed while
+    // process ("ping") is still running` right before). Detaching first makes
+    // that emission unreachable, and reaping here leaves nothing to wait for in
+    // the destructor.
+    void disposePingProcess(QProcess *process, QTimer *timer)
+    {
+        if (timer) {
+            timer->stop();
+            // A timeout already queued for this turn must not run after the
+            // process is gone — it would call kill() on a disposed object.
+            timer->disconnect();
+            timer->deleteLater();
+        }
+        if (!process) {
+            return;
+        }
+        if (process->state() != QProcess::NotRunning) {
+            process->disconnect();
+            process->kill();
+            process->waitForFinished(1000);
+        }
+        process->deleteLater();
+    }
 #endif
 }
 
@@ -323,12 +352,16 @@ void ConnectionReportController::probeIcmp()
     auto *timer = new QTimer(this);
     timer->setSingleShot(true);
 
-    auto done = [this, process, timer](bool ok) {
-        if (timer->isActive()) {
-            timer->stop();
+    // The verdict can arrive twice (errorOccurred + finished), and the timeout
+    // path has to take down a process that is still running: settle exactly once,
+    // and only through disposePingProcess().
+    auto settled = QSharedPointer<bool>::create(false);
+    auto done = [this, process, timer, settled](bool ok) {
+        if (*settled) {
+            return;
         }
-        timer->deleteLater();
-        process->deleteLater();
+        *settled = true;
+        disposePingProcess(process, timer);
         m_icmpOk = ok;
         probeNextPort();
     };
@@ -2104,6 +2137,11 @@ void ConnectionReportController::handleConnectionState(int state, int errorCode,
 
 void ConnectionReportController::setConnected(bool connected)
 {
+    // New tunnel state: samples of a ping started on the previous one no longer
+    // describe this session, and the in-flight counter starts over.
+    ++m_sessionEpoch;
+    m_sessionPingsInFlight = 0;
+
     // Пробы на живом туннеле бессмысленны: трафик идёт внутрь VPN, и вердикт
     // «адрес доступен/нет» получается про туннель, а не про сеть юзера.
     m_tunnelActive = connected;
@@ -2172,7 +2210,18 @@ void ConnectionReportController::sampleSession()
         return;
     }
 
-    auto appendSample = [this](bool ok, int ms) {
+    // One sample in flight is enough: a ping can hang on a tunnel that is being
+    // re-established, and stacking a second one (auto-select reconnects call this
+    // right away) only doubles the traffic.
+    if (m_sessionPingsInFlight > 0) {
+        return;
+    }
+
+    const int epoch = m_sessionEpoch;
+    auto appendSample = [this, epoch](bool ok, int ms) {
+        if (epoch != m_sessionEpoch) {
+            return; // a sample of the previous tunnel says nothing about this session
+        }
         m_sessionSamples.append(ok ? ms : -1);
         while (m_sessionSamples.size() > 60) {
             m_sessionSamples.removeFirst();
@@ -2218,12 +2267,20 @@ void ConnectionReportController::sampleSession()
     auto *timer = new QTimer(this);
     timer->setSingleShot(true);
 
-    auto done = [appendSample, process, timer](bool ok, int ms) {
-        if (timer->isActive()) {
-            timer->stop();
+    // Settled exactly once, and the process is taken down through
+    // disposePingProcess(): the timeout kills a child that is still running, and
+    // deleting that child blindly is what crashed the app (see the helper).
+    auto settled = QSharedPointer<bool>::create(false);
+    ++m_sessionPingsInFlight;
+    auto done = [this, appendSample, process, timer, settled, epoch](bool ok, int ms) {
+        if (*settled) {
+            return;
         }
-        timer->deleteLater();
-        process->deleteLater();
+        *settled = true;
+        if (epoch == m_sessionEpoch && m_sessionPingsInFlight > 0) {
+            --m_sessionPingsInFlight;
+        }
+        disposePingProcess(process, timer);
         appendSample(ok, ms);
     };
 
@@ -2247,6 +2304,8 @@ void ConnectionReportController::sampleSession()
     });
     connect(process, &QProcess::errorOccurred, this, [done](QProcess::ProcessError) { done(false, -1); });
     connect(timer, &QTimer::timeout, this, [process, done]() {
+        // the child is still alive here: kill it and let `finished` (or the
+        // next event-loop turn) settle the sample with -1
         process->kill();
         done(false, -1);
     });

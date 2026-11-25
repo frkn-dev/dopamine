@@ -47,10 +47,10 @@ PageType {
     }
 
     Component.onCompleted: {
-        PageController.showBusyIndicator(true)
+        PageController.busyOn()
         ApiConfigsController.prepareVpnKeyExport()
         ApiConfigsController.fetchShortCode()
-        PageController.showBusyIndicator(false)
+        PageController.busyOff()
     }
 
     FlickableType {
@@ -136,9 +136,9 @@ PageType {
                         )
 
                     if (fileName !== "") {
-                        PageController.showBusyIndicator(true)
+                        PageController.busyOn()
                         ApiConfigsController.exportVpnKey(fileName)
-                        PageController.showBusyIndicator(false)
+                        PageController.busyOff()
                     }
                 }
             }
@@ -158,9 +158,9 @@ PageType {
                 leftImageSource: "qrc:/images/controls/eye.svg"
 
                 clickedFunc: function() {
-                    PageController.showBusyIndicator(true)
+                    PageController.busyOn()
                     ApiConfigsController.prepareVpnKeyExport()
-                    PageController.showBusyIndicator(false)
+                    PageController.busyOff()
                     vpnKeyDrawer.openTriggered()
                 }
             }

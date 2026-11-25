@@ -138,9 +138,9 @@ PageType {
         placeholderText: qsTr("IPv4 address")
 
         onAddClicked: function(text) {
-            PageController.showBusyIndicator(true)
+            PageController.busyOn()
             AllowedDnsController.addDns(text)
-            PageController.showBusyIndicator(false)
+            PageController.busyOff()
         }
 
         onMoreClicked: {
@@ -199,10 +199,10 @@ PageType {
                                                                 ".json")
                     }
                     if (fileName !== "") {
-                        PageController.showBusyIndicator(true)
+                        PageController.busyOn()
                         AllowedDnsController.exportDns(fileName)
                         moreActionsDrawer.closeTriggered()
-                        PageController.showBusyIndicator(false)
+                        PageController.busyOff()
                     }
                 }
             }
@@ -287,9 +287,9 @@ PageType {
                     }
 
                     function importSites(fileName, replaceExistingSites) {
-                        PageController.showBusyIndicator(true)
+                        PageController.busyOn()
                         AllowedDnsController.importDns(fileName, replaceExistingSites)
-                        PageController.showBusyIndicator(false)
+                        PageController.busyOff()
                         importSitesDrawer.closeTriggered()
                         moreActionsDrawer.closeTriggered()
                     }

@@ -113,6 +113,9 @@ namespace amnezia
         ApiSubscriptionExpiredError = 1112,
         ApiPurchaseError = 1113,
         ApiLocalConfigMissingError = 1114,
+        // api rejected peer creation with 409 `peers_limit`: the device already
+        // holds the maximum number of tunnels
+        ApiPeersLimitError = 1115,
 
         // connection errors
         ServerConnectionTimeoutError = 1300,

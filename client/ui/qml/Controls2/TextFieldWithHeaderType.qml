@@ -254,16 +254,15 @@ Item {
         text: root.buttonText
         leftImageSource: root.buttonImageSource
 
-        anchors.verticalCenter: root.multiline ? (root.tvInput ? content.verticalCenter : backgroud.verticalCenter) : undefined
+        anchors.verticalCenter: root.multiline ? backgroud.verticalCenter : undefined
         anchors.top: root.multiline ? undefined : content.top
         anchors.bottom: root.multiline ? undefined : content.bottom
         anchors.right: content.right
         anchors.rightMargin: root.multiline ? 8 : 0
 
-        // The insert button must fit inside the input box: a 56px button in a
-        // 48px multiline field read as a height mismatch next to the field.
-        height: root.multiline ? Math.max(28, Math.min(insertButton.implicitHeight, backgroud.height - 16))
-                                 : content.implicitHeight
+        // The insert button is the field's own height, not an inset pill: any
+        // shorter variant read as a mismatch next to the multiline input box.
+        height: root.multiline ? backgroud.height : content.implicitHeight
         width: root.multiline ? implicitWidth : content.implicitHeight
         squareLeftSide: !root.multiline
 

@@ -92,6 +92,12 @@ public slots:
 
     Q_INVOKABLE QString getCurrentServerConfigJson();
     Q_INVOKABLE QString getCurrentServerConfigIni();
+    // The same two, for an explicit row. The server card pins its row by the
+    // card's identity: a refresh rebuilds the row list (syncPeerCards), so the
+    // number captured when the page opened can name another server by the time
+    // the user taps «Configuration Files».
+    Q_INVOKABLE QString serverConfigJsonForIndex(const int serverIndex);
+    Q_INVOKABLE QString serverConfigIniForIndex(const int serverIndex);
     Q_INVOKABLE QString getCurrentServerTunnelParams();
     Q_INVOKABLE QString getCurrentServerMtu();
     Q_INVOKABLE QString getCurrentServerDns();
@@ -105,9 +111,24 @@ public slots:
     // installs every fetched subscription config at once (we no longer show the
     // protocol selection screen — users were confused by it); returns the count
     int installAllSubscriptionConfigs();
+
+    // Drop stored rows of the subscriptions that answered, when the answer no
+    // longer contains their connection (a v2 migration retires dev/ru/wl rows).
+    // Subscriptions that did not answer are left untouched.
+    void pruneAbsentRowsForFetched();
     // subscriptionId empty = every subscription stored on the device ("All");
     // otherwise only that subscription is refetched.
     Q_INVOKABLE void reloadSubscriptionConfigs(bool silent = false, const QString &subscriptionId = QString());
+
+    // Which subscriptions still need the v1 plane. A subscription that already
+    // delivered v2 peer cards carries its own config per card, so the legacy
+    // per-protocol fetch is pointless there — it only produced the sequential
+    // `vless` 1100 retries and a spurious "reload failed". The owner of both
+    // controllers (coreController) wires this to the peers importer; without a
+    // predicate everything is fetched on v1, as before.
+    // moc cannot parse `bool(const QString &)` inside std::function (it reads the
+    // leading const as part of the return type), so the parameter is taken by value.
+    void setLegacyFetchAllowed(std::function<bool(QString)> predicate);
 
     // FRKN connection sharing (frkn://conn/<share_token>): the recipient imports a single
     // shared connection via importSharedConnection; the owner creates/lists/revokes share
@@ -152,6 +173,9 @@ signals:
     void shortCodeChanged();
 
 private:
+    // Which subscriptions still need the v1 plane (see setLegacyFetchAllowed).
+    std::function<bool(QString)> m_legacyFetchAllowed;
+
     // Кэш скоринга загрузки нод: node_id -> 0..1, живёт kNodeLoadTtlMs.
     QHash<QString, double> m_nodeLoad;
     qint64 m_nodeLoadAtMs = 0;

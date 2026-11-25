@@ -127,6 +127,10 @@ Window  {
             popupNotificationTimer.start()
         }
 
+        function onShowServersAddedBanner(count) {
+            serversAddedBanner.show(count)
+        }
+
         function onGoToPageSettingsBackup() {
             PageController.goToPage(PageEnum.PageSettingsBackup)
         }
@@ -213,6 +217,16 @@ Window  {
             id: busyIndicator
             anchors.centerIn: parent
             z: 1
+        }
+    }
+
+    Item {
+        objectName: "serversAddedBannerItem"
+
+        anchors.fill: parent
+
+        ServersAddedBanner {
+            id: serversAddedBanner
         }
     }
 

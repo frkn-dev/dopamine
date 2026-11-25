@@ -45,7 +45,7 @@ PageType {
                 return
             }
             root.subscriptionReloadStartedHere = false
-            PageController.showBusyIndicator(false)
+            PageController.busyOff()
             if (success) {
                 PageController.showNotificationMessage(qsTr("Servers reloaded"))
                 PageController.goToPageHome()
@@ -357,7 +357,7 @@ PageType {
                             PageController.showNotificationMessage(qsTr("Cannot reload configuration during active connection"))
                             return
                         }
-                        PageController.showBusyIndicator(true)
+                        PageController.busyOn()
                         root.subscriptionReloadStartedHere = true
                         ApiConfigsController.reloadSubscriptionConfigs()
                     }

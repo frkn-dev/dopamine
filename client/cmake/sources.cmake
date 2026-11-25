@@ -13,6 +13,9 @@ set(HEADERS ${HEADERS}
     ${CLIENT_ROOT_DIR}/core/controllers/coreController.h
     ${CLIENT_ROOT_DIR}/core/controllers/connectionReportController.h
     ${CLIENT_ROOT_DIR}/core/controllers/gatewayController.h
+    ${CLIENT_ROOT_DIR}/core/controllers/peersController.h
+    ${CLIENT_ROOT_DIR}/core/deviceIdentity.h
+    ${CLIENT_ROOT_DIR}/core/peerConfigBuilder.h
     ${CLIENT_ROOT_DIR}/core/controllers/vpnConfigurationController.h
     ${CLIENT_ROOT_DIR}/protocols/protocols_defs.h
     ${CLIENT_ROOT_DIR}/protocols/qml_register_protocols.h
@@ -28,6 +31,8 @@ set(HEADERS ${HEADERS}
     ${CLIENT_ROOT_DIR}/core/api/apiUtils.h
     ${CLIENT_ROOT_DIR}/core/osSignalHandler.h
     ${CLIENT_ROOT_DIR}/core/wgHandshakeProbe.h
+    ${CLIENT_ROOT_DIR}/core/wgJunkParams.h
+    ${CLIENT_ROOT_DIR}/ui/controllers/peersImportController.h
     ${CLIENT_ROOT_DIR}/core/builtinSplitPresets.h
 )
 
@@ -61,6 +66,9 @@ set(SOURCES ${SOURCES}
     ${CLIENT_ROOT_DIR}/core/controllers/coreController.cpp
     ${CLIENT_ROOT_DIR}/core/controllers/connectionReportController.cpp
     ${CLIENT_ROOT_DIR}/core/controllers/gatewayController.cpp
+    ${CLIENT_ROOT_DIR}/core/controllers/peersController.cpp
+    ${CLIENT_ROOT_DIR}/core/deviceIdentity.cpp
+    ${CLIENT_ROOT_DIR}/core/peerConfigBuilder.cpp
     ${CLIENT_ROOT_DIR}/core/controllers/vpnConfigurationController.cpp
     ${CLIENT_ROOT_DIR}/protocols/protocols_defs.cpp
     ${CLIENT_ROOT_DIR}/ui/qautostart.cpp
@@ -79,6 +87,8 @@ set(SOURCES ${SOURCES}
     ${CLIENT_ROOT_DIR}/core/api/apiUtils.cpp
     ${CLIENT_ROOT_DIR}/core/osSignalHandler.cpp
     ${CLIENT_ROOT_DIR}/core/wgHandshakeProbe.cpp
+    ${CLIENT_ROOT_DIR}/core/wgJunkParams.cpp
+    ${CLIENT_ROOT_DIR}/ui/controllers/peersImportController.cpp
     ${CLIENT_ROOT_DIR}/core/builtinSplitPresets.cpp
 )
 

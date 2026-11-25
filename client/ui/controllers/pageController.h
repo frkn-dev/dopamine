@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QQmlEngine>
+#include <QTimer>
 
 #include "core/defs.h"
 #include "ui/models/servers_model.h"
@@ -54,7 +55,16 @@ namespace PageLoader
 
         PageSettingsShare,
 
-        PageSettingsLocalSubnets
+        PageSettingsLocalSubnets,
+
+        PageServerTest,
+        PageServerTestInfo,
+
+        // Settings → Subscriptions (appended: existing values stay stable)
+        PageSettingsSubscriptions,
+
+        // Settings → How it works (appended: existing values stay stable)
+        PageHowItWorks
     };
     Q_ENUM_NS(PageEnum)
 
@@ -72,8 +82,18 @@ public:
                             QObject *parent = nullptr);
 
 public slots:
+    // Successful manual reload: QML flies the mascot once (no extra bubble).
+    void notifyServersLoaded();
     bool isStartPageVisible();
     QString getPagePath(PageLoader::PageEnum page);
+
+    // Reference-counted busy indicator: several loaders can be busy at once
+    // (legacy configs + peer cards, import flows, etc). Plain
+    // showBusyIndicator(true/false) from each of them made the pterodactyl fly
+    // once per pair; with a counter it flies once and lands when the last part
+    // is done.
+    void busyOn();
+    void busyOff();
 
     void closeWindow();
     void hideWindow();
@@ -114,6 +134,11 @@ signals:
     void showErrorMessage(const QString &errorMessage);
     void showNotificationMessage(const QString &message);
 
+    // peer-pool cards of a FRKN subscription landed; QML flies the pterodactyl
+    // in with a "Servers added: N" banner
+    void showServersAddedBanner(int count);
+
+
     void showBusyIndicator(bool visible);
     void disableControls(bool disabled);
     void disableTabBar(bool disabled);
@@ -129,6 +154,12 @@ signals:
 
 private:
     QSharedPointer<ServersModel> m_serversModel;
+
+    // Busy indicator reference count (see busyOn/busyOff).
+    int m_busyRefs = 0;
+    // Safety net for the refcount: a loader that never reports back used to
+    // leave the mascot spinning forever, long after the work visibly finished.
+    QTimer *m_busyWatchdog = nullptr;
 
     std::shared_ptr<Settings> m_settings;
 

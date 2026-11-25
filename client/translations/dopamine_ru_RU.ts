@@ -76,33 +76,33 @@
 <context>
     <name>ApiConfigsController</name>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1147"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1385"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1410"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1788"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1890"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1173"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1411"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1436"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1814"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1916"/>
         <source>%1 installed successfully.</source>
         <translation>%1 установлено успешно.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1273"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1299"/>
         <source>Subscription restored successfully.</source>
         <translation>Подписка успешно восстановлена.</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1638"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1649"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1664"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1675"/>
         <source>API config reloaded</source>
         <translation>Конфигурация API перезагружена</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1640"/>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1651"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1666"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1677"/>
         <source>Successfully changed the country of connection to %1</source>
         <translation>Страна подключения изменена на %1</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1863"/>
+        <location filename="../ui/controllers/api/apiConfigsController.cpp" line="1889"/>
         <source>Shared connection</source>
         <translation>Общее подключение</translation>
     </message>
@@ -178,73 +178,91 @@
  Пожалуйста, установите протокол</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="1066"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="1298"/>
-        <source>All addresses are turned off</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="1557"/>
-        <source>Server is not responding, retrying…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="1558"/>
-        <source>Waiting for network…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="1587"/>
-        <source>Connecting…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="1664"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="1829"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="1849"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="2458"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="761"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1868"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2012"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2056"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2076"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2796"/>
         <source>Connecting...</source>
         <translation>Подключение...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="634"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="1730"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="2463"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="652"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1934"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2801"/>
         <source>Connected</source>
         <translation>Подключено</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="539"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="550"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="553"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="564"/>
         <source>Connected — no internet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="558"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="572"/>
         <source>Reconnecting…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="817"/>
-        <source>Subscription expired</source>
-        <translation type="unfinished"></translation>
+        <location filename="../ui/controllers/connectionController.cpp" line="724"/>
+        <source>This device already has the maximum number of tunnels</source>
+        <translation>На этом устройстве уже максимум туннелей</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="803"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="888"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="1775"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="2005"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="2491"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="2500"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="2530"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="2551"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="735"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="993"/>
+        <source>Could not prepare the tunnel</source>
+        <translation>Не удалось подготовить туннель</translation>
+    </message>
+    <message>
+        <location filename="../ui/controllers/connectionController.cpp" line="949"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1067"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1979"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2243"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2841"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2850"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2880"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2901"/>
         <source>Calculating the best server…</source>
         <translation>Выбираем лучший
 сервер…</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="2213"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="2558"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="963"/>
+        <source>Subscription expired</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/controllers/connectionController.cpp" line="980"/>
+        <source>Setting up your access…</source>
+        <translation>Создаём доступ к серверу…</translation>
+    </message>
+    <message>
+        <location filename="../ui/controllers/connectionController.cpp" line="1273"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1499"/>
+        <source>All addresses are turned off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/controllers/connectionController.cpp" line="1761"/>
+        <source>Server is not responding, retrying…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/controllers/connectionController.cpp" line="1762"/>
+        <source>Waiting for network…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/controllers/connectionController.cpp" line="1791"/>
+        <source>Connecting…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/controllers/connectionController.cpp" line="2550"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2908"/>
         <source>Preparing...</source>
         <translation>Подготовка...</translation>
     </message>
@@ -265,28 +283,30 @@
         <translation type="vanished">не удалось создать конфигурацию</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="2504"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2854"/>
         <source>Reconnecting...</source>
         <translation>Переподключение...</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.h" line="307"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="309"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="1595"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="2131"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="2177"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="2187"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="2342"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="2368"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="2429"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="2543"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="2563"/>
-        <location filename="../ui/controllers/connectionController.cpp" line="2570"/>
+        <location filename="../ui/controllers/connectionController.h" line="354"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="322"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="757"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="1799"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2441"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2467"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2514"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2524"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2680"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2706"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2767"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2893"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2913"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2920"/>
         <source>Connect</source>
         <translation>Подключиться</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/connectionController.cpp" line="2552"/>
+        <location filename="../ui/controllers/connectionController.cpp" line="2902"/>
         <source>Disconnecting...</source>
         <translation>Отключение...</translation>
     </message>
@@ -300,27 +320,27 @@ for the best server...</source>
 <context>
     <name>ConnectionReportController</name>
     <message>
-        <location filename="../core/controllers/connectionReportController.cpp" line="1489"/>
+        <location filename="../core/controllers/connectionReportController.cpp" line="1531"/>
         <source>Type a message first</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/controllers/connectionReportController.cpp" line="1495"/>
+        <location filename="../core/controllers/connectionReportController.cpp" line="1537"/>
         <source>Sign in to your subscription to send feedback</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/controllers/connectionReportController.cpp" line="1531"/>
+        <location filename="../core/controllers/connectionReportController.cpp" line="1573"/>
         <source>No connection — we&apos;ll send it later</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/controllers/connectionReportController.cpp" line="1538"/>
+        <location filename="../core/controllers/connectionReportController.cpp" line="1580"/>
         <source>Send failed (http %1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/controllers/connectionReportController.cpp" line="1541"/>
+        <location filename="../core/controllers/connectionReportController.cpp" line="1583"/>
         <source>Thanks — we got your message</source>
         <translation type="unfinished"></translation>
     </message>
@@ -366,7 +386,20 @@ for the best server...</source>
 <context>
     <name>CoreController</name>
     <message>
-        <location filename="../core/controllers/coreController.cpp" line="181"/>
+        <location filename="../core/controllers/coreController.cpp" line="190"/>
+        <source>Could not load servers (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Subscription added: %n server(s)</source>
+        <translation type="obsolete">
+            <numerusform>Подписка добавлена: %n сервер(ов)</numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../core/controllers/coreController.cpp" line="244"/>
         <source>Imported %1 configurations</source>
         <translation>Импортировано конфигураций: %1</translation>
     </message>
@@ -474,7 +507,7 @@ Can&apos;t be disabled for current server</source>
 <context>
     <name>ImportController</name>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="841"/>
+        <location filename="../ui/controllers/importController.cpp" line="875"/>
         <source>Scanned %1 of %2.</source>
         <translation>Отсканировано %1 из %2.</translation>
     </message>
@@ -487,18 +520,17 @@ Can&apos;t be disabled for current server</source>
         <translation type="vanished">&lt;br&gt;В импортированной конфигурации обнаружены потенциально опасные строки:</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="951"/>
+        <location filename="../ui/controllers/importController.cpp" line="985"/>
         <source>No valid configurations found at the provided URL</source>
         <translation>По указанному URL не найдено допустимых конфигураций</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="1002"/>
-        <location filename="../ui/controllers/importController.cpp" line="1025"/>
+        <location filename="../ui/controllers/importController.cpp" line="1017"/>
         <source>Failed to fetch configurations: %1</source>
         <translation>Не удалось загрузить конфигурации: %1</translation>
     </message>
     <message>
-        <location filename="../ui/controllers/importController.cpp" line="1031"/>
+        <location filename="../ui/controllers/importController.cpp" line="1023"/>
         <source>Empty response from server</source>
         <translation>Пустой ответ от сервера</translation>
     </message>
@@ -607,15 +639,15 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/controllers/keyActivationController.cpp" line="58"/>
-        <location filename="../ui/controllers/keyActivationController.cpp" line="118"/>
+        <location filename="../ui/controllers/keyActivationController.cpp" line="130"/>
         <source>This key does not exist</source>
         <translation>Такого ключа не существует</translation>
     </message>
     <message>
         <location filename="../ui/controllers/keyActivationController.cpp" line="60"/>
-        <location filename="../ui/controllers/keyActivationController.cpp" line="122"/>
-        <location filename="../ui/controllers/keyActivationController.cpp" line="130"/>
-        <location filename="../ui/controllers/keyActivationController.cpp" line="155"/>
+        <location filename="../ui/controllers/keyActivationController.cpp" line="134"/>
+        <location filename="../ui/controllers/keyActivationController.cpp" line="142"/>
+        <location filename="../ui/controllers/keyActivationController.cpp" line="167"/>
         <source>Connection failed, try again</source>
         <translation>Ошибка соединения, попробуйте ещё раз</translation>
     </message>
@@ -623,6 +655,11 @@ Already installed containers were found on the server. All installed containers 
         <location filename="../ui/controllers/keyActivationController.cpp" line="73"/>
         <source>Key is already activated</source>
         <translation>Ключ уже активирован</translation>
+    </message>
+    <message>
+        <location filename="../ui/controllers/keyActivationController.cpp" line="126"/>
+        <source>No servers available right now. The key was not used — please contact support.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -742,6 +779,11 @@ Already installed containers were found on the server. All installed containers 
         <translation>Dev-шлюз включён</translation>
     </message>
     <message>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="332"/>
+        <source>ms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Split tunneling</source>
         <translation type="vanished">Раздельное туннелирование</translation>
     </message>
@@ -750,7 +792,7 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">VPN-протокол</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageHome.qml" line="260"/>
+        <location filename="../ui/qml/Pages2/PageHome.qml" line="279"/>
         <source>Auto-select</source>
         <translation>Автовыбор</translation>
     </message>
@@ -761,6 +803,129 @@ Already installed containers were found on the server. All installed containers 
     <message>
         <source>Unable change server while there is an active connection</source>
         <translation type="vanished">Невозможно изменить сервер во время активного соединения</translation>
+    </message>
+</context>
+<context>
+    <name>PageHowItWorks</name>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="51"/>
+        <source>You pick the entry. We find the exit.</source>
+        <translation>Вы выбираете вход. Мы находим выход.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="52"/>
+        <source>Connect to whichever server works best for you. Where the traffic goes is decided for you, and does not depend on that choice.</source>
+        <translation>Подключайтесь к серверу, который у вас быстрее работает. Куда пойдёт трафик — уже решено, и от вашего выбора не зависит.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="89"/>
+        <source>Your device</source>
+        <translation>Ваше устройство</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="100"/>
+        <source>Dopamine app</source>
+        <translation>приложение Dopamine</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="129"/>
+        <source>Entry</source>
+        <translation>Вход</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="140"/>
+        <source>the server that works best for you</source>
+        <translation>сервер, который у вас лучше работает</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="149"/>
+        <source>you choose it</source>
+        <translation>выбираете сами</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="178"/>
+        <source>Routing</source>
+        <translation>Маршрутизация</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="189"/>
+        <source>we pick the best exit</source>
+        <translation>выбираем лучший выход</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="265"/>
+        <source>If an exit is down, the service will not open — we never silently switch you to another country, so you don&apos;t get banned.</source>
+        <translation>Если выход недоступен, сервис не откроется — мы не подставляем другую страну молча, чтобы вас не заблокировали.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="289"/>
+        <source>Got it</source>
+        <translation>Понятно</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="302"/>
+        <source>Choose a server</source>
+        <translation>Выбрать сервер</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="327"/>
+        <source>Sites and services of your country, exchanges</source>
+        <translation>Сайты и сервисы вашей страны, биржи</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="328"/>
+        <source>via the RU exit</source>
+        <translation>через RU-выход</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="335"/>
+        <source>Government sites (Gosuslugi, Pochta, mos.ru, tax office)</source>
+        <translation>Гос-сайты (Госуслуги, Почта, mos.ru, налоговая)</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="336"/>
+        <source>via a separate exit — they reject our regular addresses</source>
+        <translation>через отдельный выход — обычные адреса у них заблокированы</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="343"/>
+        <source>AI services (Claude, ChatGPT, Gemini)</source>
+        <translation>Нейросети (Claude, ChatGPT, Gemini)</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="344"/>
+        <source>via the US</source>
+        <translation>через США</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="351"/>
+        <source>YouTube</source>
+        <translation>YouTube</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="352"/>
+        <source>via Kazakhstan, which is why there are no built-in ads</source>
+        <translation>через Казахстан — поэтому встроенной рекламы нет</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="359"/>
+        <source>Chinese AI (DeepSeek, Qwen, Kimi)</source>
+        <translation>Китайские нейросети (DeepSeek, Qwen, Kimi)</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="360"/>
+        <source>straight from the server, faster and more stable</source>
+        <translation>напрямую с сервера, так быстрее и стабильнее</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="367"/>
+        <source>Everything else</source>
+        <translation>Всё остальное</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageHowItWorks.qml" line="368"/>
+        <source>straight from the server, no extra hops</source>
+        <translation>напрямую с сервера, без лишних пересадок</translation>
     </message>
 </context>
 <context>
@@ -1350,6 +1515,416 @@ Already installed containers were found on the server. All installed containers 
     </message>
 </context>
 <context>
+    <name>PageServerTest</name>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="611"/>
+        <source>Preparing the protocol, then the test starts</source>
+        <translation>Готовим протокол, затем тест начнётся</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="716"/>
+        <source>speed only</source>
+        <translation>только скорость</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="158"/>
+        <source>Great for 8K on several devices</source>
+        <translation>Отлично для 8K на нескольких устройствах</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="159"/>
+        <source>Great for 8K video</source>
+        <translation>Отлично для 8K</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="160"/>
+        <source>Great for 4K on several devices</source>
+        <translation>Отлично для 4K на нескольких устройствах</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="161"/>
+        <source>Great for 4K video</source>
+        <translation>Отлично для 4K</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="162"/>
+        <source>Good for 4K video</source>
+        <translation>Хорошо для 4K</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="163"/>
+        <source>Great for HD video</source>
+        <translation>Отлично для HD</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="164"/>
+        <source>Good for HD video</source>
+        <translation>Хорошо для HD</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="165"/>
+        <source>Web and messengers only</source>
+        <translation>Только веб и мессенджеры</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="171"/>
+        <source>gaming</source>
+        <translation>гейминг</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="151"/>
+        <source>Unstable: messaging only</source>
+        <translation>Нестабильно: только переписка</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="169"/>
+        <source>high latency</source>
+        <translation>высокая задержка</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="529"/>
+        <source>All subscriptions — pick one in the server list to test only it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="532"/>
+        <source>Servers outside subscriptions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Speed Test: what this is
+
+Handshake (ms) — a real connection attempt to the node with the same protocol the app uses. Three tries, the average is shown. It answers &quot;can I connect to this node right now&quot;.
+
+Speed (Mbps) — a download from the node itself, three rounds, averaged. It is the node uplink, not your provider and not the speed through the tunnel.
+
+Less is better: handshake, jitter, loss. More is better: speed.
+
+Jitter (ms) — how much the answer time varies: max minus min over the three tries. The average says &quot;70 ms&quot;, jitter says how far those 70 wander. At 60 ms with 200 ms jitter a call breaks up even though the ping looks good, so low jitter matters more than low ping for games and calls.
+
+Loss — how many of the three tries got no answer. &quot;lost 1 of 3&quot; means the node is unstable.
+
+The test runs with the VPN off: through a tunnel every number would describe the exit server, not the path to it.</source>
+        <translation type="vanished">Speed Test: что и зачем
+
+Рукопожатие (мс) — реальная попытка подключения к ноде тем же протоколом, что использует приложение. Три попытки, показывается среднее. Отвечает на вопрос «могу ли я подключиться к этой ноде прямо сейчас».
+
+Скорость (Мбит/с) — скачивание с самой ноды, три круга, среднее. Это скорость uplink ноды, а не твоего провайдера и не скорость через туннель.
+
+Меньше — лучше: рукопожатие, джиттер, потери. Больше — лучше: скорость.
+
+Джиттер (мс) — насколько гуляет время ответа: max − min по трём попыткам. Среднее говорит «70 мс», джиттер — насколько эти 70 разъезжаются. При 60 мс и джиттере 200 мс звонок рвётся, хотя пинг выглядит хорошим, поэтому для игр и звонков низкий джиттер важнее низкого пинга.
+
+Потери — сколько из трёх попыток не ответили. «lost 1 of 3» значит нода нестабильна.
+
+Тест идёт с выключенным VPN: через туннель все цифры описывали бы выходной сервер, а не путь до ноды.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="591"/>
+        <source>%1 of %2 measured</source>
+        <translation>Измерено %1 из %2</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="100"/>
+        <source>no DNS</source>
+        <translation>нет DNS</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="92"/>
+        <source>Subscription</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="95"/>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="698"/>
+        <source>Subscription %1</source>
+        <translation type="unfinished">Подписка %1</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="103"/>
+        <source>timeout</source>
+        <translation>таймаут</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="106"/>
+        <source>refused</source>
+        <translation>отказ</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="109"/>
+        <source>TLS error</source>
+        <translation>ошибка TLS</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="112"/>
+        <source>no test file</source>
+        <translation>нет тест-файла</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="115"/>
+        <source>node offline</source>
+        <translation>нода офлайн</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="117"/>
+        <source>failed</source>
+        <translation>ошибка</translation>
+    </message>
+    <message>
+        <source>What this is
+
+A test of the servers you can connect to, measured from your device. Two numbers per node: handshake time in milliseconds and download speed in megabits.
+
+Why
+
+A node that responds on the site is not necessarily reachable from your network, and a distant fast node can be slower than a nearby one. Milliseconds matter for games and calls, megabits for video.
+
+How we measure
+
+Handshake - a real Noise IK handshake to the node over UDP, three attempts, the median is shown. This is the same protocol the app uses to connect, so the number means &quot;can I actually connect right now&quot;.
+
+Speed - a download from the node itself over TCP. It shows the node uplink, not your provider&apos;s speed and not the speed through the tunnel.
+
+The test runs with the VPN off: through a tunnel both numbers would describe the exit server, not the path to it.</source>
+        <translation type="vanished">Что это
+
+Тест серверов, к которым можно подключиться, — измеряется с вашего устройства. По каждой ноде две цифры: время рукопожатия в миллисекундах и скорость скачивания в мегабитах.
+
+Зачем
+
+Нода, которая отвечает на сайте, не обязательно доступна из вашей сети, а далёкая быстрая нода может оказаться медленнее близкой. Миллисекунды важны для игр и звонков, мегабиты — для видео.
+
+Как мерим
+
+Рукопожатие — настоящее Noise IK рукопожатие с нодой по UDP, три попытки, показывается медиана. Это тот же протокол, которым приложение подключается, поэтому цифра означает «могу ли я реально подключиться прямо сейчас».
+
+Скорость — скачивание с самой ноды по TCP. Это скорость uplink ноды, а не скорость вашего провайдера и не скорость через туннель.
+
+Тест идёт с выключенным VPN: через туннель обе цифры описывали бы выходной сервер, а не путь до ноды.</translation>
+    </message>
+    <message>
+        <source>Server test</source>
+        <translation type="vanished">Тест серверов</translation>
+    </message>
+    <message>
+        <source>All pools</source>
+        <translation type="vanished">Все пулы</translation>
+    </message>
+    <message>
+        <source>All protocols</source>
+        <translation type="vanished">Все протоколы</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="349"/>
+        <location filename="../ui/controllers/serverTestController.cpp" line="362"/>
+        <source>Speed Test</source>
+        <translation>Speed Test</translation>
+    </message>
+    <message>
+        <source>Real handshake to every pooled node address, then the download speed from that node</source>
+        <translation type="vanished">Реальный хендшейк до каждого адреса пула, затем скорость скачивания с самой ноды</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="818"/>
+        <source>Stop</source>
+        <translation>Остановить</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="821"/>
+        <source>Disconnect and measure</source>
+        <translation>Отключить VPN и измерить</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="823"/>
+        <source>Measure</source>
+        <translation>Измерить</translation>
+    </message>
+    <message>
+        <source>What this test does
+
+Handshake - a real connection attempt to the server on the same protocol the app uses. It answers the question &quot;is this server reachable from your network right now&quot;, even when the web page says it is online.
+
+Speed - a download from the server itself. It shows the channel you would get through this server, not your provider&apos;s speed.
+
+Why: a fast server far away can be slower than a slower one nearby, and a server that answers a port check may not accept your handshake at all. So the test shows both numbers and you pick what matters: milliseconds for games and calls, megabits for video.
+
+The test measures from your device, with the VPN off - through a tunnel every number describes the exit server, not the path to it.</source>
+        <translation type="vanished">Что делает этот тест\n\nХендшейк — реальная попытка подключения к серверу тем же протоколом, которым ходит приложение. Он отвечает на вопрос «доступен ли этот сервер из твоей сети прямо сейчас», даже если статус-страница говорит, что сервер онлайн.\n\nСкорость — скачивание с самого сервера. Показывает канал, который ты получишь через этот сервер, а не скорость твоего провайдера.\n\nЗачем: быстрый сервер далеко может оказаться медленнее близкого, а сервер с открытым портом может вообще не принимать твой хендшейк. Поэтому тест показывает оба числа — и ты выбираешь, что важнее: миллисекунды для игр и звонков, мегабиты для видео.\n\nТест идёт с твоего устройства и с выключенным VPN — через туннель любое число описывает сервер-выход, а не путь до него.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="608"/>
+        <source>This subscription has no pooled nodes to test</source>
+        <translation>В этой подписке нет пуловых нод для теста</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="614"/>
+        <source>Waiting for the VPN to go off, then the test starts by itself</source>
+        <translation>Ждём отключения VPN — тест начнётся сам</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="617"/>
+        <source>Stopped: the tunnel came up, so speed was not measured - disconnect and measure again</source>
+        <translation>Остановлено: включился туннель, скорость не измерялась — отключитесь и измерьте снова</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="620"/>
+        <source>Disconnect first: with the tunnel up every probe goes through the exit</source>
+        <translation>Сначала отключите VPN: при включённом туннеле все пробы идут через выход</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="622"/>
+        <source>Measured %1 of %2 addresses</source>
+        <translation>Измерено %1 из %2 адресов</translation>
+    </message>
+    <message>
+        <source>Handshake is a real Noise IK initiation to the node over UDP. Speed is a download from the node itself over TCP: it shows the node&apos;s uplink, not the AWG path.</source>
+        <translation type="vanished">Хендшейк — настоящая Noise IK иницияция до ноды по UDP. Скорость — скачивание с самой ноды по TCP: это её канал, а не AWG-путь.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="724"/>
+        <source>%1 ms</source>
+        <translation>%1 мс</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="722"/>
+        <source>no answer</source>
+        <translation>нет ответа</translation>
+    </message>
+    <message>
+        <source>%1 Mbps</source>
+        <translation type="vanished">%1 Мбит/с</translation>
+    </message>
+    <message>
+        <source>reachable %1 of %2, speed measured %3</source>
+        <translation type="vanished">отвечает %1 из %2, скорость измерена %3</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="768"/>
+        <source>not measured</source>
+        <translation>не измерилось</translation>
+    </message>
+    <message>
+        <source>reachable %1 of %2</source>
+        <translation type="vanished">отвечает %1 из %2</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="740"/>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="743"/>
+        <source>lost %1 of %2</source>
+        <translation>потеря %1 из %2</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="745"/>
+        <source>jitter %1 ms</source>
+        <translation>джиттер %1 мс</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTest.qml" line="745"/>
+        <source>stable</source>
+        <translation>стабильно</translation>
+    </message>
+    <message>
+        <source>Mbps</source>
+        <translation type="vanished">Мбит/с</translation>
+    </message>
+    <message>
+        <source>no bench</source>
+        <translation type="vanished">нет bench</translation>
+    </message>
+</context>
+<context>
+    <name>PageServerTestInfo</name>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTestInfo.qml" line="34"/>
+        <source>How the measurement works</source>
+        <translation type="unfinished">Как устроен замер</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTestInfo.qml" line="35"/>
+        <source>Two numbers per node: the handshake time and the download speed from the node itself</source>
+        <translation type="unfinished">По каждой ноде две цифры: время рукопожатия и скорость скачивания с самой ноды</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTestInfo.qml" line="65"/>
+        <source>Handshake, ms</source>
+        <translation type="unfinished">Рукопожатие, мс</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTestInfo.qml" line="74"/>
+        <source>A real connection attempt to the node with the same protocol the app uses. Three tries, the average is shown. It answers the question &quot;can I connect to this node right now&quot;, and not &quot;is the node listed as online&quot;. Lower is better.</source>
+        <translation type="unfinished">Реальная попытка подключения к ноде тем же протоколом, что использует приложение. Три попытки, показывается среднее. Отвечает на вопрос «могу ли я подключиться к этой ноде прямо сейчас», а не «числится ли нода онлайн». Меньше — лучше.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTestInfo.qml" line="92"/>
+        <source>A download from the node itself in three rounds, averaged. It is the node uplink: not your provider&apos;s speed and not the speed through the tunnel. Higher is better.</source>
+        <translation type="unfinished">Скачивание с самой ноды, три круга, показывается среднее. Это скорость uplink ноды: не скорость твоего провайдера и не скорость через туннель. Больше — лучше.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTestInfo.qml" line="119"/>
+        <source>How much the answer time varies: the spread between the fastest and the slowest of the three tries. The average says &quot;70 ms&quot;, jitter says how far those 70 wander. At 60 ms with 200 ms of jitter a call breaks up even though the ping looks good, so a steady 80 ms is better than a jumpy 40. Lower is better.</source>
+        <translation type="unfinished">Насколько гуляет время ответа: разброс между самым быстрым и самым медленным из трёх замеров. Среднее говорит «70 мс», джиттер — насколько эти 70 разъезжаются. При 60 мс и джиттере 200 мс звонок рвётся, хотя пинг выглядит хорошим, поэтому ровные 80 мс лучше, чем скачущие 40. Меньше — лучше.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTestInfo.qml" line="137"/>
+        <source>How many of the three tries got no answer. &quot;Lost 1 of 3&quot; means the node is unstable: it accepts connections but drops part of them. Lower is better.</source>
+        <translation type="unfinished">Сколько из трёх попыток не ответили. «Потеряно 1 из 3» значит нода нестабильна: соединения принимает, но часть отбрасывает. Меньше — лучше.</translation>
+    </message>
+    <message>
+        <source>A real connection attempt to the node with the same protocol the app uses. Three tries, the average is shown. It answers the question &quot;can I connect to this node right now&quot;, and not &quot;is the node listed as online&quot;.</source>
+        <translation type="obsolete">Реальная попытка подключения к ноде тем же протоколом, что использует приложение. Три попытки, показывается среднее. Отвечает на вопрос «могу ли я подключиться к этой ноде прямо сейчас», а не «числится ли нода онлайн».</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTestInfo.qml" line="83"/>
+        <source>Speed, Mbps</source>
+        <translation type="unfinished">Скорость, Мбит/с</translation>
+    </message>
+    <message>
+        <source>A download from the node itself in three rounds, averaged. It is the node uplink: not your provider&apos;s speed and not the speed through the tunnel.</source>
+        <translation type="obsolete">Скачивание с самой ноды, три круга, показывается среднее. Это скорость uplink ноды: не скорость твоего провайдера и не скорость через туннель.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTestInfo.qml" line="101"/>
+        <source>The label under the number says what that speed is enough for: 4K needs about 50 Mbps per stream, HD about 10-25, below that it is web and messengers only. A node with a handshake under 60 ms is also marked as suitable for gaming.</source>
+        <translation type="unfinished">Плашка под числом говорит, для чего этой скорости хватает: 4K — примерно 50 Мбит/с на поток, HD — 10–25, ниже — только веб и мессенджеры. Нода с рукопожатием меньше 60 мс дополнительно помечается как подходящая для игр.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTestInfo.qml" line="110"/>
+        <source>Jitter, ms</source>
+        <translation type="unfinished">Джиттер, мс</translation>
+    </message>
+    <message>
+        <source>How much the answer time varies: the spread between the fastest and the slowest of the three tries. The average says &quot;70 ms&quot;, jitter says how far those 70 wander. At 60 ms with 200 ms of jitter a call breaks up even though the ping looks good, so a steady 80 ms is better than a jumpy 40.</source>
+        <translation type="obsolete">Насколько гуляет время ответа: разброс между самым быстрым и самым медленным из трёх замеров. Среднее говорит «70 мс», джиттер — насколько эти 70 разъезжаются. При 60 мс и джиттере 200 мс звонок рвётся, хотя пинг выглядит хорошим, поэтому ровные 80 мс лучше, чем скачущие 40.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTestInfo.qml" line="128"/>
+        <source>Loss</source>
+        <translation type="unfinished">Потери</translation>
+    </message>
+    <message>
+        <source>How many of the three tries got no answer. &quot;Lost 1 of 3&quot; means the node is unstable: it accepts connections but drops part of them.</source>
+        <translation type="obsolete">Сколько из трёх попыток не ответили. «Потеряно 1 из 3» значит нода нестабильна: соединения принимает, но часть отбрасывает.</translation>
+    </message>
+    <message>
+        <source>Which value is better</source>
+        <translation type="obsolete">Какое значение лучше</translation>
+    </message>
+    <message>
+        <source>Less is better: handshake, jitter, loss. More is better: speed. For games and calls pick the lowest handshake with low jitter, for video pick the highest speed.</source>
+        <translation type="obsolete">Меньше — лучше: рукопожатие, джиттер, потери. Больше — лучше: скорость. Для игр и звонков выбирай минимальное рукопожатие с низким джиттером, для видео — максимальную скорость.</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTestInfo.qml" line="146"/>
+        <source>Why the VPN has to be off</source>
+        <translation type="unfinished">Почему VPN должен быть выключен</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageServerTestInfo.qml" line="155"/>
+        <source>The test runs from your device to the node directly. Through a tunnel both numbers would describe the exit server, not the path to the node you are choosing.</source>
+        <translation type="unfinished">Тест идёт с твоего устройства до ноды напрямую. Через туннель обе цифры описывали бы выходной сервер, а не путь до ноды, которую ты выбираешь.</translation>
+    </message>
+</context>
+<context>
     <name>PageServiceDnsSettings</name>
     <message>
         <source>A DNS service is installed on your server, and it is only accessible via VPN.
@@ -1523,12 +2098,17 @@ Already installed containers were found on the server. All installed containers 
         <translation>Настройки</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="136"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="138"/>
         <source>Support</source>
         <translation>Поддержка</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="173"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="188"/>
+        <source>How it works</source>
+        <translation>Как это работает</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="201"/>
         <source>Diagnostics</source>
         <translation type="unfinished">Диагностика</translation>
     </message>
@@ -1537,14 +2117,19 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Список соединений</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="147"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="149"/>
         <source>Connection</source>
         <translation>Соединение</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="160"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="175"/>
         <source>Application</source>
         <translation>Приложение</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="164"/>
+        <source>Subscriptions</source>
+        <translation>Подписки</translation>
     </message>
     <message>
         <source>News &amp; Notifications</source>
@@ -1555,12 +2140,12 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Резервное копирование</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="184"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="212"/>
         <source>About FRKN Dopamine</source>
         <translation>О FRKN Dopamine</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="195"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="223"/>
         <source>Dev console</source>
         <translation>Консоль разработчика</translation>
     </message>
@@ -1614,7 +2199,7 @@ Already installed containers were found on the server. All installed containers 
         <translation>Закрыть приложение</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettings.qml" line="125"/>
+        <location filename="../ui/qml/Pages2/PageSettings.qml" line="127"/>
         <source>Split tunneling</source>
         <translation>Раздельное туннелирование</translation>
     </message>
@@ -1960,6 +2545,16 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageSettingsApiServerInfo</name>
     <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="144"/>
+        <source>Servers reloaded</source>
+        <translation>Серверы перезагружены</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="147"/>
+        <source>Failed to reload servers</source>
+        <translation>Не удалось перезагрузить серверы</translation>
+    </message>
+    <message>
         <source>For the region</source>
         <translation type="obsolete">Для региона</translation>
     </message>
@@ -1972,18 +2567,18 @@ Already installed containers were found on the server. All installed containers 
         <translation type="obsolete">Рабочий период</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="817"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1017"/>
         <source>Speed</source>
         <translation>Скорость</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="828"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1028"/>
         <source>Ping</source>
         <translation>Пинг</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="844"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1000"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1044"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1210"/>
         <source>Copied</source>
         <translation>Скопировано</translation>
     </message>
@@ -2009,74 +2604,29 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Невозможно сменить протокол во время активного подключения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="315"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="441"/>
         <source>Configurations have been updated for some countries. Download and install the updated configuration files</source>
         <translation>Конфигурации обновлены для некоторых стран. Скачайте и установите обновлённые файлы конфигурации</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="137"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="333"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="250"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="459"/>
         <source>DNS</source>
         <translation>DNS</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="367"/>
-        <source>Check available connections</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="373"/>
-        <source>Checking addresses…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="375"/>
-        <source>Probes every address of this server: handshake, port, RTT</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="400"/>
-        <source>Check current connection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="408"/>
-        <source>Tunnel only: DNS through the tunnel, MTU, tunnel IP, session</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="435"/>
-        <source>Send to support</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="439"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="565"/>
         <source>Sending…</source>
         <translation type="unfinished">Отправляем…</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="441"/>
-        <source>Sent — thanks</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="445"/>
-        <source>Send this report to support</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="469"/>
-        <source>Same JSON as Send — paste it wherever you need</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="348"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="474"/>
         <source>MTU</source>
         <translation>MTU</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="176"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="489"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="295"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="615"/>
         <source>Tunnel IP</source>
         <translation>IP-адрес туннеля</translation>
     </message>
@@ -2085,17 +2635,17 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Ключ подписки</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="854"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1054"/>
         <source>Configuration Files</source>
         <translation>Файлы конфигурации</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="856"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1056"/>
         <source>WireGuard configuration file (INI) for routers and other clients</source>
         <translation>Конфигурационный файл WireGuard (INI) для роутеров и других клиентов</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="863"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1072"/>
         <source>Configuration file (INI)</source>
         <translation>Конфигурационный файл (INI)</translation>
     </message>
@@ -2112,27 +2662,27 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Управление подключёнными устройствами</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="895"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1104"/>
         <source>Support</source>
         <translation>Поддержка</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="896"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1105"/>
         <source>Write to us, email, or Telegram</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="911"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1120"/>
         <source>How to connect on another device</source>
         <translation>Как подключиться на другом устройстве</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="927"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1136"/>
         <source>Show raw config</source>
         <translation>Показать исходную конфигурацию</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="932"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1142"/>
         <source>Raw JSON</source>
         <translation>Исходный JSON</translation>
     </message>
@@ -2153,37 +2703,37 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Параметры туннеля</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="996"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1206"/>
         <source>Copy</source>
         <translation>Скопировать</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1017"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1227"/>
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1040"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1250"/>
         <source>Reload API config</source>
         <translation>Перезагрузить конфигурацию API</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1043"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1253"/>
         <source>Reload API config?</source>
         <translation>Перезагрузить конфигурацию API?</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1044"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1254"/>
         <source>Continue</source>
         <translation>Продолжить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1045"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1255"/>
         <source>Cancel</source>
         <translation>Отменить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1049"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1259"/>
         <source>Cannot reload API config during active connection</source>
         <translation>Невозможно перезагрузить конфигурацию API во время активного подключения</translation>
     </message>
@@ -2216,19 +2766,19 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Невозможно удалить сервер во время активного соединения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="503"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="629"/>
         <source>Technical information</source>
         <translation>Техническая информация</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="128"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="511"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="241"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="637"/>
         <source>Connection country</source>
         <translation>Страна подключения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="133"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="528"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="246"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="654"/>
         <source>Protocol</source>
         <translation>Протокол</translation>
     </message>
@@ -2237,31 +2787,19 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Основной адрес</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="172"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="291"/>
         <source>Available addresses</source>
         <translation>Доступные адреса</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="156"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="547"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="270"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="732"/>
         <source>Endpoint in use</source>
         <translation>Используемый адрес</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="156"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="547"/>
-        <source>Endpoint</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="161"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="564"/>
-        <source>Port in use</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="161"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="564"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="280"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="764"/>
         <source>Port</source>
         <translation type="unfinished">Порт</translation>
     </message>
@@ -2274,106 +2812,7 @@ Already installed containers were found on the server. All installed containers 
         <translation type="obsolete">Вторичный DNS</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="370"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="403"/>
-        <source>Turn on telemetry in Diagnostics to run the check</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="406"/>
-        <source>Collecting tunnel metrics…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="443"/>
-        <source>Send failed: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="468"/>
-        <source>Copy report</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="477"/>
-        <source>Report copied</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="592"/>
-        <source>VPN is on — turn it off to check all addresses.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="597"/>
-        <source>Pool addresses — all of them are used by default.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="670"/>
-        <source>off</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="674"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="709"/>
-        <source>checking… · —</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="677"/>
-        <source>checking… · </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="692"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="746"/>
-        <source>not checked — VPN is on</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="694"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="748"/>
-        <source>not measured yet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="698"/>
-        <source> · in use</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="704"/>
-        <source>skipped — turned off by you</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="708"/>
-        <source>checking… · %1 ms last</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="720"/>
-        <source> ms · in use</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="726"/>
-        <source> ms · cached · in use</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="732"/>
-        <source>unreachable · cached · in use</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="733"/>
-        <source>unreachable · cached</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="799"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="999"/>
         <source>Saved — applies after you reconnect the VPN</source>
         <translation>Сохранено — применится после переподключения VPN</translation>
     </message>
@@ -2394,75 +2833,237 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Сохранить DNS</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="839"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1039"/>
         <source>Copy technical information</source>
         <translation>Скопировать техническую информацию</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="123"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="236"/>
         <source>Version</source>
         <translation>Версия</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="124"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="237"/>
         <source>Server</source>
         <translation>Сервер</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="591"/>
-        <source>VPN is on — turn it off to check all addresses. Address changes apply after you reconnect.</source>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="270"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="732"/>
+        <source>Endpoint</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="595"/>
-        <source>Pool addresses — all of them are used by default. Turn off the ones your operator blocks.</source>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="275"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="747"/>
+        <source>Domain</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="721"/>
-        <source> ms · available</source>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="280"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="764"/>
+        <source>Port in use</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="727"/>
-        <source> ms · cached · available</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="738"/>
-        <source>checking…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="261"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="746"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="748"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="387"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="946"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="948"/>
         <source>in use</source>
         <translation>Используется</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="712"/>
-        <source>unreachable</source>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="493"/>
+        <source>Check available connections</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="496"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="529"/>
+        <source>Turn on telemetry in Diagnostics to run the check</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="499"/>
+        <source>Checking addresses…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="501"/>
+        <source>Probes every address of this server: handshake, port, RTT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="526"/>
+        <source>Check current connection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="532"/>
+        <source>Collecting tunnel metrics…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="534"/>
+        <source>Tunnel only: DNS through the tunnel, MTU, tunnel IP, session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="561"/>
+        <source>Send to support</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="567"/>
+        <source>Sent — thanks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="569"/>
+        <source>Send failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="571"/>
+        <source>Send this report to support</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="594"/>
+        <source>Copy report</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="595"/>
+        <source>Same JSON as Send — paste it wherever you need</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="603"/>
+        <source>Report copied</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="791"/>
+        <source>VPN is on — turn it off to check all addresses. Address changes apply after you reconnect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="792"/>
+        <source>VPN is on — turn it off to check all addresses.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="795"/>
+        <source>Pool addresses — all of them are used by default. Turn off the ones your operator blocks.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="797"/>
+        <source>Pool addresses — all of them are used by default.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="870"/>
+        <source>off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="874"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="909"/>
+        <source>checking… · —</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="877"/>
+        <source>checking… · </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="892"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="946"/>
+        <source>not checked — VPN is on</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="894"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="948"/>
+        <source>not measured yet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="898"/>
+        <source> · in use</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="904"/>
+        <source>skipped — turned off by you</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="908"/>
+        <source>checking… · %1 ms last</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="912"/>
+        <source>unreachable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="920"/>
+        <source> ms · in use</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="921"/>
+        <source> ms · available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="926"/>
+        <source> ms · cached · in use</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="927"/>
+        <source> ms · cached · available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="932"/>
+        <source>unreachable · cached · in use</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="933"/>
+        <source>unreachable · cached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="938"/>
+        <source>checking…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1086"/>
         <source>Share connection</source>
         <translation>Поделиться подключением</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="879"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="1088"/>
         <source>A link for this server only, not the whole subscription</source>
         <translation>Ссылка только на этот сервер, не на всю подписку</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="333"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="459"/>
         <source>DNS (overridden)</source>
         <translation>DNS (переопределён)</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="142"/>
-        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="348"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="255"/>
+        <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="474"/>
         <source>MTU (overridden)</source>
         <translation>MTU (переопределён)</translation>
     </message>
@@ -2579,14 +3180,14 @@ Already installed containers were found on the server. All installed containers 
         <translation>Тег поддержки</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsApiSupport.qml" line="223"/>
-        <source>Report copied — paste it into the support chat</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiSupport.qml" line="208"/>
         <source>Copied</source>
         <translation>Скопировано</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsApiSupport.qml" line="223"/>
+        <source>Report copied — paste it into the support chat</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3811,24 +4412,17 @@ Already installed containers were found on the server. All installed containers 
 <context>
     <name>PageSettingsServersList</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServersList.qml" line="64"/>
         <source>Connections List</source>
-        <translation>Список соединений</translation>
+        <translation type="vanished">Список соединений</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServersList.qml" line="39"/>
         <source>Servers reloaded</source>
-        <translation>Серверы перезагружены</translation>
+        <translation type="vanished">Серверы перезагружены</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServersList.qml" line="37"/>
+        <location filename="../ui/qml/Pages2/PageSettingsServersList.qml" line="83"/>
         <source>Failed to reload servers</source>
         <translation>Не удалось перезагрузить серверы</translation>
-    </message>
-    <message>
-        <location filename="../ui/qml/Pages2/PageSettingsServersList.qml" line="41"/>
-        <source>%1 reloaded</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4208,6 +4802,70 @@ Can&apos;t be disabled for current server</source>
     </message>
 </context>
 <context>
+    <name>PageSettingsSubscriptions</name>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSubscriptions.qml" line="53"/>
+        <source>Subscriptions</source>
+        <translation>Подписки</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSubscriptions.qml" line="54"/>
+        <source>Every subscription this device is linked to</source>
+        <translation>Все подписки, привязанные к этому устройству</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSubscriptions.qml" line="65"/>
+        <source>No subscriptions found on this device</source>
+        <translation>На этом устройстве нет подписок</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSubscriptions.qml" line="81"/>
+        <source>Subscription ID</source>
+        <translation>ID подписки</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSubscriptions.qml" line="102"/>
+        <source>Short code</source>
+        <translation>Короткий код</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSubscriptions.qml" line="123"/>
+        <source>Plan</source>
+        <translation>Тариф</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSubscriptions.qml" line="137"/>
+        <source>Valid until</source>
+        <translation>Действует до</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSubscriptions.qml" line="139"/>
+        <source>expired</source>
+        <translation>срок истёк</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSubscriptions.qml" line="156"/>
+        <source>Traffic</source>
+        <translation>Трафик</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSubscriptions.qml" line="159"/>
+        <source>unlimited</source>
+        <translation>без лимита</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSubscriptions.qml" line="89"/>
+        <location filename="../ui/qml/Pages2/PageSettingsSubscriptions.qml" line="110"/>
+        <source>Copied</source>
+        <translation>Скопировано</translation>
+    </message>
+    <message>
+        <location filename="../ui/qml/Pages2/PageSettingsSubscriptions.qml" line="190"/>
+        <source>Add subscription</source>
+        <translation>Добавить подписку</translation>
+    </message>
+</context>
+<context>
     <name>PageSetupWizardApiServiceInfo</name>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardApiServiceInfo.qml" line="215"/>
@@ -4326,27 +4984,27 @@ Can&apos;t be disabled for current server</source>
 <context>
     <name>PageSetupWizardConfigSource</name>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="439"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="449"/>
         <source>File with connection settings</source>
         <translation>Файл с настройками подключения</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="144"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="146"/>
         <source>Connection</source>
         <translation>Соединение</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="270"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="272"/>
         <source>Paste</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="539"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="549"/>
         <source>Subscription loaded</source>
         <translation>Подписка загружена</translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="548"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="558"/>
         <source>Found %n configuration(s). Add them all?</source>
         <translation>
             <numerusform>Найдена %n конфигурация. Добавить?</numerusform>
@@ -4355,12 +5013,12 @@ Can&apos;t be disabled for current server</source>
         </translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="558"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="568"/>
         <source>Delete previous configurations</source>
         <translation>Удалить предыдущие конфигурации</translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="571"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="581"/>
         <source>Add %n server(s)</source>
         <translation>
             <numerusform>Добавить %n сервер</numerusform>
@@ -4369,8 +5027,8 @@ Can&apos;t be disabled for current server</source>
         </translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="591"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="710"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="601"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="720"/>
         <source>Cancel</source>
         <translation>Отменить</translation>
     </message>
@@ -4380,52 +5038,52 @@ Can&apos;t be disabled for current server</source>
         <translation>Все конфигурации уже были добавлены</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="173"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="175"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="183"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="185"/>
         <source>Enable logs</source>
         <translation>Включить логирование</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="197"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="199"/>
         <source>Export client logs</source>
         <translation>Экспорт логов клиента</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="207"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="209"/>
         <source>Save</source>
         <translation>Сохранить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="208"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="210"/>
         <source>Logs files (*.log)</source>
         <translation>Файлы логов (*.log)</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="217"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="219"/>
         <source>Logs file saved</source>
         <translation>Файл с логами сохранен</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="227"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="229"/>
         <source>Support tag</source>
         <translation>Тег поддержки</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="238"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="240"/>
         <source>Copied</source>
         <translation>Скопировано</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="258"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="260"/>
         <source>Press OK to type a frkn:// link or an activation key</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="259"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="261"/>
         <source>Insert a key or a WireGuard/Amnezia config, add a file, or scan the QR-code</source>
         <translation>Вставьте ключ или конфиг WireGuard/Amnezia, добавьте файл или отсканируйте QR-код</translation>
     </message>
@@ -4434,37 +5092,37 @@ Can&apos;t be disabled for current server</source>
         <translation type="vanished">Ключ или конфиг</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="270"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="272"/>
         <source>Insert</source>
         <translation>Вставить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="269"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="271"/>
         <source>Insert key</source>
         <translation>Вставьте ключ</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="296"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="298"/>
         <source>Continue</source>
         <translation>Продолжить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="332"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="342"/>
         <source>Other connection options</source>
         <translation>Другие опции</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="382"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="392"/>
         <source>FRKN website</source>
         <translation>Сайт FRKN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="404"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="414"/>
         <source>VPN by FRKN</source>
         <translation>VPN от FRKN</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="405"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="415"/>
         <source>Connect to classic paid and free VPN services from FRKN</source>
         <translation>Подключение к классическим платным и бесплатным VPN-сервисам от FRKN</translation>
     </message>
@@ -4477,56 +5135,56 @@ Can&apos;t be disabled for current server</source>
         <translation type="vanished">Настройка VPN на вашем собственном сервере</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="421"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="431"/>
         <source>Restore from backup</source>
         <translation>Восстановить из резервной копии</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="422"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="440"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="459"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="474"/>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="488"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="432"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="450"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="469"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="484"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="498"/>
         <source></source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="426"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="436"/>
         <source>Open backup file</source>
         <translation>Открыть резервную копию</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="427"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="437"/>
         <source>Backup files (*.backup)</source>
         <translation>Файлы резервных копий (*.backup)</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="446"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="456"/>
         <source>Open config file</source>
         <translation>Открыть файл с конфигурацией</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="458"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="468"/>
         <source>QR code</source>
         <translation>QR-код</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="473"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="483"/>
         <source>Restore purchases</source>
         <translation>Восстановить покупки</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="487"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="497"/>
         <source>I have nothing</source>
         <translation>У меня ничего нет</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="649"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="659"/>
         <source>Activation key</source>
         <translation>Ключ активации</translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="659"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="669"/>
         <source>This key gives you %n GiB of traffic</source>
         <translation>
             <numerusform>Этот ключ даёт %n ГиБ трафика</numerusform>
@@ -4535,7 +5193,7 @@ Can&apos;t be disabled for current server</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="660"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="670"/>
         <source>This key gives you %n day(s) of VPN access</source>
         <translation>
             <numerusform>Этот ключ даёт %n день доступа к VPN</numerusform>
@@ -4544,22 +5202,22 @@ Can&apos;t be disabled for current server</source>
         </translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="674"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="684"/>
         <source>Email</source>
         <translation>Email</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="685"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="695"/>
         <source>Activate</source>
         <translation>Активировать</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="690"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="700"/>
         <source>Enter your email</source>
         <translation>Введите Email</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="105"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="107"/>
         <source>Unrecognized input — paste an activation key, frkn:// link, subscription UUID, vless:// configuration, or a WireGuard/Amnezia config</source>
         <translation>Не удалось распознать ввод — вставьте ключ активации, frkn:// ссылку, UUID подписки, vless:// конфигурацию или конфиг WireGuard/Amnezia</translation>
     </message>
@@ -4774,7 +5432,7 @@ Can&apos;t be disabled for current server</source>
         <translation type="vanished">Войти</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Pages2/PageSetupWizardStart.qml" line="70"/>
+        <location filename="../ui/qml/Pages2/PageSetupWizardStart.qml" line="104"/>
         <source>Let&apos;s get started</source>
         <translation>Начнём</translation>
     </message>
@@ -5410,7 +6068,7 @@ Can&apos;t be disabled for current server</source>
         <translation>ChatGPT, Claude, Gemini, Perplexity, DeepSeek, Grok</translation>
     </message>
     <message>
-        <location filename="../core/errorstrings.cpp" line="81"/>
+        <location filename="../core/errorstrings.cpp" line="84"/>
         <source>The server did not respond in time. Try another server, or open the server card and tap Reload API config.</source>
         <translation>Сервер не ответил вовремя. Попробуйте другой сервер или откройте карточку сервера и нажмите «Перезагрузить конфигурацию API».</translation>
     </message>
@@ -5514,7 +6172,7 @@ Can&apos;t be disabled for current server</source>
         <translation>Данная конфигурация уже была добавлена в приложение</translation>
     </message>
     <message>
-        <location filename="../core/errorstrings.cpp" line="99"/>
+        <location filename="../core/errorstrings.cpp" line="102"/>
         <source>ErrorCode: %1. </source>
         <translation>Код ошибки: %1. </translation>
     </message>
@@ -5698,37 +6356,42 @@ Can&apos;t be disabled for current server</source>
         <translation>На этом сервере нет VPN-конфигурации. Откройте карточку сервера и нажмите «Перезагрузить конфигурацию API».</translation>
     </message>
     <message>
-        <location filename="../core/errorstrings.cpp" line="87"/>
+        <location filename="../core/errorstrings.cpp" line="79"/>
+        <source>This device already has the maximum number of tunnels</source>
+        <translation>На этом устройстве уже максимум туннелей</translation>
+    </message>
+    <message>
+        <location filename="../core/errorstrings.cpp" line="90"/>
         <source>QFile error: The file could not be opened</source>
         <translation>Ошибка QFile: не удалось открыть файл</translation>
     </message>
     <message>
-        <location filename="../core/errorstrings.cpp" line="88"/>
+        <location filename="../core/errorstrings.cpp" line="91"/>
         <source>QFile error: An error occurred when reading from the file</source>
         <translation>Ошибка QFile: произошла ошибка при чтении из файла</translation>
     </message>
     <message>
-        <location filename="../core/errorstrings.cpp" line="89"/>
+        <location filename="../core/errorstrings.cpp" line="92"/>
         <source>QFile error: The file could not be accessed</source>
         <translation>Ошибка QFile: не удалось получить доступ к файлу</translation>
     </message>
     <message>
-        <location filename="../core/errorstrings.cpp" line="90"/>
+        <location filename="../core/errorstrings.cpp" line="93"/>
         <source>QFile error: An unspecified error occurred</source>
         <translation>Ошибка QFile: произошла неизвестная ошибка</translation>
     </message>
     <message>
-        <location filename="../core/errorstrings.cpp" line="91"/>
+        <location filename="../core/errorstrings.cpp" line="94"/>
         <source>QFile error: A fatal error occurred</source>
         <translation>Ошибка QFile: произошла фатальная ошибка</translation>
     </message>
     <message>
-        <location filename="../core/errorstrings.cpp" line="92"/>
+        <location filename="../core/errorstrings.cpp" line="95"/>
         <source>QFile error: The operation was aborted</source>
         <translation>Ошибка QFile: операция была прервана</translation>
     </message>
     <message>
-        <location filename="../core/errorstrings.cpp" line="96"/>
+        <location filename="../core/errorstrings.cpp" line="99"/>
         <source>Internal error</source>
         <translation>Внутренняя ошибка</translation>
     </message>
@@ -5862,6 +6525,23 @@ While it offers a blend of security, stability, and speed, it&apos;s essential t
         <translation>DNS</translation>
     </message>
     <message>
+        <location filename="../containers/containers_defs.cpp" line="126"/>
+        <source></source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../containers/containers_defs.cpp" line="133"/>
+        <source>WireGuard is a modern, streamlined VPN protocol offering stable connectivity and excellent performance across all devices. It uses fixed encryption settings, delivering lower latency and higher data transfer speeds compared to older VPN protocols. However, WireGuard is easily identifiable by DPI systems due to its distinctive packet signatures, making it susceptible to blocking.
+
+Features:
+* Available on all Dopamine platforms
+* Low power consumption on mobile devices
+* Minimal configuration required
+* Easily detected by DPI systems (susceptible to blocking)
+* Operates over UDP protocol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>OpenVPN is the most popular VPN protocol, with flexible configuration options. It uses its own security protocol with SSL/TLS for key exchange.</source>
         <translation type="vanished">OpenVPN — самый популярный VPN-протокол с гибкой настройкой. Имеет собственный протокол безопасности с SSL/TLS для обмена ключами.</translation>
     </message>
@@ -5888,23 +6568,6 @@ While it offers a blend of security, stability, and speed, it&apos;s essential t
         <location filename="../containers/containers_defs.cpp" line="117"/>
         <source>XRay with REALITY masks VPN traffic as web traffic and protects against active probing. It is highly resistant to detection and offers high speed.</source>
         <translation>XRay с REALITY маскирует VPN-трафик под веб-трафик и защищает от активного зондирования. Высокая устойчивость к обнаружению и высокая скорость.</translation>
-    </message>
-    <message>
-        <location filename="../containers/containers_defs.cpp" line="126"/>
-        <source></source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../containers/containers_defs.cpp" line="133"/>
-        <source>WireGuard is a modern, streamlined VPN protocol offering stable connectivity and excellent performance across all devices. It uses fixed encryption settings, delivering lower latency and higher data transfer speeds compared to older VPN protocols. However, WireGuard is easily identifiable by DPI systems due to its distinctive packet signatures, making it susceptible to blocking.
-
-Features:
-* Available on all Dopamine platforms
-* Low power consumption on mobile devices
-* Minimal configuration required
-* Easily detected by DPI systems (susceptible to blocking)
-* Operates over UDP protocol</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>OpenVPN is one of the most popular and reliable VPN protocols. It uses SSL/TLS encryption, supports a wide variety of devices and operating systems, and is continuously improved by the community due to its open-source nature. It provides a good balance between speed and security but is easily recognized by DPI systems, making it susceptible to blocking.
@@ -6367,7 +7030,7 @@ This means that AmneziaWG keeps the fast performance of the original while addin
         <translation>AmneziaWG Legacy — устаревшая версия протокола AmneziaWG. Для обновления установите AmneziaWG и пересоздайте пользователей.</translation>
     </message>
     <message>
-        <location filename="../core/controllers/coreController.cpp" line="49"/>
+        <location filename="../core/controllers/coreController.cpp" line="56"/>
         <source>All configurations have already been added</source>
         <translation>Все конфигурации уже были добавлены</translation>
     </message>
@@ -6394,87 +7057,87 @@ This means that AmneziaWG keeps the fast performance of the original while addin
     </message>
 </context>
 <context>
+    <name>ServersAddedBanner</name>
+    <message>
+        <location filename="../ui/qml/Components/ServersAddedBanner.qml" line="154"/>
+        <source>Servers loaded ^_^</source>
+        <translation>Сервера загружены ^_^</translation>
+    </message>
+</context>
+<context>
     <name>ServersListView</name>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="75"/>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="115"/>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="126"/>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="176"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="177"/>
         <source>All</source>
         <translation>Все</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="89"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="119"/>
         <source>Subscription</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="127"/>
         <source>White Elephants</source>
-        <translation>Белые Слоны</translation>
+        <translation type="vanished">Белые Слоны</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="128"/>
         <source>Regular</source>
-        <translation>Основной</translation>
+        <translation type="vanished">Основной</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="129"/>
         <source>Reverse</source>
-        <translation>Обратный</translation>
+        <translation type="vanished">Обратный</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="130"/>
         <source>Premium</source>
-        <translation>Премиум</translation>
+        <translation type="vanished">Премиум</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="131"/>
         <source>Private</source>
-        <translation>Приватный</translation>
+        <translation type="vanished">Приватный</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="323"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="546"/>
         <source>Delete %1?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="324"/>
-        <source>Servers of this subscription are removed from this device. Nothing happens to the subscription itself.</source>
-        <translation type="unfinished"></translation>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="547"/>
+        <source>Servers of this subscription are removed from this device and their tunnels are released on the server, so the device keeps its tunnel slots. Nothing happens to the subscription itself.</source>
+        <translation>Серверы этой подписки удаляются с устройства, а их туннели освобождаются на сервере, чтобы устройство не теряло слоты. С самой подпиской ничего не происходит.</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="325"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="548"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="326"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="549"/>
         <source>Cancel</source>
         <translation type="unfinished">Отменить</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="638"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="829"/>
         <source>offline</source>
         <translation>офлайн</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="414"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="579"/>
         <source>Auto-select</source>
         <translation>Автовыбор</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="415"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="580"/>
         <source>Fastest available server</source>
         <translation>Самый быстрый доступный сервер</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="92"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="122"/>
         <source>Subscription %1</source>
         <translation>Подписка %1</translation>
     </message>
     <message>
-        <location filename="../ui/qml/Components/ServersListView.qml" line="181"/>
+        <location filename="../ui/qml/Components/ServersListView.qml" line="182"/>
         <source>Other</source>
         <translation>Прочее</translation>
     </message>

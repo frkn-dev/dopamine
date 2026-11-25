@@ -68,6 +68,10 @@ signals:
     // the shared env+protocol, imported like a subscription.
     void frknSharedSubLinkDetected(const QString &shareToken);
     void frknShareLinkDetected(const QString &shareToken);
+    // FRKN short code from the ЛК (e.g. k7f2-9mxq-4t): carries the normalized
+    // contiguous Crockford form (k7f29mxq4t); coreController resolves it
+    // through s.frkn.org into a subscription id.
+    void frknShortCodeDetected(const QString &code);
     void frknActivationKeyDetected(const QString &code);
     // nothing matched — input is text but not any of the supported formats
     void unknownFormatDetected(const QString &rawInput);
@@ -88,11 +92,6 @@ private:
 
     bool parseConfigLine(const QString &line, QJsonObject &outConfig);
     void handleSubscriptionResponse(const QByteArray &responseData);
-
-    // FRKN short code (e.g. k7f2-9mxq-4t): resolve via s.frkn.org into a
-    // subscription id, then continue with the regular AGW flow; a 404 falls
-    // back to the legacy subscriber-id fetch
-    void resolveShortCode(const QString &rawInput, const QString &normalizedCode);
 
 #if defined Q_OS_ANDROID || defined Q_OS_IOS
     void stopDecodingQr();

@@ -266,9 +266,9 @@ PageType {
                 text: ApiServicesModel.getSelectedServiceType() === "amnezia-premium" ? qsTr("Subscribe Now") : qsTr("Connect")
 
                 clickedFunc: function() {
-                    PageController.showBusyIndicator(true)
+                    PageController.busyOn()
                     var result = ApiConfigsController.importService()
-                    PageController.showBusyIndicator(false)
+                    PageController.busyOff()
 
                     if (!result) {
                         var endpoint = ApiServicesModel.getStoreEndpoint()

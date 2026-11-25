@@ -22,7 +22,7 @@ PageType {
     id: root
 
     // Server card and the two shortcut buttons above it move together.
-    property int serverCardLift: 90
+    property int serverCardLift: 94
 
     readonly property bool isTv: SettingsController.isOnTv()
 
@@ -162,7 +162,7 @@ PageType {
                 Layout.rightMargin: root.isTv ? 0 : 16
                 Layout.bottomMargin: 8
 
-                implicitHeight: ConnectionController.isConnected ? 112 : 96
+                implicitHeight: ConnectionController.isConnected ? 124 : 96
                 radius: 20
 
                 // Raise the card (and its shortcut buttons) without moving the
@@ -190,17 +190,26 @@ PageType {
                     source: "qrc:/images/controls/server-card-glow.png"
                     fillMode: Image.Stretch
                     smooth: true
+
+                    // Fade the blue glow out: barely a tint, almost gray
+                    opacity: 0.25
                 }
 
-                // the card's fill — same colour as before, the light shows through it
+                // the card's fill — barely visible, with a visible border in the
+                // light theme so the card does not dissolve into the background
                 Rectangle {
                     id: serverCardBackground
 
                     anchors.fill: parent
                     radius: parent.radius
 
-                    color: serverCardMouse.containsPress ? DopamineStyle.color.sheerWhite
-                                                         : DopamineStyle.color.translucentWhite
+                    color: serverCardMouse.containsPress ? Qt.rgba(1, 1, 1, 0.04)
+                                                         : Qt.rgba(1, 1, 1, 0.02)
+
+                    // The dark theme reads the glass fill alone; the light theme
+                    // needs a line or the card is invisible against the page.
+                    border.color: DopamineStyle.color.sheerWhite
+                    border.width: 1
                 }
 
                 // subtle cool glass highlight along the top, like on the mockup
@@ -223,6 +232,16 @@ PageType {
                         Layout.fillWidth: true
                         Layout.rightMargin: 8
                         spacing: 2
+
+                        // Site-style label: small caps above the name — removed per user request
+                        // CaptionTextType {
+                        //     visible: ConnectionController.isConnected
+                        //     color: "#71717a"
+                        //     font.pixelSize: 9
+                        //     font.weight: 600
+                        //     font.letterSpacing: 1.6
+                        //     text: qsTr("ВЫБРАННЫЙ УЗЕЛ")
+                        // }
 
                         RowLayout {
                             Layout.fillWidth: true
@@ -250,15 +269,28 @@ PageType {
                             ListItemTitleType {
                                 Layout.fillWidth: true
 
-                                maximumLineCount: 1
-                                elide: Text.ElideRight
-                                wrapMode: Text.NoWrap
+                                maximumLineCount: 2
+                                elide: Text.ElideNone
+                                wrapMode: Text.WordWrap
                                 font.pixelSize: root.isTv ? 26 : 24
                                 font.weight: 600
 
                                 text: SettingsController.autoServerSelection && !ConnectionController.isConnected
                                       ? qsTr("Auto-select")
                                       : ServersModel.defaultServerName
+                            }
+
+                            // Ping dot right next to the name: plain colour, no glow ring
+                            Rectangle {
+                                Layout.alignment: Qt.AlignVCenter
+                                width: 8
+                                height: 8
+                                radius: 4
+
+                                visible: ConnectionController.isConnected
+                                color: ConnectionController.ping !== ""
+                                       ? (Number(ConnectionController.ping) < 120 ? "#34d399" : (Number(ConnectionController.ping) < 300 ? "#FF9F0A" : "#FF453A"))
+                                       : "#34d399"
                             }
                         }
 
@@ -274,55 +306,33 @@ PageType {
 
                             text: ServersModel.defaultServerProtocolName
                         }
+                    }
 
-                        RowLayout {
-                            Layout.fillWidth: true
-                            spacing: 6
+                    // Big blue ping on the right, like on the site card
+                    ColumnLayout {
+                        Layout.alignment: Qt.AlignTop | Qt.AlignRight
+                        Layout.topMargin: 12
+                        spacing: 0
 
-                            visible: ConnectionController.isConnected
+                        visible: ConnectionController.isConnected && SettingsController.isServerPingTextVisible && ConnectionController.ping !== ""
 
-                            CaptionTextType {
-                                Layout.fillWidth: true
-                                Layout.preferredWidth: 160
-                                Layout.minimumWidth: 80
+                        Text {
+                            Layout.alignment: Qt.AlignRight
+                            text: ConnectionController.ping
+                            color: "#4d8cff"
+                            font.pixelSize: 22
+                            font.weight: 700
+                            // Fixed width so the dot does not jump when digits change
+                            Layout.preferredWidth: 44
+                            horizontalAlignment: Text.AlignRight
+                        }
 
-                                color: DopamineStyle.color.mutedGray
-                                font.pixelSize: 13
-                                wrapMode: Text.NoWrap
-                                elide: Text.ElideRight
-                                maximumLineCount: 1
-
-                                text: "↓ " + ConnectionController.downloadSpeed
-                                      + "   ↑ " + ConnectionController.uploadSpeed
-                            }
-
-                            Rectangle {
-                                Layout.alignment: Qt.AlignVCenter
-                                width: 8
-                                height: 8
-                                radius: 4
-
-                                visible: ConnectionController.ping !== ""
-
-                                color: {
-                                    const ms = Number(ConnectionController.ping)
-                                    return ms < 120 ? "#34C759" : (ms < 300 ? "#FF9F0A" : "#FF453A")
-                                }
-                            }
-
-                            CaptionTextType {
-                                Layout.alignment: Qt.AlignVCenter
-
-                                visible: SettingsController.isServerPingTextVisible
-                                         && ConnectionController.ping !== ""
-                                font.pixelSize: 13
-
-                                text: ConnectionController.ping + " ms"
-                                color: {
-                                    const ms = Number(ConnectionController.ping)
-                                    return ms < 120 ? "#34C759" : (ms < 300 ? "#FF9F0A" : "#FF453A")
-                                }
-                            }
+                        Text {
+                            Layout.alignment: Qt.AlignRight
+                            text: qsTr("ms")
+                            color: "#71717a"
+                            font.pixelSize: 10
+                            font.weight: 500
                         }
                     }
 
@@ -353,6 +363,26 @@ PageType {
                         border.width: 3
                         visible: root.isTv && serverCardMouse.activeFocus
                     }
+                }
+
+                ImageButtonType {
+                    id: serverTestButton
+                    objectName: "serverTestButton"
+
+                    anchors.right: splitTunnelingButton.left
+                    anchors.rightMargin: 4
+
+                    y: -height - 10
+
+                    z: 2
+
+                    implicitWidth: 48
+                    implicitHeight: 48
+
+                    image: "qrc:/images/controls/gauge.svg"
+                    imageColor: DopamineStyle.color.paleGray
+
+                    onClicked: PageController.goToPage(PageEnum.PageServerTest)
                 }
 
                 ImageButtonType {
@@ -430,9 +460,9 @@ PageType {
         ServersModel.processedIndex = ServersModel.defaultIndex
 
         if (ServersModel.getProcessedServerData("isServerFromGatewayApi")) {
-            PageController.showBusyIndicator(true)
+            PageController.busyOn()
             let result = ApiSettingsController.getAccountInfo(false)
-            PageController.showBusyIndicator(false)
+            PageController.busyOff()
             if (!result) {
                 return
             }

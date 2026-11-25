@@ -261,9 +261,9 @@ PageType {
                     var noButtonText = qsTr("Cancel")
 
                     var yesButtonFunction = function() {
-                        PageController.showBusyIndicator(true)
+                        PageController.busyOn()
                         SettingsController.clearLogs()
-                        PageController.showBusyIndicator(false)
+                        PageController.busyOff()
                         PageController.showNotificationMessage(qsTr("Logs have been cleaned up"))
                     }
 
@@ -379,9 +379,9 @@ PageType {
                                                         ".log")
             }
             if (fileName !== "") {
-                PageController.showBusyIndicator(true)
+                PageController.busyOn()
                 SettingsController.exportLogsFile(fileName)
-                PageController.showBusyIndicator(false)
+                PageController.busyOff()
                 PageController.showNotificationMessage(qsTr("Logs file saved"))
             }
         }
@@ -404,9 +404,9 @@ PageType {
                                                     true,
                                                     ".log")
             if (fileName !== "") {
-                PageController.showBusyIndicator(true)
+                PageController.busyOn()
                 SettingsController.exportServiceLogsFile(fileName)
-                PageController.showBusyIndicator(false)
+                PageController.busyOff()
                 PageController.showNotificationMessage(qsTr("Logs file saved"))
             }
         }

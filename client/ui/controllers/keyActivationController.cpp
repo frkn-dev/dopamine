@@ -76,8 +76,15 @@ void KeyActivationController::validateKey(const QString &code)
         }
 
         const QString kind = key.value(QStringLiteral("kind")).toString();
+
+        // Valid but not activated yet: activate it right away. The user bought
+        // the key and a second confirmation tap adds nothing but a chance to
+        // lose the key. The details still travel with keyValidationPassed so
+        // the drawer can render the plan when the api asks for an email (lite
+        // keys) — see emailRequired().
         emit keyValidationPassed(code, key.value(QStringLiteral("days")).toInt(),
                                  key.value(QStringLiteral("traffic_gib")).toInt(), kind == QLatin1String("lite"));
+        activateKey(code);
     });
 }
 
@@ -112,7 +119,12 @@ void KeyActivationController::activateKey(const QString &code, const QString &em
                        << "response:" << responseData;
             const bool noAnswer = status == 0 || status >= 500 || reply->error() == QNetworkReply::TimeoutError
                     || reply->error() == QNetworkReply::OperationCanceledError;
-            if (status == 400 && responseData.contains("email_required")) {
+            if (status == 503) {
+                // The api could not place the subscription on any shard
+                // (`plan_not_configured`, `no_live_shard`, `assign_failed`).
+                // The key is deliberately left unspent, so retrying later works.
+                emit keyErrorOccurred(tr("No servers available right now. The key was not used — please contact support."));
+            } else if (status == 400 && responseData.contains("email_required")) {
                 emit emailRequired();
             } else if (status == 404) {
                 emit keyErrorOccurred(tr("This key does not exist"));

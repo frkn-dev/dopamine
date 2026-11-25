@@ -75,6 +75,9 @@ QString errorString(ErrorCode code) {
         errorMessage = QObject::tr(
                 "No VPN configuration on this server. Open the server card and tap Reload API config.");
         break;
+    case(ErrorCode::ApiPeersLimitError):
+        errorMessage = QObject::tr("This device already has the maximum number of tunnels");
+        break;
 
     // connection errors
     case (ErrorCode::ServerConnectionTimeoutError):

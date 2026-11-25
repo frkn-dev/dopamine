@@ -26,6 +26,12 @@ public:
     amnezia::ErrorCode post(const QString &endpoint, const QJsonObject apiPayload, QByteArray &responseBody);
     QFuture<QPair<amnezia::ErrorCode, QByteArray>> postAsync(const QString &endpoint, const QJsonObject apiPayload);
 
+    // Same as post(), but keeps the HTTP status of the last attempt. Flows that
+    // branch per status (402/403/409/503, e.g. the peers plane) need it; every
+    // existing caller keeps the old behaviour untouched.
+    amnezia::ErrorCode postWithStatus(const QString &endpoint, const QJsonObject apiPayload, QByteArray &responseBody,
+                                      int &httpStatus);
+
 private:
     struct EncryptedRequestData
     {
@@ -44,7 +50,8 @@ private:
     };
 
     EncryptedRequestData prepareRequest(const QString &endpoint, const QJsonObject &apiPayload);
-    amnezia::ErrorCode doPost(const QString &endpoint, const QJsonObject &apiPayload, QByteArray &responseBody);
+    amnezia::ErrorCode doPost(const QString &endpoint, const QJsonObject &apiPayload, QByteArray &responseBody,
+                              int *httpStatus = nullptr);
     DecryptionResult tryDecryptResponseBody(const QByteArray &encryptedResponseBody, QNetworkReply::NetworkError replyError,
                                             const QByteArray &key, const QByteArray &iv, const QByteArray &salt);
 

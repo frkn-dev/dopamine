@@ -153,7 +153,7 @@ Button {
             layer.enabled: true
             layer.samples: 4
 
-            visible: ConnectionController.isConnectionInProgress
+            visible: ConnectionController.isConnectionInProgress || ConnectionController.isSwitching
 
             ShapePath {
                 fillColor: DopamineStyle.color.transparent
@@ -173,7 +173,7 @@ Button {
 
             RotationAnimator {
                 target: shape
-                running: ConnectionController.isConnectionInProgress
+                running: ConnectionController.isConnectionInProgress || ConnectionController.isSwitching
                 from: 0
                 to: 360
                 loops: Animation.Infinite

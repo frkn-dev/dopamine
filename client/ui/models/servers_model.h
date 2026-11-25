@@ -61,6 +61,16 @@ public:
         CountryCodeRole,
         CountryNameRole,
         NodeIpsRole,
+        // dial address for protocols whose config keeps it inside the stored
+        // xray-style blob (hysteria2): hostName stays what the tunnel dials,
+        // this falls back to the config's serverName/address for the card.
+        EndpointHostRole,
+        // TLS domain a hysteria2 row verifies against (its outbound serverName):
+        // the dial address can be an IP, and the card should name the domain too.
+        EndpointDomainRole,
+        // true when the row's latency is a server ping (proxy protocols: the
+        // tunnel itself cannot be handshake-probed from the client)
+        HealthPingRole,
         HealthLatencyRole
     };
 
@@ -122,8 +132,12 @@ public slots:
     const QString getDefaultServerHostName();
     const QStringList getDefaultServerNodeIps();
     // protocols present on servers of the given env ("" = all envs) — the server
-    // list filter never offers protocols the selected env doesn't have
-    QStringList availableProtocolsForEnv(const QString &env) const;
+    // list filter never offers protocols the selected env doesn't have.
+    // subscriptionId ("" = any) narrows the scan to one subscription, so with a
+    // subscription selected the list does not offer protocols that only other
+    // subscriptions (or legacy non-subscription configs) carry. The list's
+    // "Other" bucket sentinel ("__other__") means "rows without a subscription".
+    QStringList availableProtocolsForEnv(const QString &env, const QString &subscriptionId = QString()) const;
     QStringList availableEnvs() const;
     // distinct FRKN subscriptions present among stored servers, in first-seen
     // order (the server list numbers them "Subscription 1/2/...")
@@ -146,6 +160,89 @@ public slots:
     void addServer(const QJsonObject &server);
     void addServers(const QJsonArray &servers);
     void removeAllServers();
+
+    // Peers plane: one row per (env, pool). The row keeps the concrete card id
+    // of the selected protocol in `peerCardId` (that is what POST /v1/peers
+    // receives) and every protocol the pool serves in `peerVariants`; rows
+    // carry `peerCardId`, so the connect path can tell them from v1 configs,
+    // and keep their tunnel config once it exists — that cached config is the
+    // reason a second connect needs no api call.
+    //
+    // `rows` replaces every peer row of `subscriptionId`: a pool the api no
+    // longer offers loses its row, a known pool keeps the cached tunnel of each
+    // of its protocols.
+    void syncPeerCards(const QString &subscriptionId, const QJsonArray &rows);
+
+    // The api answered for this subscription and offered NO peer cards: the
+    // shard's grant no longer carries a card protocol (v1 -> v2 -> v1, a plan
+    // downgrade). Unlike syncPeerCards(empty), this answer is authoritative, so
+    // the stored pool rows must actually go — otherwise the old pool list stays
+    // on screen forever and the client looks like it ignores the migration.
+    void dropPeerCards(const QString &subscriptionId);
+
+    // Remove stored rows of THIS subscription that the api no longer returns.
+    // Guards, in order: only rows that came from our gateway api (a manually
+    // added config or another provider never matches), only rows that carry a
+    // connection uuid, and only when `keepConnectionUuids` is non-empty — an
+    // empty answer means "nothing fetched", not "everything deleted".
+    void pruneAbsentRows(const QString &subscriptionId, const QStringList &keepConnectionUuids);
+
+    // Rows whose connection the api no longer returns are gone for good: keep
+    // the ones present in `keepConnectionUuids`, drop the rest of THIS
+    // subscription (peer rows have no connection uuid and are not touched).
+    // QML: the server card uses this to tell a peers row from a v1 config row
+    // (empty = v1) and to pick the peer reload path.
+    Q_INVOKABLE QString peerCardId(const int serverIndex) const;
+    // The subscription a row belongs to (peers rows and v1 rows alike). A peer
+    // row written before `peerSubscriptionId` existed still names it through
+    // `auth_data.api_key`; the card reload needs it to rebuild that row.
+    Q_INVOKABLE QString subscriptionIdForRow(const int serverIndex) const;
+
+    // Switch a pool row to another of its protocol variants. The row keeps its
+    // position and its cached tunnel per protocol; the choice is written to the
+    // settings so a refresh and the next app start show the same protocol.
+    // Returns false when the row has no such variant (v1 row, unknown card).
+    Q_INVOKABLE bool setPeerPoolProtocol(const int serverIndex, const QString &cardId);
+    // TCP port the row's config dials (443 when the row has no port of its own).
+    Q_INVOKABLE int endpointPort(const int serverIndex) const;
+    // The list's protocol filter: every pool row that serves `protocol` is
+    // switched to it, so the row the user sees is the row that gets dialed.
+    // Pools without the protocol stay as they are (the view filters them out).
+    Q_INVOKABLE void applyPeerProtocolFilter(const QString &protocol);
+
+    // Stable identity of a row: `peer:<peerCardId>` for a peer card,
+    // `uuid:<connection_uuid>` for a v1 config, empty when the row carries
+    // neither. The selection is stored by this key because row positions drift
+    // on every model reset (subscription import appends rows, syncPeerCards
+    // rebuilds the peer rows), which silently moved the chosen card.
+    static QString selectionIdentity(const QJsonObject &row);
+    // Stored default-row identity, as written by setDefaultServerIndex().
+    QString defaultServerIdentity() const;
+    // The stored identity resolved to a row index; -1 when unknown or when the
+    // row no longer exists.
+    int rowIndexForDefaultIdentity() const;
+    // Same key, for a live row (empty when the row carries neither id).
+    Q_INVOKABLE QString rowIdentity(const int serverIndex) const;
+    // Row index that currently carries `identity`; -1 when the row is gone.
+    // Use this instead of a row number captured before a model refresh: a
+    // subscription import or a peers sync rebuilds the list in place, and the
+    // captured number then names another server.
+    Q_INVOKABLE int rowForIdentity(const QString &identity) const;
+    // Bumped whenever the row list is rebuilt. An index captured in an older
+    // generation points into a layout that no longer exists.
+    quint64 rowsGeneration() const { return m_rowsGeneration; }
+    bool peerRowHasConfig(const int serverIndex) const;
+    void setPeerConfig(const QString &cardId, const QJsonObject &protoConfig);
+    // Drops the cached tunnel of one card so the next connect rebuilds it, but
+    // keeps the tunnel the row already carries as a display-only snapshot
+    // (`peerConfigStale`): the card keeps showing its config right after a
+    // manual reload instead of an empty popup, and peerRowHasConfig() ignores
+    // the snapshot, so the rebuild still happens.
+    void invalidatePeerConfig(const QString &cardId);
+    // Record a successful connect on the row of `cardId` (`peerLastConnectedAt`,
+    // mirrored into the tunnel config). Support reads it next to the config's own
+    // provisioning time; nothing in the connect path depends on it.
+    void markPeerConnected(const QString &cardId);
     void editServer(const QJsonObject &server, const int serverIndex);
     void removeServer();
     void removeServer(const int serverIndex);
@@ -153,9 +250,12 @@ public slots:
     // subscription itself stays on the account, only this device forgets it.
     Q_INVOKABLE void removeSubscription(const QString &subscriptionId);
 
-    // health probe result for a server (key = row index): >=0 latency ms,
-    // -1 offline, missing = unknown
-    void setHealthResult(int serverIndex, int latencyMs);
+    // health result for a server row: >=0 latency ms, -1 offline, missing = unknown.
+    // The value belongs to the row AND the protocol card it was measured for — a
+    // pool row swaps cards in place, and the previous protocol's number must not
+    // survive the switch. `cardId` is the card the probe was queued for; empty
+    // means "whatever the row carries now".
+    void setHealthResult(int serverIndex, int latencyMs, const QString &cardId = QString());
     void clearHealthResults();
 
     // Per-address probe results (key = "host:port"). Needed to pick the address
@@ -205,11 +305,21 @@ public slots:
     // Порт протокола для строки: верхнеуровневый port, иначе порт контейнера
     // (у серверов из API верхнего порта нет вообще).
     int serverPort(int index) const;
+    QString hysteriaDialHost(const int index) const;
+    // First outbound that names a real server (address + port) whatever its
+    // protocol — vless, vmess, trojan, hysteria2. The ping probe needs the
+    // dial target of the row, not the row's label.
+    QJsonObject proxyDialOutbound(const int index) const;
+    QString proxyDialHost(const int index) const;
+    QString hysteriaDialDomain(const int index) const;
+    int hysteriaDialPort(const int index) const;
+    QJsonObject hysteriaDialOutbound(const int index) const;
     Q_INVOKABLE bool isEndpointUsable(const QString &host, const int port) const;
     // true while a fresh (<= 5 min) handshake failure is recorded
     Q_INVOKABLE bool isEndpointUnreachable(const QString &host, const int port) const;
 
     QJsonObject getServerConfig(const int serverIndex) const;
+    QJsonObject serverRow(const int serverIndex) const;
     QVariantMap getServerDisplayData(const int serverIndex) const;
 
     void reloadDefaultServerContainerConfig();
@@ -297,6 +407,14 @@ private:
 
     QString getServerDescription(const QJsonObject &server, const int index) const;
 
+    // User-selected row (the open card) resolved by identity: peer card id,
+    // uuid+node, uuid+pool+protocol, pool+protocol, then the stored index.
+    // -1 when nothing matches.
+    int rowIndexForUserSelection() const;
+    // Writes `Servers/defaultServerIndex` (still the compatibility key) and the
+    // matching identity, so the next reset can restore by identity.
+    void persistDefaultSelection(const int index);
+
     bool isAmneziaDnsContainerInstalled(const int serverIndex) const;
 
     bool serverHasInstalledContainers(const int serverIndex) const;
@@ -308,6 +426,12 @@ private:
     void recomputeAvailableSubscriptions();
 
     QJsonArray m_servers;
+
+    // Row layout generation: incremented before every rebuild of m_servers so
+    // that work started on one layout (health probes, auto-select candidates)
+    // can tell that its row numbers no longer describe the current list.
+    quint64 m_rowsGeneration = 0;
+    void bumpRowsGeneration() { ++m_rowsGeneration; }
 
     std::shared_ptr<Settings> m_settings;
 
@@ -325,7 +449,13 @@ private:
 
     QStringList m_availableSubscriptions;
 
-    QHash<int, int> m_healthResults;
+    struct HealthResult
+    {
+        QString cardId; // protocol card the value was measured for (empty: v1 row)
+        int latencyMs = -2;
+    };
+
+    QHash<int, HealthResult> m_healthResults;
 
     static constexpr qint64 kEndpointHealthTtlMs = 5 * 60 * 1000;
 

@@ -77,9 +77,9 @@ PageType {
                 if (ServersModel.isDefaultServerCurrentlyProcessed() && ConnectionController.isConnected) {
                     PageController.showNotificationMessage(qsTr("Cannot remove server during active connection"))
                 } else {
-                    PageController.showBusyIndicator(true)
+                    PageController.busyOn()
                     InstallController.removeProcessedServer()
-                    PageController.showBusyIndicator(false)
+                    PageController.busyOff()
                 }
             }
             var noButtonFunction = function() {
@@ -107,9 +107,9 @@ PageType {
                 if (ServersModel.isDefaultServerCurrentlyProcessed() && ConnectionController.isConnected) {
                     PageController.showNotificationMessage(qsTr("Cannot reset API config during active connection"))
                 } else {
-                    PageController.showBusyIndicator(true)
+                    PageController.busyOn()
                     InstallController.removeApiConfig(ServersModel.processedIndex)
-                    PageController.showBusyIndicator(false)
+                    PageController.busyOff()
                 }
             }
             var noButtonFunction = function() {

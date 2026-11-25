@@ -1,6 +1,7 @@
 #include "apiUtils.h"
 
 #include <QDateTime>
+#include <QDebug>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -248,6 +249,36 @@ QJsonObject apiUtils::translateLegacyHysteria2Outbound(const QJsonObject &outbou
     QJsonObject hysteriaSettings;
     hysteriaSettings[QStringLiteral("version")] = 2;
     hysteriaSettings[QStringLiteral("auth")] = server.value(QStringLiteral("password")).toString();
+
+    // hysteria2 obfs (salamander). The config carries it in hysteria2's own
+    // nested shape (`obfs: {type: salamander, salamander: {password}}`); the core
+    // does not know that block — it applies obfuscation as a UDP final mask.
+    // Dropping it here is what would make an obfs-only pool dial plain QUIC and
+    // get nothing back, so it is translated instead of ignored.
+    const QJsonObject obfs = outbound.value(QStringLiteral("settings")).toObject()
+                                     .value(QStringLiteral("obfs")).toObject();
+    const QString obfsType = obfs.value(QStringLiteral("type")).toString().trimmed();
+    if (!obfsType.isEmpty()) {
+        const QString password =
+                obfs.value(obfsType).toObject().value(QStringLiteral("password")).toString();
+        if (!password.isEmpty()) {
+            if (password.size() < 4) {
+                // hysteria2 refuses a PSK shorter than 4 bytes; pass it through
+                // anyway would only fail at handshake with a misleading error.
+                qWarning() << "[H2] obfs password is shorter than 4 bytes, dropping obfs";
+            } else {
+                QJsonObject mask;
+                mask[QStringLiteral("type")] = obfsType;
+                mask[QStringLiteral("settings")] =
+                        QJsonObject { { QStringLiteral("password"), password } };
+                QJsonObject finalMask = streamSettings.value(QStringLiteral("finalmask")).toObject();
+                QJsonArray udpMasks = finalMask.value(QStringLiteral("udp")).toArray();
+                udpMasks.append(mask);
+                finalMask[QStringLiteral("udp")] = udpMasks;
+                streamSettings[QStringLiteral("finalmask")] = finalMask;
+            }
+        }
+    }
 
     streamSettings[QStringLiteral("network")] = QStringLiteral("hysteria");
     streamSettings[QStringLiteral("tlsSettings")] = tlsSettings;

@@ -147,9 +147,9 @@ PageType {
         placeholderText: qsTr("192.168.0.0/16 or 10.0.0.1")
 
         onAddClicked: function(text) {
-            PageController.showBusyIndicator(true)
+            PageController.busyOn()
             LocalSubnetExclusionsController.addSubnet(text)
-            PageController.showBusyIndicator(false)
+            PageController.busyOff()
         }
 
         onMoreClicked: {

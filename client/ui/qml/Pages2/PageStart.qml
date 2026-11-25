@@ -103,7 +103,7 @@ PageType {
         target: InstallController
 
         function onInstallationErrorOccurred(error) {
-            PageController.showBusyIndicator(false)
+            PageController.busyOff()
 
             PageController.showErrorMessage(error)
         }
@@ -137,9 +137,9 @@ PageType {
         }
 
         function onRestoreAppConfig(data) {
-            PageController.showBusyIndicator(true)
+            PageController.busyOn()
             SettingsController.restoreAppConfigFromData(data)
-            PageController.showBusyIndicator(false)
+            PageController.busyOff()
         }
     }
 

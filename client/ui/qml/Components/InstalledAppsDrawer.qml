@@ -17,9 +17,9 @@ DrawerType2 {
     expandedHeight: parent.height * 0.9
 
     onAboutToShow: {
-        PageController.showBusyIndicator(true)
+        PageController.busyOn()
         installedAppsModel.updateModel()
-        PageController.showBusyIndicator(false)
+        PageController.busyOff()
     }
 
     InstalledAppsModel {
@@ -137,9 +137,9 @@ DrawerType2 {
             text: qsTr("Add selected")
 
             clickedFunc: function() {
-                PageController.showBusyIndicator(true)
+                PageController.busyOn()
                 AppSplitTunnelingController.addApps(installedAppsModel.getSelectedAppsInfo())
-                PageController.showBusyIndicator(false)
+                PageController.busyOff()
                 root.closeTriggered()
             }
         }

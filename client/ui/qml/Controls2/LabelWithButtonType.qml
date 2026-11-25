@@ -2,6 +2,8 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import Qt5Compat.GraphicalEffects
+
 import Style 1.0
 
 import "TextTypes"
@@ -35,6 +37,9 @@ Item {
 
     property string borderFocusedColor: DopamineStyle.color.paleGray
     property int borderFocusedWidth: 1
+
+    // Left icon tint: dark enough to read against the page in both themes.
+    property string leftImageColor: DopamineStyle.color.mutedGray
 
     property string rightImageColor: DopamineStyle.color.paleGray
 
@@ -140,6 +145,13 @@ Item {
 
                 anchors.centerIn: parent
                 source: leftImageSource
+
+                // The icon needs a tint to read against the page: the plain SVG
+                // is black-on-white, and the dark theme turns it invisible.
+                layer.enabled: true
+                layer.effect: ColorOverlay {
+                    color: leftImageColor
+                }
             }
         }
 

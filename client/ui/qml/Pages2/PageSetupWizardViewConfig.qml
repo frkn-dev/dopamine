@@ -46,7 +46,7 @@ PageType {
         target: ImportController
 
         function onImportErrorOccurred(error, goToPageHome) {
-            PageController.showBusyIndicator(false)
+            PageController.busyOff()
             if (goToPageHome) {
                 PageController.goToStartPage()
             } else {
@@ -55,7 +55,7 @@ PageType {
         }
 
         function onImportFinished() {
-            PageController.showBusyIndicator(false)
+            PageController.busyOff()
             if (!ConnectionController.isConnected) {
                 ServersModel.setDefaultServerIndex(ServersModel.getServersCount() - 1);
                 ServersModel.processedIndex = ServersModel.defaultIndex
@@ -229,7 +229,7 @@ PageType {
                     if (cloakingCheckBoxItem.checked) {
                         ImportController.processNativeWireGuardConfig()
                     }
-                    PageController.showBusyIndicator(true)
+                    PageController.busyOn()
                     ImportController.importConfig()
                 }
             }

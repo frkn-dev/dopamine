@@ -13,6 +13,7 @@
 
 class HealthCheckController;
 class ApiConfigsController;
+class PeersImportController;
 class QTcpSocket;
 
 class ConnectionController : public QObject
@@ -22,6 +23,9 @@ class ConnectionController : public QObject
 public:
     Q_PROPERTY(bool isConnected READ isConnected NOTIFY connectionStateChanged)
     Q_PROPERTY(bool isConnectionInProgress READ isConnectionInProgress NOTIFY connectionStateChanged)
+    // Card switch while a tunnel is up: the old tunnel is being torn down and the
+    // new one is dialed, so the button must keep its progress ring running.
+    Q_PROPERTY(bool isSwitching READ isSwitching NOTIFY connectionStateChanged)
     Q_PROPERTY(QString connectionStateText READ connectionStateText NOTIFY connectionStateChanged)
     Q_PROPERTY(QString currentEndpoint READ currentEndpoint NOTIFY connectionStateChanged)
     Q_PROPERTY(QString downloadSpeed READ downloadSpeed NOTIFY speedChanged)
@@ -40,9 +44,13 @@ public:
     // used by auto selection to install per-row configs from the gateway (they are
     // otherwise fetched lazily on the first manual connect)
     void setApiConfigsController(ApiConfigsController *apiConfigsController);
+    // Peers rows carry no config until the tunnel is created for the card; this
+    // controller builds it on the first connect (background, then `tunnelReady`).
+    void setPeersImportController(PeersImportController *peersImportController);
 
     bool isConnected() const;
     bool isConnectionInProgress() const;
+    bool isSwitching() const;
     QString connectionStateText() const;
     QString currentEndpoint() const { return m_currentEndpoint; }
     // байты, прошедшие через туннель в этой сессии (для отчёта)
@@ -57,6 +65,13 @@ public:
     bool isWaitingForNetwork() const { return m_waitingForNetwork; }
 
 public slots:
+    // --- identity of the row the live tunnel runs on -------------------------
+    // Public on purpose: QML can only call Q_INVOKABLE methods declared in a
+    // public section — in a private one they exist in the meta-object but the
+    // engine reports "is not a function" (the row's green dot never painted).
+    Q_INVOKABLE bool isConnectedToRow(const int serverIndex);
+    Q_INVOKABLE bool isConnectedToCard(const QString &cardId);
+
     void toggleConnection();
 
     void openConnection();
@@ -90,7 +105,6 @@ private:
     void connectToServerIndex(int serverIndex);
     void connectToServerIndexWithIp(int serverIndex, const QString &ip, int port = 0);
 
-    // --- выбор адресов пула (пользователь может выключить отдельные IP) ---
     Q_INVOKABLE QStringList poolAddresses();
     // адреса текущего пула, которые пользователь выключил (для биндинга тумблеров)
     Q_INVOKABLE QStringList poolDisabledAddresses();
@@ -211,6 +225,9 @@ private:
     // expiry: try the next pool address, otherwise fail loudly.
     QTimer *m_manualConnectTimer = nullptr;
     static constexpr int kManualConnectTimeoutMs = 20000;
+    // Upper bound for a peer being created by the api: without it the connect
+    // button could sit on "Setting up your access…" for ever.
+    static constexpr int kPeerPrepareTimeoutMs = 15000;
     // «Preparing» дольше этого = валидация конфига зависла (плохая сеть):
     // не ждём api, идём по сохранённому конфигу и перебираем адреса.
     static constexpr int kPrepareWatchdogMs = 7000;
@@ -235,6 +252,11 @@ private:
         int row;
         int tier;
         int latency; // >=0 rtt ms, -1 offline, -2 not probed
+        // Stable identity of the row (peer card id / connection uuid). A probe
+        // round or a subscription refresh rebuilds the list under us, and the
+        // captured `row` then names a different server: the dial and the
+        // "selected server" write both re-resolve through this key.
+        QString identity;
     };
 
     enum class AutoPhase { None, Probing, Connecting };
@@ -247,6 +269,12 @@ private:
     void connectCurrentAutoCandidate();
     void cancelAutoSelection();
     void finalizeAutoSuccess();
+    // Re-binds the candidate list to the current row layout after a model reset;
+    // a candidate whose row is gone is dropped instead of being dialled by a
+    // number that now belongs to another server.
+    void onServersModelReset();
+    // Row the candidate points at right now, -1 when it no longer exists.
+    int resolveAutoCandidateRow(const AutoCandidate &candidate) const;
 
     QList<AutoCandidate> buildAutoCandidates() const;
     void installMissingConfigs();
@@ -262,10 +290,29 @@ private:
     // зато не 30 секунд до переключения).
     bool m_awaitConnectProbe = false;
     int m_awaitConnectRow = -1;
+    // Identity of the row the pre-connect probe was started for: the probe takes
+    // seconds and the list can be rebuilt meanwhile, so the answer is applied to
+    // the card, not to the number it used to sit on.
+    QString m_awaitConnectIdentity;
     QTimer *m_connectProbeGuard = nullptr;
     QMetaObject::Connection m_connectProbeConn;
     bool connectNeedsProbe(int serverIndex);
     ApiConfigsController *m_apiConfigsController = nullptr;
+    PeersImportController *m_peersImportController = nullptr;
+    // Row waiting for its lazily created tunnel config. The card id pins the
+    // wait to the card itself: a background refresh can reorder rows, and the
+    // stored index would then point at another server.
+    int m_peersPendingRow = -1;
+    QString m_peersPendingCardId;
+    // One reprovision-and-retry per user attempt on a failed peer connect: a
+    // failed handshake with a stale config is worth one fresh provision, a second
+    // failure is reported. Reset on every new attempt (openConnection /
+    // toggleConnection). `m_peersReprovisionCardId` pins the wait to the card, so
+    // a list rebuild during the call cannot land the retry on another row.
+    bool m_peersReprovisionTried = false;
+    QString m_peersReprovisionCardId;
+    // Current row of the pending card; -1 when the row no longer exists.
+    int resolvePendingCardRow(int serverIndex) const;
     AutoPhase m_autoPhase = AutoPhase::None;
     QList<AutoCandidate> m_autoCandidates;
     int m_autoCandidatePos = 0;
@@ -321,6 +368,8 @@ private:
     // Connecting, и юзер не понимает, что происходит.
     int m_pendingSwitchRow = -1;
     bool m_switchWaiting = false;
+    // Card the live tunnel belongs to (empty for v1 rows).
+    QString m_lastConnectedCardId;
     // Идентичность строки, на которой мы реально поднялись в этой сессии.
     // Быстрый путь имеет смысл только для неё: при смене карточки юзер должен
     // видеть «Calculating best options…», а не непонятный дозвон в пустоту.

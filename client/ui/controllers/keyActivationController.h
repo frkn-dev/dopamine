@@ -20,7 +20,9 @@ signals:
     // key already activated and linked to a subscription (e.g. app reinstall) —
     // proceed to import that subscription right away
     void keyAlreadyLinked(const QString &subscriptionId);
-    // key is valid but not activated yet — ask the user to confirm activation
+    // key is valid but not activated yet — the controller chains activation by
+    // itself (see validateKey), so this only carries the plan details used by
+    // the drawer when the api asks for an email
     void keyValidationPassed(const QString &code, int days, int trafficGib, bool isLite);
     void keyActivated(const QString &subscriptionId);
     // the server asked for an email on activation (lite keys) — show the email input and retry

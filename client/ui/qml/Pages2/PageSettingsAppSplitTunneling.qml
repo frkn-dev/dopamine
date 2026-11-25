@@ -246,7 +246,7 @@ PageType {
 
                 clickedFunc: function() {
                     searchField.focus = false
-                    PageController.showBusyIndicator(true)
+                    PageController.busyOn()
 
                     if (Qt.platform.os === "windows") {
                         var fileName = SystemController.getFileName(qsTr("Select the application's .exe file"),
@@ -258,7 +258,7 @@ PageType {
                         installedAppDrawer.openTriggered()
                     }
 
-                    PageController.showBusyIndicator(false)
+                    PageController.busyOff()
                 }
             }
         }

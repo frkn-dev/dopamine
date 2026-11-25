@@ -96,10 +96,10 @@ PageType {
     }
 
     function deactivateExternalDevice(supportTag, countryCode) {
-        PageController.showBusyIndicator(true)
+        PageController.busyOn()
         if (ApiConfigsController.deactivateExternalDevice(supportTag, countryCode)) {
             ApiSettingsController.getAccountInfo(true)
         }
-        PageController.showBusyIndicator(false)
+        PageController.busyOff()
     }
 }
