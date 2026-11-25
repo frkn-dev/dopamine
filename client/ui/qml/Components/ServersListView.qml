@@ -797,7 +797,12 @@ ListViewType {
                                     radius: 5
 
                                     // hidden only when the offline cross takes its place
+                                    // and, while the tunnel is up, for rows with no
+                                    // measurement: probing is off there, so a grey
+                                    // placeholder would never fill in
                                     visible: variant.healthLatency !== -1
+                                             && (variant.healthLatency >= 0
+                                                 || !ConnectionController.isConnected)
                                     // A proxy-protocol row carries a ping, not a
                                     // tunnel handshake: a neutral dot, no verdict
                                     // colour that would read as "tunnel is up".
