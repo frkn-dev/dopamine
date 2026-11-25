@@ -787,21 +787,27 @@ ListViewType {
                                 Layout.rightMargin: 8
                                 spacing: 6
 
-                                visible: variant.healthLatency !== -2
-
+                                // The status dot is not part of the pings option:
+                                // it stays on every row whatever the setting says,
+                                // only the digits behind it are gated.
                                 Rectangle {
                                     Layout.alignment: Qt.AlignVCenter
                                     width: 10
                                     height: 10
                                     radius: 5
 
-                                    visible: variant.healthLatency >= 0
+                                    // hidden only when the offline cross takes its place
+                                    visible: variant.healthLatency !== -1
                                     // A proxy-protocol row carries a ping, not a
                                     // tunnel handshake: a neutral dot, no verdict
                                     // colour that would read as "tunnel is up".
+                                    // Unknown (-2, not probed yet) is neutral grey
+                                    // instead of a missing dot.
                                     color: variant.healthPing
                                            ? DopamineStyle.color.paleGray
-                                           : (variant.healthLatency < 120 ? "#34C759" : (variant.healthLatency < 300 ? "#FF9F0A" : "#FF453A"))
+                                           : (variant.healthLatency < 0
+                                              ? DopamineStyle.color.mutedGray
+                                              : (variant.healthLatency < 120 ? "#34C759" : (variant.healthLatency < 300 ? "#FF9F0A" : "#FF453A")))
                                 }
 
                                 Image {
@@ -822,7 +828,11 @@ ListViewType {
                                 CaptionTextType {
                                     Layout.alignment: Qt.AlignVCenter
 
+                                    // digits only with the option on, and only
+                                    // when there is something to show: an unknown
+                                    // row must not read "offline"
                                     visible: SettingsController.isServerPingTextVisible
+                                             && variant.healthLatency !== -2
                                     text: variant.healthLatency >= 0
                                           ? (variant.healthPing ? "ping " + variant.healthLatency + " ms"
                                                                 : variant.healthLatency + " ms")
