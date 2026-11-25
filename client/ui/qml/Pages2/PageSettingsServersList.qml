@@ -175,6 +175,11 @@ PageType {
             implicitWidth: 48
             implicitHeight: 48
 
+            // Measuring through a live tunnel describes the exit server, not
+            // this one — the controller refuses the call, so the button should
+            // not invite it.
+            visible: !ConnectionController.isConnected
+
             onClicked: HealthCheckController.startProbe(true)
         }
 
