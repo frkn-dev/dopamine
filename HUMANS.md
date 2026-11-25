@@ -1,6 +1,19 @@
 # HUMANS.md
 
 ## Current
+- **Релиз 4.8.14.190 собран и выложен (25.11):** коммиты `2fbffbe7` + `f9a17fb5` (dev), сайт `a39b96d`.
+  macOS arm64 + intel PKG (нотаризованы, stapled), Android arm64 + armeabi-v7a APK,
+  Windows MSI `Dopamine-4.8.190-win64.msi` (**не подписан**: на HOME-PC нет сертификата),
+  iOS в TestFlight (delivery `01c1f5f6`).
+  В релизе: точка статуса сервера остаётся при выключенных пингах, серые «не замерено»
+  точки убраны при подключённом туннеле, кнопка замера пинга скрывается при подключении
+  (регрессия переноса хедера в 186 — потеряли `visible: !ConnectionController.isConnected`).
+  188 и 189 не выкладывались.
+  **Грабля экспорта IPA:** `/usr/bin/rsync` на macOS 15 — это openrsync, и шаг
+  `IDEDistributionCreateIPAStep` падает с `Copy failed` / `rsync ... [server=3.4.1]`.
+  Обход: подписать `Dopamine.app` и `FRKNNetworkExtension.appex` профилями
+  «Dopamine App Store» / «Dopamine NE App Store» сертификатом **iPhone Distribution: FRKN LLP**
+  (не Apple Distribution), из entitlements убрать `hotspot-provider`, затем zip в Payload/ и `altool --upload-app`.
 - **Релиз 4.8.14.187 собран и выложен (25.11):** коммит `864715e8` (dev, запушен), сайт `c869456`.
   macOS arm64 + intel PKG (нотаризованы, stapled), Android arm64 + armeabi-v7a APK,
   Windows MSI `Dopamine-4.8.187-win64.msi` (**не подписан**: на HOME-PC нет сертификата),
