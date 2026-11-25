@@ -32,8 +32,11 @@ void SystemController::saveFile(const QString &fileName, const QString &data)
 #endif
 
 #ifdef Q_OS_IOS
-    QUrl fileUrl = QDir::tempPath() + "/" + fileName;
-    QFile file(fileUrl.toString());
+    // A filesystem path must not be turned into a QUrl implicitly: the share
+    // sheet then receives initFileURLWithPath: with a percent-encoded or
+    // scheme-less string, which yields nil and crashes on addObject:nil.
+    const QString tempPath = QDir::tempPath() + "/" + fileName;
+    QFile file(tempPath);
 #else
     QFile file(fileName);
 #endif
@@ -45,8 +48,7 @@ void SystemController::saveFile(const QString &fileName, const QString &data)
 
 #ifdef Q_OS_IOS
     QStringList filesToSend;
-    filesToSend.append(fileUrl.toString());
-    // todo check if save successful
+    filesToSend.append(QUrl::fromLocalFile(tempPath).toString());
     IosController::Instance()->shareText(filesToSend);
     return;
 #else

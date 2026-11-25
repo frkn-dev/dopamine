@@ -1400,12 +1400,31 @@ bool IosController::shareText(const QStringList& filesToSend) {
     NSMutableArray *sharingItems = [NSMutableArray new];
 
     for (int i = 0; i < filesToSend.size(); i++) {
-        NSURL *logFileUrl = [[NSURL alloc] initFileURLWithPath:filesToSend[i].toNSString()];
-        [sharingItems addObject:logFileUrl];
+        // Accept both a plain path and a file:// URL: initFileURLWithPath: on a
+        // URL string yields a wrong path, and a nil item then crashes the share
+        // sheet on addObject:.
+        NSString *item = filesToSend[i].toNSString();
+        NSURL *fileUrl = nil;
+        if ([item hasPrefix:@"file://"]) {
+            NSString *path = [NSURL URLWithString:item].path;
+            if (path.length > 0) {
+                fileUrl = [NSURL fileURLWithPath:path];
+            }
+        } else if (item.length > 0) {
+            fileUrl = [NSURL fileURLWithPath:item];
+        }
+        if (fileUrl) {
+            [sharingItems addObject:fileUrl];
+        }
+    }
+    if (sharingItems.count == 0) {
+        return false;
     }
 #if !MACOS_NE
     UIViewController *qtController = getViewController();
-    if (!qtController) return;
+    // Presenting on top of an already presented controller raises an ObjC
+    // exception that terminates the app.
+    if (!qtController || qtController.presentedViewController) return false;
 
     UIActivityViewController *activityController = [[UIActivityViewController alloc] initWithActivityItems:sharingItems applicationActivities:nil];
 #endif
