@@ -140,10 +140,28 @@ PageType {
         }
 
         // No title here: the list itself says what it is, and the freed space
-        // goes to the action buttons (measure ping, reload, add).
+        // goes to the action buttons (help, measure ping, reload, add).
         Item {
             Layout.fillWidth: true
             Layout.leftMargin: 16
+        }
+
+        ImageButtonType {
+            id: helpButton
+
+            Layout.rightMargin: 4
+
+            // The same explainer Settings links to: what this list is, what the
+            // protocols mean and where the traffic ends up.
+            visible: true
+
+            image: "qrc:/images/controls/info.svg"
+            imageColor: DopamineStyle.color.paleGray
+
+            implicitWidth: 48
+            implicitHeight: 48
+
+            onClicked: PageController.goToPage(PageEnum.PageHowItWorks)
         }
 
         ImageButtonType {

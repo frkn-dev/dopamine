@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
 
 import PageEnum 1.0
 import Style 1.0
@@ -48,8 +49,153 @@ PageType {
                 Layout.topMargin: 8
                 Layout.bottomMargin: 20
 
-                headerText: qsTr("You pick the entry. We find the exit.")
-                descriptionText: qsTr("Connect to whichever server works best for you. Where the traffic goes is decided for you, and does not depend on that choice.")
+                headerText: qsTr("Servers, protocols, routes")
+                descriptionText: qsTr("You pick where to connect and with which protocol. Where the traffic actually goes is decided by the service — the rules are further down.")
+            }
+
+            // ---- What the server list is -------------------------------------
+            // Section headings are small caps like on the site: the source text
+            // stays normal case, the font does the uppercasing, so RU/UK
+            // translations keep their usual spelling.
+            Text {
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+                Layout.bottomMargin: 10
+
+                text: qsTr("The server list")
+                color: DopamineStyle.color.mutedGray
+                font.pixelSize: 11
+                font.weight: 700
+                font.letterSpacing: 1.6
+                font.capitalization: Font.AllUppercase
+            }
+
+            Repeater {
+                model: root.listItems
+
+                delegate: RowLayout {
+                    Layout.fillWidth: true
+                    Layout.leftMargin: 16
+                    Layout.rightMargin: 16
+                    Layout.bottomMargin: 10
+
+                    spacing: 10
+
+                    Text {
+                        Layout.alignment: Qt.AlignTop
+
+                        text: "·"
+                        color: DopamineStyle.color.goldenApricot
+                        font.pixelSize: 16
+                        font.weight: 700
+                    }
+
+                    LabelTextType {
+                        Layout.fillWidth: true
+
+                        text: modelData
+                        color: DopamineStyle.color.mutedGray
+                        wrapMode: Text.Wrap
+                    }
+                }
+            }
+
+            // ---- Protocols ---------------------------------------------------
+            Text {
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+                Layout.topMargin: 10
+                Layout.bottomMargin: 4
+
+                text: qsTr("Protocols")
+                color: DopamineStyle.color.mutedGray
+                font.pixelSize: 11
+                font.weight: 700
+                font.letterSpacing: 1.6
+                font.capitalization: Font.AllUppercase
+            }
+
+            Repeater {
+                model: root.protocolItems
+
+                delegate: ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 0
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.leftMargin: 16
+                        Layout.rightMargin: 16
+                        Layout.topMargin: 12
+                        Layout.bottomMargin: 12
+
+                        spacing: 12
+
+                        Item {
+                            Layout.alignment: Qt.AlignTop
+                            Layout.preferredWidth: 26
+                            Layout.preferredHeight: 22
+
+                            Image {
+                                anchors.centerIn: parent
+
+                                source: modelData.icon
+                                sourceSize.width: 22
+                                sourceSize.height: 22
+                                fillMode: Image.PreserveAspectFit
+
+                                // monochrome marks: the app tints icons through a
+                                // ColorOverlay, same as the rest of the interface
+                                layer.enabled: true
+                                layer.effect: ColorOverlay {
+                                    color: DopamineStyle.color.paleGray
+                                }
+                            }
+                        }
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 3
+
+                            Text {
+                                Layout.fillWidth: true
+
+                                // Protocol names are not translated (AGENTS.md)
+                                text: modelData.title
+                                color: DopamineStyle.color.paleGray
+                                font.pixelSize: 15
+                                font.weight: 600
+                                font.family: "IBM Plex Mono"
+                                wrapMode: Text.Wrap
+                            }
+
+                            LabelTextType {
+                                Layout.fillWidth: true
+
+                                text: modelData.description
+                                color: DopamineStyle.color.mutedGray
+                                wrapMode: Text.Wrap
+                            }
+                        }
+                    }
+
+                    DividerType {
+                        Layout.fillWidth: true
+                        Layout.leftMargin: 16
+                        Layout.rightMargin: 16
+                    }
+                }
+            }
+
+            CaptionTextType {
+                Layout.fillWidth: true
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+                Layout.topMargin: 12
+
+                text: qsTr("Switch the protocol with the pill in the server row — several pills mean the server speaks more than one. The choice applies at once and the tunnel re-dials.")
+                color: DopamineStyle.color.mutedGray
+                wrapMode: Text.Wrap
             }
 
             // Same diagram as frkn-docs/user-routing-scheme.svg (device → entry →
@@ -186,7 +332,7 @@ PageType {
                         CaptionTextType {
                             Layout.fillWidth: true
 
-                            text: qsTr("we pick the best exit")
+                            text: qsTr("we find the best exit")
                             color: DopamineStyle.color.mutedGray
                             horizontalAlignment: Text.AlignHCenter
                         }
@@ -210,16 +356,24 @@ PageType {
 
                         spacing: 12
 
-                        Text {
+                        Item {
                             Layout.alignment: Qt.AlignTop
                             Layout.preferredWidth: 26
+                            Layout.preferredHeight: 20
 
-                            // the icon is the one from the approved copy; emoji come
-                            // from the system fallback font, the text below stays
-                            // in IBM Plex Mono
-                            text: modelData.icon
-                            font.pixelSize: 18
-                            horizontalAlignment: Text.AlignHCenter
+                            Image {
+                                anchors.centerIn: parent
+
+                                source: modelData.icon
+                                sourceSize.width: 18
+                                sourceSize.height: 18
+                                fillMode: Image.PreserveAspectFit
+
+                                layer.enabled: true
+                                layer.effect: ColorOverlay {
+                                    color: DopamineStyle.color.mutedGray
+                                }
+                            }
                         }
 
                         ColumnLayout {
@@ -256,14 +410,52 @@ PageType {
             }
 
             // The honest footnote: a missing exit never gets replaced silently.
-            CaptionTextType {
+            // It is a promise about bans, not a detail — the warning frame and the
+            // triangle keep it from reading as fine print.
+            Rectangle {
                 Layout.fillWidth: true
                 Layout.leftMargin: 16
                 Layout.rightMargin: 16
                 Layout.topMargin: 16
+                Layout.preferredHeight: warningRow.implicitHeight + 24
 
-                text: qsTr("If an exit is down, the service will not open — we never silently switch you to another country, so you don't get banned.")
-                color: DopamineStyle.color.mutedGray
+                radius: 12
+                color: DopamineStyle.color.sheerWhite
+                border.color: DopamineStyle.color.goldenApricot
+                border.width: 1
+
+                RowLayout {
+                    id: warningRow
+
+                    anchors.fill: parent
+                    anchors.margins: 12
+
+                    spacing: 10
+
+                    Image {
+                        Layout.alignment: Qt.AlignTop
+                        Layout.preferredWidth: 20
+                        Layout.preferredHeight: 20
+
+                        source: "qrc:/images/controls/alert-triangle.svg"
+                        sourceSize.width: 20
+                        sourceSize.height: 20
+                        fillMode: Image.PreserveAspectFit
+
+                        layer.enabled: true
+                        layer.effect: ColorOverlay {
+                            color: DopamineStyle.color.goldenApricot
+                        }
+                    }
+
+                    LabelTextType {
+                        Layout.fillWidth: true
+
+                        text: qsTr("If an exit is down, the service will not open — we never silently switch you to another country, so you don't get banned.")
+                        color: DopamineStyle.color.paleGray
+                        wrapMode: Text.Wrap
+                    }
+                }
             }
 
             RowLayout {
@@ -310,20 +502,76 @@ PageType {
     }
 
     // Row order follows the exits in frkn-docs/user-routing-scheme.svg
-    // (RU → US → KZ → separate → direct), so the list reads like the scheme.
+    // (RU → US → separate → direct), so the list reads like the scheme.
     property list<QtObject> routingItems: [
         countrySites,
         aiServices,
-        youtube,
         governmentSites,
         chineseAi,
         everythingElse
     ]
 
+    // What the screen with the list of servers is, in three lines.
+    property list<string> listItems: [
+        qsTr("These are entry points: the server your app connects to. A tap on a row connects, another tap moves the tunnel."),
+        qsTr("The ping next to a name shows how fast that server answers. “Auto-select” takes the best one for you."),
+        qsTr("The buttons above reload the list, filter it by subscription and add a server by hand.")
+    ]
+
+    // Protocol names stay as they are in the interface: AmneziaWG is a product
+    // name, not a word to translate (AGENTS.md).
+    property list<QtObject> protocolItems: [
+        protoAwg,
+        protoWg,
+        protoVless,
+        protoElephant,
+        protoHysteria
+    ]
+
+    QtObject {
+        id: protoAwg
+
+        readonly property string icon: "qrc:/images/controls/shield.svg"
+        readonly property string title: "AmneziaWG"
+        readonly property string description: qsTr("WireGuard with obfuscation: the packets do not look like a VPN, so DPI does not cut the tunnel. The default choice.")
+    }
+
+    QtObject {
+        id: protoWg
+
+        readonly property string icon: "qrc:/images/protocols/wireguard.svg"
+        readonly property string title: "WireGuard"
+        readonly property string description: qsTr("Plain WireGuard: the fastest of all, but easy to detect — your provider may throttle it.")
+    }
+
+    QtObject {
+        id: protoVless
+
+        readonly property string icon: "qrc:/images/protocols/vless.svg"
+        readonly property string title: "VLESS"
+        readonly property string description: qsTr("Xray over HTTPS: the session looks like ordinary web traffic. Use it where WireGuard is blocked.")
+    }
+
+    QtObject {
+        id: protoElephant
+
+        readonly property string icon: "qrc:/images/protocols/belyslon.svg"
+        readonly property string title: qsTr("White Elephant") + " · VLESS CDN"
+        readonly property string description: qsTr("VLESS through a CDN: the traffic rides along as regular requests to a popular site. Hardest to detect, but the slowest of the set.")
+    }
+
+    QtObject {
+        id: protoHysteria
+
+        readonly property string icon: "qrc:/images/controls/wind.svg"
+        readonly property string title: "Hysteria2"
+        readonly property string description: qsTr("QUIC over UDP: keeps its speed on lossy links and high ping. Needs UDP not to be filtered.")
+    }
+
     QtObject {
         id: countrySites
 
-        readonly property string icon: "🏦"
+        readonly property string icon: "qrc:/images/controls/credit-card.svg"
         readonly property string title: qsTr("Sites and services of your country, exchanges")
         readonly property string route: qsTr("via the RU exit")
     }
@@ -331,7 +579,7 @@ PageType {
     QtObject {
         id: governmentSites
 
-        readonly property string icon: "🏛️"
+        readonly property string icon: "qrc:/images/controls/file-text.svg"
         readonly property string title: qsTr("Government sites (Gosuslugi, Pochta, mos.ru, tax office)")
         readonly property string route: qsTr("via a separate exit — they reject our regular addresses")
     }
@@ -339,23 +587,15 @@ PageType {
     QtObject {
         id: aiServices
 
-        readonly property string icon: "🤖"
+        readonly property string icon: "qrc:/images/controls/cpu.svg"
         readonly property string title: qsTr("AI services (Claude, ChatGPT, Gemini)")
         readonly property string route: qsTr("via the US")
     }
 
     QtObject {
-        id: youtube
-
-        readonly property string icon: "▶️"
-        readonly property string title: qsTr("YouTube")
-        readonly property string route: qsTr("via Kazakhstan, which is why there are no built-in ads")
-    }
-
-    QtObject {
         id: chineseAi
 
-        readonly property string icon: "🌐"
+        readonly property string icon: "qrc:/images/controls/message-circle.svg"
         readonly property string title: qsTr("Chinese AI (DeepSeek, Qwen, Kimi)")
         readonly property string route: qsTr("straight from the server, faster and more stable")
     }
@@ -363,7 +603,7 @@ PageType {
     QtObject {
         id: everythingElse
 
-        readonly property string icon: "🔒"
+        readonly property string icon: "qrc:/images/controls/lock.svg"
         readonly property string title: qsTr("Everything else")
         readonly property string route: qsTr("straight from the server, no extra hops")
     }

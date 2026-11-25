@@ -50,7 +50,7 @@ PageType {
                 Layout.rightMargin: 16
                 Layout.leftMargin: 16
 
-                headerText: qsTr("Subscriptions")
+                headerText: qsTr("Subscription")
                 descriptionText: qsTr("Every subscription this device is linked to")
             }
 

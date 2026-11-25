@@ -8,7 +8,20 @@
         <file>images/dopamineBigLogo.png</file>
         <file>images/Dopamine.png</file>
         <file>images/pterodactyl.png</file>
+        <file>images/protocols/wireguard.svg</file>
+        <file>images/protocols/vless.svg</file>
+        <file>images/protocols/belyslon.svg</file>
+        <file>images/controls/cloud.svg</file>
+        <file>images/controls/cpu.svg</file>
+        <file>images/controls/credit-card.svg</file>
+        <file>images/controls/file-text.svg</file>
+        <file>images/controls/lock.svg</file>
+        <file>images/controls/message-circle.svg</file>
+        <file>images/controls/shield.svg</file>
+        <file>images/controls/wind.svg</file>
+        <file>images/controls/youtube.svg</file>
         <file>images/controls/alert-circle.svg</file>
+        <file>images/controls/alert-triangle.svg</file>
         <file>images/controls/app.svg</file>
         <file>images/controls/archive-restore.svg</file>
         <file>images/controls/arrow-left.svg</file>

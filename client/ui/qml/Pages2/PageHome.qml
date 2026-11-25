@@ -76,6 +76,26 @@ PageType {
             anchors.topMargin: (root.isTv ? 24 : 12) + SettingsController.safeAreaTopMargin
             anchors.bottomMargin: root.isTv ? 24 + SettingsController.safeAreaBottomMargin : 16
 
+            // Site-style slogan above the orb. Never translated (AGENTS.md),
+            // so it is a plain literal rather than qsTr.
+            Text {
+                objectName: "homeSlogan"
+
+                Layout.alignment: Qt.AlignHCenter
+                Layout.topMargin: 2
+
+                text: "PRIVACY IS OUR RELIGION"
+
+                color: DopamineStyle.color.mutedGray
+                opacity: 0.5
+
+                font.pixelSize: 11
+                font.weight: 700
+                font.letterSpacing: 2.2
+
+                horizontalAlignment: Text.AlignHCenter
+            }
+
             BasicButtonType {
                 id: loggingButton
                 objectName: "loggingButton"
@@ -305,6 +325,25 @@ PageType {
                             wrapMode: Text.NoWrap
 
                             text: ServersModel.defaultServerProtocolName
+                        }
+
+                        // The old home card had a bitrate line; it came back as part
+                        // of the pings option — no pings, no numbers, same switch.
+                        CaptionTextType {
+                            objectName: "homeSpeedLine"
+
+                            Layout.fillWidth: true
+
+                            visible: ConnectionController.isConnected
+                                     && SettingsController.isServerPingTextVisible
+                                     && ConnectionController.downloadSpeed !== ""
+                            color: DopamineStyle.color.mutedGray
+                            font.pixelSize: root.isTv ? 16 : 12
+                            maximumLineCount: 1
+                            elide: Text.ElideRight
+                            wrapMode: Text.NoWrap
+
+                            text: "↓ " + ConnectionController.downloadSpeed + "   ↑ " + ConnectionController.uploadSpeed
                         }
                     }
 

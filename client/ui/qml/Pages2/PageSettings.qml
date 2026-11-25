@@ -161,7 +161,7 @@ PageType {
 
         // Every subscription of this device, even when there is only one:
         // ids, share codes and the plan state live here, not on the server card.
-        property string title: qsTr("Subscriptions")
+        property string title: qsTr("Subscription")
         readonly property string leftImagePath: "qrc:/images/controls/tag.svg"
         property bool isVisible: true
         readonly property var clickedHandler: function() {

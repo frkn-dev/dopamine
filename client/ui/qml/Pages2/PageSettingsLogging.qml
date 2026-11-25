@@ -107,7 +107,7 @@ PageType {
                 Layout.rightMargin: 16
 
                 text: qsTr("Show server ping values")
-                descriptionText: qsTr("By default the server list shows only a colored status dot. Enable to see the exact latency in milliseconds.")
+                descriptionText: qsTr("By default the server list shows only a colored status dot. Enable to see the exact latency in milliseconds and the current speed on the main screen.")
 
                 checked: SettingsController.isServerPingTextVisible
 
