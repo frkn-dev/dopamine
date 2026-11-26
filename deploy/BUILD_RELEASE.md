@@ -260,11 +260,57 @@ ssh -i ~/.ssh/dopamine_win <user>@<ip> \
 `deploy\build_windows_local.bat`, дописывая лог в `C:\setup\build_msi.log`.
 Запускать через `schtasks`, иначе сборка умрёт вместе с ssh-сессией.
 
+## 4a. Linux .bin (на build01, ~15 мин + сетап)
+
+Собирается не на маке и не на api-хосте: `build01.beacon.frkn.org` (45.9.13.213,
+Ubuntu 24.04). Готовится один раз:
+
+```bash
+# Qt 6.10.1: download.qt.io из РФ недоступен, берём зеркало и раскладываем руками
+# (aqt качает контрольные суммы с download.qt.io и падает даже с --base).
+# Пакеты: qt.qt6.6101.linux_gcc_64 + addons.qt5compat + addons.qtremoteobjects
+#         + addons.qtshadertools, архивы в <base>/qt.qt6.6101.<pkg>.linux_gcc_64/
+# Распаковать в /opt/Qt/6.10.1/gcc_64, libicu*.so.73 положить в lib/.
+apt-get install -y p7zip-full libgl1-mesa-dev libxkbcommon-x11-dev libdbus-1-dev \
+  libsecret-1-dev libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+  libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-xfixes0 libxcb-xinerama0
+```
+
+Дерево: shallow-клон (`.git` 21 МБ, полный 2.3 ГБ) + подмодули. `client/3rd/amneziawg-apple`
+(535 МБ) Linux не нужен, из `3rd-prebuilt` нужны только `deploy-prebuilt/linux` и
+`3rd-prebuilt/{amnezia_xray,libssh,openssl}/linux`; `agw_public.pem` не в гите — копировать
+с мака. Затем:
+
+```bash
+cd /root/build/dopamine
+export LD_LIBRARY_PATH=/opt/Qt/6.10.1/gcc_64/lib QT_BIN_DIR=/opt/Qt/6.10.1/gcc_64/bin
+bash deploy/build_linux.sh
+```
+
+`QT_VERSION` не задавать: скрипт в этом случае ищет Qt сам, а заданный ломает `set -u`.
+Артефакт — `deploy/Dopamine_Linux_Installer.bin`, имя на сайте
+`Dopamine-<версия>-linux-x64.bin`.
+
+**Грабли (проверено на 192):**
+
+- `libsecret-1-dev` нужен qtkeychain'у, иначе конфиг падает на `pkg_check_modules`.
+- `libQt6ShaderTools.so.6` и `libxcb-cursor.so.0` в дистрибутив не попадают: их грузят
+  QML-плагины в рантайме (`Qt5Compat/GraphicalEffects` → `ColorOverlay`), а не бинарь.
+  Без них приложение падает на первом экране с `Type ColorOverlay unavailable` и
+  segfault. Скрипт теперь добирает их сам (`deploy_missing_libs`).
+- `installer/config/linux.xml` генерируется `deploy/installer/config.cmake` из `linux.xml.in`
+  на шаге configure. Удалишь `deploy/build/installer` — `binarycreator` напечатает usage
+  вместо ошибки; лечится повторным `cmake -S . -B deploy/build`.
+- Приёмка: `--accept-licenses --accept-messages --confirm-command --root /tmp/inst install`,
+  затем `QT_QPA_PLATFORM=offscreen timeout 20 /tmp/inst/client/Dopamine.sh` — в логе должно
+  быть `Started Dopamine by FRKN version <версия>`, без `Type ... unavailable`.
+
 ## 5. Раскладка на сайт
 
 Скопировать артефакты в `~/c/f/frkn.org/dopamine/` с именами
 `frkn-dopamine-<версия>.apk`, `Dopamine-<версия>-win64.msi`,
-`Dopamine-arm64-<версия>.pkg`, `Dopamine-intel-<версия>.pkg`, поправить версию
+`Dopamine-arm64-<версия>.pkg`, `Dopamine-intel-<версия>.pkg`,
+`Dopamine-<версия>-linux-x64.bin`, поправить версию
 и дату в `~/c/f/frkn.org/dopamine/index.html` и `dopamine/en/index.html`.
 
 Там же обновить ченжлог под бейджем версии (`details.version-notes`). Бейдж
