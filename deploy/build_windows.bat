@@ -24,6 +24,12 @@ if not exist "%WIX_CLI%" (
     exit /b 1
 )
 
+REM CPack's WIX generator takes `wix` from PATH, and a newer WiX (7.x, installed
+REM for the SYSTEM profile) sits earlier there: it wants the paid OSMF licence
+REM and its own extensions, so packaging dies with WIX0144. The pinned 4.0.5 in
+REM WIX_BIN_DIR must win.
+set PATH=%WIX_BIN_DIR_UNQUOTED%;%PATH%
+
 REM Hold on to current directory
 set PROJECT_DIR=%cd%
 set SCRIPT_DIR=%PROJECT_DIR:"=%\deploy
