@@ -93,6 +93,55 @@ deploy_icu() {
 deploy_icu $BUILD_DIR/client/Dopamine $APP_DIR/client/lib
 deploy_icu $BUILD_DIR/service/server/dopamine-service $APP_DIR/service/lib
 
+# cqtdeployer follows the dependencies of the binaries, but QML plugins are
+# loaded at runtime: Qt5Compat/GraphicalEffects (ColorOverlay, used by the
+# controls) needs libQt6ShaderTools, which nothing links directly — the app then
+# dies on the first screen with
+#   cannot load .../libqtgraphicaleffectsprivateplugin.so: libQt6ShaderTools.so.6
+# Qt 6.5+ also needs libxcb-cursor for the xcb platform plugin, and it is not
+# part of a stock desktop install. Copy whatever the deployed ELF files still
+# miss out of the Qt install (and, for system libraries, from the build host).
+deploy_missing_libs() {
+  local round missing name src
+
+  for round in 1 2 3 4; do
+    missing=$(
+      for libdir in "$APP_DIR/client/lib" "$APP_DIR/service/lib"; do
+        find "$APP_DIR" -type f \( -name '*.so' -o -name '*.so.*' -o -name '*.plugin' \) -print0 2>/dev/null |
+          while IFS= read -r -d '' f; do
+            LD_LIBRARY_PATH="$libdir:$QT_BIN_DIR/../lib" ldd "$f" 2>/dev/null | awk '/not found/ {print $1}'
+          done
+      done | sort -u
+    )
+    [ -z "$missing" ] && break
+
+    for name in $missing; do
+      src=$(ls "$QT_BIN_DIR/../lib/$name"* 2>/dev/null | head -1)
+      # Optional Qt plugins (gtk3 platform theme, SQL drivers, wayland) pull in
+      # system libraries we do not ship: leave those alone, they are not loaded.
+      [ -z "$src" ] && continue
+      for dest in "$APP_DIR/client/lib" "$APP_DIR/service/lib"; do
+        cp -fL "$src" "$dest/"
+      done
+      echo "bundled missing library: $name"
+    done
+  done
+
+  # Not a Qt library, so it never lands in the loop above.
+  local xcb_cursor
+  xcb_cursor=$(ldconfig -p | awk '/libxcb-cursor\.so\.0 /{print $NF; exit}')
+  if [ -n "$xcb_cursor" ]; then
+    cp -fL "$xcb_cursor" "$APP_DIR/client/lib/"
+    echo "bundled $(basename "$xcb_cursor")"
+  fi
+}
+
+deploy_missing_libs
+
+echo "=== dependency check ==="
+LD_LIBRARY_PATH=$APP_DIR/client/lib ldd $APP_DIR/client/bin/Dopamine | grep "not found" || echo "client: all libraries resolved"
+LD_LIBRARY_PATH=$APP_DIR/service/lib ldd $APP_DIR/service/bin/dopamine-service | grep "not found" || echo "service: all libraries resolved"
+
 mkdir -p $INSTALLER_DATA_DIR
 rm -f $INSTALLER_DATA_DIR/data.7z
 
