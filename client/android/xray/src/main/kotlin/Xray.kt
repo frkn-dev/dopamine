@@ -80,17 +80,52 @@ class Xray : Protocol() {
             .put("loglevel", "warning")
             .put("access", "none") // disable access log
 
-        var xrayJsonConfigString = xrayJsonConfig.toString()
-        config.getString("hostName").let { hostName ->
+        // The endpoint must be dialled by address: resolving it inside xray would
+        // ask the system resolver while the tunnel is already up.
+        //
+        // This used to be a blind `json.replace(hostName, ip)` over the whole
+        // config, which also rewrote `serverName` — the TLS SNI of a hysteria2
+        // card. A node reached by name then presented its certificate for the
+        // name while the client asked for the IP, so the QUIC handshake died
+        // after the first flight: the node answered every packet and the client
+        // dropped every reply, retrying on a fresh socket each time. Only the
+        // address fields are pinned here; the TLS name stays exactly as the
+        // card states it.
+        val hostName = config.optString("hostName")
+        if (hostName.isNotEmpty()) {
             val ipAddress = parseInetAddress(hostName).ip
             if (hostName != ipAddress) {
-                xrayJsonConfigString = xrayJsonConfigString.replace(hostName, ipAddress)
+                pinEndpointAddress(xrayJsonConfig, hostName, ipAddress)
             }
         }
+        val xrayJsonConfigString = xrayJsonConfig.toString()
 
         start(xrayConfig, xrayJsonConfigString, vpnBuilder, protect)
         state.value = CONNECTED
         isRunning = true
+    }
+
+    // Rewrite the dial address of every outbound from `hostName` to `ip`,
+    // leaving `serverName`/`sni` untouched: those must keep the name the
+    // certificate was issued for.
+    private fun pinEndpointAddress(config: JSONObject, hostName: String, ip: String) {
+        fun rewrite(target: JSONObject) {
+            if (target.optString("address") == hostName) {
+                target.put("address", ip)
+            }
+        }
+
+        val outbounds = config.optJSONArray("outbounds") ?: return
+        for (i in 0 until outbounds.length()) {
+            val settings = outbounds.optJSONObject(i)?.optJSONObject("settings") ?: continue
+            rewrite(settings)
+            for (key in listOf("servers", "vnext")) {
+                val entries = settings.optJSONArray(key) ?: continue
+                for (j in 0 until entries.length()) {
+                    entries.optJSONObject(j)?.let { rewrite(it) }
+                }
+            }
+        }
     }
 
     private fun parseConfig(config: JSONObject, xrayJsonConfig: JSONObject): XrayConfig {
