@@ -1,6 +1,21 @@
 # HUMANS.md
 
 ## Current
+- **Релиз 4.8.14.192 собран частично (26.11):** коммиты `de28a841` (iOS: экспорт лога не роняет
+  share sheet) + `7843454b` (Android: адрес Hysteria2-эндпоинта пинится точечно, SNI не
+  переписывается), `dev` запушен. macOS arm64 + intel PKG — нотаризованы и stapled
+  (`Dopamine-{arm64,intel}-4.8.14.192.pkg`, 97 МБ), Android arm64 + armeabi-v7a APK
+  (`versionCode 2181`, подписаны `frkn-release-key`), всё скопировано в `frkn.org/dopamine/`.
+  Ссылки и release notes на сайте подняты до 192 (`dopamine/index.html`, `dopamine/en/index.html`),
+  **но не задеплоено** — ждёт MSI.
+  **Блокер:** Windows MSI — бокс HOME-PC ушёл в офлайн на середине сборки (обрыв SSH на
+  `10.100.100.119`, ping не отвечает, реверс-туннель `winbox` на api-хосте тоже мёртв).
+  Сборка была на 131/215. Репозиторий на боксе (`C:\dopamine-build`) уже на `7843454b`,
+  после возврата машины — просто `deploy\build_windows_local.bat`.
+  **iOS 192 не собран** — юзер собирает через Xcode (`build-ios-upload/`), профиль app group.
+  В 191 менялась только подпись (app-group), кода нет.
+  **Сделано по шардам в тот же день:** см. `env/HUMANS.md` — пул `fl` удалён из шарда `0001`,
+  hysteria2 снят с 0001 целиком (гранты + коннекты + `nl03`).
 - **Релиз 4.8.14.190 собран и выложен (25.11):** коммиты `2fbffbe7` + `f9a17fb5` (dev), сайт `a39b96d`.
   macOS arm64 + intel PKG (нотаризованы, stapled), Android arm64 + armeabi-v7a APK,
   Windows MSI `Dopamine-4.8.190-win64.msi` (**не подписан**: на HOME-PC нет сертификата),
